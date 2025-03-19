@@ -1,0 +1,64 @@
+{
+  "teachers": [
+    {
+      "teacher_ID": "T001",
+      "email": "juan.delacruz@school.com",
+      "password": "Teacher123!",
+      "firstName": "Juan",
+      "lastName": "Dela Cruz",
+      "middleName": "Santos",
+      "birthDate": "1985-06-15",
+      "sex": "Male",
+      "contactNumber": "09123456789",
+      "address": "123 Main Street, Manila, Philippines"
+    },
+    {
+      "teacher_ID": "T002",
+      "email": "maria.santos@school.com",
+      "password": "Teacher456!",
+      "firstName": "Maria",
+      "lastName": "Santos",
+      "middleName": "Garcia",
+      "birthDate": "1990-03-22",
+      "sex": "Female",
+      "contactNumber": "09187654321",
+      "address": "456 Rizal Avenue, Quezon City, Philippines"
+    },
+    {
+      "teacher_ID": "T003",
+      "email": "robert.reyes@school.com",
+      "password": "Teacher789!",
+      "firstName": "Robert",
+      "lastName": "Reyes",
+      "middleName": "Lim",
+      "birthDate": "1988-09-10",
+      "sex": "Male",
+      "contactNumber": "09198765432",
+      "address": "789 Bonifacio Street, Makati, Philippines"
+    },
+    {
+      "teacher_ID": "T004",
+      "email": "ana.garcia@school.com",
+      "password": "Teacher101!",
+      "firstName": "Ana",
+      "lastName": "Garcia",
+      "middleName": "Ramos",
+      "birthDate": "1992-12-05",
+      "sex": "Female",
+      "contactNumber": "09123456780",
+      "address": "321 Mabini Street, Pasig, Philippines"
+    },
+    {
+      "teacher_ID": "T005",
+      "email": "carlos.lim@school.com",
+      "password": "Teacher202!",
+      "firstName": "Carlos",
+      "lastName": "Lim",
+      "middleName": "Tan",
+      "birthDate": "1987-04-18",
+      "sex": "Male",
+      "contactNumber": "09187654320",
+      "address": "654 Luna Street, Mandaluyong, Philippines"
+    }
+  ]
+} 

@@ -1,10 +1,23 @@
 <template>
   <div class="absolute top-0 left-0 w-full bg-blue z-0">
-    <div class="flex justify-between items-center px-5 py-5 sm:ml-28 md:ml-50 lg:ml-50 md:px-5 lg:px-15">
+    <div class="flex justify-between items-center px-5 py-2 sm:ml-28 md:ml-50 lg:ml-50 md:px-5 lg:px-15">
       <h1 class="sm:text-2xl md:text-3xl lg:text-4xl font-semibold text-white">
-        Welcome Teacher Anna!
+        Welcome Teacher {{ teacherFirstName }}!
       </h1>
       <img class="h-[80px] md:h-[100px] lg:h-[120px]" src="/assets/img/header/logo.png" alt="Logo" />
     </div>
   </div>
 </template>
+
+<script setup>
+import { ref, onMounted } from 'vue';
+import teacherData from '@/data/teachers.json';
+
+const teacherFirstName = ref('');
+
+onMounted(() => {
+  if (teacherData.teachers && teacherData.teachers.length > 0) {
+    teacherFirstName.value = teacherData.teachers[0].firstName;
+  }
+});
+</script>
