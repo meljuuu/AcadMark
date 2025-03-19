@@ -1,7 +1,8 @@
 <template>
-  <div class="app-container">
-    <Sidebar v-if="!isLoginPage" />
-    <div class="content">
+  <div class="flex h-full">
+    <Sidebar class="z-10" v-if="!isLoginPage" />
+    <div class="grow">
+      <HeaderBar/>
       <router-view />
     </div>
   </div>
@@ -11,20 +12,7 @@
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import Sidebar from '@/components/sidebar.vue';
-
+import HeaderBar from '@/components/header.vue';
 const route = useRoute();
 const isLoginPage = computed(() => route.path === '/login');
 </script>
-
-<style>
-.app-container {
-  display: flex;
-  height: 100%;
-  /* Take full height of the parent */
-}
-
-.content {
-  flex-grow: 1;
-  padding: 20px;
-}
-</style>

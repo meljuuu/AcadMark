@@ -91,10 +91,12 @@ export default {
 </script>
 
 <style scoped>
+
+
 .login-container {
   display: flex;
   width: 100%;
-  height: 106.5%;
+  height: 100%;
   margin-top: -20px;
   margin-left: -20px;
   background-color: #547fad;
