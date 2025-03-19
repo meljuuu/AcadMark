@@ -1,20 +1,19 @@
 <template>
   <div class="app-container">
-    <Sidebar />
+    <Sidebar v-if="!isLoginPage" />
     <div class="content">
       <router-view />
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 import Sidebar from '@/components/sidebar.vue';
 
-export default {
-  components: {
-    Sidebar
-  }
-};
+const route = useRoute();
+const isLoginPage = computed(() => route.path === '/Login');
 </script>
 
 <style>
