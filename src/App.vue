@@ -13,7 +13,7 @@ import { useRoute } from 'vue-router';
 import Sidebar from '@/components/sidebar.vue';
 
 const route = useRoute();
-const isLoginPage = computed(() => route.path === '/Login');
+const isLoginPage = computed(() => route.path === '/login');
 </script>
 
 <style>
