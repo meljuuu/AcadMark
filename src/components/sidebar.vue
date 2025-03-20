@@ -1,5 +1,5 @@
 <template>
-  <div class="sm:w-[100px] md:w-1/5 lg:w-1/6 max-w-[210px] h-full bg-blue md:pt-15 sm:pt-5 rounded-tr-[30px]"
+  <div class="sm:w-[100px] md:w-1/5 lg:w-1/6 max-w-[210px] w-auto bg-blue md:pt-15 sm:pt-5 rounded-tr-[30px]"
     style="box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;">
 
     <!-- Profile Section -->

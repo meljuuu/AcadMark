@@ -4,7 +4,7 @@
     <Sidebar class="z-10" />
     <div class="grow">
       <HeaderBar />
-      <router-view class="ml-2 mt-34 px-[54px] py-[32px]" />
+      <router-view class="ml-2 mt-34 px-[54px] pt-[32px]" />
     </div>
   </div>
 </template>

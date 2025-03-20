@@ -79,11 +79,11 @@ import { ref, defineProps } from 'vue';
 const props = defineProps({
   showCurriculum: {
     type: Boolean,
-    default: true,
+    default: false,
   },
   showYear: {
     type: Boolean,
-    default: true,
+    default: false,
   },
   showAcademicTrack: {
     type: Boolean,
@@ -161,6 +161,13 @@ select {
   background-color: transparent; /* Optional: makes the background transparent */
   padding: 5px;
   font-weight: bold;
+  text-align: center;
+  max-width: max-content;
+}
+
+/* Remove focus outline (black border) on select */
+select:focus {
+    outline: none;
 }
 
 /* Styling for the label */
