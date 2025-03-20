@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6">
+  <div>
     <div class="flex justify-between items-center">
       <h1 class="title">Classes</h1>
       <div class="flex space-x-2 items-center">

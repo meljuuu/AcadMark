@@ -3,6 +3,7 @@ import dashboard from '@/views/dashboard.vue';
 import classes from '@/views/classes.vue';
 import profile from '@/views/profile.vue';
 import subject from '@/views/subject.vue';
+import login from '@/views/login.vue';
 
 const routes = [
     { path: '/', redirect: '/dashboard' }, 
@@ -11,6 +12,7 @@ const routes = [
     { path: '/classes', component: classes },
     { path: '/profile', component: profile },
     { path: '/subject', component: subject },
+    { path: '/', component: login } 
 ];
 
 const router = createRouter({

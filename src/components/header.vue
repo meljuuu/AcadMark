@@ -1,19 +1,24 @@
 <template>
-  <div class="absolute top-0 left-0 w-full bg-blue z-0">
-    <div class="flex justify-between items-center px-5 py-2 sm:ml-28 md:ml-50 lg:ml-50 md:px-5 lg:px-15">
-      <h1 class="sm:text-2xl md:text-3xl lg:text-4xl font-semibold text-white">
-        Welcome Teacher {{ teacherFirstName }}!
+  <div class="absolute top-0 left-0 w-full bg-blue z-0 h-[70px] md:h-[80px] lg:h-[90px] flex items-center px-5">
+    <div class="flex items-center w-full justify-between">
+      <!-- Welcome Message on the Left -->
+      <h1 class="sm:text-xl md:text-2xl lg:text-3xl font-semibold text-white text-left">
+        Welcome, Teacher {{ teacherFirstName }}!
       </h1>
-      <img class="h-[80px] md:h-[100px] lg:h-[120px]" src="/assets/img/header/logo.png" alt="Logo" />
+      <!-- Logo on the Right -->
+      <img class="h-[50px] md:h-[60px] lg:h-[70px]" src="/assets/img/header/logo.png" alt="Logo" />
     </div>
   </div>
 </template>
+
+
 
 <script setup>
 import { ref, onMounted } from 'vue';
 import teacherData from '@/data/teachers.json';
 
 const teacherFirstName = ref('');
+const sidebarVisible = ref(true); // Adjust based on actual sidebar visibility logic
 
 // Fetch teacher's first name based on the teacherID in localStorage
 onMounted(() => {
