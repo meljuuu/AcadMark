@@ -15,9 +15,14 @@ import teacherData from '@/data/teachers.json';
 
 const teacherFirstName = ref('');
 
+// Fetch teacher's first name based on the teacherID in localStorage
 onMounted(() => {
-  if (teacherData.teachers && teacherData.teachers.length > 0) {
-    teacherFirstName.value = teacherData.teachers[0].firstName;
+  const teacherID = localStorage.getItem('teacherID');
+  if (teacherID) {
+    const teacher = teacherData.teachers.find(t => t.teacher_ID === teacherID);
+    if (teacher) {
+      teacherFirstName.value = teacher.firstName;
+    }
   }
 });
 </script>

@@ -26,7 +26,7 @@
             "S090"
         ],
         "teacher_id": "T001",
-        "coor_id": "T003"
+        "coor_id": "T001"
     },
     {
         "subject_id": "SUB002",
@@ -55,7 +55,7 @@
             "S076"
         ],
         "teacher_id": "T002",
-        "coor_id": "T004"
+        "coor_id": "T003"
     },
     {
         "subject_id": "SUB003",
@@ -84,7 +84,7 @@
             "S005"
         ],
         "teacher_id": "T005",
-        "coor_id": "T006"
+        "coor_id": "T002"
     },
     {
         "subject_id": "SUB004",
@@ -112,8 +112,8 @@
             "S018",
             "S061"
         ],
-        "teacher_id": "T007",
-        "coor_id": "T008"
+        "teacher_id": "T002",
+        "coor_id": "T003"
     },
     {
         "subject_id": "SUB005",
@@ -142,7 +142,7 @@
             "S084"
         ],
         "teacher_id": "T001",
-        "coor_id": "T003"
+        "coor_id": "T001"
     },
     {
         "subject_id": "SUB006",
@@ -171,7 +171,7 @@
             "S073"
         ],
         "teacher_id": "T005",
-        "coor_id": "T006"
+        "coor_id": "T002"
     },
     {
         "subject_id": "SUB007",
@@ -228,8 +228,8 @@
             "S081",
             "S076"
         ],
-        "teacher_id": "T007",
-        "coor_id": "T008"
+        "teacher_id": "T002",
+        "coor_id": "T004"
     },
     {
         "subject_id": "SUB009",
@@ -257,8 +257,8 @@
             "S083",
             "S051"
         ],
-        "teacher_id": "T007",
-        "coor_id": "T008"
+        "teacher_id": "T002",
+        "coor_id": "T004"
     },
     {
         "subject_id": "SUB010",

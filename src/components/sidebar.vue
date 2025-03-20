@@ -25,30 +25,41 @@
 import { ref, computed, onMounted } from "vue";
 import teacherData from '@/data/teachers.json';
 
+// References and state variables
 const imageSrc = ref("../../public/assets/img/sidebar/Vector.png");
 const fileInput = ref(null);
 const currentTeacher = ref(null);
 
+// Navigation links
 const links = ref([
   { name: "Dashboard", path: "/dashboard", icon: "../../public/assets/img/sidebar/dashboard.png" },
   { name: "Classes", path: "/classes", icon: "../../public/assets/img/sidebar/classes.png" },
   { name: "Forms", path: "/profile", icon: "../../public/assets/img/sidebar/form.png" }
 ]);
 
+// Full name computed property
 const fullName = computed(() => {
   if (!currentTeacher.value) return '';
   const middleInitial = currentTeacher.value.middleName ? currentTeacher.value.middleName[0] + '.' : '';
   return `${currentTeacher.value.firstName} ${middleInitial} ${currentTeacher.value.lastName}`;
 });
 
+// Fetch teacher data from localStorage on mounted
 onMounted(() => {
-  if (teacherData.teachers && teacherData.teachers.length > 0) {
-    currentTeacher.value = teacherData.teachers[0];
+  const teacherID = localStorage.getItem('teacherID');
+  if (teacherID) {
+    // Find the teacher with the matching ID from teachers data
+    const teacher = teacherData.teachers.find(t => t.teacher_ID === teacherID);
+    if (teacher) {
+      currentTeacher.value = teacher;
+    }
   }
 });
 
+// Trigger file input to change profile picture
 const triggerFileInput = () => fileInput.value.click();
 
+// Handle image change for the profile picture
 const handleImageChange = (event) => {
   const file = event.target.files[0];
   if (file) {

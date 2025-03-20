@@ -10,27 +10,39 @@
     --breakpoint-lg: 64rem;
     --breakpoint-xl: 80rem;
     --breakpoint-2xl: 96rem;
+} 
+
+@layer components{
+    .nav-link {
+        color: white;
+        display: block;
+        width: 100%;
+        padding: 1rem 2rem;
+        display: flex;
+        transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+
+        @media (max-width: 48rem) {
+            /* sm */
+            padding: 0.5rem 1rem;
+            justify-content: center;
+        }
+
+        @media (max-width: 64rem) {
+            /* md */
+            padding: 0.5rem 1rem;
+        }
+
+        &:hover {
+            color: #bfdbfe;
+            background-color: #3E6FA2;
+        }
+    }
 }
 
-@utility nav-link {
-    color: white;
-    display: block;
-    width: 100%;
-    padding: 1rem 2rem;
-    display: flex;
-    transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
-    
-    @media (max-width: 48rem) { /* sm */
-    padding: 0.5rem 1rem;    
-    justify-content: center;
-    }
-
-    @media (max-width: 64rem) { /* md */
-    padding: 0.5rem 1rem;    
-}
-
-    &:hover {
-        color: #bfdbfe;
-        background-color: #3E6FA2;
-    }
+@layer components {
+    .title {
+        font-weight: bold;
+        color: #242424;
+        font-size:47px;
+        }
 }

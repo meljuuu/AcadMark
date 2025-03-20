@@ -8,7 +8,7 @@
         "gradeLevel": "Grade 11",
         "trackStand": "STEM",
         "teacher_id": "T001",
-        "coor_id": "T003"
+        "coor_id": "T002"
     },
     {
         "class_id": "C002",
@@ -19,7 +19,7 @@
         "gradeLevel": "Grade 12",
         "trackStand": "ABM",
         "teacher_id": "T002",
-        "coor_id": "T004"
+        "coor_id": "T003"
     },
     {
         "class_id": "C003",
@@ -30,7 +30,7 @@
         "gradeLevel": "Grade 10",
         "trackStand": "Sports",
         "teacher_id": "T005",
-        "coor_id": "T006"
+        "coor_id": "T004"
     },
     {
         "class_id": "C004",
@@ -40,7 +40,7 @@
         "semester": "2nd",
         "gradeLevel": "Grade 9",
         "trackStand": "TVL",
-        "teacher_id": "T007",
-        "coor_id": "T008"
+        "teacher_id": "T003",
+        "coor_id": "T005"
     }
 ]

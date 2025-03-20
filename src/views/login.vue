@@ -67,6 +67,9 @@ const login = () => {
   const teacher = teachers.value.find(t => t.email === email.value && t.password === password.value);
 
   if (teacher) {
+
+    localStorage.setItem('teacherID', teacher.teacher_ID);
+    
     emit('logged-in', {
       teacher_ID: teacher.teacher_ID,
       email: teacher.email,
