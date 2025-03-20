@@ -18,8 +18,7 @@
 
           <div class="input-group">
             <div class="password-field">
-              <input :type="showPassword ? 'text' : 'password'" v-model="password" placeholder="Enter Password"
-                required />
+              <input :type="showPassword ? 'text' : 'password'" v-model="password" placeholder="Enter Password" required />
               <label>Password</label>
               <span @click="togglePassword" class="toggle-password">
                 <img :src="showPassword ? '/assets/img/login/iconoir_eye.png' : '/assets/img/login/iconoir_eye.png'"
@@ -45,50 +44,42 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: "Login",
-  data() {
-    return {
-      email: "",
-      password: "",
-      showPassword: false,
-      rememberMe: false,
-      errorMessage: "",
-    };
-  },
-  methods: {
-    togglePassword() {
-      this.showPassword = !this.showPassword;
-    },
-    login() {
-      this.errorMessage = "";
+<script setup>
+import { ref, defineEmits } from 'vue';
+import teachersData from '../data/teachers.json'; 
 
-      const staticEmail = "admin@school.com";
-      const staticPassword = "TrustedAdmin";
+const emit = defineEmits(['logged-in']);
+const email = ref('');
+const password = ref('');
+const showPassword = ref(false);
+const rememberMe = ref(false);
+const errorMessage = ref('');
+const teachers = ref(teachersData.teachers); 
 
-      if (!this.email.includes("@")) {
-        this.errorMessage = "Invalid email format. Please enter a valid email.";
-        return;
-      }
+const togglePassword = () => {
+  showPassword.value = !showPassword.value;
+};
 
-      if (this.password.length < 6) {
-        this.errorMessage = "Password must be at least 6 characters long.";
-        return;
-      }
+const login = () => {
+  errorMessage.value = '';
 
-      if (this.email === staticEmail && this.password === staticPassword) {
-        console.log("Login successful!");
-        localStorage.setItem("userToken", "your_token_here");
 
-        this.$router.push("/dashboard");
-      } else {
-        this.errorMessage = "Invalid email or password. Please try again.";
-      }
-    },
-  },
+  const teacher = teachers.value.find(t => t.email === email.value && t.password === password.value);
+
+  if (teacher) {
+    emit('logged-in', {
+      teacher_ID: teacher.teacher_ID,
+      email: teacher.email,
+      firstName: teacher.firstName,
+      lastName: teacher.lastName
+    }); 
+  } else {
+    errorMessage.value = 'Invalid email or password. Please try again.';
+  }
 };
 </script>
+
+
 
 <style scoped>
 
