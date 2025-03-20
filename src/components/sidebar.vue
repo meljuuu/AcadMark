@@ -1,8 +1,7 @@
 <template>
-  <div class="sm:w-[100px] md:w-1/5 lg:w-1/6 max-w-[210px] w-auto bg-blue md:pt-15 sm:pt-5 rounded-tr-[30px]"
+  <div class="sticky top-0 sm:w-[100px] md:w-1/5 lg:w-1/6 max-w-[210px] w-auto bg-blue md:pt-15 sm:pt-5 rounded-tr-[30px] h-full overflow-y-auto"
     style="box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;">
 
-    <!-- Profile Section -->
     <div class="flex flex-col items-center m-4 gap-8">
       <img :src="imageSrc" alt="Teacher" class="w-[130px] h-[130px] rounded-full object-contain cursor-pointer"
         @click="triggerFileInput" />
@@ -11,7 +10,6 @@
       <div class="w-full border-b border-[#A6ACAF]"></div>
     </div>
 
-    <!-- Navigation Links -->
     <nav class="flex flex-col w-full mt-5">
       <router-link v-for="(link, index) in links" :key="index" :to="link.path" class="nav-link">
         <img :src="link.icon" :alt="link.name" class="w-6 h-6 mr-2 sm:hidden md:block" />
@@ -20,6 +18,7 @@
     </nav>
   </div>
 </template>
+
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
