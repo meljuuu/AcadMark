@@ -1,0 +1,46 @@
+[
+    {
+        "class_id": "C001",
+        "className": "Mabini",
+        "section": "A",
+        "schoolYear": "2023-2024",
+        "semester": "1st",
+        "gradeLevel": "Grade 11",
+        "trackStand": "STEM",
+        "teacher_id": "T001",
+        "coor_id": "T003"
+    },
+    {
+        "class_id": "C002",
+        "className": "Rizal",
+        "section": "B",
+        "schoolYear": "2023-2024",
+        "semester": "2nd",
+        "gradeLevel": "Grade 12",
+        "trackStand": "ABM",
+        "teacher_id": "T002",
+        "coor_id": "T004"
+    },
+    {
+        "class_id": "C003",
+        "className": "Sampaguita",
+        "section": "C",
+        "schoolYear": "2024-2025",
+        "semester": "1st",
+        "gradeLevel": "Grade 10",
+        "trackStand": "Sports",
+        "teacher_id": "T005",
+        "coor_id": "T006"
+    },
+    {
+        "class_id": "C004",
+        "className": "Dahlia",
+        "section": "D",
+        "schoolYear": "2024-2025",
+        "semester": "2nd",
+        "gradeLevel": "Grade 9",
+        "trackStand": "TVL",
+        "teacher_id": "T007",
+        "coor_id": "T008"
+    }
+]
