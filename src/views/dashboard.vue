@@ -72,12 +72,12 @@ const blocks = ref([
 
 
 const sections = ref([
-  { name: 'Section A', totalStudents: 40, male: 20, female: 20, academicTrack: 'STEM', grade: 10, classType: 'Regular' },
-  { name: 'Section B', totalStudents: 35, male: 17, female: 18, academicTrack: 'ABM', grade: 11, classType: 'Special' },
-  { name: 'Section C', totalStudents: 45, male: 22, female: 23, academicTrack: 'GAS', grade: 12, classType: 'Regular' },
-  { name: 'Section D', totalStudents: 50, male: 25, female: 25, academicTrack: 'STEM', grade: 15, classType: 'Regular' },
-  { name: 'Section E', totalStudents: 30, male: 12, female: 18, academicTrack: 'ABM', grade: 9, classType: 'Special' },
-  { name: 'Section F', totalStudents: 55, male: 28, female: 27, academicTrack: 'GAS', grade: 14, classType: 'Regular' }
+  { name: 'Section A', totalStudents: 40, male: 20, female: 20, academicTrack: 'STEM', grade: 10, classType: 'Advisory' },
+  { name: 'Section B', totalStudents: 35, male: 17, female: 18, academicTrack: 'ABM', grade: 11, classType: 'Subject' },
+  { name: 'Section C', totalStudents: 45, male: 22, female: 23, academicTrack: 'GAS', grade: 12, classType: 'Subject' },
+  { name: 'Section D', totalStudents: 50, male: 25, female: 25, academicTrack: 'STEM', grade: 15, classType: 'Subject' },
+  { name: 'Section E', totalStudents: 30, male: 12, female: 18, academicTrack: 'ABM', grade: 9, classType: 'Subject' },
+  { name: 'Section F', totalStudents: 55, male: 28, female: 27, academicTrack: 'GAS', grade: 14, classType: 'Subject' }
 ]);
 </script>
 
