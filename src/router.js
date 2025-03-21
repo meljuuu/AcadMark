@@ -1,18 +1,20 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import dashboard from '@/views/dashboard.vue';
-import classes from '@/views/classes.vue';
-import profile from '@/views/profile.vue';
-import subject from '@/views/subject.vue';
-import login from '@/views/login.vue';
+import Dashboard from '@/views/Dashboard.vue';
+import Classes from '@/views/classes/Classes.vue';
+import Class from '@/views/classes/Class.vue';
+import Profile from '@/views/Forms.vue';
+import Subject from '@/views/Subject.vue';
+import Login from '@/views/Login.vue';
 
 const routes = [
-    { path: '/', redirect: '/dashboard' }, 
-    { path: '/dashboard', component: dashboard },
-    { path: '/Dashboard', redirect: '/dashboard' },
-    { path: '/classes', component: classes },
-    { path: '/profile', component: profile },
-    { path: '/subject', component: subject },
-    { path: '/', component: login } 
+    { path: '/', redirect: '/Dashboard' }, 
+    { path: '/Dashboard', component: Dashboard },
+    { path: '/Dashboard', redirect: '/Dashboard' },
+    { path: '/Classes', component: Classes },
+    { path: '/Class', component: Class },
+    { path: '/Profile', component: Profile },
+    { path: '/Subject', component: Subject },
+    { path: '/', component: Login } 
 ];
 
 const router = createRouter({
