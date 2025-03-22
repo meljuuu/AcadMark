@@ -1,5 +1,5 @@
 <template>
-  <div class="overflow-x-auto">
+  <div>
     <h1 class="title">Dashboard</h1>
 
     <div class="bg-[#fff] px-20 py-10 gap-7 flex flex-col rounded-[10px]"
@@ -108,4 +108,4 @@ th {
 td {
   font-weight: 500;
 }
-</style>
+</style>``

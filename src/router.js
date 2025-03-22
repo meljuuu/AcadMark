@@ -3,7 +3,6 @@ import Dashboard from '@/views/Dashboard.vue';
 import Classes from '@/views/classes/Classes.vue';
 import Class from '@/views/classes/Class.vue';
 import Profile from '@/views/Forms.vue';
-import Subject from '@/views/Subject.vue';
 import Login from '@/views/Login.vue';
 
 const routes = [
@@ -13,7 +12,6 @@ const routes = [
     { path: '/Classes', component: Classes },
     { path: '/Class', component: Class },
     { path: '/Profile', component: Profile },
-    { path: '/Subject', component: Subject },
     { path: '/', component: Login } 
 ];
 

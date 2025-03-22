@@ -1,6 +1,6 @@
 <template>
   <Login v-if="isLoginPage" @logged-in="handleLogin" />
-  <div v-else class="flex h-full">
+  <div v-else class="flex min-h-screen">
     <Sidebar class="z-10" />
     <div class="grow">
       <HeaderBar />
