@@ -4,16 +4,13 @@
         <button class="bg-blue px-8 py-2 mx-12 mt-5 rounded-md">
             <p class="text-white font-semibold  text-xs">LIS</p>
         </button>
-        <!-- Check if subject_id is available -->
         <p v-if="!subject_id">Subject ID is not available</p>
 
-        <!-- Render the list of students if subject_id is available -->
         <div v-else>
             <p v-if="studentsInSubject.length === 0">No students available for this subject.</p>
 
             <div v-else>
 
-                <!-- Table container with a fixed height and scrollable if needed -->
                 <div class="table-container">
                     <table>
                         <thead>
@@ -52,12 +49,11 @@ import students from '../../data/students.json';
 
 export default {
     props: {
-        subject_id: String, // Make sure this prop is passed correctly
+        subject_id: String, 
     },
     setup(props) {
-        const studentsInSubject = ref([]); // Store filtered students here
+        const studentsInSubject = ref([]); 
 
-        // Function to calculate age from birthdate
         const calculateAge = (birthdate) => {
             const today = new Date();
             const birthDate = new Date(birthdate);
@@ -70,11 +66,9 @@ export default {
         };
 
         onMounted(() => {
-            // Find the subject using the subject_id prop
             const subject = subjects.find(sub => sub.subject_id === props.subject_id);
 
             if (subject) {
-                // Get the students enrolled in this subject
                 studentsInSubject.value = students.filter(student =>
                     subject.student_id.includes(student.student_id)
                 );
@@ -92,9 +86,7 @@ export default {
 <style scoped>
 .table-container {
     max-height: 300px;
-    /* Adjust height as needed */
     overflow-y: auto;
-    /* Enable vertical scrolling when content overflows */
     margin-top: 20px;
 }
 
@@ -106,10 +98,8 @@ table {
 th,
 td {
     text-align: center;
-    /* Center content */
     padding: 8px;
     border: none;
-    /* Remove table lines */
 }
 
 th {
@@ -117,11 +107,8 @@ th {
     font-weight: bold;
     position: sticky;
     color: #464F60;
-    /* Make the header sticky */
     top: 0px;
     padding:10px;
-    /* Set the sticky position at the top */
     z-index: 1;
-    /* Ensure the header is above the table body */
 }
 </style>
