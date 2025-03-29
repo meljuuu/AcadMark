@@ -46,7 +46,6 @@ const links = ref([
   { name: "Dashboard", path: "/dashboard", icon: "assets/img/sidebar/dashboard.png" },
   { name: "Classes", path: "/classes", icon: "assets/img/sidebar/classes.png" },
   { name: "Forms", path: "/profile", icon: "assets/img/sidebar/form.png" },
-  { name: "Class", path: "/class", icon: "assets/img/sidebar/form.png" }
 ]);
 
 const fullName = computed(() => {

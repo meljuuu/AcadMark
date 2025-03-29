@@ -10,7 +10,12 @@ const routes = [
     { path: '/Dashboard', component: Dashboard },
     { path: '/Dashboard', redirect: '/Dashboard' },
     { path: '/Classes', component: Classes },
-    { path: '/Class', component: Class },
+    {
+        path: '/class/:trackStand/:className/:subjectName/:gradeLevel/:subject_id',
+        name: 'class',
+        component: Class,
+        props: true, 
+    },
     { path: '/Profile', component: Profile },
     { path: '/', component: Login } 
 ];

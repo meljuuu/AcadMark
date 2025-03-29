@@ -90,7 +90,7 @@ const login = () => {
 .login-container {
   display: flex;
   width: 100%;
-  height: 100%;
+  height: 100vh;
   margin-top: -20px;
   margin-left: -20px;
   background-color: #547fad;
