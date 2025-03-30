@@ -1,11 +1,11 @@
 <template>
-    <div class="rounded-3xl" style="box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;">
-        <div class="relative w-sm border-[1px] rounded-3xl overflow-hidden border-[#c0c0c0]">
+    <div class="rounded-xl" style="box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;">
+        <div class="relative w-sm border-[1px] rounded-xl overflow-hidden border-[#c0c0c0]">
             <div class="p-5 relative z-10">
-                <p class="text-base font-medium" :class="cardColor.text">TVL-EIM</p>
-                <p class="text-5xl font-medium" :class="cardColor.text">Einstein</p>
-                <p class="italic text-lg font-regular" :class="cardColor.text">English</p>
-                <p class="text-base font-light" :class="cardColor.text">Senior High Grade 12</p>
+                <p class="text-base font-medium" :class="cardColor.text">{{ trackStand }}</p>
+                <p class="text-5xl font-medium" :class="cardColor.text">{{ className }}</p>
+                <p class="italic text-lg font-regular" :class="cardColor.text">{{ subjectName }}</p>
+                <p class="text-base font-light" :class="cardColor.text">{{ formattedGradeLevel }}</p>
             </div>
 
             <!-- Image wrapper with opacity -->
@@ -13,9 +13,10 @@
                 <img class="opacity-50 h-50 absolute top-5 right-[-55px]" src="/assets/img/logo.png" alt="" />
             </div>
 
-            <div class="rounded-b-3xl flex justify-between items-center p-5 relative z-10" :class="cardColor.bg">
+            <div class="rounded-b-xl flex justify-between items-center p-5 relative z-10" :class="cardColor.bg">
                 <p class="text-base font-semibold text-white">{{ cardTitle }}</p>
-                <p class="text-light text-base text-white border-white border-[1px] py-2 px-7 rounded-xl">
+                <p @click="goToClass"
+                    class="text-light text-base text-white border-white border-[1px] py-2 px-7 rounded-xl cursor-pointer">
                     Enter
                 </p>
             </div>
@@ -29,7 +30,27 @@ export default {
     props: {
         type: {
             type: String,
-            required: true, // Must be passed as a prop
+            required: true,
+        },
+        trackStand: {
+            type: String,
+            required: true,
+        },
+        className: {
+            type: String,
+            required: true,
+        },
+        subjectName: {
+            type: String,
+            required: true,
+        },
+        gradeLevel: {
+            type: [String, Number],
+            required: true,
+        },
+        subject_id: {  // Add subject_id as a prop
+            type: String,
+            required: true,
         },
     },
     computed: {
@@ -41,6 +62,30 @@ export default {
         cardTitle() {
             return this.type === "Advisory" ? "Advisory Class" : "Subject Class";
         },
+        formattedGradeLevel() {
+            const grade = Number(this.gradeLevel);
+            if (grade >= 7 && grade <= 10) {
+                return `High School Grade ${grade}`;
+            } else if (grade === 11 || grade === 12) {
+                return `Senior High Grade ${grade}`;
+            }
+            return `Grade ${grade}`;
+        },
     },
+    methods: {
+        goToClass() {
+            // Navigating to the Class.vue component with the current card data
+            this.$router.push({
+                name: 'class',
+                params: {
+                    trackStand: this.trackStand,
+                    className: this.className,
+                    subjectName: this.subjectName,
+                    subject_id: this.subject_id,
+                    gradeLevel: this.gradeLevel,
+                }
+            });
+        }
+    }
 };
 </script>

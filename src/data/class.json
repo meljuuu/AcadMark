@@ -1,46 +1,63 @@
 [
     {
         "class_id": "C001",
-        "className": "Mabini",
+        "className": "AIRE",
         "section": "A",
         "schoolYear": "2023-2024",
         "semester": "1st",
         "gradeLevel": "11",
         "trackStand": "STEM",
         "teacher_id": "T001",
-        "coor_id": "T002"
+        "coor_id": "T002",
+        "classType":"Advisory",
+        "subject_id": "SUB001"
     },
     {
         "class_id": "C002",
-        "className": "Rizal",
+        "className": "TIERRA",
         "section": "B",
         "schoolYear": "2023-2024",
         "semester": "2nd",
         "gradeLevel": "12",
         "trackStand": "ABM",
         "teacher_id": "T002",
-        "coor_id": "T003"
+        "coor_id": "T003",
+        "subject_id": "SUB002"
     },
     {
         "class_id": "C003",
-        "className": "Sampaguita",
+        "className": "THEGO",
         "section": "C",
         "schoolYear": "2024-2025",
         "semester": "1st",
         "gradeLevel": "10",
         "trackStand": "Sports",
         "teacher_id": "T005",
-        "coor_id": "T004"
+        "coor_id": "T004",
+        "subject_id": "SUB003"
     },
     {
         "class_id": "C004",
-        "className": "Dahlia",
+        "className": "FAVILLA",
         "section": "D",
         "schoolYear": "2024-2025",
         "semester": "2nd",
         "gradeLevel": "9",
         "trackStand": "TVL",
         "teacher_id": "T003",
-        "coor_id": "T005"
+        "coor_id": "T005",
+        "subject_id": "SUB004"
+    },
+    {
+        "class_id": "C005",
+        "className": "SILANG",
+        "section": "E",
+        "schoolYear": "2024-2025",
+        "semester": "2nd",
+        "gradeLevel": "8",
+        "trackStand": "EIM",
+        "teacher_id": "T003",
+        "coor_id": "T001",
+        "subject_id": "SUB005"
     }
 ]
