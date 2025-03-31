@@ -88,12 +88,7 @@ const login = () => {
 .login-container {
   display: flex;
   width: 100%;
-<<<<<<< HEAD
-  height: 100%;
-=======
   height: 100vh;
-  margin-top: -20px;
->>>>>>> be92557ce863a801b4f9d7f1f1b3b81dd423f3c4
   margin-left: -20px;
   background-color: #547fad;
   overflow: hidden;
