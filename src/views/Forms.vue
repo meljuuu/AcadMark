@@ -19,8 +19,8 @@
       </div>
 
       <div class="main">
-        <h2 class="student-title">STUDENT INFO</h2>
-
+        <h2 class="student-titles">STUDENT INFO</h2>
+        s
         <div class="grades-header">
           <h2 class="grades-title">GRADES</h2>
           <div class="modal-buttons">
