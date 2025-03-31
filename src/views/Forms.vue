@@ -80,7 +80,7 @@ export default {
 .advisory {
   position: absolute;
   top: 100px;
-  right: 20px;
+  right: 50px;
   font-size: 128px;
   font-weight: bold;
   opacity: 0.15;
@@ -97,7 +97,6 @@ export default {
 .search-bar {
   position: relative;
   width: 100%;
-  max-width: 400px;
   border: 1px solid #ccc;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
