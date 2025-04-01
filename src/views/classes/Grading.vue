@@ -1,9 +1,10 @@
 <template>
     <div class="flex max-h-[412px]">
         <!-- Left Section: Student Selection -->
-        <div class="px-5 py-3">
+        <div class="px-5 py-3 border-r border-[#d0d0d0]">
             <div class="flex items-center gap-5">
-                <Dropdown :showQuarter="true" :show-mark-status="true" v-model="selectedQuarter" />
+                <Dropdown :showQuarter="true" v-model="selectedQuarter" />
+                <Dropdown :showMarkStatus="true" v-model="selectedMarkStatus" />
                 <p class="font-semibold text-lg">{{ formattedDate }}</p>
             </div>
 
@@ -15,12 +16,16 @@
             </div>
 
             <!-- Displaying Student Names Dynamically -->
-            <div v-if="studentsInSubject.length > 0" class="mt-4 overflow-y-auto max-h-[300px]">
+            <div v-if="filteredStudents.length > 0" class="mt-4 overflow-y-auto max-h-[230px]">
                 <ul>
-                    <li v-for="(student, index) in studentsInSubject" :key="index"
-                        class="flex justify-between py-2 mr-3" @click="setStudentInfo(index)">
+                    <li v-for="(student, index) in filteredStudents" :key="index" class="flex justify-between py-2 mr-3"
+                        @click="setStudentInfo(index)">
                         <div class="flex items-center gap-5 cursor-pointer">
-                            <div class="bg-[#23AD00] w-5 h-5 rounded-2xl"></div>
+                            <!-- Conditional background color based on grade presence for the current quarter -->
+                            <div :class="{
+                                'bg-[#23AD00]': student.grades[quarterMapping[selectedQuarter]] !== null && student.grades[quarterMapping[selectedQuarter]] !== '',
+                                'bg-red-500': !student.grades[quarterMapping[selectedQuarter]]
+                            }" class="w-5 h-5 rounded-2xl"></div>
                             <p class="font-medium text-base">{{ student.lastName + ", " + student.firstName + " " +
                                 student.middleName }}</p>
                         </div>
@@ -31,15 +36,22 @@
                 </ul>
             </div>
 
+
             <p v-else class="mt-4 text-red-500">No students found for this subject.</p>
+
+            <div class="flex justify-end mt-2 mr-5">
+                <button
+                    class="bg-blue px-3 py-2 text-xs font-semibold text-white rounded-sm hover:bg-[#cecece] cursor-pointer"
+                    @click="submitGrades">Submit Grades</button>
+            </div>
         </div>
 
         <!-- Right Section: Student Info and Grading -->
-        <div class="gap-4 flex flex-col mx-5 my-3 flex-1">
+        <div class="gap-3 flex flex-col mx-5 my-3 flex-1">
             <p class="text-blue font-semibold text-2xl">STUDENT INFO</p>
             <div class="flex flex-col gap-3">
                 <div class="flex gap-10">
-                    <div class="flex flex-col gap-2">
+                    <div class="flex flex-col gap-1">
                         <div>
                             <p class="text-blue text-xs font-bold">Student Name</p>
                             <p class="text-2xl font-medium">{{ selectedStudent ? selectedStudent.firstName + " " +
@@ -50,24 +62,43 @@
                             <p class="text-2xl font-medium">{{ selectedStudent ? selectedStudent.lrn : 'N/A' }}</p>
                         </div>
                     </div>
-                    <div>
-                        <p class="text-blue text-xs font-bold">Sex</p>
-                        <p class="text-2xl font-medium">{{ selectedStudent ? selectedStudent.sex : 'N/A' }}</p>
+                    <div class="flex flex-col gap-1">
+                        <div>
+                            <p class="text-blue text-xs font-bold">Sex</p>
+                            <p class="text-2xl font-medium">{{ selectedStudent ? selectedStudent.sex : 'N/A' }}</p>
+                        </div>
+                        <div>
+                            <p class="text-blue text-xs font-bold">Curriculum</p>
+                            <p class="text-2xl font-medium">{{ selectedStudent ? selectedStudent.curriculum : 'N/A' }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <div>
+                            <p class="text-blue text-xs font-bold">Birthdate</p>
+                            <p class="text-2xl font-medium">{{ selectedStudent ? selectedStudent.birthDate : 'N/A' }}
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-blue text-xs font-bold">Academic Track</p>
+                            <p class="text-2xl font-medium">{{ trackStand }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <p class="text-blue font-semibold text-2xl">GRADING</p>
-            <div class="flex flex-col gap-4">
+            <div class="flex flex-col gap-3">
                 <div class="flex gap-5">
                     <div>
                         <p class="text-blue text-xs font-bold">Quarter Grade</p>
-                        <input type="text" class="border-[1px] w-35 h-9" v-model="Grade" />
+                        <input type="text" class="border-[1px] w-35 h-9 text-center" v-model="Grade" />
                     </div>
                     <div>
                         <p class="text-blue text-xs font-bold">Remarks</p>
                         <div class="w-35 h-9 border-[1px] rounded-[5px] items-center justify-center flex">
-                            <p class="font-bold text-green-500">Passed</p>
+                            <!-- Dynamically show Passed or Failed -->
+                            <p class="font-bold" :class="remarksClass">{{ remarks }}</p>
                         </div>
                     </div>
                 </div>
@@ -75,7 +106,8 @@
                 </p>
             </div>
 
-            <button class="bg-blue max-w-28 h-8 rounded-md text-white font-semibold text-md mt-2"
+            <button
+                class="bg-blue max-w-28 h-8 rounded-md text-white font-semibold text-md hover:bg-[#cecece] cursor-pointer"
                 @click="saveGrades">Save</button>
 
             <!-- Pagination Controls -->
@@ -109,6 +141,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import subjects from '../../data/subjects.json';
 import students from '../../data/students.json';
 import Dropdown from '../../components/dropdown.vue';
+import { computed } from 'vue';
 
 const props = defineProps({
     trackStand: String,
@@ -123,6 +156,7 @@ const selectedStudent = ref(null);
 const currentIndex = ref(0);
 const Grade = ref("");
 const selectedQuarter = ref("1st");
+const selectedMarkStatus = ref("");
 
 const quarterMapping = {
     "1st": "first",
@@ -133,13 +167,11 @@ const quarterMapping = {
 
 const loadGrade = () => {
     if (selectedStudent.value) {
-        const studentGrades = selectedStudent.value.grades;
         const gradeKey = quarterMapping[selectedQuarter.value];
-        if (gradeKey) {
-            Grade.value = studentGrades[gradeKey] || "";
-        }
+        Grade.value = selectedStudent.value.grades[gradeKey] || "";  // Set the grade of the currently selected student
     }
 };
+
 
 watch(selectedQuarter, loadGrade);
 watch(currentIndex, () => {
@@ -157,16 +189,21 @@ async function loadSubjectData() {
         console.log("Stored Data:", storedData);
 
         if (storedData) {
+            // Parse the stored data from AsyncStorage
             studentsInSubject.value = JSON.parse(storedData);
         } else {
+            // If no data is found in AsyncStorage, fallback to loading students from JSON
             const subject = subjects.find(sub => sub.subject_id === props.subject_id);
             if (subject) {
+                // Filter students based on the subject's student IDs and set them into the state
                 studentsInSubject.value = students.filter(student => subject.student_id.includes(student.student_id))
                     .map(student => ({
                         ...student,
                         selected: false,
-                        grades: student.grades || { "1st": null, "2nd": null, "3rd": null, "4th": null }
+                        grades: student.grades || { "1st": null, "2nd": null, "3rd": null, "4th": null }  // Default grades per subject
                     }));
+
+                // Save the data into AsyncStorage
                 await AsyncStorage.setItem(`subject_${props.subject_id}`, JSON.stringify(studentsInSubject.value));
             }
         }
@@ -183,7 +220,6 @@ async function loadSubjectData() {
     }
 }
 
-
 function setStudentInfo(index) {
     currentIndex.value = index;
     selectedStudent.value = studentsInSubject.value[index];
@@ -192,18 +228,21 @@ function setStudentInfo(index) {
 
 function saveGrades() {
     if (selectedStudent.value) {
-        const grade = {
-            first: selectedQuarter.value === "1st" ? Grade.value : selectedStudent.value.grades.first,
-            second: selectedQuarter.value === "2nd" ? Grade.value : selectedStudent.value.grades.second,
-            third: selectedQuarter.value === "3rd" ? Grade.value : selectedStudent.value.grades.third,
-            fourth: selectedQuarter.value === "4th" ? Grade.value : selectedStudent.value.grades.fourth
-        };
+        const gradeKey = quarterMapping[selectedQuarter.value];
 
-        selectedStudent.value.grades = grade;
+        // Ensure the student's grade is stored correctly
+        studentsInSubject.value[currentIndex.value].grades[gradeKey] = Grade.value;
+
+        // Save to AsyncStorage
         AsyncStorage.setItem(`subject_${props.subject_id}`, JSON.stringify(studentsInSubject.value));
-        AsyncStorage.setItem(`grade_${props.subject_id}_${selectedQuarter.value}`, Grade.value);
+        AsyncStorage.setItem(`submittedgrade_${props.subject_id}`, JSON.stringify(studentsInSubject.value));
+
+        console.log(`Updated Grade for ${selectedStudent.value.firstName} ${selectedStudent.value.lastName}: ${Grade.value}`);
     }
 }
+
+
+
 
 function toggleSelectAll() {
     studentsInSubject.value.forEach(student => {
@@ -228,4 +267,125 @@ function prevStudent() {
 }
 
 onMounted(loadSubjectData);
+
+const filteredStudents = computed(() => {
+    return studentsInSubject.value.filter(student => {
+        const studentGrade = student.grades[quarterMapping[selectedQuarter.value]];
+
+        if (selectedMarkStatus.value === 'Marked') {
+            // Only show students who have a grade for the selected quarter
+            return studentGrade !== null && studentGrade !== '';
+        } else if (selectedMarkStatus.value === 'Unmarked') {
+            // Only show students who don't have a grade for the selected quarter
+            return studentGrade === null || studentGrade === '';
+        }
+        return true; // Default to showing all students if no mark status is selected
+    });
+});
+
+const remarks = computed(() => {
+    // If grade is empty, show nothing, otherwise show "Passed" or "Failed"
+    if (!Grade.value) {
+        return "";
+    }
+    return Grade.value <= 75 ? "Failed" : "Passed";
+});
+
+const remarksClass = computed(() => {
+    // Apply colors only if grade is not empty
+    if (!Grade.value) {
+        return "";
+    }
+    return Grade.value <= 75 ? "text-red-500" : "text-green-500"; // red for "Failed", green for "Passed"
+});
+function submitGrades() {
+    console.log("Submit Grades clicked");
+
+    const selectedStudents = studentsInSubject.value.filter(student => student.selected);
+
+    // Log the selected students
+    console.log("Selected students:", selectedStudents);
+
+    // If no students are selected, show a warning and return
+    if (selectedStudents.length === 0) {
+        alert("Please select students to submit grades.");
+        return;
+    }
+
+    // Remove the previous submitted grades data for this subject
+    AsyncStorage.removeItem(`submittedGrade_${props.subject_id}`)
+        .then(() => {
+            console.log("Previous submitted grades removed");
+
+            // Now, proceed with updating the grades for the selected students
+            selectedStudents.forEach(student => {
+                // Initialize grades if not already
+                if (!student.grades) {
+                    console.log("Initializing grades for student:", student.firstName, student.lastName);
+                    student.grades = {
+                        first: null,
+                        second: null,
+                        third: null,
+                        fourth: null,
+                    };
+                }
+
+                // Log before assigning the grade
+                console.log(`Assigning grade for ${student.firstName} ${student.lastName} - Grade: ${student.grade}`);
+
+                // Assign the grade to the correct quarter based on the selected quarter
+                student.grades = student.grades || null;  // Just keep the entire grades object
+
+                // Log the grades after assignment
+                console.log(`Updated grades for ${student.firstName} ${student.lastName}:`, student.grades);
+            });
+
+            // Log what will be stored in AsyncStorage
+            console.log("Updated students with grades:", selectedStudents);
+
+            // Save the updated students data into AsyncStorage for the specific subject
+            AsyncStorage.setItem(`subject_${props.subject_id}`, JSON.stringify(studentsInSubject.value))
+                .then(() => {
+                    console.log("Updated students data saved in AsyncStorage under 'subject_'");
+                })
+                .catch(error => {
+                    console.error("Error saving students data to AsyncStorage:", error);
+                });
+
+            // Store the entire data of selected students in `submittedGrade`
+            AsyncStorage.setItem(`submittedGrade_${props.subject_id}`, JSON.stringify(selectedStudents))
+                .then(() => {
+                    console.log("Submitted grades saved to AsyncStorage under 'submittedGrade_'");
+                })
+                .catch(error => {
+                    console.error("Error saving submitted grades to AsyncStorage:", error);
+                });
+
+            console.log(`Grades submitted for students: ${selectedStudents.map(student => student.firstName + " " + student.lastName).join(", ")}`);
+            const submittedGrades = studentsInSubject.value.filter(student => student.selected);
+            const submittedGradeSubjectKey = `submittedGrade_${props.subject_id}`;
+            console.log(`Submitted Grades for Subject ${props.subject_id}:`, submittedGrades);
+            console.log(`Logged as ${submittedGradeSubjectKey}`);
+        })
+        .catch(error => {
+            console.error("Error removing previous submitted grades:", error);
+        });
+}
+
+const showAllLocalStorage = () => {
+    const length = localStorage.length;
+    for (let i = 0; i < length; i++) {
+        const key = localStorage.key(i);
+        const value = localStorage.getItem(key);
+        console.log(`Key: ${key}, Value: ${value}`);
+    }
+};
+
+// Call showAllLocalStorage when the component is mounted
+onMounted(() => {
+    showAllLocalStorage();
+});
+
+
+
 </script>

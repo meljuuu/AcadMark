@@ -1,12 +1,154 @@
 <template>
-    <div>
-        <h1>Summary Page</h1>
-        <p>Welcome to the Summary page!</p>
+    <div class="flex justify-between m-5">
+        <div class="flex justify-between w-90">
+            <Dropdown :showQuarter="true" v-model="selectedQuarter" />
+            <Dropdown :showSort="true" v-model="selectedSort" />
+        </div>
+
+        <div class="flex w-1/2 justify-between">
+            <Searchbar v-model="searchQuery" />
+            <button @click="generateCSV" class="bg-[#30612E] text-white px-5 py-1 rounded-md">Generate Report</button>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto p-5 rounded-[5px]">
+        <table class="w-full border-collapse border-none rounded-[5px]">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th v-for="header in headers" :key="header"
+                        class="px-4 py-2 text-[#464F60] text-[16px] font-semibold text-center">
+                        {{ header }}
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="text-center font-medium">
+                <tr v-if="filteredStudents.length === 0">
+                    <td colspan="8" class="px-4 py-2">No students available.</td>
+                </tr>
+                <tr v-for="student in filteredStudents" :key="student.lrn">
+                    <td class="px-4 py-2">{{ student.lrn }}</td>
+                    <td class="px-4 py-2">{{ student.lastName + ", " + student.firstName + " " + student.middleName }}
+                    </td>
+                    <td class="px-4 py-2">{{ student.gender }}</td>
+                    <td class="px-4 py-2">{{ getGradeForQuarter(student, "first") }}</td>
+                    <td class="px-4 py-2">{{ getGradeForQuarter(student, "second") }}</td>
+                    <td class="px-4 py-2">{{ getGradeForQuarter(student, "third") }}</td>
+                    <td class="px-4 py-2">{{ getGradeForQuarter(student, "fourth") }}</td>
+                    <td class="px-4 py-2">{{ getFinalGrade(student) }}</td>
+                    <td :class="getRemarks(student) === 'Passed' ? 'text-[#23AD00]' : 'text-[#FF0000]'"
+                        class="px-4 py-2 font-bold">
+                        {{ getRemarks(student) }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </template>
 
-<script>
-export default {
-    name: 'profile',
+<script setup>
+import { ref, onMounted, computed } from 'vue';
+import Dropdown from '@/components/dropdown.vue';
+import Searchbar from '@/components/searchbar.vue';
+
+const props = defineProps({
+    subject_id: {
+        type: String,
+        required: true,
+    },
+});
+
+const headers = ref([
+    'LRN', 'Name', 'Gender', '1st Quarter', '2nd Quarter', '3rd Quarter', '4th Quarter', 'Final Grade', 'Remarks'
+]);
+
+const students = ref([]);
+const selectedQuarter = ref("1st");
+const selectedSort = ref("default");
+const searchQuery = ref("");
+
+const fetchStudents = () => {
+    try {
+        const key = `submittedGrade_${props.subject_id}`;
+        const storedData = JSON.parse(localStorage.getItem(key)) || [];
+        students.value = storedData;
+    } catch (error) {
+        console.error("Error fetching students from localStorage:", error);
+        students.value = [];
+    }
 };
+
+const getGradeForQuarter = (student, quarter) => {
+    return student.grades?.[quarter] || '-';
+};
+
+const getFinalGrade = (student) => {
+    const grades = ['first', 'second', 'third', 'fourth'];
+    let total = 0;
+    let gradeCount = 0;
+    let hasAnyValidGrade = false;
+
+    for (let quarter of grades) {
+        const grade = student.grades?.[quarter];
+        if (grade !== '-' && grade !== undefined && grade !== null && grade !== '') {
+            hasAnyValidGrade = true;
+            total += parseFloat(grade);
+            gradeCount++;
+        }
+    }
+
+    if (!hasAnyValidGrade) return 'No grade';
+    if (gradeCount < 4) return 'INC';
+
+    return (total / gradeCount).toFixed(2);
+};
+
+const getRemarks = (student) => {
+    const finalGrade = getFinalGrade(student);
+    if (finalGrade !== 'No grade' && finalGrade !== 'INC' && parseFloat(finalGrade) > 75) {
+        return 'Passed';
+    }
+    return 'Failed';
+};
+
+const filteredStudents = computed(() => {
+    return students.value.filter(student => {
+        const fullName = (student.firstName + " " + student.middleName + " " + student.lastName).toLowerCase();
+        return fullName.includes(searchQuery.value.toLowerCase());
+    });
+});
+
+// Function to generate CSV
+const generateCSV = () => {
+    let csvContent = "data:text/csv;charset=utf-8,";
+
+    // Add headers
+    csvContent += headers.value.join(",") + "\n";
+
+    // Add student data
+    filteredStudents.value.forEach(student => {
+        const row = [
+            student.lrn,
+            `${student.lastName}, ${student.firstName} ${student.middleName}`,
+            student.gender,
+            getGradeForQuarter(student, "first"),
+            getGradeForQuarter(student, "second"),
+            getGradeForQuarter(student, "third"),
+            getGradeForQuarter(student, "fourth"),
+            getFinalGrade(student),
+            getRemarks(student)
+        ];
+        csvContent += row.join(",") + "\n";
+    });
+
+    // Create a download link
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "Student_Report.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
+
+onMounted(fetchStudents);
 </script>

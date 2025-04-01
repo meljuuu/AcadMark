@@ -43,7 +43,50 @@
                 <component :is="activeComponent" :subject_id="subject_id" :trackStand="trackStand"></component>
             </div>
         </div>
+        <!-- Display table only if the active component is 'Grading' -->
+        <div v-if="activeComponent === 'SummaryOfGrades'" class="overflow-x-auto w-1/2 mt-5 mb-15">
+            <p class="text-lg font-semibold">Learner Progress and Achievement</p>
+            <table class="w-full border-collapse rounded-b-[5px] border border-[#d9d9d9]"
+                style="box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 1px 1px;">
+                <thead class="bg-[#d9d9d9]">
+                    <tr>
+                        <th class="px-4 py-2 text-[#464F60] text-[16px] font-semibold text-center">Descriptors</th>
+                        <th class="px-4 py-2 text-[#464F60] text-[16px] font-semibold text-center">Grading Scale</th>
+                        <th class="px-4 py-2 text-[#464F60] text-[16px] font-semibold text-center">Remarks</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center">
+                    <tr>
+                        <td class="px-4 py-2">Outstanding</td>
+                        <td class="px-4 py-2">90-100</td>
+                        <td class="px-4 py-2 font-bold text-[#23AD00]">Passed</td>
+                    </tr>
+                    <tr>
+                        <td class="px-4 py-2">Very Satisfactory</td>
+                        <td class="px-4 py-2">80-89</td>
+                        <td class="px-4 py-2 font-bold text-[#23AD00]">Passed</td>
+                    </tr>
+                    <tr>
+                        <td class="px-4 py-2">Satisfactory</td>
+                        <td class="px-4 py-2">80-84</td>
+                        <td class="px-4 py-2 font-bold text-[#23AD00]">Passed</td>
+                    </tr>
+                    <tr>
+                        <td class="px-4 py-2">Fairly Satisfactory</td>
+                        <td class="px-4 py-2">75-79</td>
+                        <td class="px-4 py-2 font-bold text-[#23AD00]">Passed</td>
+                    </tr>
+                    <tr>
+                        <td class="px-4 py-2">Did Not Meet Expectation</td>
+                        <td class="px-4 py-2">Below 75</td>
+                        <td class="px-4 py-2 font-bold text-[#FF2428]">Failed</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
+
+
 </template>
 
 <script>

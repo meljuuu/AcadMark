@@ -61,24 +61,25 @@
     </div>
 
     <!-- Sort Dropdown -->
+    <!-- Sort Dropdown -->
     <div v-if="showSort" class="dropdown">
       <div class="dropdown-item">
         <label for="sort">Sort</label>
-        <select v-model="selectedSort" id="sort">
+        <select v-model="selectedSort" id="sort" @change="updateSort">
           <option v-for="option in sortOptions" :key="option" :value="option">{{ option }}</option>
         </select>
       </div>
     </div>
-
     <!-- Marked/Unmarked Dropdown -->
     <div v-if="showMarkStatus" class="dropdown">
       <div class="dropdown-item">
         <label for="mark-status">Status</label>
-        <select v-model="selectedMarkStatus" id="mark-status">
+        <select v-model="selectedMarkStatus" id="mark-status" @change="updateMarkStatus">
           <option v-for="option in markStatusOptions" :key="option" :value="option">{{ option }}</option>
         </select>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -135,7 +136,7 @@ const subjectOptions = [
 ];
 const quarterOptions = ['1st', '2nd', '3rd', '4th'];
 const sortOptions = ['Sort by A-Z', 'Sort by Z-A', 'Sort by Date'];
-const markStatusOptions = ['Marked', 'Unmarked'];
+const markStatusOptions = ['Marked', 'Unmarked', 'Show All'];
 
 // Selected values (reactive data)
 const selectedCurriculum = ref('');
@@ -143,14 +144,26 @@ const selectedYear = ref('');
 const selectedAcademicTrack = ref('');
 const selectedGrade = ref('');
 const selectedSubject = ref('');
-const selectedQuarter = ref('');
+const selectedQuarter = ref('1st');
 const selectedSort = ref('');
-const selectedMarkStatus = ref('');
+const selectedMarkStatus = ref('Show All');
 
 // Function to emit the selected quarter
 const updateQuarter = () => {
   emit("update:modelValue", selectedQuarter.value); // Emitting the event properly
 };
+
+// Function to emit the selected mark status
+const updateMarkStatus = () => {
+  emit("update:modelValue", selectedMarkStatus.value); // Emitting the event properly
+};
+
+// Function to emit the selected sort option
+const updateSort = () => {
+  emit("update:modelValue", selectedSort.value);
+};
+
+
 </script>
 
 

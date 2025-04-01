@@ -1,16 +1,14 @@
 <template>
     <div>
-
-        <button class="bg-blue px-8 py-2 mx-12 mt-5 rounded-md">
-            <p class="text-white font-semibold  text-xs">LIS</p>
+        <button class="bg-blue px-8 py-2 mx-12 mt-5 rounded-md" @click="showLis = true">
+            <p class="text-white font-semibold text-xs">LIS</p>
         </button>
+
         <p v-if="!subject_id">Subject ID is not available</p>
 
         <div v-else>
             <p v-if="studentsInSubject.length === 0">No students available for this subject.</p>
-
             <div v-else>
-
                 <div class="table-container">
                     <table>
                         <thead>
@@ -39,49 +37,46 @@
                 </div>
             </div>
         </div>
+
+        <!-- Pass showLis as a prop -->
+        <modal v-if="showLis" :subject_id="subject_id" :showLis="showLis" @close="showLis = false" />
     </div>
 </template>
 
-<script>
+<script setup>
 import { ref, onMounted } from 'vue';
 import subjects from '../../data/subjects.json';
 import students from '../../data/students.json';
+import modal from '@/components/modal.vue';
 
-export default {
-    props: {
-        subject_id: String,
-    },
-    setup(props) {
-        const studentsInSubject = ref([]);
+const props = defineProps({
+    subject_id: String
+});
 
-        const calculateAge = (birthdate) => {
-            const today = new Date();
-            const birthDate = new Date(birthdate);
-            let age = today.getFullYear() - birthDate.getFullYear();
-            const month = today.getMonth();
-            if (month < birthDate.getMonth() || (month === birthDate.getMonth() && today.getDate() < birthDate.getDate())) {
-                age--;
-            }
-            return age;
-        };
+const studentsInSubject = ref([]);
+const showLis = ref(false); // Toggle visibility of modal
 
-        onMounted(() => {
-            const subject = subjects.find(sub => sub.subject_id === props.subject_id);
-
-            if (subject) {
-                studentsInSubject.value = students.filter(student =>
-                    subject.student_id.includes(student.student_id)
-                );
-            }
-        });
-
-        return {
-            studentsInSubject,
-            calculateAge,
-        };
+const calculateAge = (birthdate) => {
+    const today = new Date();
+    const birthDate = new Date(birthdate);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const month = today.getMonth();
+    if (month < birthDate.getMonth() || (month === birthDate.getMonth() && today.getDate() < birthDate.getDate())) {
+        age--;
     }
+    return age;
 };
+
+onMounted(() => {
+    const subject = subjects.find(sub => sub.subject_id === props.subject_id);
+    if (subject) {
+        studentsInSubject.value = students.filter(student =>
+            subject.student_id.includes(student.student_id)
+        );
+    }
+});
 </script>
+
 
 <style scoped>
 .table-container {
