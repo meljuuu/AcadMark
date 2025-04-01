@@ -1,43 +1,79 @@
 @import 'tailwindcss';
 
 @theme {
-    --default-font-family: 'Poppins', sans-serif;
+  --default-font-family: 'Poppins', sans-serif;
 
-    --color-blue: #295F98;
-    --color-green: #0C5A48;
-    --breakpoint-sm: 1rem;
-    --breakpoint-md: 48rem;
-    --breakpoint-lg: 64rem;
-    --breakpoint-xl: 80rem;
-    --breakpoint-2xl: 96rem;
+  --color-blue: #295f98;
+  --color-green: #0c5a48;
+  --breakpoint-sm: 1rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 80rem;
+  --breakpoint-2xl: 96rem;
 }
 
 @layer components {
-    .nav-link {
-        color: white;
-        display: flex;
-        align-items: center;
-        width: 100%;
-        padding: 1rem 2rem;
-        position: relative;
-        transition: color 0.2s ease-in-out;
+  .nav-link {
+    color: white;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 1rem 2rem;
+    position: relative;
+    transition: color 0.2s ease-in-out;
 
-        @media (max-width: 48rem) {
-            padding: 0.5rem 1rem;
-            justify-content: center;
-        }
-
-        &:hover,
-        &.active {
-            color: #bfdbfe;
-        }
+    @media (max-width: 48rem) {
+      padding: 0.5rem 1rem;
+      justify-content: center;
     }
+
+    &:hover,
+    &.active {
+      color: #bfdbfe;
+    }
+  }
 }
 
 @layer components {
-    .title {
-        font-weight: bold;
-        color: #242424;
-        font-size: 47px;
+  .checkbox {
+    width: 20px;
+    height: 20px;
+    appearance: none;
+    background-color: #d9d9d9;
+    border: 2px solid transparent; /* Light gray border */
+    border-radius: 3px; /* Rounded corners */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease;
+
+    &:checked {
+      border-color: #000; /* Black border when checked */
     }
+
+    &:checked:after {
+      content: '✓'; /* Checkmark character */
+      color: black; /* White checkmark */
+      font-size: 15px;
+      font-weight: bold;
+    }
+
+    &:hover {
+      background-color: #bebebe; /* Light gray hover effect */
+    }
+
+    &:focus {
+      outline: none; /* Remove outline for focus */
+    }
+  }
+}
+
+@layer components {
+  .title {
+    font-weight: bold;
+    color: #242424;
+    font-size: 47px;
+  }
 }

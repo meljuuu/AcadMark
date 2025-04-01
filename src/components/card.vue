@@ -16,7 +16,7 @@
             <div class="rounded-b-xl flex justify-between items-center p-5 relative z-10" :class="cardColor.bg">
                 <p class="text-base font-semibold text-white">{{ cardTitle }}</p>
                 <p @click="goToClass"
-                    class="text-light text-base text-white border-white border-[1px] py-2 px-7 rounded-xl cursor-pointer">
+                    class="enter-button text-light text-base text-white border-white border-[1px] py-2 px-7 rounded-xl cursor-pointer">
                     Enter
                 </p>
             </div>
@@ -89,3 +89,47 @@ export default {
     }
 };
 </script>
+
+<style scoped>
+.enter-button {
+    position: relative;
+    overflow: hidden;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.enter-button:hover {
+    background-color: white;
+    color: black;
+}
+
+.enter-button::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 300%;
+    height: 300%;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    transform: translateX(-50%) translateY(50%) rotate(45deg);
+    animation: wave 1s ease-out forwards;
+}
+
+.enter-button:hover::after {
+    animation: wave 1s ease-out forwards;
+}
+
+@keyframes wave {
+    0% {
+        width: 0;
+        height: 0;
+        opacity: 1;
+    }
+
+    100% {
+        width: 300%;
+        height: 300%;
+        opacity: 0;
+    }
+}
+</style>

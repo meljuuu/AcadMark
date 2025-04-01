@@ -52,12 +52,12 @@
 
     <!-- Quarter Dropdown -->
     <div v-if="showQuarter" class="dropdown">
-      <div class="dropdown-item">
-        <label for="quarter">Quarter</label>
-        <select v-model="selectedQuarter" id="quarter">
-          <option v-for="option in quarterOptions" :key="option" :value="option">{{ option }}</option>
-        </select>
-      </div>
+      <label for="quarter">Quarter</label>
+      <select v-model="selectedQuarter" id="quarter" @change="updateQuarter">
+        <option v-for="option in quarterOptions" :key="option" :value="option">
+          {{ option }}
+        </option>
+      </select>
     </div>
 
     <!-- Sort Dropdown -->
@@ -69,11 +69,24 @@
         </select>
       </div>
     </div>
+
+    <!-- Marked/Unmarked Dropdown -->
+    <div v-if="showMarkStatus" class="dropdown">
+      <div class="dropdown-item">
+        <label for="mark-status">Status</label>
+        <select v-model="selectedMarkStatus" id="mark-status">
+          <option v-for="option in markStatusOptions" :key="option" :value="option">{{ option }}</option>
+        </select>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, defineProps } from 'vue';
+import { ref, defineProps, defineEmits } from 'vue';
+
+// Define emits to listen to event emissions
+const emit = defineEmits();
 
 // Props to control which dropdowns to show
 const props = defineProps({
@@ -105,6 +118,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  showMarkStatus: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 // Dropdown options
@@ -118,6 +135,7 @@ const subjectOptions = [
 ];
 const quarterOptions = ['1st', '2nd', '3rd', '4th'];
 const sortOptions = ['Sort by A-Z', 'Sort by Z-A', 'Sort by Date'];
+const markStatusOptions = ['Marked', 'Unmarked'];
 
 // Selected values (reactive data)
 const selectedCurriculum = ref('');
@@ -127,38 +145,48 @@ const selectedGrade = ref('');
 const selectedSubject = ref('');
 const selectedQuarter = ref('');
 const selectedSort = ref('');
+const selectedMarkStatus = ref('');
+
+// Function to emit the selected quarter
+const updateQuarter = () => {
+  emit("update:modelValue", selectedQuarter.value); // Emitting the event properly
+};
 </script>
+
 
 <style scoped>
 /* Flex container for the dropdowns */
 .dropdown-container {
   display: flex;
-  gap: 20px; /* Space between dropdowns */
-  flex-wrap: wrap; /* Wrap to next row if not enough space */
+  gap: 20px;
+  /* Space between dropdowns */
+  flex-wrap: wrap;
+  /* Wrap to next row if not enough space */
 }
 
 /* Style for each dropdown */
 .dropdown {
   display: flex;
-  flex-direction: column;
   gap: 8px;
   border: 1px solid #E3E9EC;
   border-radius: 5px;
-
 }
 
 /* Flex container for label and select to align them side by side */
 .dropdown-item {
   display: flex;
-  justify-content: space-between; /* Spread the label and select across */
+  justify-content: space-between;
+  /* Spread the label and select across */
   align-items: center;
 }
 
 /* Remove the border from the select */
 select {
   font-size: 16px;
-  border: none; /* Remove the border */
-  background-color: transparent; /* Optional: makes the background transparent */
+  border: none;
+  /* Remove the border */
+  background-color: transparent;
+  /* Optional: makes the background transparent */
   padding: 5px;
   font-weight: bold;
   text-align: center;
@@ -167,12 +195,12 @@ select {
 
 /* Remove focus outline (black border) on select */
 select:focus {
-    outline: none;
+  outline: none;
 }
 
 /* Styling for the label */
 label {
-  margin-right: 10px; 
+  margin-right: 10px;
   padding: 5px;
   color: #858585;
 }

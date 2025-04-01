@@ -6,20 +6,20 @@
     <div class="search-container">
       <div class="search-bar">
         <img src="../../public/assets/img/search-icon.svg" class="search-icon" alt="Search" />
-        <input type="text" placeholder="Search..." />
+        <input type="text" v-model="searchQuery" placeholder="Search..." />
       </div>
     </div>
 
     <div class="content">
       <div class="namebar">
         <h2 class="forms-name"> Name </h2>
-        <div class="student-name" v-for="(name, index) in students" :key="index">
+        <div class="student-name" v-for="(name, index) in filteredStudents" :key="index" @click="selectStudent(index)">
           {{ name }}
         </div>
       </div>
 
       <div class="main">
-        <h2 class="student-title">STUDENT INFO</h2>
+        <h2 class="student-titles">STUDENT INFO</h2>
 
         <div class="grades-header">
           <h2 class="grades-title">GRADES</h2>
@@ -43,11 +43,11 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(grade, index) in grades" :key="index">
-                <td>ENGLISH</td>
-                <td v-for="score in grade.scores" :key="score">{{ score }}</td>
-                <td>75</td>
-                <td>PASSED</td>
+              <tr v-for="(subject, index) in grades[selectedStudent]" :key="index">
+                <td>{{ subject.name }}</td>
+                <td v-for="score in subject.scores" :key="score">{{ score }}</td>
+                <td>{{ calculateGWA(subject.scores) }}</td>
+                <td>{{ getRemarks(subject.scores) }}</td>
               </tr>
             </tbody>
           </table>
@@ -61,12 +61,55 @@
 export default {
   data() {
     return {
-      students: Array(16).fill("Bueno, Ryan Joshua E."),
-      grades: Array(11).fill({ scores: [75, 75, 75, 75] }),
+      searchQuery: "",
+      students: [
+        "Raven Andre D Legarde",
+        "Polaris Jumel Dasmarinas",
+        "Harvey S. Samson",
+        "Angel Mae Gaña",
+        "Arjay R Dabalos",
+        "Ryan Bueno",
+        "Eunice Protasio",
+        "Ehdsell John Apan",
+        "Zyvrex John Perez",
+        "Mark Gil Bacus"
+      ],
+      selectedStudent: 0,
+      grades: Array.from({ length: 10 }, (_, i) => [
+        { name: "English", scores: [72 + i, 73 + i, 76 + i, 77 + i] },
+        { name: "Mathematics", scores: [80 + i, 82 + i, 85 + i, 83 + i] },
+        { name: "Science", scores: [85 + i, 87 + i, 88 + i, 86 + i] },
+        { name: "Filipino", scores: [72 + i, 73 + i, 74 + i, 75 + i] },
+        { name: "A.P", scores: [82 + i, 83 + i, 84 + i, 75 + i] },
+        { name: "EsP", scores: [88 + i, 89 + i, 87 + i, 85 + i] },
+        { name: "TLE", scores: [87 + i, 88 + i, 89 + i, 90 + i] },
+        { name: "MAPEH", scores: [70 + i, 72 + i, 74 + i, 73 + i] }
+      ])
     };
   },
+  // Search bar
+  computed: {
+    filteredStudents() {
+      return this.students.filter(student => 
+        student.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
+    }
+  },
+  // Remarks - PASSED or FAILED
+  methods: {
+    selectStudent(index) {
+      this.selectedStudent = this.students.indexOf(this.filteredStudents[index]);
+    },
+    calculateGWA(scores) {
+      return (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2);
+    },
+    getRemarks(scores) {
+      return this.calculateGWA(scores) >= 75 ? "PASSED" : "FAILED";
+    }
+  }
 };
 </script>
+
 
 <style scoped>
 .form-container {
@@ -130,7 +173,7 @@ export default {
 
 .namebar {
   width: 30%;
-  max-height: 800px;
+  max-height: 700px;
   overflow-y: auto;
   border: 1px solid #ccc;
   margin-bottom: 20px;
@@ -173,7 +216,7 @@ export default {
   margin-bottom: 20px;
 }
 
-.student-title {
+.student-titles {
   color: #295F98;
   font-size: 24px;
   font-weight: 600;
@@ -214,7 +257,6 @@ export default {
 
 .table-wrapper {
   width: 101%;
-  overflow-x: auto;
   padding: 11px;
   margin-top: -30px;
 }
@@ -228,7 +270,7 @@ table {
   border-top-right-radius: 10px;
   overflow: hidden;
   padding: 0;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 th {

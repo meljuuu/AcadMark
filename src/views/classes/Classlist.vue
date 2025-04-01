@@ -49,10 +49,10 @@ import students from '../../data/students.json';
 
 export default {
     props: {
-        subject_id: String, 
+        subject_id: String,
     },
     setup(props) {
-        const studentsInSubject = ref([]); 
+        const studentsInSubject = ref([]);
 
         const calculateAge = (birthdate) => {
             const today = new Date();
@@ -85,7 +85,7 @@ export default {
 
 <style scoped>
 .table-container {
-    max-height: 300px;
+    max-height: 340px;
     overflow-y: auto;
     margin-top: 20px;
 }
@@ -108,7 +108,7 @@ th {
     position: sticky;
     color: #464F60;
     top: 0px;
-    padding:10px;
+    padding: 10px;
     z-index: 1;
 }
 </style>
