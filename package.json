@@ -12,7 +12,7 @@
     "chart.js": "^4.4.1",
     "json-server": "^1.0.0-beta.3",
     "vue": "^3.4.15",
-    "vue-chart-3": "^6.1.2",
+    "vue-chart-3": "^3.1.8",
     "vue-router": "^4.2.5"
   },
   "devDependencies": {
