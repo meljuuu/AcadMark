@@ -131,7 +131,7 @@
         <p class="font-semibold text-[32px]">Recent Submitted Grades</p>
 
         <div class="overflow-x-auto mt-5 w-full">
-          <table class="w-full">
+          <table v-if="recentSubmittedGrades.length > 0" class="w-full">
             <thead>
               <tr class="bg-gray-100">
                 <th class="p-3 text-center text-base">LRN</th>
@@ -150,6 +150,11 @@
               </tr>
             </tbody>
           </table>
+          <div v-else class="flex flex-col items-center justify-center py-10 text-gray-500">
+            <img src="/public/assets/img/dashboard/no-data.png" alt="No Data" class="w-32 h-32 mb-4 opacity-50" />
+            <p class="text-lg font-medium">No Submitted Grades Yet</p>
+            <p class="text-sm">You haven't submitted any grades for review.</p>
+          </div>
         </div>
       </div>
     </div>
@@ -159,7 +164,7 @@
       <p class="font-semibold text-[32px]">Recent Graded</p>
 
       <div class="overflow-x-auto mt-5 w-full">
-        <table class="w-full">
+        <table v-if="recentGraded.length > 0" class="w-full">
           <thead>
             <tr class="bg-gray-100">
               <th class="p-3 text-center text-base">LRN</th>
@@ -185,13 +190,18 @@
             </tr>
           </tbody>
         </table>
+        <div v-else class="flex flex-col items-center justify-center py-10 text-gray-500">
+          <img src="/public/assets/img/dashboard/no-data.png" alt="No Data" class="w-32 h-32 mb-4 opacity-50" />
+          <p class="text-lg font-medium">No Grades Recorded Yet</p>
+          <p class="text-sm">You haven't recorded any grades for your students.</p>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch, onUnmounted } from 'vue';
 import BarChart from '@/components/barchart.vue';
 import classData from '@/data/class.json';
 import subjectData from '@/data/subjects.json';
@@ -397,6 +407,11 @@ const recentSubmittedGrades = ref([]);
 const recentGraded = ref([]);
 
 onMounted(() => {
+  // Set initial data in localStorage
+  localStorage.setItem('subjects', JSON.stringify(subjectData));
+  localStorage.setItem('students', JSON.stringify(studentData));
+
+  // Load submitted grades and recent grades
   const submittedGrades = JSON.parse(localStorage.getItem('recentSubmit') || '[]');
   recentSubmittedGrades.value = submittedGrades.map(grade => ({
     lrn: grade.lrn,
@@ -418,5 +433,22 @@ onMounted(() => {
     grade: grade.grade,
     remarks: grade.remarks
   }));
+
+  // Watch for changes in localStorage
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'subjects') {
+      const newSubjects = JSON.parse(e.newValue || '[]');
+      // Update any component state that depends on subjects if needed
+    }
+    if (e.key === 'students') {
+      const newStudents = JSON.parse(e.newValue || '[]');
+      // Update any component state that depends on students if needed
+    }
+  });
+});
+
+// Cleanup the event listener when component is unmounted
+onUnmounted(() => {
+  window.removeEventListener('storage', () => { });
 });
 </script>
