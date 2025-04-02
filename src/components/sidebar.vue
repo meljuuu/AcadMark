@@ -56,7 +56,7 @@ const router = useRouter();
 const activeIndex = ref(0);
 const showLogoutModal = ref(false);
 
-const imageSrc = ref("/public/assets/img/profile/avatar.png");
+const imageSrc = ref("/assets/img/profile/avatar.png");
 const currentTeacher = ref(null);
 
 const links = ref([
@@ -93,7 +93,7 @@ onMounted(() => {
   const teacher = teachers.find(t => t.teacher_ID === teacherID);
   if (teacher) {
     currentTeacher.value = teacher;
-    imageSrc.value = teacher.avatar || "/public/assets/img/profile/avatar.png";
+    imageSrc.value = teacher.avatar || "/assets/img/profile/avatar.png";
   }
 
   setInterval(updateImageFromStorage, 1000);
