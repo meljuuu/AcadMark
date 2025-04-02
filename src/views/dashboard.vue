@@ -1,323 +1,450 @@
-  <template>
-    <div class="flex flex-col gap-10 py-5">
-      <h1 class="title">Dashboard</h1>
+<template>
+  <div class="flex flex-col gap-10 py-5 px-5 w-full overflow-x-hidden">
+    <h1 class="title">Dashboard</h1>
 
-      <div class="flex justify-between flex-grow gap-10">
-        <div class="p-5 border-blue border-2 w-1/2 rounded-2xl">
-          <p class="font-semibold text-[32px]">Advisory Class</p>
+    <div class="flex flex-row justify-between gap-10 w-full">
+      <!-- Advisory Class Card -->
+      <div class="p-5 border-blue border-2 w-1/2 rounded-2xl overflow-hidden">
+        <p class="font-semibold text-[32px]">Advisory Class</p>
 
-          <div class="flex gap-10 p-5 items-center">
-            <div class="flex items-center border-2 border-blue px-10 py-17 rounded-2xl">
-              <div class="text-center">
-                <p class="font-medium text-5xl">60</p>
-                <p>Total Students</p>
-              </div>
-              <div><img src="/public/assets/img/dashboard/total.png" alt=""></div>
+        <div class="flex flex-row gap-10 p-5 items-center">
+          <div class="flex items-center border-2 border-blue px-10 py-17 rounded-2xl w-auto">
+            <div class="text-center">
+              <p class="font-medium text-5xl">{{ advisoryStats.total }}</p>
+              <p>Total Students</p>
+            </div>
+            <div><img src="/public/assets/img/dashboard/total.png" alt="" class="w-auto"></div>
+          </div>
+
+          <div class="flex flex-col gap-5 items-center w-auto">
+            <div class="flex items-center border-2 border-blue gap-2 px-2 py-5 rounded-xl w-full">
+              <img src="/public/assets/img/dashboard/male.png" alt="" class="w-auto">
+              <p class="text-[40px] font-medium">{{ advisoryStats.male }}</p>
+              <p class="text-base">Male Students</p>
             </div>
 
-            <div class="flex flex-col gap-5 items-center max-h-[229px]">
-              <div class="flex items-center border-2 border-blue gap-2 px-2 py-5 rounded-xl w-full">
-                <img src="/public/assets/img/dashboard/male.png" alt="">
-                <p class="text-[40px] font-medium">18</p>
-                <p class="text-base">Male Students</p>
-              </div>
-
-              <div class="flex items-center border-2 border-blue gap-2 px-2 py-5 rounded-xl w-full">
-                <img src="/public/assets/img/dashboard/female.png" alt="">
-                <p class="text-[40px] font-medium">18</p>
-                <p class="text-base">Female Students</p>
-              </div>
+            <div class="flex items-center border-2 border-blue gap-2 px-2 py-5 rounded-xl w-full">
+              <img src="/public/assets/img/dashboard/female.png" alt="" class="w-auto">
+              <p class="text-[40px] font-medium">{{ advisoryStats.female }}</p>
+              <p class="text-base">Female Students</p>
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="w-1/2 border border-[#cecece] p-5 rounded-2xl" style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
-          <p class="font-semibold text-[32px]">Subject Class</p>
+      <!-- Subject Class Card -->
+      <div class="w-1/2 border border-[#cecece] p-5 rounded-2xl overflow-hidden"
+        style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
+        <p class="font-semibold text-[32px]">Subject Class</p>
 
-          <div class="flex gap-10 p-5 items-center">
-            <div
-              class="w-50 h-50 rounded-full border-15 border-blue text-center flex flex-col justify-center items-center">
-              <p class="text-4xl font-semibold">300</p>
-              <p class="text-lg">TOTAL</p>
-              <p class="text-lg leading-[10px]">STUDENTS</p>
-            </div>
+        <div class="flex flex-row gap-10 p-5 items-center">
+          <div
+            class="w-40 aspect-square rounded-full border-15 border-blue text-center flex flex-col justify-center items-center p-4">
+            <p class="text-3xl font-semibold leading-tight">{{subjectClasses.reduce((sum, cls) => sum + cls.count, 0)}}
+            </p>
+            <p class="text-base leading-tight">TOTAL</p>
+            <p class="text-base leading-tight">STUDENTS</p>
+          </div>
 
-            <div class="flex flex-col gap-2">
-              <div class="flex gap-5" v-for="(chunk, index) in chunkedClasses" :key="index">
-                <div v-for="(classItem, idx) in chunk" :key="idx"
-                  class="flex border border-[#cecece] gap-3 py-2 pr-4 rounded-lg w-[180px] flex-1"
-                  style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
-
-                  <div class="flex items-center">
-                    <div class="h-full w-[7px] bg-blue rounded-full mr-2 ml-2"></div>
-                    <p class="font-medium text-[32px]">{{ classItem.count }}</p>
-                  </div>
-
-                  <div>
-                    <p class="text-lg">{{ classItem.name }}</p>
-                    <p class="text-base text-[#7b7b7b] leading-none">{{ classItem.subject }}</p>
-                  </div>
+          <div class="flex flex-col gap-2 w-full overflow-hidden">
+            <div class="grid grid-cols-2 max-[1790px]:grid-cols-1 gap-5">
+              <div v-for="(classItem, idx) in subjectClasses" :key="idx"
+                class="flex border border-[#cecece] gap-3 py-2 pr-4 rounded-lg w-full overflow-hidden"
+                style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
+                <div class="flex items-center">
+                  <div class="h-full w-[7px] bg-blue rounded-full mr-2 ml-2"></div>
+                  <p class="font-medium text-[32px]">{{ classItem.count }}</p>
+                </div>
+                <div class="overflow-hidden">
+                  <p class="text-lg truncate">{{ classItem.name }}</p>
+                  <p class="text-base text-[#7b7b7b] leading-none truncate">{{ classItem.subject }}</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <div class="p-5 border border-[#cecece] rounded-2xl" style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
-        <div>
-          <p class="font-semibold text-[32px]">Summary of Grades</p>
+    <!-- Summary of Grades -->
+    <div class="p-5 border border-[#cecece] rounded-2xl w-full overflow-hidden"
+      style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
+      <div>
+        <p class="font-semibold text-[32px]">Summary of Grades</p>
+      </div>
+
+      <div class="flex justify-center gap-10 items-center my-5 flex-wrap">
+        <div class="flex gap-2">
+          <div class="rounded-full w-5 h-5 bg-blue"></div>
+          <p class="text-blue text-base">90-100 Grade</p>
         </div>
 
-        <div class="flex justify-center gap-10 items-center my-5">
-          <div class="flex gap-2">
-            <div class="rounded-full w-5 h-5 bg-blue"></div>
-            <p class="text-blue">90-100 Grade</p>
-          </div>
-
-          <div class="flex gap-2">
-            <div class="rounded-full w-5 h-5 bg-[#0C5A48]"></div>
-            <p class="text-[#0C5A48]">85-89 Grade</p>
-          </div>
-
-          <div class="flex gap-2">
-            <div class="rounded-full w-5 h-5 bg-[#D0D000]"></div>
-            <p class="text-[#D0D000]">80-84 Grade</p>
-          </div>
-
-          <div class="flex gap-2">
-            <div class="rounded-full w-5 h-5 bg-[#FF9184]"></div>
-            <p class="text-[#FF9184]">75-79 Grade</p>
-          </div>
-
-          <div class="flex gap-2">
-            <div class="rounded-full w-5 h-5 bg-[#D30000]"></div>
-            <p class="text-[#D30000]">75 Below Grade</p>
-          </div>
+        <div class="flex gap-2">
+          <div class="rounded-full w-5 h-5 bg-[#0C5A48]"></div>
+          <p class="text-[#0C5A48] text-base">85-89 Grade</p>
         </div>
 
+        <div class="flex gap-2">
+          <div class="rounded-full w-5 h-5 bg-[#D0D000]"></div>
+          <p class="text-[#D0D000] text-base">80-84 Grade</p>
+        </div>
+
+        <div class="flex gap-2">
+          <div class="rounded-full w-5 h-5 bg-[#FF9204]"></div>
+          <p class="text-[#FF9204] text-base">75-79 Grade</p>
+        </div>
+
+        <div class="flex gap-2">
+          <div class="rounded-full w-5 h-5 bg-[#D30000]"></div>
+          <p class="text-[#D30000] text-base">75 Below Grade</p>
+        </div>
+      </div>
+
+      <div class="h-[400px] overflow-hidden">
         <BarChart chartId="gradeChart" :labels="gradeChartData.labels" :datasets="gradeChartData.datasets"
           :options="gradeChartOptions" :height="400" />
       </div>
+    </div>
 
-      <div class="flex justify-between gap-10">
-        <div class="w-1/2 p-5 border border-[#cecece] rounded-2xl flex flex-col gap-5"
-          style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
-          <p class="font-semibold text-[32px]">Total Submitted Grades</p>
+    <div class="flex flex-row justify-between gap-10 w-full">
+      <!-- Total Submitted Grades -->
+      <div class="w-1/2 p-5 border border-[#cecece] rounded-2xl flex flex-col gap-5 overflow-hidden"
+        style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
+        <p class="font-semibold text-[32px]">Total Submitted Grades</p>
 
-          <div class="flex items-center justify-center gap-5">
-            <div class="flex gap-3">
-              <div class="bg-blue w-5 h-5 rounded-full"></div>
-              <p class="text-blue">Advisory Class</p>
-            </div>
-
-            <div class="flex gap-3">
-              <div class="bg-[#0C5A48] w-5 h-5 rounded-full"></div>
-              <p class="text-[#0C5A48]">Subject Class</p>
-            </div>
+        <div class="flex items-center justify-center gap-5">
+          <div class="flex gap-3">
+            <div class="bg-blue w-5 h-5 rounded-full"></div>
+            <p class="text-blue text-base">Advisory Class</p>
           </div>
 
+          <div class="flex gap-3">
+            <div class="bg-[#0C5A48] w-5 h-5 rounded-full"></div>
+            <p class="text-[#0C5A48] text-base">Subject Class</p>
+          </div>
+        </div>
+
+        <div class="h-[600px] overflow-hidden">
           <BarChart chartId="submittedGradesChart" :labels="submittedGradesData.labels"
             :datasets="submittedGradesData.datasets" :options="submittedGradesOptions" :height="600" />
         </div>
-
-        <div class="w-1/2 p-5 border border-[#cecece] rounded-2xl" style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
-          <p class="font-semibold text-[32px]">Recent Submitted Grades</p>
-
-          <div class="flex flex-col gap-5 mt-5">
-            <div v-for="(grade, index) in recentSubmittedGrades" :key="index"
-              class="flex justify-around items-center p-3 border border-[#cecece] rounded-2xl"
-              style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
-              <p>{{ grade.id }}</p>
-              <p>{{ grade.name }}</p>
-              <p>{{ grade.class }}</p>
-              <p>{{ grade.status }}</p>
-            </div>
-          </div>
-        </div>
       </div>
 
-      <div class="p-5 border border-[#cecece] rounded-2xl" style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
-        <p class="font-semibold text-[32px]">Recent Graded</p>
+      <!-- Recent Submitted Grades -->
+      <div class="w-1/2 p-5 border border-[#cecece] rounded-2xl overflow-hidden"
+        style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
+        <p class="font-semibold text-[32px]">Recent Submitted Grades</p>
 
-        <div>
-          <div class="flex flex-col gap-5">
-            <div v-for="(grade, index) in recentGraded" :key="index"
-              class="flex justify-around border border-[#cecece] p-3 rounded-2xl"
-              style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
-              <p>{{ grade.id }}</p>
-              <p>{{ grade.name }}</p>
-              <p>{{ grade.level }}</p>
-              <p>{{ grade.strand }}</p>
-              <p>{{ grade.class }}</p>
-              <p>{{ grade.subject }}</p>
-              <p>{{ grade.grade }}</p>
-              <p>{{ grade.status }}</p>
-            </div>
-          </div>
+        <div class="overflow-x-auto mt-5 w-full">
+          <table class="w-full">
+            <thead>
+              <tr class="bg-gray-100">
+                <th class="p-3 text-center text-base">LRN</th>
+                <th class="p-3 text-center text-base">Name</th>
+                <th class="p-3 text-center text-base">Class Type</th>
+                <th class="p-3 text-center text-base">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(grade, index) in recentSubmittedGrades" :key="index"
+                class="border-b border-[#cecece] hover:bg-gray-50">
+                <td class="p-3 text-center text-base">{{ grade.lrn }}</td>
+                <td class="p-3 text-center text-base">{{ grade.name }}</td>
+                <td class="p-3 text-center text-base">{{ grade.classType }}</td>
+                <td class="p-3 text-center text-base">{{ grade.status }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
-  </template>
+
+    <!-- Recent Graded -->
+    <div class="p-5 border border-[#cecece] rounded-2xl w-full overflow-hidden"
+      style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
+      <p class="font-semibold text-[32px]">Recent Graded</p>
+
+      <div class="overflow-x-auto mt-5 w-full">
+        <table class="w-full">
+          <thead>
+            <tr class="bg-gray-100">
+              <th class="p-3 text-center text-base">LRN</th>
+              <th class="p-3 text-center text-base">Name</th>
+              <th class="p-3 text-center text-base">Curriculum</th>
+              <th class="p-3 text-center text-base">Track/Strand</th>
+              <th class="p-3 text-center text-base">Class Type</th>
+              <th class="p-3 text-center text-base">Subject</th>
+              <th class="p-3 text-center text-base">Grade</th>
+              <th class="p-3 text-center text-base">Remarks</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(grade, index) in recentGraded" :key="index" class="border-b border-[#cecece] hover:bg-gray-50">
+              <td class="p-3 text-center text-base">{{ grade.lrn }}</td>
+              <td class="p-3 text-center text-base">{{ grade.name }}</td>
+              <td class="p-3 text-center text-base">{{ grade.curriculum }}</td>
+              <td class="p-3 text-center text-base">{{ grade.trackStand }}</td>
+              <td class="p-3 text-center text-base">{{ grade.classType }}</td>
+              <td class="p-3 text-center text-base">{{ grade.subjectName }}</td>
+              <td class="p-3 text-center text-base">{{ grade.grade }}</td>
+              <td class="p-3 text-center text-base">{{ grade.remarks }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</template>
 
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import BarChart from '@/components/barchart.vue';
+import classData from '@/data/class.json';
+import subjectData from '@/data/subjects.json';
+import studentData from '@/data/students.json';
 
-const subjectClasses = [
-  { count: 60, name: "Favilla", subject: "English Class" },
-  { count: 60, name: "SILANG", subject: "Math Class" },
-  { count: 60, name: "THEGO", subject: "Science Class" },
-  { count: 60, name: "TIERRA", subject: "Physics Class" },
-  { count: 60, name: "AIRE", subject: "Astronomy Class" },
-  { count: 60, name: "Solomon", subject: "Quantum Class" }
-];
+// Advisory Class Stats
+const advisoryStats = computed(() => {
+  // Find advisory class from class.json
+  const advisoryClass = classData.find(cls => cls.classType === 'Advisory');
+  if (!advisoryClass) return { total: 0, male: 0, female: 0 };
 
-const chunkedClasses = computed(() => {
-  const chunkSize = 2;
-  return subjectClasses.reduce((result, item, index) => {
-    const chunkIndex = Math.floor(index / chunkSize);
-    if (!result[chunkIndex]) {
-      result[chunkIndex] = [];
-    }
-    result[chunkIndex].push(item);
-    return result;
-  }, []);
+  // Find the subject in subjects.json that matches the advisory class's subject_id
+  const advisorySubject = subjectData.find(sub => sub.subject_id === advisoryClass.subject_id);
+  if (!advisorySubject) return { total: 0, male: 0, female: 0 };
+
+  // Get only the students in the advisory class
+  const advisoryStudents = studentData.filter(student =>
+    advisorySubject.student_id.includes(student.student_id)
+  );
+
+  // Count male and female students in the advisory class
+  const maleCount = advisoryStudents.filter(student => student.sex === 'Male').length;
+  const femaleCount = advisoryStudents.filter(student => student.sex === 'Female').length;
+
+  return {
+    total: advisoryStudents.length,
+    male: maleCount,
+    female: femaleCount
+  };
+});
+
+// Subject Class Stats
+const subjectClasses = computed(() => {
+  // Get all subject classes from class.json
+  const subjectClasses = classData.filter(cls => cls.classType === 'Subject');
+
+  return subjectClasses.map(cls => {
+    // Find the subject in subjects.json
+    const subject = subjectData.find(sub => sub.subject_id === cls.subject_id);
+    const studentCount = subject ? subject.student_id.length : 0;
+
+    return {
+      count: studentCount,
+      name: cls.className,
+      subject: subject ? subject.subjectName : 'Unknown Subject'
+    };
+  });
 });
 
 // Grade Chart Data
-const gradeChartData = {
-  labels: ['AIRE', 'EINSTEIN', 'FAVILLA', 'SILANG', 'THEGO'],
-  datasets: [
-    {
-      label: '90-100',
-      data: [10, 15, 12, 18, 18],
-      backgroundColor: '#295F98',
-      borderRadius: 50
-    },
-    {
-      label: '85-89',
-      data: [18, 18, 25, 22, 19],
-      backgroundColor: '#0C5A48',
-      borderRadius: 50
-    },
-    {
-      label: '80-84',
-      data: [18, 18, 15, 17, 16],
-      backgroundColor: '#D0D000',
-      borderRadius: 50
-    },
-    {
-      label: '75-79',
-      data: [8, 12, 10, 11, 9],
-      backgroundColor: '#FF9184',
-      borderRadius: 50
-    },
-    {
-      label: 'Below 75',
-      data: [4, 5, 3, 7, 6],
-      backgroundColor: '#D30000',
-      borderRadius: 50
+const gradeChartData = computed(() => {
+  // Get all unique class names from class.json
+  const classNames = [...new Set(classData.map(cls => cls.className))];
+
+  // Initialize grade ranges
+  const gradeRanges = {
+    '90-100': Array(classNames.length).fill(0),
+    '85-89': Array(classNames.length).fill(0),
+    '80-84': Array(classNames.length).fill(0),
+    '75-79': Array(classNames.length).fill(0),
+    'Below 75': Array(classNames.length).fill(0)
+  };
+
+  // Get recent grades from localStorage
+  const recentGrades = JSON.parse(localStorage.getItem('recentGrades') || '[]');
+
+  // Count grades for each class and range
+  recentGrades.forEach(grade => {
+    const className = grade.className;
+    const gradeValue = parseFloat(grade.grade);
+    const classIndex = classNames.indexOf(className);
+
+    if (classIndex !== -1) {
+      if (gradeValue >= 90) {
+        gradeRanges['90-100'][classIndex]++;
+      } else if (gradeValue >= 85) {
+        gradeRanges['85-89'][classIndex]++;
+      } else if (gradeValue >= 80) {
+        gradeRanges['80-84'][classIndex]++;
+      } else if (gradeValue >= 75) {
+        gradeRanges['75-79'][classIndex]++;
+      } else {
+        gradeRanges['Below 75'][classIndex]++;
+      }
     }
-  ]
-};
+  });
+
+  return {
+    labels: classNames,
+    datasets: [
+      {
+        data: gradeRanges['90-100'],
+        backgroundColor: '#295F98',
+        borderRadius: 50
+      },
+      {
+        data: gradeRanges['85-89'],
+        backgroundColor: '#0C5A48',
+        borderRadius: 50
+      },
+      {
+        data: gradeRanges['80-84'],
+        backgroundColor: '#FFFF00',
+        borderRadius: 50
+      },
+      {
+        data: gradeRanges['75-79'],
+        backgroundColor: '#FF9204',
+        borderRadius: 50
+      },
+      {
+        data: gradeRanges['Below 75'],
+        backgroundColor: '#D30000',
+        borderRadius: 50
+      }
+    ]
+  };
+});
 
 const gradeChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: false
+    }
+  },
+  scales: {
+    x: {
+      grid: {
+        display: false
+      }
+    },
+    y: {
+      beginAtZero: true,
+      grid: {
+        color: '#000000',
+        drawBorder: false
+      }
+    }
+  },
   barThickness: 40,
   maxBarThickness: 35
 };
 
 // Submitted Grades Chart Data
-const submittedGradesData = {
-  labels: ['APPROVED', 'PENDING', 'DECLINED'],
-  datasets: [
-    {
-      label: 'Advisory Class',
-      data: [45, 12, 3],
-      backgroundColor: '#295F98',
-    },
-    {
-      label: 'Subject Class',
-      data: [180, 45, 15],
-      backgroundColor: '#0C5A48',
+const submittedGradesData = computed(() => {
+  // Get recent submissions from localStorage
+  const recentSubmit = JSON.parse(localStorage.getItem('recentSubmit') || '[]');
+
+  // Initialize counters for each class type and status
+  const counts = {
+    advisory: { APPROVED: 0, PENDING: 0, DECLINED: 0 },
+    subject: { APPROVED: 0, PENDING: 0, DECLINED: 0 }
+  };
+
+  // Count submissions by class type and status
+  recentSubmit.forEach(submission => {
+    // Skip if submission doesn't have required properties
+    if (!submission || !submission.classType || !submission.status) return;
+
+    const classType = submission.classType.toLowerCase();
+    const status = submission.status.toUpperCase();
+
+    if (counts[classType] && counts[classType][status] !== undefined) {
+      counts[classType][status]++;
     }
-  ]
-};
+  });
+
+  return {
+    labels: ['APPROVED', 'PENDING', 'DECLINED'],
+    datasets: [
+      {
+        data: [
+          counts.advisory.APPROVED,
+          counts.advisory.PENDING,
+          counts.advisory.DECLINED
+        ],
+        backgroundColor: '#295F98',
+      },
+      {
+        data: [
+          counts.subject.APPROVED,
+          counts.subject.PENDING,
+          counts.subject.DECLINED
+        ],
+        backgroundColor: '#0C5A48',
+      }
+    ]
+  };
+});
 
 const submittedGradesOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: false
+    }
+  },
+  scales: {
+    x: {
+      grid: {
+        display: false
+      }
+    },
+    y: {
+      beginAtZero: true,
+      grid: {
+        color: '#000000',
+        drawBorder: false
+      }
+    }
+  },
   barPercentage: 3,
-  categoryPercentage: 0.15,
-  datasets: {
-    barThickness: 5,
-    maxBarThickness: 10,
-  }
+  categoryPercentage: 0.2,
 };
 
 // Recent Submitted Grades Data
-const recentSubmittedGrades = [
-  { id: '10693001001', name: 'Bueno, Ryan Joshua E.', class: 'Advisory Class', status: 'Approved' },
-  { id: '10693001001', name: 'Bueno, Ryan Joshua E.', class: 'Advisory Class', status: 'Approved' },
-  { id: '10693001001', name: 'Bueno, Ryan Joshua E.', class: 'Advisory Class', status: 'Approved' },
-  { id: '10693001001', name: 'Bueno, Ryan Joshua E.', class: 'Advisory Class', status: 'Approved' },
-  { id: '10693001001', name: 'Bueno, Ryan Joshua E.', class: 'Advisory Class', status: 'Approved' },
-  { id: '10693001001', name: 'Bueno, Ryan Joshua E.', class: 'Advisory Class', status: 'Approved' },
-  { id: '10693001001', name: 'Bueno, Ryan Joshua E.', class: 'Advisory Class', status: 'Approved' },
-  { id: '10693001001', name: 'Bueno, Ryan Joshua E.', class: 'Advisory Class', status: 'Approved' },
-  { id: '10693001001', name: 'Bueno, Ryan Joshua E.', class: 'Advisory Class', status: 'Approved' },
-  { id: '10693001001', name: 'Bueno, Ryan Joshua E.', class: 'Advisory Class', status: 'Approved' }
-];
+const recentSubmittedGrades = ref([]);
 
 // Recent Graded Data
-const recentGraded = [
-  {
-    id: '10693001001',
-    name: 'Bueno, Ryan Joshua E.',
-    level: 'Senior High School',
-    strand: 'EIM',
-    class: 'Advisory Class',
-    subject: 'Science',
-    grade: '97',
-    status: 'Passed'
-  },
-  {
-    id: '10693001001',
-    name: 'Bueno, Ryan Joshua E.',
-    level: 'Senior High School',
-    strand: 'EIM',
-    class: 'Advisory Class',
-    subject: 'Science',
-    grade: '97',
-    status: 'Passed'
-  },
-  {
-    id: '10693001001',
-    name: 'Bueno, Ryan Joshua E.',
-    level: 'Senior High School',
-    strand: 'EIM',
-    class: 'Advisory Class',
-    subject: 'Science',
-    grade: '97',
-    status: 'Passed'
-  },
-  {
-    id: '10693001001',
-    name: 'Bueno, Ryan Joshua E.',
-    level: 'Senior High School',
-    strand: 'EIM',
-    class: 'Advisory Class',
-    subject: 'Science',
-    grade: '97',
-    status: 'Passed'
-  },
-  {
-    id: '10693001001',
-    name: 'Bueno, Ryan Joshua E.',
-    level: 'Senior High School',
-    strand: 'EIM',
-    class: 'Advisory Class',
-    subject: 'Science',
-    grade: '97',
-    status: 'Passed'
-  }
-];
+const recentGraded = ref([]);
+
+onMounted(() => {
+  // Load recent submitted grades from localStorage
+  const submittedGrades = JSON.parse(localStorage.getItem('recentSubmit') || '[]');
+  recentSubmittedGrades.value = submittedGrades.map(grade => ({
+    lrn: grade.lrn,
+    name: `${grade.lastName}, ${grade.firstName} ${grade.middleName}`,
+    classType: grade.classType,
+    status: grade.status
+  }));
+
+  // Load recent graded from localStorage
+  const graded = JSON.parse(localStorage.getItem('recentGrades') || '[]');
+  recentGraded.value = graded.map(grade => ({
+    lrn: grade.lrn,
+    name: `${grade.lastName}, ${grade.firstName} ${grade.middleName}`,
+    curriculum: grade.curriculum === 'SHS' ? 'Senior High School' :
+      grade.curriculum === 'JHS' ? 'Junior High School' :
+        grade.curriculum,
+    trackStand: grade.trackStand,
+    classType: grade.classType,
+    subjectName: grade.subjectName,
+    grade: grade.grade,
+    remarks: grade.remarks
+  }));
+});
 </script>

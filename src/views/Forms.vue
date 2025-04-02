@@ -16,8 +16,8 @@
           <div v-if="filteredStudents.length > 0">
             <div class="py-5 px-4 text-gray-800 bg-gray-100 mb-1 cursor-pointer"
               v-for="(student, index) in filteredStudents" :key="index" @click="selectStudent(index)" :class="{
-                'bg-gray-300': selectedStudent === student,   // Active background when selected
-                'hover:bg-gray-200': true                     // Hover effect
+                'bg-gray-300': selectedStudent === student,
+                'hover:bg-gray-200': true
               }">
               {{ student.firstName }} {{ student.lastName }}
             </div>
@@ -175,14 +175,12 @@ const generateCSV = (type) => {
   if (!student) return;
 
   if (type === 'SF10') {
-    // SF10: Learner's Information CSV
     const csvContent = [
       ['First Name', 'Last Name', 'LRN', 'Sex', 'Curriculum', 'Birthdate', 'Address'],
       [student.firstName, student.lastName, student.lrn, student.sex, student.curriculum, student.birthDate, student.address]
     ];
     downloadCSV(csvContent, 'SF10_Learners_Info.csv');
   } else if (type === 'SF9') {
-    // SF9: Report Card (Grades) CSV
     const csvContent = [
       ['Subject', '1st Quarter', '2nd Quarter', '3rd Quarter', '4th Quarter', 'GWA', 'Remarks']
     ];

@@ -70,7 +70,6 @@ const fetchStudents = () => {
         const storedData = JSON.parse(localStorage.getItem(key)) || [];
         students.value = storedData;
     } catch (error) {
-        console.error("Error fetching students from localStorage:", error);
         students.value = [];
     }
 };
@@ -108,10 +107,9 @@ const getRemarks = (student) => {
     return 'Failed';
 };
 
-// Helper function to convert grades to numeric value for sorting
 const gradeToNumeric = (grade) => {
-    if (grade === 'No grade') return -1; // "No grade" is treated as the lowest grade
-    if (grade === 'INC') return 0; // "INC" is treated as higher than "No grade" but lower than valid grades
+    if (grade === 'No grade') return -1;
+    if (grade === 'INC') return 0;
     return parseFloat(grade);
 };
 
@@ -132,14 +130,14 @@ const filteredStudents = computed(() => {
             sortedStudents.sort((a, b) => {
                 const gradeA = getFinalGrade(a);
                 const gradeB = getFinalGrade(b);
-                return gradeToNumeric(gradeB) - gradeToNumeric(gradeA); // Highest grade first
+                return gradeToNumeric(gradeB) - gradeToNumeric(gradeA);
             });
             break;
         case 'Sort by Grade (Lowest)':
             sortedStudents.sort((a, b) => {
                 const gradeA = getFinalGrade(a);
                 const gradeB = getFinalGrade(b);
-                return gradeToNumeric(gradeA) - gradeToNumeric(gradeB); // Lowest grade first
+                return gradeToNumeric(gradeA) - gradeToNumeric(gradeB);
             });
             break;
         default:

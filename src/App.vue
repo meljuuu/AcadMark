@@ -2,9 +2,13 @@
   <Login v-if="isLoginPage" @logged-in="handleLogin" />
   <div v-else class="flex min-h-screen">
     <Sidebar class="z-10" />
-    <div class="grow">
+    <div class="flex-1">
       <HeaderBar />
-      <router-view class="ml-2 mt-34 px-[54px] pt-[32px]" />
+      <main class="ml-2 mt-34 px-[54px] pt-[32px]">
+        <router-view v-slot="{ Component }">
+          <component :is="Component" />
+        </router-view>
+      </main>
     </div>
   </div>
 </template>
@@ -19,21 +23,15 @@ import Login from '@/views/login.vue';
 const router = useRouter();
 const isLoginPage = ref(false);
 
-// Check if the user is already logged in
 onMounted(() => {
   const user = localStorage.getItem('user');
-  if (user) {
-    isLoginPage.value = false;
-    router.push('/dashboard'); // Redirect to dashboard if logged in
-  } else {
-    isLoginPage.value = true; // Show login page if not logged in
-  }
+  isLoginPage.value = !user;
+  if (user) router.push('/dashboard');
 });
 
-// Handle successful login
 const handleLogin = () => {
   isLoginPage.value = false;
-  localStorage.setItem('user', 'true'); // Store user login status
+  localStorage.setItem('user', 'true');
   router.push('/dashboard');
 };
 </script>

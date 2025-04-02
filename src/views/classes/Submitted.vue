@@ -25,7 +25,7 @@
                         @click="openModal(student)">
                         <td class="p-2 w-1/6">{{ student.lrn }}</td>
                         <td class="p-2 w-1/6">{{ student.lastName + ", " + student.firstName + " " + student.middleName
-                            }}</td>
+                        }}</td>
                         <td class="p-2 w-1/6">{{ student.sex }}</td>
                         <td class="p-2 w-1/6">{{ getAge(student.birthDate) }}</td>
                         <td class="p-2 w-1/6">{{ getGradeForQuarter(student) }}</td>
@@ -40,7 +40,6 @@
             </table>
         </div>
 
-        <!-- Modal with the selected student and quarter grade -->
         <modal v-if="showMessage" :showMessage="showMessage" @close="closeModal" :trackStand="trackStand"
             :selectedStudent="selectedStudent" :selectedQuarter="selectedQuarter" />
     </div>
@@ -52,7 +51,6 @@ import Dropdown from '@/components/dropdown.vue';
 import Searchbar from '@/components/searchbar.vue';
 import modal from '@/components/modal.vue';
 
-// Props
 const props = defineProps({
     subject_id: {
         type: String,
@@ -64,14 +62,12 @@ const props = defineProps({
     },
 });
 
-// Reactive variables
 const students = ref([]);
 const selectedQuarter = ref("1st");
 const searchQuery = ref("");
 const showMessage = ref(false);
 const selectedStudent = ref(null);
 
-// Mapping quarter to grade
 const quarterMapping = {
     "1st": "first",
     "2nd": "second",
@@ -79,7 +75,6 @@ const quarterMapping = {
     "4th": "fourth"
 };
 
-// Fetching students from localStorage
 const fetchStudents = () => {
     try {
         const key = `submittedGrade_${props.subject_id}`;
@@ -90,7 +85,6 @@ const fetchStudents = () => {
     }
 };
 
-// Computed property for filtered students
 const filteredStudents = computed(() => {
     if (!searchQuery.value) {
         return students.value;
@@ -101,7 +95,6 @@ const filteredStudents = computed(() => {
     });
 });
 
-// Getting the grade based on the selected quarter
 const getGradeForQuarter = (student) => {
     const quarterKey = quarterMapping[selectedQuarter.value];
     return student.grades[quarterKey] || '-';
@@ -110,17 +103,15 @@ const getGradeForQuarter = (student) => {
 const getAge = (birthDate) => {
     const birth = new Date(birthDate);
     const ageDifMs = Date.now() - birth.getTime();
-    const ageDate = new Date(ageDifMs); // miliseconds from epoch
+    const ageDate = new Date(ageDifMs);
     return Math.abs(ageDate.getUTCFullYear() - 1970);
 };
 
-// Open modal with selected student data
 const openModal = (student) => {
     selectedStudent.value = student;
     showMessage.value = true;
 };
 
-// Close modal
 const closeModal = () => {
     showMessage.value = false;
 };

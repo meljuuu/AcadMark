@@ -2,9 +2,16 @@
 
 @theme {
   --default-font-family: 'Poppins', sans-serif;
-
   --color-blue: #295f98;
   --color-green: #0c5a48;
+  --color-gray: #858585;
+  --color-light-gray: #e0e0e0;
+  --color-border: #cecece;
+  --color-text: #242424;
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-success: #23ad00;
+  --color-error: #d30000;
   --breakpoint-sm: 1rem;
   --breakpoint-md: 48rem;
   --breakpoint-lg: 64rem;
@@ -13,67 +20,264 @@
 }
 
 @layer components {
+  /* Layout Components */
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+
+  .flex-between {
+    @apply flex items-center justify-between;
+  }
+
+  .flex-col-center {
+    @apply flex flex-col items-center;
+  }
+
+  .flex-row-center {
+    @apply flex flex-row items-center;
+  }
+
+  .flex-gap-2 {
+    @apply flex gap-2;
+  }
+
+  .flex-gap-3 {
+    @apply flex gap-3;
+  }
+
+  .flex-gap-5 {
+    @apply flex gap-5;
+  }
+
+  .flex-gap-10 {
+    @apply flex gap-10;
+  }
+
+  /* Navigation Components */
   .nav-link {
-    color: white;
-    display: flex;
-    align-items: center;
-    width: 100%;
-    padding: 1rem 2rem;
-    position: relative;
-    transition: color 0.2s ease-in-out;
-
+    @apply flex items-center w-full px-8 py-4 relative transition-colors duration-200 text-white;
     @media (max-width: 48rem) {
-      padding: 0.5rem 1rem;
-      justify-content: center;
+      @apply px-4 py-2 justify-center;
     }
-
     &:hover,
     &.active {
-      color: #bfdbfe;
+      @apply text-[#bfdbfe];
     }
   }
-}
 
-@layer components {
-  .checkbox {
-    width: 20px;
-    height: 20px;
-    appearance: none;
-    background-color: #d9d9d9;
-    border: 2px solid transparent; /* Light gray border */
-    border-radius: 3px; /* Rounded corners */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition:
-      background-color 0.2s ease,
-      border-color 0.2s ease;
-
-    &:checked {
-      border-color: #000; /* Black border when checked */
-    }
-
-    &:checked:after {
-      content: '✓'; /* Checkmark character */
-      color: black; /* White checkmark */
-      font-size: 15px;
-      font-weight: bold;
-    }
-
-    &:hover {
-      background-color: #bebebe; /* Light gray hover effect */
-    }
-
-    &:focus {
-      outline: none; /* Remove outline for focus */
-    }
+  .nav-item {
+    @apply text-lg font-semibold cursor-pointer transition-colors duration-200 ease-in-out hover:text-blue;
   }
-}
 
-@layer components {
+  .nav-item-active {
+    @apply text-blue border-b-2 border-blue;
+  }
+
+  .nav-icon {
+    @apply w-6 h-6 mr-2 sm:hidden md:block;
+  }
+
+  .nav-text {
+    @apply font-semibold text-[16px];
+  }
+
+  /* Sidebar Components */
+  .sidebar {
+    @apply sm:w-[100px] md:w-1/5 lg:w-1/6 max-w-[210px] w-auto bg-blue md:pt-15 sm:pt-5 rounded-tr-[30px] sticky top-0 h-screen;
+  }
+
+  .sidebar-shadow {
+    @apply shadow-[rgba(0,0,0,0.56)_0px_22px_70px_4px];
+  }
+
+  /* Profile Components */
+  .profile-avatar {
+    @apply w-[130px] h-[130px] rounded-full object-contain;
+  }
+
+  .profile-name {
+    @apply text-white text-center font-normal text-[16px];
+  }
+
+  .profile-divider {
+    @apply w-full border-b border-[#A6ACAF];
+  }
+
+  /* Form Components */
+  .input-field {
+    @apply w-full p-[15px] border border-[#295f98] rounded-[5px] text-base outline-none bg-white box-border placeholder:text-xs placeholder:text-[#aaa];
+  }
+
+  .label {
+    @apply absolute -top-[15px] left-[10px] bg-white px-[5px] text-xs text-[#295f98];
+  }
+
+  .select-field {
+    @apply text-base border-none bg-transparent p-1.5 font-bold text-center max-w-max focus:outline-none;
+  }
+
+  .select-container {
+    @apply flex gap-2 border border-[#E3E9EC] rounded-md;
+  }
+
+  .select-label {
+    @apply mr-2.5 p-1.5 text-[#858585];
+  }
+
+  /* Button Components */
+  .btn-primary {
+    @apply bg-blue text-white px-4 py-2 rounded-md hover:bg-[#cecece] transition-colors duration-200 cursor-pointer;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-[#cecece] transition-colors duration-200 cursor-pointer;
+  }
+
+  /* Card Components */
+  .card {
+    @apply border border-[#cecece] rounded-2xl bg-white shadow-lg;
+  }
+
+  .card-header {
+    @apply text-2xl font-semibold text-blue;
+  }
+
+  .card-shadow {
+    @apply shadow-[rgba(0,0,0,0.35)_0px_5px_15px];
+  }
+
+  /* Table Components */
+  .table-container {
+    @apply max-h-[340px] overflow-y-auto mt-5;
+  }
+
+  .table {
+    @apply w-full border-collapse;
+  }
+
+  .table-header {
+    @apply text-center p-2.5 border-none bg-[#f2f2f2] font-bold sticky top-0 text-[#464F60] z-[1];
+  }
+
+  .table-cell {
+    @apply text-center p-2 border-none;
+  }
+
+  /* Search Components */
+  .search-container {
+    @apply w-[500px] max-w-full md:max-w-[80%] sm:max-w-[70%] border border-[#E0E0E0] flex items-center rounded-[8px] mr-5 shadow-[rgba(0,0,0,0.05)_0px_6px_24px_0px,rgba(0,0,0,0.08)_0px_0px_0px_1px,rgba(0,0,0,0.1)_0px_0px_5px_0px,rgba(0,0,0,0.1)_0px_0px_1px_0px];
+  }
+
+  .search-input {
+    @apply border-none outline-none p-2 placeholder-[#6C6C6C] w-full text-sm font-semibold h-10;
+  }
+
+  /* Modal Components */
+  .modal-overlay {
+    @apply fixed inset-0 flex items-center justify-center z-50 bg-black/80;
+  }
+
+  .modal-content {
+    @apply bg-white rounded-lg p-6 w-full max-w-2xl;
+  }
+
+  /* Grade Components */
+  .grade-input {
+    @apply border w-35 h-9 text-center;
+  }
+
+  .grade-display {
+    @apply w-35 h-9 border rounded-[5px] items-center justify-center flex;
+  }
+
+  .grade-passed {
+    @apply text-[#23AD00] font-bold;
+  }
+
+  .grade-failed {
+    @apply text-red-500 font-bold;
+  }
+
+  /* Text Components */
   .title {
-    font-weight: bold;
-    color: #242424;
-    font-size: 47px;
+    @apply font-bold text-[47px] text-[#242424];
+  }
+
+  .section-title {
+    @apply text-blue font-semibold text-2xl;
+  }
+
+  .student-info-label {
+    @apply text-blue text-xs font-bold;
+  }
+
+  .student-info-value {
+    @apply text-2xl font-medium;
+  }
+
+  .text-gray {
+    @apply text-[#858585];
+  }
+
+  /* Border Components */
+  .border-light {
+    @apply border border-[#E0E0E0];
+  }
+
+  /* Checkbox Component */
+  .checkbox {
+    @apply w-5 h-5 appearance-none bg-[#d9d9d9] border-2 border-transparent rounded-[3px] flex justify-center items-center transition-all duration-200;
+    &:checked {
+      @apply border-black;
+      &:after {
+        content: '✓';
+        @apply text-black text-[15px] font-bold;
+      }
+    }
+    &:hover {
+      @apply bg-[#bebebe];
+    }
+    &:focus {
+      @apply outline-none;
+    }
+  }
+
+  /* Comment Component */
+  .comment-textarea {
+    @apply w-full h-32 text-left p-2 rounded-[12px] border border-black resize-none;
+  }
+}
+
+@keyframes wave {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 1;
+  }
+  100% {
+    width: 300%;
+    height: 300%;
+    opacity: 0;
+  }
+}
+
+@keyframes circle {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@layer utilities {
+  .animate-wave {
+    animation: wave 1s ease-out forwards;
+  }
+
+  .animate-circle {
+    animation: circle 3s forwards;
   }
 }

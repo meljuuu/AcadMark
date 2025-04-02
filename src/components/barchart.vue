@@ -75,12 +75,10 @@ const defaultOptions = {
 const createChart = () => {
     const ctx = document.getElementById(props.chartId).getContext('2d');
 
-    // Destroy existing chart if it exists
     if (chart.value) {
         chart.value.destroy();
     }
 
-    // Merge default options with custom options
     const mergedOptions = {
         ...defaultOptions,
         ...props.options
@@ -96,7 +94,6 @@ const createChart = () => {
     });
 };
 
-// Watch for changes in props
 watch(() => [props.labels, props.datasets, props.options], () => {
     createChart();
 }, { deep: true });

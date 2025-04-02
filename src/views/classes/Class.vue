@@ -41,10 +41,10 @@
                     </ul>
                 </nav>
 
-                <!-- Transition wrapper for smooth active component switch -->
                 <transition name="fade" mode="out-in">
                     <div>
                         <component :is="activeComponent" :subject_id="subject_id" :trackStand="trackStand"
+                            :className="className" :subjectName="subjectName" :classType="classType"
                             :key="activeComponent"></component>
                     </div>
                 </transition>
@@ -52,7 +52,7 @@
             </div>
 
         </div>
-        <!-- Display table only if the active component is 'Grading' -->
+
         <div v-if="activeComponent === 'SummaryOfGrades'" class="overflow-x-auto w-1/2 mt-5 mb-15">
             <p class="text-lg font-semibold">Learner Progress and Achievement</p>
             <table class="w-full border-collapse rounded-b-[5px] border border-[#d9d9d9]"
@@ -115,6 +115,7 @@ export default {
         subjectName: String,
         gradeLevel: [String, Number],
         subject_id: String,
+        classType: String,
     },
     components: {
         Classlist,
@@ -128,7 +129,7 @@ export default {
         const femaleCount = ref(0);
         const activeComponent = ref('Classlist');
 
-        const router = useRouter(); // Initialize the router
+        const router = useRouter();
 
         const navItems = [
             { label: "CLASS LIST", component: "Classlist" },
@@ -147,7 +148,7 @@ export default {
                 const studentsInSubject = students.filter(student =>
                     subject.student_id.includes(student.student_id)
                 );
-                return studentsInSubject.length; // Dynamic total student count
+                return studentsInSubject.length;
             }
             return 0;
         });

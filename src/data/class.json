@@ -22,6 +22,7 @@
     "trackStand": "ABM",
     "teacher_id": "T002",
     "coor_id": "T003",
+    "classType": "Subject",
     "subject_id": "SUB002"
   },
   {
@@ -34,6 +35,7 @@
     "trackStand": "Sports",
     "teacher_id": "T005",
     "coor_id": "T004",
+    "classType": "Subject",
     "subject_id": "SUB003"
   },
   {
@@ -46,6 +48,7 @@
     "trackStand": "TVL",
     "teacher_id": "T003",
     "coor_id": "T005",
+    "classType": "Subject",
     "subject_id": "SUB004"
   },
   {
@@ -58,6 +61,7 @@
     "trackStand": "EIM",
     "teacher_id": "T003",
     "coor_id": "T001",
+    "classType": "Subject",
     "subject_id": "SUB005"
   },
   {
@@ -70,6 +74,7 @@
     "trackStand": "EIM",
     "teacher_id": "T003",
     "coor_id": "T001",
+    "classType": "Subject",
     "subject_id": "SUB006"
   }
 ]

@@ -2,63 +2,32 @@
   "teachers": [
     {
       "teacher_ID": "T001",
-      "email": "juan.delacruz@school.com",
-      "password": "Teacher123!",
-      "firstName": "Juan",
-      "lastName": "Dela Cruz",
-      "middleName": "Santos",
+      "email": "melju@gmail.com",
+      "password": "password",
+      "firstName": "Melju",
+      "lastName": "Dasma",
+      "middleName": "Pol",
       "birthDate": "1985-06-15",
       "sex": "Male",
       "contactNumber": "09123456789",
-      "address": "123 Main Street, Manila, Philippines"
-    },
-    {
-      "teacher_ID": "T002",
-      "email": "maria.santos@school.com",
-      "password": "Teacher456!",
-      "firstName": "Maria",
-      "lastName": "Santos",
-      "middleName": "Garcia",
-      "birthDate": "1990-03-22",
-      "sex": "Female",
-      "contactNumber": "09187654321",
-      "address": "456 Rizal Avenue, Quezon City, Philippines"
-    },
-    {
-      "teacher_ID": "T003",
-      "email": "robert.reyes@school.com",
-      "password": "Teacher789!",
-      "firstName": "Robert",
-      "lastName": "Reyes",
-      "middleName": "Lim",
-      "birthDate": "1988-09-10",
-      "sex": "Male",
-      "contactNumber": "09198765432",
-      "address": "789 Bonifacio Street, Makati, Philippines"
-    },
-    {
-      "teacher_ID": "T004",
-      "email": "ana.garcia@school.com",
-      "password": "Teacher101!",
-      "firstName": "Ana",
-      "lastName": "Garcia",
-      "middleName": "Ramos",
-      "birthDate": "1992-12-05",
-      "sex": "Female",
-      "contactNumber": "09123456780",
-      "address": "321 Mabini Street, Pasig, Philippines"
-    },
-    {
-      "teacher_ID": "T005",
-      "email": "carlos.lim@school.com",
-      "password": "Teacher202!",
-      "firstName": "Carlos",
-      "lastName": "Lim",
-      "middleName": "Tan",
-      "birthDate": "1987-04-18",
-      "sex": "Male",
-      "contactNumber": "09187654320",
-      "address": "654 Luna Street, Mandaluyong, Philippines"
+      "employeeNo": "1234567890",
+      "address": "123 Main Street, Manila, Philippines",
+      "education": "Bachelor of Science in Computer Science",
+      "research": [
+        {
+          "title": "Smart Irrigation System: A Sustainable Innovation for Water Conservation",
+          "abstract": "Water scarcity is a growing global issue, making efficient water management crucial for agriculture. Traditional irrigation systems often lead to excessive water usage, resulting in waste and higher costs. This research introduces a Smart Irrigation System, an innovative approach that utilizes moisture sensors, IoT technology, and automation to optimize water distribution and promote sustainable agricultural practices. The system integrates soil moisture sensors, IoT connectivity, and automated watering mechanisms to reduce water consumption by up to 40%. By leveraging real-time data and weather forecasts, this solution enhances efficiency, sustainability, and cost-effectiveness. The Smart Irrigation System provides a scalable solution to water conservation challenges, supporting sustainable farming and environmental preservation."
+        },
+        {
+          "title": "AI-Powered Traffic Management System for Urban Areas",
+          "abstract": "Traffic congestion is a persistent problem in metropolitan areas, leading to economic losses and increased carbon emissions. This research presents an AI-powered Traffic Management System that utilizes real-time traffic data, machine learning algorithms, and adaptive signal control to optimize traffic flow. The system collects data from sensors and cameras to predict congestion patterns and adjust traffic signals dynamically. Preliminary results indicate a 25% reduction in travel time and improved road efficiency. This innovation offers a smart, data-driven approach to urban mobility, reducing congestion and environmental impact."
+        },
+        {
+          "title": "Autonomous Drone Delivery System for Emergency Medical Supplies",
+          "abstract": "Rapid delivery of medical supplies is critical during emergencies, especially in remote or disaster-stricken areas. This research introduces an Autonomous Drone Delivery System designed to transport medical supplies efficiently. Equipped with GPS navigation, obstacle detection, and AI-powered routing, the drones ensure timely and safe deliveries. The system is tested in various terrains, showing a 50% improvement in delivery time compared to traditional methods. This innovation has the potential to revolutionize emergency response systems, enhancing accessibility to essential medical supplies in critical situations."
+        }
+      ],
+      "position": "Teacher IV"
     }
   ]
-} 
+}

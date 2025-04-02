@@ -1,96 +1,90 @@
 <template>
-  <div class="dropdown-container">
-    <!-- Curriculum Dropdown -->
-    <div v-if="showCurriculum" class="dropdown">
-      <div class="dropdown-item">
-        <label for="curriculum">Curriculum</label>
-        <select v-model="selectedCurriculum" id="curriculum">
+  <div class="flex gap-5 flex-wrap">
+    <div v-if="showCurriculum" class="flex gap-2 border border-[#E3E9EC] rounded-md">
+      <div class="flex justify-between items-center">
+        <label for="curriculum" class="mr-2.5 p-1.5 text-[#858585]">Curriculum</label>
+        <select v-model="selectedCurriculum" id="curriculum"
+          class="text-base border-none bg-transparent p-1.5 font-bold text-center max-w-max focus:outline-none">
           <option v-for="option in curriculumOptions" :key="option" :value="option">{{ option }}</option>
         </select>
       </div>
     </div>
 
-    <!-- Year Dropdown -->
-    <div v-if="showYear" class="dropdown">
-      <div class="dropdown-item">
-        <label for="year">Year</label>
-        <select v-model="selectedYear" id="year">
+    <div v-if="showYear" class="flex gap-2 border border-[#E3E9EC] rounded-md">
+      <div class="flex justify-between items-center">
+        <label for="year" class="mr-2.5 p-1.5 text-[#858585]">Year</label>
+        <select v-model="selectedYear" id="year"
+          class="text-base border-none bg-transparent p-1.5 font-bold text-center max-w-max focus:outline-none">
           <option v-for="option in yearOptions" :key="option" :value="option">{{ option }}</option>
         </select>
       </div>
     </div>
 
-    <!-- Academic Track Dropdown -->
-    <div v-if="showAcademicTrack" class="dropdown">
-      <div class="dropdown-item">
-        <label for="academic-track">Academic Track</label>
-        <select v-model="selectedAcademicTrack" id="academic-track">
+    <div v-if="showAcademicTrack" class="flex gap-2 border border-[#E3E9EC] rounded-md">
+      <div class="flex justify-between items-center">
+        <label for="academic-track" class="mr-2.5 p-1.5 text-[#858585]">Academic Track</label>
+        <select v-model="selectedAcademicTrack" id="academic-track"
+          class="text-base border-none bg-transparent p-1.5 font-bold text-center max-w-max focus:outline-none">
           <option v-for="option in academicTrackOptions" :key="option" :value="option">{{ option }}</option>
         </select>
       </div>
     </div>
 
-    <!-- Grade Dropdown -->
-    <div v-if="showGrade" class="dropdown">
-      <div class="dropdown-item">
-        <label for="grade">Grade</label>
-        <select v-model="selectedGrade" id="grade">
+    <div v-if="showGrade" class="flex gap-2 border border-[#E3E9EC] rounded-md">
+      <div class="flex justify-between items-center">
+        <label for="grade" class="mr-2.5 p-1.5 text-[#858585]">Grade</label>
+        <select v-model="selectedGrade" id="grade"
+          class="text-base border-none bg-transparent p-1.5 font-bold text-center max-w-max focus:outline-none">
           <option v-for="option in gradeOptions" :key="option" :value="option">{{ option }}</option>
         </select>
       </div>
     </div>
 
-    <!-- Subject Dropdown -->
-    <div v-if="showSubject" class="dropdown">
-      <div class="dropdown-item">
-        <label for="subject">Subject</label>
-        <select v-model="selectedSubject" id="subject">
+    <div v-if="showSubject" class="flex gap-2 border border-[#E3E9EC] rounded-md">
+      <div class="flex justify-between items-center">
+        <label for="subject" class="mr-2.5 p-1.5 text-[#858585]">Subject</label>
+        <select v-model="selectedSubject" id="subject"
+          class="text-base border-none bg-transparent p-1.5 font-bold text-center max-w-max focus:outline-none">
           <option v-for="option in subjectOptions" :key="option" :value="option">{{ option }}</option>
         </select>
       </div>
     </div>
 
-    <!-- Quarter Dropdown -->
-    <div v-if="showQuarter" class="dropdown">
-      <label for="quarter">Quarter</label>
-      <select v-model="selectedQuarter" id="quarter" @change="updateQuarter">
-        <option v-for="option in quarterOptions" :key="option" :value="option">
-          {{ option }}
-        </option>
+    <div v-if="showQuarter" class="flex gap-2 border border-[#E3E9EC] rounded-md">
+      <label for="quarter" class="mr-2.5 p-1.5 text-[#858585]">Quarter</label>
+      <select v-model="selectedQuarter" id="quarter" @change="updateQuarter"
+        class="text-base border-none bg-transparent p-1.5 font-bold text-center max-w-max focus:outline-none">
+        <option v-for="option in quarterOptions" :key="option" :value="option">{{ option }}</option>
       </select>
-
     </div>
 
-    <!-- Sort Dropdown -->
-    <!-- Sort Dropdown -->
-    <div v-if="showSort" class="dropdown">
-      <div class="dropdown-item">
-        <label for="sort">Sort</label>
-        <select v-model="selectedSort" id="sort" @change="updateSort">
+    <div v-if="showSort" class="flex gap-2 border border-[#E3E9EC] rounded-md">
+      <div class="flex justify-between items-center">
+        <label for="sort" class="mr-2.5 p-1.5 text-[#858585]">Sort</label>
+        <select v-model="selectedSort" id="sort" @change="updateSort"
+          class="text-base border-none bg-transparent p-1.5 font-bold text-center max-w-max focus:outline-none">
           <option v-for="option in sortOptions" :key="option" :value="option">{{ option }}</option>
         </select>
       </div>
     </div>
-    <!-- Marked/Unmarked Dropdown -->
-    <div v-if="showMarkStatus" class="dropdown">
-      <div class="dropdown-item">
-        <label for="mark-status">Status</label>
-        <select v-model="selectedMarkStatus" id="mark-status" @change="updateMarkStatus">
+
+    <div v-if="showMarkStatus" class="flex gap-2 border border-[#E3E9EC] rounded-md">
+      <div class="flex justify-between items-center">
+        <label for="mark-status" class="mr-2.5 p-1.5 text-[#858585]">Status</label>
+        <select v-model="selectedMarkStatus" id="mark-status" @change="updateMarkStatus"
+          class="text-base border-none bg-transparent p-1.5 font-bold text-center max-w-max focus:outline-none">
           <option v-for="option in markStatusOptions" :key="option" :value="option">{{ option }}</option>
         </select>
       </div>
     </div>
-
   </div>
 </template>
 
 <script setup>
 import { ref, defineProps, defineEmits } from 'vue';
 
-// Define emits to listen to event emissions
 const emit = defineEmits();
 
-// Props to control which dropdowns to show
 const props = defineProps({
   showCurriculum: {
     type: Boolean,
@@ -126,7 +120,6 @@ const props = defineProps({
   },
 });
 
-// Dropdown options
 const curriculumOptions = ['SHS', 'JHS'];
 const yearOptions = ['2023', '2024', '2025'];
 const academicTrackOptions = ['TVL', 'Arts and Design', 'Sports', 'ABM', 'STEM', 'HUMMS'];
@@ -139,7 +132,6 @@ const quarterOptions = ['1st', '2nd', '3rd', '4th'];
 const sortOptions = ['Sort by A-Z', 'Sort by Z-A', 'Sort by Grade (Highest)', 'Sort by Grade (Lowest)'];
 const markStatusOptions = ['Marked', 'Unmarked', 'Show All'];
 
-// Selected values (reactive data)
 const selectedCurriculum = ref('');
 const selectedYear = ref('');
 const selectedAcademicTrack = ref('');
@@ -149,75 +141,16 @@ const selectedQuarter = ref('1st');
 const selectedSort = ref('');
 const selectedMarkStatus = ref('Show All');
 
-// Function to emit the selected quarter
 const updateQuarter = () => {
-  console.log('Quarter selected:', selectedQuarter.value);
   emit("update:modelValue", selectedQuarter.value);
 };
 
 
-// Function to emit the selected mark status
 const updateMarkStatus = () => {
-  emit("update:modelValue", selectedMarkStatus.value); // Emitting the event properly
+  emit("update:modelValue", selectedMarkStatus.value);
 };
 
-// Function to emit the selected sort option
 const updateSort = () => {
   emit("update:modelValue", selectedSort.value);
 };
-
-
 </script>
-
-
-<style scoped>
-/* Flex container for the dropdowns */
-.dropdown-container {
-  display: flex;
-  gap: 20px;
-  /* Space between dropdowns */
-  flex-wrap: wrap;
-  /* Wrap to next row if not enough space */
-}
-
-/* Style for each dropdown */
-.dropdown {
-  display: flex;
-  gap: 8px;
-  border: 1px solid #E3E9EC;
-  border-radius: 5px;
-}
-
-/* Flex container for label and select to align them side by side */
-.dropdown-item {
-  display: flex;
-  justify-content: space-between;
-  /* Spread the label and select across */
-  align-items: center;
-}
-
-/* Remove the border from the select */
-select {
-  font-size: 16px;
-  border: none;
-  /* Remove the border */
-  background-color: transparent;
-  /* Optional: makes the background transparent */
-  padding: 5px;
-  font-weight: bold;
-  text-align: center;
-  max-width: max-content;
-}
-
-/* Remove focus outline (black border) on select */
-select:focus {
-  outline: none;
-}
-
-/* Styling for the label */
-label {
-  margin-right: 10px;
-  padding: 5px;
-  color: #858585;
-}
-</style>

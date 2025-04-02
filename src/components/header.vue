@@ -20,7 +20,6 @@ const teacherFirstName = ref('');
 
 const isDashboard = computed(() => route.path === '/dashboard');
 
-// Fetch teacher's first name based on the teacherID in localStorage
 onMounted(() => {
   const teacherID = localStorage.getItem('teacherID');
   if (teacherID) {

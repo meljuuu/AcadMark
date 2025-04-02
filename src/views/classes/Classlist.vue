@@ -1,6 +1,6 @@
 <template>
     <div>
-        <button class="bg-blue px-8 py-2 mx-12 mt-5 rounded-md" @click="showLis = true">
+        <button class="btn-primary px-8 py-2 mx-12 mt-5 rounded-md" @click="showLis = true">
             <p class="text-white font-semibold text-xs">LIS</p>
         </button>
 
@@ -10,27 +10,27 @@
             <p v-if="studentsInSubject.length === 0">No students available for this subject.</p>
             <div v-else>
                 <div class="table-container">
-                    <table>
+                    <table class="table">
                         <thead>
                             <tr>
-                                <th>LRN</th>
-                                <th>Full Name</th>
-                                <th>Gender</th>
-                                <th>Birthdate</th>
-                                <th>Age</th>
-                                <th>Contact Number</th>
-                                <th>Address</th>
+                                <th class="table-header">LRN</th>
+                                <th class="table-header">Full Name</th>
+                                <th class="table-header">Gender</th>
+                                <th class="table-header">Birthdate</th>
+                                <th class="table-header">Age</th>
+                                <th class="table-header">Contact Number</th>
+                                <th class="table-header">Address</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="student in studentsInSubject" :key="student.student_id">
-                                <td>{{ student.lrn }}</td>
-                                <td>{{ student.firstName }} {{ student.lastName }}</td>
-                                <td>{{ student.sex }}</td>
-                                <td>{{ student.birthDate }}</td>
-                                <td>{{ calculateAge(student.birthDate) }}</td>
-                                <td>{{ student.contactNumber }}</td>
-                                <td>{{ student.address }}</td>
+                                <td class="table-cell">{{ student.lrn }}</td>
+                                <td class="table-cell">{{ student.firstName }} {{ student.lastName }}</td>
+                                <td class="table-cell">{{ student.sex }}</td>
+                                <td class="table-cell">{{ student.birthDate }}</td>
+                                <td class="table-cell">{{ calculateAge(student.birthDate) }}</td>
+                                <td class="table-cell">{{ student.contactNumber }}</td>
+                                <td class="table-cell">{{ student.address }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -38,7 +38,6 @@
             </div>
         </div>
 
-        <!-- Pass showLis as a prop -->
         <modal v-if="showLis" :subject_id="subject_id" :showLis="showLis" @close="showLis = false" />
     </div>
 </template>
@@ -54,7 +53,7 @@ const props = defineProps({
 });
 
 const studentsInSubject = ref([]);
-const showLis = ref(false); // Toggle visibility of modal
+const showLis = ref(false);
 
 const calculateAge = (birthdate) => {
     const today = new Date();
@@ -77,33 +76,5 @@ onMounted(() => {
 });
 </script>
 
-
-<style scoped>
-.table-container {
-    max-height: 340px;
-    overflow-y: auto;
-    margin-top: 20px;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th,
-td {
-    text-align: center;
-    padding: 8px;
-    border: none;
-}
-
-th {
-    background-color: #f2f2f2;
-    font-weight: bold;
-    position: sticky;
-    color: #464F60;
-    top: 0px;
-    padding: 10px;
-    z-index: 1;
-}
-</style>
+<div class="flex-center">
+</div>
