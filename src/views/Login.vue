@@ -288,8 +288,4 @@ input {
   color: #999;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
-<<<<<<< HEAD
 </style>
-=======
-</style>
->>>>>>> c713c4d51e8304edf12211bd571b55a7272b6f74
