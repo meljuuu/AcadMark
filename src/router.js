@@ -18,7 +18,6 @@ const routes = [
   },
   { path: '/forms', name: 'forms', component: Forms },
   { path: '/profile', name: 'profile', component: Profile },
-  { path: '/login', name: 'login', component: Login },
 ];
 
 export default createRouter({

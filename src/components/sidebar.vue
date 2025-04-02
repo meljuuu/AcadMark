@@ -1,6 +1,6 @@
 <template>
   <div
-    class="sm:w-[100px] md:w-1/5 lg:w-1/6 max-w-[210px] w-auto bg-blue md:pt-15 sm:pt-5 rounded-tr-[30px] sticky top-0 h-screen"
+    class="sm:w-[100px] md:w-1/5 lg:w-1/6 max-w-[210px] w-auto bg-blue md:pt-15 sm:pt-5 rounded-tr-[30px] sticky top-0 h-screen flex flex-col"
     style="box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;">
 
     <div class="flex flex-col items-center m-4 gap-8">
@@ -9,7 +9,7 @@
       <div class="w-full border-b border-[#A6ACAF]"></div>
     </div>
 
-    <nav class="flex flex-col w-full mt-5 relative">
+    <nav class="flex flex-col w-full mt-5 relative flex-1">
       <div class="absolute left-0 w-full bg-[#3E6FA2] transitions-all duration-300 rounded-r-lg"
         :style="{ top: `${activeIndex * 57}px`, height: '50px' }"></div>
 
@@ -19,14 +19,42 @@
         <span class="font-semibold text-[16px]">{{ link.name }}</span>
       </router-link>
     </nav>
+
+    <!-- Logout Button -->
+    <div class="mt-auto mb-8">
+      <button @click="showLogoutModal = true"
+        class="nav-link hover:text-red-500 transition-colors duration-200 flex items-center justify-center">
+        <img src="/public/assets/img/sidebar/logout.png" alt="Logout" class="w-6 h-6 mr-2" />
+        <span class="font-semibold text-[16px]">Logout</span>
+      </button>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div v-if="showLogoutModal" class="modal-overlay">
+      <div class="modal-content max-w-md">
+        <h2 class="text-xl font-bold mb-4 text-blue">Confirm Logout</h2>
+        <p class="mb-6 text-gray">Are you sure you want to logout?</p>
+        <div class="flex justify-end gap-3">
+          <button @click="showLogoutModal = false" class="px-4 py-2 text-gray-600 hover:text-gray-800 font-semibold">
+            Cancel
+          </button>
+          <button @click="confirmLogout" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 font-semibold">
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
+import { useRouter } from 'vue-router';
 import teacherData from '@/data/teachers.json';
 
+const router = useRouter();
 const activeIndex = ref(0);
+const showLogoutModal = ref(false);
 
 const imageSrc = ref("/public/assets/img/profile/avatar.png");
 const currentTeacher = ref(null);
@@ -70,4 +98,15 @@ onMounted(() => {
 
   setInterval(updateImageFromStorage, 1000);
 });
+
+const confirmLogout = () => {
+  // Clear all localStorage
+  localStorage.clear();
+  // Redirect to login page
+  router.push('/login');
+};
+
+const handleLogout = () => {
+  showLogoutModal.value = true;
+};
 </script>
