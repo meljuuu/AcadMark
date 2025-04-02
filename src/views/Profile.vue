@@ -6,7 +6,7 @@
                 <div class="flex flex-col items-center gap-3">
                     <div class="w-50 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer"
                         @click="triggerImageUpload">
-                        <img :src="teacherData.avatar || '/public/assets/img/profile/avatar.png'" alt="Profile Avatar"
+                        <img :src="teacherData.avatar || '/assets/img/profile/avatar.png'" alt="Profile Avatar"
                             class="w-full h-full object-cover rounded-full">
                         <input type="file" ref="fileInput" accept="image/*" class="hidden" @change="handleImageUpload">
                     </div>
