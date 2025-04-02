@@ -8,7 +8,20 @@
                 <span v-else class="default-avatar"></span>
             </div>
             <h2 class="teacher-name">Teacher Robert!</h2>
-            <h3 class="teacher-position">Teacher IV</h3>
+
+            <!-- Editable Teacher Position -->
+            <h3 class="teacher-position">
+                <span v-if="!isEditingPosition">{{ teacherPosition }}</span>
+                <input v-else v-model="teacherPosition" type="text" class="edit-input" />
+            </h3>
+
+            <!-- Button to toggle edit state for position -->
+            <div class="button-container">
+                <button class="edit-button" @click="toggleEditPosition">
+                    {{ isEditingPosition ? 'Cancel' : 'Edit' }}
+                </button>
+                <button v-if="isEditingPosition" class="save-button" @click="savePosition">Save</button>
+            </div>
         </div>
 
         <!-- Right Section: Profile Details -->
@@ -51,7 +64,7 @@
                 </tr>
             </table>
 
-            <!-- Edit Button for Profile Details -->
+            <!-- Button container for profile edit moved to bottom -->
             <div class="button-container">
                 <button class="edit-button" @click="toggleEditProfile">
                     {{ isEditingProfile ? 'Cancel' : 'Edit' }}
@@ -68,7 +81,7 @@
             <div v-if="isEditingEducation">
                 <textarea v-model="profile.education" class="edit-textarea"></textarea>
             </div>
-            <p v-else >{{ profile.education }} </p>
+            <p v-else>{{ profile.education }} </p>
 
             <!-- Edit Button for Education -->
             <div class="button-container">
@@ -105,14 +118,16 @@ export default {
             isEditingProfile: false,
             isEditingEducation: false,
             isEditingResearch: false,
+            isEditingPosition: false, 
             avatarSrc: null,
+            teacherPosition: "Teacher IV", 
             profile: {
                 fullName: "Robert L. Reyes",
                 employeeNo: "126421941594134",
                 email: "Teacher@gmail.com",
                 phone: "092654848948",
                 address: "12# street brgy something",
-                education: "Bachelor of Science in Computer Science - Gordon College",
+                education: "Bachelor of Science in Computer Science",
                 research: "Developing a Smart Moving Dustbin for Automated Waste Collection"
             }
         };
@@ -151,24 +166,42 @@ export default {
         saveResearch() {
             this.isEditingResearch = false;
             alert("Research Innovation updated successfully!");
+        },
+        toggleEditPosition() {
+            this.isEditingPosition = !this.isEditingPosition;
+        },
+
+        // Save updated position
+        savePosition() {
+            this.isEditingPosition = false;
+            alert("Teacher Position updated successfully!");
         }
     }
 };
 </script>
 
 <style scoped>
-/* Layout */
+/* === GENERAL LAYOUT === */
 .profile-container {
     display: flex;
     gap: 20px;
     margin-top: 140px;
+    margin-bottom: -10px;
     padding: 30px;
     align-items: flex-start;
 }
 
+.info-section {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+/* === PROFILE CARD === */
 .profile-card {
     width: 400px;
-    height: 350px;
+    height: 400px;
     border: 1px solid #E0E0E0;
     background: #F5F5F5;
     text-align: center;
@@ -177,7 +210,7 @@ export default {
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Avatar */
+/* === AVATAR === */
 .avatar {
     width: 200px;
     height: 200px;
@@ -191,10 +224,6 @@ export default {
     cursor: pointer;
 }
 
-.default-avatar {
-    font-size: 40px;
-}
-
 .avatar-image {
     width: 100%;
     height: 100%;
@@ -202,31 +231,25 @@ export default {
     object-fit: cover;
 }
 
-.teacher-name {
-    color: #292929;
-    font-size: 34px;
+.default-avatar {
+    font-size: 40px;
 }
 
-.teacher-position {
-    color: #292929;
-    font-size: 24px;
-    font-weight: 600;
-}
-
-/* Profile Details */
+/* === PROFILE DETAILS SECTION === */
 .profile-details {
     flex: 1;
     border: 1px solid #E0E0E0;
-    height: 350px;
+    height: 400px;
     background: #F5F5F5;
-    padding: 10px;
+    padding: 20px;
     border-radius: 5px;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.teacher-details {
-    font-size: 20px;
-    color: #292929;
+.profile-details .button-container {
+    position: absolute;
+    bottom: 115px; 
+    right: 50px; 
 }
 
 table {
@@ -254,53 +277,52 @@ th {
     font-size: 14px;
 }
 
-.button-container {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-/* Education & Research Sections */
-.info-section {
-    display: flex;
-    /* gap: 20px; */
-    justify-content: center;
-    margin-bottom: 30px;
-}
-
-.educ-info-card {
+/* === EDUCATIONAL & RESEARCH INFO CARDS === */
+.educ-info-card,
+.research-info-card {
     width: 400px;
     height: 350px;
     border: 1px solid #E0E0E0;
     background: #F5F5F5;
-    margin-right: 170px;
-    margin-top: -10px;
     padding: 20px;
     border-radius: 5px;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
     justify-content: space-between;
 }
 
-.educ-info-card h3 {
+.educ-info-card {
+    margin-left: 30px;
+}
+
+.research-info-card {
+    width: 58%;
+    margin-right: 30px;
+}
+
+/* Headings */
+.educ-info-card h3,
+.research-info-card h3 {
     font-size: 20px;
     font-weight: 600;
     margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #E0E0E0;
 }
 
+/* Paragraph Content */
 .educ-info-card p {
     margin-bottom: 150px;
     font-size: 16px;
 }
 
-.research-info-card {
-    border: 1px solid #E0E0E0;
-    padding: 20px;
-    border-radius: 5px;
+.research-info-card p {
+    margin-bottom: 150px;
+    font-size: 16px;
 }
 
+/* Editable Text Area */
 .edit-textarea {
     width: 100%;
     padding: 6px;
@@ -310,28 +332,36 @@ th {
     font-size: 14px;
 }
 
-/* Buttons */
-.edit-button {
-    width: 115px;
-    height: 30px;
-    padding: 5px 20px;
-    background: #0056b3;
-    font-size: 12px;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+/* === TYPOGRAPHY === */
+.teacher-name {
+    color: #292929;
+    font-size: 34px;
 }
 
-.edit-button:hover {
-    background: #004494;
+.teacher-position {
+    color: #292929;
+    font-size: 24px;
+    font-weight: 600;
 }
 
+.teacher-details {
+    font-size: 20px;
+    color: #292929;
+}
+
+/* === BUTTON STYLING === */
+.button-container {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.edit-button,
 .save-button {
     width: 115px;
     height: 30px;
     padding: 5px 20px;
-    background: #28a745;
     font-size: 12px;
     color: white;
     border: none;
@@ -339,7 +369,34 @@ th {
     cursor: pointer;
 }
 
+.edit-button {
+    background: #0056b3;
+}
+
+.save-button {
+    background: #28a745;
+}
+
+.edit-button:hover {
+    background: #004494;
+}
+
 .save-button:hover {
     background: #218838;
+}
+
+/* === EDIT POSITION FIELD === */
+.teacher-position input {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.teacher-position span {
+    font-size: 24px;
+    font-weight: 600;
+    color: #292929;
 }
 </style>

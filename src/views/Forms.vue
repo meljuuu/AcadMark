@@ -112,10 +112,12 @@ export default {
 
 
 <style scoped>
+/* General Layout */
 .form-container {
   padding-inline: 54px;
 }
 
+/* Typography */
 .advisory {
   position: absolute;
   top: 100px;
@@ -126,6 +128,21 @@ export default {
   color: #292929;
 }
 
+.forms-name {
+  padding: 15px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.student-titles,
+.grades-title {
+  color: #295F98;
+  font-size: 24px;
+  font-weight: 600;
+  padding: 20px;
+}
+
+/* Search Bar */
 .search-container {
   width: 100%;
   display: flex;
@@ -166,11 +183,13 @@ export default {
   border-radius: 5px;
 }
 
+/* Content Section */
 .content {
   margin-top: -10px;
   display: flex;
 }
 
+/* Namebar */
 .namebar {
   width: 30%;
   max-height: 700px;
@@ -178,27 +197,6 @@ export default {
   border: 1px solid #ccc;
   margin-bottom: 20px;
   border-bottom-left-radius: 10px;
-}
-
-.namebar::-webkit-scrollbar {
-  width: 9px;
-}
-
-.namebar::-webkit-scrollbar-track {
-  background: #D0D0D0;
-  border-radius: 22px;
-  margin: 20px;
-}
-
-.namebar::-webkit-scrollbar-thumb {
-  background: #484848;
-  border-radius: 22px;
-}
-
-.forms-name {
-  padding: 15px;
-  font-size: 15px;
-  font-weight: 600;
 }
 
 .student-name {
@@ -209,6 +207,7 @@ export default {
   cursor: pointer;
 }
 
+/* Main Content */
 .main {
   flex-grow: 1;
   border: 1px solid #ccc;
@@ -216,26 +215,13 @@ export default {
   margin-bottom: 20px;
 }
 
-.student-titles {
-  color: #295F98;
-  font-size: 24px;
-  font-weight: 600;
-  padding: 20px;
-}
-
+/* Grades Header & Buttons */
 .grades-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  margin-top: 100px;
-}
-
-.grades-title {
-  color: #295F98;
-  font-size: 24px;
-  font-weight: 600;
-  margin: 0;
+  margin-top: 90px;
 }
 
 .modal-buttons {
@@ -255,6 +241,7 @@ export default {
   cursor: pointer;
 }
 
+/* Table Styling */
 .table-wrapper {
   width: 101%;
   padding: 11px;
@@ -290,4 +277,21 @@ td {
 td:first-child {
   background-color: #F6F6F6;
 }
+
+/* Scrollbar Styling */
+.namebar::-webkit-scrollbar {
+  width: 9px;
+}
+
+.namebar::-webkit-scrollbar-track {
+  background: #D0D0D0;
+  border-radius: 22px;
+  margin: 20px;
+}
+
+.namebar::-webkit-scrollbar-thumb {
+  background: #484848;
+  border-radius: 22px;
+}
+
 </style>
