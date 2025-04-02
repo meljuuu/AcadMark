@@ -3,7 +3,6 @@
     <h1 class="title">Dashboard</h1>
 
     <div class="flex flex-row justify-between gap-10 w-full">
-      <!-- Advisory Class Card -->
       <div class="p-5 border-blue border-2 w-1/2 rounded-2xl overflow-hidden">
         <p class="font-semibold text-[32px]">Advisory Class</p>
 
@@ -32,7 +31,6 @@
         </div>
       </div>
 
-      <!-- Subject Class Card -->
       <div class="w-1/2 border border-[#cecece] p-5 rounded-2xl overflow-hidden"
         style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
         <p class="font-semibold text-[32px]">Subject Class</p>
@@ -66,7 +64,6 @@
       </div>
     </div>
 
-    <!-- Summary of Grades -->
     <div class="p-5 border border-[#cecece] rounded-2xl w-full overflow-hidden"
       style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
       <div>
@@ -107,7 +104,6 @@
     </div>
 
     <div class="flex flex-row justify-between gap-10 w-full">
-      <!-- Total Submitted Grades -->
       <div class="w-1/2 p-5 border border-[#cecece] rounded-2xl flex flex-col gap-5 overflow-hidden"
         style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
         <p class="font-semibold text-[32px]">Total Submitted Grades</p>
@@ -130,7 +126,6 @@
         </div>
       </div>
 
-      <!-- Recent Submitted Grades -->
       <div class="w-1/2 p-5 border border-[#cecece] rounded-2xl overflow-hidden"
         style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
         <p class="font-semibold text-[32px]">Recent Submitted Grades</p>
@@ -159,7 +154,6 @@
       </div>
     </div>
 
-    <!-- Recent Graded -->
     <div class="p-5 border border-[#cecece] rounded-2xl w-full overflow-hidden"
       style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
       <p class="font-semibold text-[32px]">Recent Graded</p>
@@ -203,22 +197,17 @@ import classData from '@/data/class.json';
 import subjectData from '@/data/subjects.json';
 import studentData from '@/data/students.json';
 
-// Advisory Class Stats
 const advisoryStats = computed(() => {
-  // Find advisory class from class.json
   const advisoryClass = classData.find(cls => cls.classType === 'Advisory');
   if (!advisoryClass) return { total: 0, male: 0, female: 0 };
 
-  // Find the subject in subjects.json that matches the advisory class's subject_id
   const advisorySubject = subjectData.find(sub => sub.subject_id === advisoryClass.subject_id);
   if (!advisorySubject) return { total: 0, male: 0, female: 0 };
 
-  // Get only the students in the advisory class
   const advisoryStudents = studentData.filter(student =>
     advisorySubject.student_id.includes(student.student_id)
   );
 
-  // Count male and female students in the advisory class
   const maleCount = advisoryStudents.filter(student => student.sex === 'Male').length;
   const femaleCount = advisoryStudents.filter(student => student.sex === 'Female').length;
 
@@ -229,13 +218,10 @@ const advisoryStats = computed(() => {
   };
 });
 
-// Subject Class Stats
 const subjectClasses = computed(() => {
-  // Get all subject classes from class.json
   const subjectClasses = classData.filter(cls => cls.classType === 'Subject');
 
   return subjectClasses.map(cls => {
-    // Find the subject in subjects.json
     const subject = subjectData.find(sub => sub.subject_id === cls.subject_id);
     const studentCount = subject ? subject.student_id.length : 0;
 
@@ -247,12 +233,9 @@ const subjectClasses = computed(() => {
   });
 });
 
-// Grade Chart Data
 const gradeChartData = computed(() => {
-  // Get all unique class names from class.json
   const classNames = [...new Set(classData.map(cls => cls.className))];
 
-  // Initialize grade ranges
   const gradeRanges = {
     '90-100': Array(classNames.length).fill(0),
     '85-89': Array(classNames.length).fill(0),
@@ -261,10 +244,8 @@ const gradeChartData = computed(() => {
     'Below 75': Array(classNames.length).fill(0)
   };
 
-  // Get recent grades from localStorage
   const recentGrades = JSON.parse(localStorage.getItem('recentGrades') || '[]');
 
-  // Count grades for each class and range
   recentGrades.forEach(grade => {
     const className = grade.className;
     const gradeValue = parseFloat(grade.grade);
@@ -343,20 +324,15 @@ const gradeChartOptions = {
   maxBarThickness: 35
 };
 
-// Submitted Grades Chart Data
 const submittedGradesData = computed(() => {
-  // Get recent submissions from localStorage
   const recentSubmit = JSON.parse(localStorage.getItem('recentSubmit') || '[]');
 
-  // Initialize counters for each class type and status
   const counts = {
     advisory: { APPROVED: 0, PENDING: 0, DECLINED: 0 },
     subject: { APPROVED: 0, PENDING: 0, DECLINED: 0 }
   };
 
-  // Count submissions by class type and status
   recentSubmit.forEach(submission => {
-    // Skip if submission doesn't have required properties
     if (!submission || !submission.classType || !submission.status) return;
 
     const classType = submission.classType.toLowerCase();
@@ -416,14 +392,11 @@ const submittedGradesOptions = {
   categoryPercentage: 0.2,
 };
 
-// Recent Submitted Grades Data
 const recentSubmittedGrades = ref([]);
 
-// Recent Graded Data
 const recentGraded = ref([]);
 
 onMounted(() => {
-  // Load recent submitted grades from localStorage
   const submittedGrades = JSON.parse(localStorage.getItem('recentSubmit') || '[]');
   recentSubmittedGrades.value = submittedGrades.map(grade => ({
     lrn: grade.lrn,
@@ -432,7 +405,6 @@ onMounted(() => {
     status: grade.status
   }));
 
-  // Load recent graded from localStorage
   const graded = JSON.parse(localStorage.getItem('recentGrades') || '[]');
   recentGraded.value = graded.map(grade => ({
     lrn: grade.lrn,
