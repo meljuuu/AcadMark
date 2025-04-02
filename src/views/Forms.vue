@@ -83,18 +83,18 @@
                 </thead>
                 <tbody>
                   <tr v-for="(subject, index) in studentSubjects" :key="index">
-                    <td class="p-2 text-center font-semibold text-gray-800">{{ subject.subjectName || "-" }}</td>
+                    <td class="p-2 text-center font-semibold text-gray-800">{{ subject.subjectName || "" }}</td>
                     <td class="p-2 text-center font-semibold text-gray-800">{{ getGrade(subject.subject_id, 'first') ||
-                      "-" }}</td>
+                      "" }}</td>
                     <td class="p-2 text-center font-semibold text-gray-800">{{ getGrade(subject.subject_id, 'second') ||
-                      "-" }}</td>
+                      "" }}</td>
                     <td class="p-2 text-center font-semibold text-gray-800">{{ getGrade(subject.subject_id, 'third') ||
-                      "-" }}</td>
+                      "" }}</td>
                     <td class="p-2 text-center font-semibold text-gray-800">{{ getGrade(subject.subject_id, 'fourth') ||
-                      "-" }}</td>
-                    <td class="p-2 text-center font-semibold text-gray-800">{{ calculateGWA(subject.subject_id) || "-"
+                      "" }}</td>
+                    <td class="p-2 text-center font-semibold text-gray-800">{{ calculateGWA(subject.subject_id) || ""
                     }}</td>
-                    <td class="p-2 text-center font-semibold text-gray-800">{{ getRemarks(subject.subject_id) || "-" }}
+                    <td class="p-2 text-center font-semibold text-gray-800">{{ getRemarks(subject.subject_id) || "" }}
                     </td>
                   </tr>
                 </tbody>

@@ -6,7 +6,10 @@
 
         <div class="flex w-1/2 justify-between">
             <Searchbar v-model="searchQuery" />
-            <button @click="generateCSV" class="bg-[#30612E] text-white px-5 py-1 rounded-md">Generate Report</button>
+            <button @click="generateCSV"
+                class="bg-[#30612E] text-white px-5 py-1 rounded-md hover:bg-[#cecece] transition-colors cursor-pointer duration-200">
+                Generate Report
+            </button>
         </div>
     </div>
 
@@ -54,6 +57,10 @@ const props = defineProps({
         type: String,
         required: true,
     },
+    subjectName: {
+        type: String,
+        required: true,
+    },
 });
 
 const headers = ref([
@@ -75,7 +82,11 @@ const fetchStudents = () => {
 };
 
 const getGradeForQuarter = (student, quarter) => {
-    return student.grades?.[quarter] || '-';
+    const grade = student.grades?.[quarter];
+    if (grade === null || grade === undefined || grade === '' || grade === '-') {
+        return 'No grade';
+    }
+    return grade;
 };
 
 const getFinalGrade = (student) => {
@@ -146,6 +157,44 @@ const filteredStudents = computed(() => {
 
     return sortedStudents;
 });
+
+const generateCSV = () => {
+    // Get the current date for the filename
+    const date = new Date().toLocaleDateString().replace(/\//g, '-');
+
+    // Create CSV header row
+    const csvContent = [
+        // Headers
+        headers.value.join(','),
+        // Data rows
+        ...filteredStudents.value.map(student => [
+            student.lrn,
+            `${student.lastName}, ${student.firstName} ${student.middleName}`.trim(),
+            student.sex,
+            getGradeForQuarter(student, "first"),
+            getGradeForQuarter(student, "second"),
+            getGradeForQuarter(student, "third"),
+            getGradeForQuarter(student, "fourth"),
+            getFinalGrade(student),
+            getRemarks(student)
+        ].join(','))
+    ].join('\n');
+
+    // Create blob and download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    // Set up download link
+    link.setAttribute('href', url);
+    link.setAttribute('download', `Grades Summary - ${props.subjectName} - ${date}.csv`);
+    link.style.visibility = 'hidden';
+
+    // Add to document, click, and remove
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
 
 onMounted(fetchStudents);
 </script>

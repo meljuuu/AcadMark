@@ -97,7 +97,7 @@ const filteredStudents = computed(() => {
 
 const getGradeForQuarter = (student) => {
     const quarterKey = quarterMapping[selectedQuarter.value];
-    return student.grades[quarterKey] || '-';
+    return student.grades[quarterKey] || '';
 };
 
 const getAge = (birthDate) => {
