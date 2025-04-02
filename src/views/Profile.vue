@@ -244,12 +244,13 @@ export default {
     padding: 20px;
     border-radius: 5px;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
 }
 
 .profile-details .button-container {
     position: absolute;
-    bottom: 115px; 
-    right: 50px; 
+    bottom: 30px; 
+    right: 20px; 
 }
 
 table {
