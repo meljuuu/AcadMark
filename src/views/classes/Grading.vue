@@ -1,6 +1,5 @@
 <template>
     <div class="flex max-h-[412px]">
-        <!-- Left Section: Student Selection -->
         <div class="px-5 py-3 border-r border-[#d0d0d0]">
             <div class="flex items-center gap-5">
                 <Dropdown :showQuarter="true" v-model="selectedQuarter" />
@@ -8,20 +7,17 @@
                 <p class="font-semibold text-lg">{{ formattedDate }}</p>
             </div>
 
-            <!-- Select All Checkbox -->
             <div class="mt-4 flex items-center justify-end gap-2">
                 <label for="select-all" class="ml-2 text-xs">Select All</label>
                 <input type="checkbox" class="checkbox mr-[27px]" id="select-all" v-model="selectAll"
                     @change="toggleSelectAll" />
             </div>
 
-            <!-- Displaying Student Names Dynamically -->
             <div v-if="filteredStudents.length > 0" class="mt-4 overflow-y-auto max-h-[230px]">
                 <ul>
                     <li v-for="(student, index) in filteredStudents" :key="index" class="flex justify-between py-2 mr-3"
                         @click="setStudentInfo(index)">
                         <div class="flex items-center gap-5 cursor-pointer">
-                            <!-- Conditional background color based on grade presence for the current quarter -->
                             <div :class="{
                                 'bg-[#23AD00]': student.grades[quarterMapping[selectedQuarter]] !== null && student.grades[quarterMapping[selectedQuarter]] !== '',
                                 'bg-red-500': !student.grades[quarterMapping[selectedQuarter]]
@@ -46,7 +42,6 @@
             </div>
         </div>
 
-        <!-- Right Section: Student Info and Grading -->
         <div class="gap-3 flex flex-col mx-5 my-3 flex-1">
             <p class="text-blue font-semibold text-2xl">STUDENT INFO</p>
             <div class="flex flex-col gap-3">
@@ -223,7 +218,9 @@ function saveGrades() {
     if (selectedStudent.value) {
         const gradeKey = quarterMapping[selectedQuarter.value];
 
-        studentsInSubject.value[currentIndex.value].grades[gradeKey] = Grade.value;
+        const gradeToSave = Grade.value === '' || Grade.value === null ? 'No grade' : Grade.value;
+
+        studentsInSubject.value[currentIndex.value].grades[gradeKey] = gradeToSave;
 
         AsyncStorage.setItem(`subject_${props.subject_id}`, JSON.stringify(studentsInSubject.value));
         AsyncStorage.setItem(`submittedgrade_${props.subject_id}`, JSON.stringify(studentsInSubject.value));
@@ -239,8 +236,8 @@ function saveGrades() {
             classType: props.classType,
             subjectName: props.subjectName,
             className: props.className,
-            grade: Grade.value,
-            remarks: Grade.value <= 75 ? "Failed" : "Passed",
+            grade: gradeToSave,
+            remarks: gradeToSave === 'No grade' ? 'Failed' : (parseFloat(gradeToSave) <= 75 ? 'Failed' : 'Passed'),
             timestamp: new Date().toISOString()
         };
 
@@ -371,30 +368,11 @@ function submitGrades() {
                 localStorage.setItem('recentSubmit', JSON.stringify(recentSubmit));
 
                 AsyncStorage.setItem(`subject_${props.subject_id}`, JSON.stringify(studentsInSubject.value))
-                    .then(() => {
-                        // Successfully saved
-                    })
-                    .catch(error => {
-                        // Handle error silently
-                    });
 
                 AsyncStorage.setItem(`submittedGrade_${props.subject_id}`, JSON.stringify(selectedStudents))
-                    .then(() => {
-                        // Successfully saved
-                    })
-                    .catch(error => {
-                        // Handle error silently
-                    });
             });
         })
-        .catch(error => {
-            // Handle error silently
-        });
 }
-
-const showAllLocalStorage = () => {
-    // Removed console.log functionality
-};
 
 onMounted(() => {
     showAllLocalStorage();

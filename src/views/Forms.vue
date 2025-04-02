@@ -83,19 +83,18 @@
                 </thead>
                 <tbody>
                   <tr v-for="(subject, index) in studentSubjects" :key="index">
-                    <td class="p-2 text-center font-semibold text-gray-800">{{ subject.subjectName || "" }}</td>
+                    <td class="p-2 text-center font-semibold text-gray-800">{{ subject.subjectName || "-" }}</td>
                     <td class="p-2 text-center font-semibold text-gray-800">{{ getGrade(subject.subject_id, 'first') ||
-                      "" }}</td>
+                      'No grade' }}</td>
                     <td class="p-2 text-center font-semibold text-gray-800">{{ getGrade(subject.subject_id, 'second') ||
-                      "" }}</td>
+                      'No grade' }}</td>
                     <td class="p-2 text-center font-semibold text-gray-800">{{ getGrade(subject.subject_id, 'third') ||
-                      "" }}</td>
+                      'No grade' }}</td>
                     <td class="p-2 text-center font-semibold text-gray-800">{{ getGrade(subject.subject_id, 'fourth') ||
-                      "" }}</td>
-                    <td class="p-2 text-center font-semibold text-gray-800">{{ calculateGWA(subject.subject_id) || ""
-                    }}</td>
-                    <td class="p-2 text-center font-semibold text-gray-800">{{ getRemarks(subject.subject_id) || "" }}
-                    </td>
+                      'No grade' }}</td>
+                    <td class="p-2 text-center font-semibold text-gray-800">{{ calculateGWA(subject.subject_id) ||
+                      'No grade' }}</td>
+                    <td class="p-2 text-center font-semibold text-gray-800">{{ getRemarks(subject.subject_id) }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -230,18 +229,21 @@ const calculateGWA = (subjectId) => {
       student.grades['fourth']
     ];
 
-    if (grades.every(grade => grade === null || grade === '')) {
+    if (grades.every(grade => grade === undefined || !grade || grade === null || grade === '' || grade === '-' || grade === 'No grade')) {
       return 'No grade';
     }
 
-    if (grades.some(grade => grade === null || grade === '' || isNaN(parseFloat(grade)))) {
+    const hasValidGrades = grades.some(grade => grade !== undefined && grade && grade !== null && grade !== '' && grade !== '-' && grade !== 'No grade');
+    const hasEmptyGrades = grades.some(grade => grade === undefined || !grade || grade === null || grade === '' || grade === '-' || grade === 'No grade');
+
+    if (hasValidGrades && hasEmptyGrades) {
       return 'INC';
     }
 
     const validGrades = grades.map(grade => parseFloat(grade));
     const average = validGrades.reduce((sum, grade) => sum + grade, 0) / validGrades.length;
 
-    return isNaN(average) ? 'INC' : average.toFixed(2);
+    return isNaN(average) ? 'No grade' : average.toFixed(2);
   }
 
   return 'No grade';
@@ -250,7 +252,7 @@ const calculateGWA = (subjectId) => {
 const getRemarks = (subjectId) => {
   const gwa = calculateGWA(subjectId);
 
-  if (gwa === "INC" || gwa === "No grade" || parseFloat(gwa) <= 75) {
+  if (gwa === "No grade" || gwa === "INC" || parseFloat(gwa) <= 75) {
     return "Failed";
   }
 

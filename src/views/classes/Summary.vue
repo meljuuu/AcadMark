@@ -83,7 +83,7 @@ const fetchStudents = () => {
 
 const getGradeForQuarter = (student, quarter) => {
     const grade = student.grades?.[quarter];
-    if (grade === null || grade === undefined || grade === '' || grade === '-') {
+    if (!grade || grade === null || grade === undefined || grade === '' || grade === '-' || grade === 'No grade') {
         return 'No grade';
     }
     return grade;
@@ -96,8 +96,8 @@ const getFinalGrade = (student) => {
     let hasAnyValidGrade = false;
 
     for (let quarter of grades) {
-        const grade = student.grades?.[quarter];
-        if (grade !== '-' && grade !== undefined && grade !== null && grade !== '') {
+        const grade = getGradeForQuarter(student, quarter);
+        if (grade !== 'No grade') {
             hasAnyValidGrade = true;
             total += parseFloat(grade);
             gradeCount++;
@@ -112,10 +112,10 @@ const getFinalGrade = (student) => {
 
 const getRemarks = (student) => {
     const finalGrade = getFinalGrade(student);
-    if (finalGrade !== 'No grade' && finalGrade !== 'INC' && parseFloat(finalGrade) > 75) {
-        return 'Passed';
+    if (finalGrade === 'No grade' || finalGrade === 'INC' || parseFloat(finalGrade) <= 75) {
+        return 'Failed';
     }
-    return 'Failed';
+    return 'Passed';
 };
 
 const gradeToNumeric = (grade) => {
@@ -159,14 +159,10 @@ const filteredStudents = computed(() => {
 });
 
 const generateCSV = () => {
-    // Get the current date for the filename
     const date = new Date().toLocaleDateString().replace(/\//g, '-');
 
-    // Create CSV header row
     const csvContent = [
-        // Headers
         headers.value.join(','),
-        // Data rows
         ...filteredStudents.value.map(student => [
             student.lrn,
             `${student.lastName}, ${student.firstName} ${student.middleName}`.trim(),
@@ -180,17 +176,14 @@ const generateCSV = () => {
         ].join(','))
     ].join('\n');
 
-    // Create blob and download link
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
 
-    // Set up download link
     link.setAttribute('href', url);
     link.setAttribute('download', `Grades Summary - ${props.subjectName} - ${date}.csv`);
     link.style.visibility = 'hidden';
 
-    // Add to document, click, and remove
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
