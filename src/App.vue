@@ -1,12 +1,11 @@
 <template>
-  <Login v-if="isLoginPage" @logged-in="handleLogin" />
-  <div v-else class="flex min-h-screen">
-    <Sidebar class="z-10" />
+  <div class="flex min-h-screen">
+    <Sidebar v-if="!isLoginPage" class="z-10" />
     <div class="flex-1">
-      <HeaderBar />
-      <main class="ml-2 mt-34 px-[54px] pt-[32px]">
+      <HeaderBar v-if="!isLoginPage" />
+      <main :class="{ 'ml-2 mt-34 px-[54px] pt-[32px]': !isLoginPage }">
         <router-view v-slot="{ Component }">
-          <component :is="Component" />
+          <component :is="Component" @logged-in="handleLogin" />
         </router-view>
       </main>
     </div>
@@ -14,23 +13,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import Sidebar from '@/components/sidebar.vue';
 import HeaderBar from '@/components/header.vue';
-import Login from '@/views/Login.vue';
 
 const router = useRouter();
-const isLoginPage = ref(false);
+const route = useRoute();
 
-onMounted(() => {
-  const user = localStorage.getItem('user');
-  isLoginPage.value = !user;
-  if (user) router.push('/dashboard');
-});
+const isLoginPage = computed(() => route.path === '/login');
 
 const handleLogin = () => {
-  isLoginPage.value = false;
   localStorage.setItem('user', 'true');
   router.push('/dashboard');
 };
