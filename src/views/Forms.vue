@@ -1,293 +1,269 @@
 <template>
-  <div class="form-container">
-    <h1 class="title">Forms</h1>
-    <h1 class="advisory">ADVISORY</h1>
+  <div>
+    <div class="flex justify-between">
+      <p class="title">Forms</p>
 
-    <div class="search-container">
-      <div class="search-bar">
-        <img src="../../public/assets/img/search-icon.svg" class="search-icon" alt="Search" />
-        <input type="text" v-model="searchQuery" placeholder="Search..." />
-      </div>
+      <p class="text-8xl font-extrabold text-[#d6d6d6] relative top-[-30px]">ADVISORY</p>
     </div>
 
-    <div class="content">
-      <div class="namebar">
-        <h2 class="forms-name"> Name </h2>
-        <div class="student-name" v-for="(name, index) in filteredStudents" :key="index" @click="selectStudent(index)">
-          {{ name }}
-        </div>
+    <div class="rounded-sm" style="box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 1px 1px;">
+      <div class="p-5">
+        <searchbar v-model="searchQuery" />
       </div>
+      <div class="flex border-t-[1px] border-gray-300">
+        <div class="w-[30%] max-h-[580px] overflow-y-auto mb-5 rounded-bl-lg">
+          <p class="p-4 text-lg font-semibold">Name</p>
+          <div v-if="filteredStudents.length > 0">
+            <div class="py-5 px-4 text-gray-800 bg-gray-100 mb-1 cursor-pointer"
+              v-for="(student, index) in filteredStudents" :key="index" @click="selectStudent(index)" :class="{
+                'bg-gray-300': selectedStudent === student,   // Active background when selected
+                'hover:bg-gray-200': true                     // Hover effect
+              }">
+              {{ student.firstName }} {{ student.lastName }}
+            </div>
+          </div>
 
-      <div class="main">
-        <h2 class="student-titles">STUDENT INFO</h2>
-
-        <div class="grades-header">
-          <h2 class="grades-title">GRADES</h2>
-          <div class="modal-buttons">
-            <button class="bordered-button">SF10</button>
-            <button class="bordered-button">SF9</button>
+          <div v-else class="py-5 px-4 text-gray-500 text-center">
+            No students available
           </div>
         </div>
 
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>SUBJECT</th>
-                <th>1ST QUARTER</th>
-                <th>2ND QUARTER</th>
-                <th>3RD QUARTER</th>
-                <th>4TH QUARTER</th>
-                <th>GWA</th>
-                <th>REMARKS</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(subject, index) in grades[selectedStudent]" :key="index">
-                <td>{{ subject.name }}</td>
-                <td v-for="score in subject.scores" :key="score">{{ score }}</td>
-                <td>{{ calculateGWA(subject.scores) }}</td>
-                <td>{{ getRemarks(subject.scores) }}</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="flex flex-grow flex-col border-l border-gray-300 mb-5 rounded-br-lg p-5 gap-10">
+          <div class="flex flex-col gap-3">
+            <p class="text-2xl font-semibold text-blue">STUDENT INFO</p>
+            <div class="flex gap-10">
+              <div class="flex flex-col gap-3">
+                <p class="text-xs font-bold text-blue">Student Name</p>
+                <p class="text-2xl font-medium">{{ selectedStudentInfo.firstName }} {{ selectedStudentInfo.lastName }}
+                </p>
+
+                <p class="text-xs font-bold text-blue">LRN</p>
+                <p class="text-2xl font-medium">{{ selectedStudentInfo.lrn }}</p>
+              </div>
+              <div class="flex flex-col gap-3">
+                <p class="text-xs font-bold text-blue">Sex</p>
+                <p class="text-2xl font-medium">{{ selectedStudentInfo.sex }}</p>
+
+                <p class="text-xs font-bold text-blue">Curriculum</p>
+                <p class="text-2xl font-medium">{{ selectedStudentInfo.curriculum }}</p>
+              </div>
+              <div class="flex flex-col gap-3">
+                <p class="text-xs font-bold text-blue">Birthdate</p>
+                <p class="text-2xl font-medium">{{ selectedStudentInfo.birthDate }}</p>
+
+                <p class="text-xs font-bold text-blue">Address</p>
+                <p class="text-2xl font-medium">{{ selectedStudentInfo.address }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-3">
+              <p class="text-2xl font-semibold text-blue">GRADES</p>
+              <div class="flex gap-2">
+                <button class="bg-blue text-white py-2 px-3 rounded-md text-sm font-semibold cursor-pointer"
+                  @click="generateCSV('SF10')">SF10</button>
+                <button class="bg-blue text-white py-2 px-3 rounded-md text-sm font-semibold cursor-pointer"
+                  @click="generateCSV('SF9')">SF9</button>
+              </div>
+            </div>
+
+            <div>
+              <table v-if="studentSubjects.length > 0" class="w-full table-auto">
+                <thead>
+                  <tr>
+                    <th class="bg-gray-100 text-center p-2 text-sm text-gray-700">SUBJECT</th>
+                    <th class="bg-gray-100 text-center p-2 text-sm text-gray-700">1ST QUARTER</th>
+                    <th class="bg-gray-100 text-center p-2 text-sm text-gray-700">2ND QUARTER</th>
+                    <th class="bg-gray-100 text-center p-2 text-sm text-gray-700">3RD QUARTER</th>
+                    <th class="bg-gray-100 text-center p-2 text-sm text-gray-700">4TH QUARTER</th>
+                    <th class="bg-gray-100 text-center p-2 text-sm text-gray-700">GWA</th>
+                    <th class="bg-gray-100 text-center p-2 text-sm text-gray-700">Remarks</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(subject, index) in studentSubjects" :key="index">
+                    <td class="p-2 text-center font-semibold text-gray-800">{{ subject.subjectName || "-" }}</td>
+                    <td class="p-2 text-center font-semibold text-gray-800">{{ getGrade(subject.subject_id, 'first') ||
+                      "-" }}</td>
+                    <td class="p-2 text-center font-semibold text-gray-800">{{ getGrade(subject.subject_id, 'second') ||
+                      "-" }}</td>
+                    <td class="p-2 text-center font-semibold text-gray-800">{{ getGrade(subject.subject_id, 'third') ||
+                      "-" }}</td>
+                    <td class="p-2 text-center font-semibold text-gray-800">{{ getGrade(subject.subject_id, 'fourth') ||
+                      "-" }}</td>
+                    <td class="p-2 text-center font-semibold text-gray-800">{{ calculateGWA(subject.subject_id) || "-"
+                    }}</td>
+                    <td class="p-2 text-center font-semibold text-gray-800">{{ getRemarks(subject.subject_id) || "-" }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div v-else class="py-5 text-center text-gray-500">
+                No subjects available
+              </div>
+            </div>
+
+          </div>
         </div>
       </div>
     </div>
+
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      searchQuery: "",
-      students: [
-        "Raven Andre D Legarde",
-        "Polaris Jumel Dasmarinas",
-        "Harvey S. Samson",
-        "Angel Mae Gaña",
-        "Arjay R Dabalos",
-        "Ryan Bueno",
-        "Eunice Protasio",
-        "Ehdsell John Apan",
-        "Zyvrex John Perez",
-        "Mark Gil Bacus"
-      ],
-      selectedStudent: 0,
-      grades: Array.from({ length: 10 }, (_, i) => [
-        { name: "English", scores: [72 + i, 73 + i, 76 + i, 77 + i] },
-        { name: "Mathematics", scores: [80 + i, 82 + i, 85 + i, 83 + i] },
-        { name: "Science", scores: [85 + i, 87 + i, 88 + i, 86 + i] },
-        { name: "Filipino", scores: [72 + i, 73 + i, 74 + i, 75 + i] },
-        { name: "A.P", scores: [82 + i, 83 + i, 84 + i, 75 + i] },
-        { name: "EsP", scores: [88 + i, 89 + i, 87 + i, 85 + i] },
-        { name: "TLE", scores: [87 + i, 88 + i, 89 + i, 90 + i] },
-        { name: "MAPEH", scores: [70 + i, 72 + i, 74 + i, 73 + i] }
-      ])
-    };
-  },
-  // Search bar
-  computed: {
-    filteredStudents() {
-      return this.students.filter(student => 
-        student.toLowerCase().includes(this.searchQuery.toLowerCase())
-      );
-    }
-  },
-  // Remarks - PASSED or FAILED
-  methods: {
-    selectStudent(index) {
-      this.selectedStudent = this.students.indexOf(this.filteredStudents[index]);
-    },
-    calculateGWA(scores) {
-      return (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2);
-    },
-    getRemarks(scores) {
-      return this.calculateGWA(scores) >= 75 ? "PASSED" : "FAILED";
+<script setup>
+import { ref, computed, onMounted } from 'vue';
+import searchbar from '@/components/searchbar.vue';
+
+const searchQuery = ref('');
+const students = ref([]);
+const subjects = ref([]);
+const selectedStudent = ref(null);
+const studentSubjects = ref([]);
+
+onMounted(() => {
+  const storedStudents = localStorage.getItem('students');
+  const storedSubjects = localStorage.getItem('subjects');
+
+  students.value = storedStudents ? JSON.parse(storedStudents) : [];
+  subjects.value = storedSubjects ? JSON.parse(storedSubjects) : [];
+
+  if (subjects.value.length > 0) {
+    const firstSubject = subjects.value[0];
+    students.value = students.value.filter(student =>
+      firstSubject.student_id.includes(student.student_id)
+    );
+
+    if (students.value.length > 0) {
+      selectStudent(0);
     }
   }
+});
+
+const filteredStudents = computed(() => {
+  return students.value.filter(student =>
+    student.firstName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+    student.lastName.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
+});
+
+const selectStudent = (index) => {
+  selectedStudent.value = students.value[index];
+  const studentId = selectedStudent.value.student_id;
+  studentSubjects.value = subjects.value.filter(subject =>
+    subject.student_id.includes(studentId)
+  );
+};
+
+const selectedStudentInfo = computed(() => {
+  return selectedStudent.value || {
+    firstName: '',
+    lastName: '',
+    lrn: '',
+    sex: '',
+    curriculum: '',
+    birthDate: '',
+    academicTrack: ''
+  };
+});
+
+const generateCSV = (type) => {
+  const student = selectedStudent.value;
+
+  if (!student) return;
+
+  if (type === 'SF10') {
+    // SF10: Learner's Information CSV
+    const csvContent = [
+      ['First Name', 'Last Name', 'LRN', 'Sex', 'Curriculum', 'Birthdate', 'Address'],
+      [student.firstName, student.lastName, student.lrn, student.sex, student.curriculum, student.birthDate, student.address]
+    ];
+    downloadCSV(csvContent, 'SF10_Learners_Info.csv');
+  } else if (type === 'SF9') {
+    // SF9: Report Card (Grades) CSV
+    const csvContent = [
+      ['Subject', '1st Quarter', '2nd Quarter', '3rd Quarter', '4th Quarter', 'GWA', 'Remarks']
+    ];
+
+    studentSubjects.value.forEach(subject => {
+      csvContent.push([
+        subject.subjectName || '-',
+        getGrade(subject.subject_id, 'first'),
+        getGrade(subject.subject_id, 'second'),
+        getGrade(subject.subject_id, 'third'),
+        getGrade(subject.subject_id, 'fourth'),
+        calculateGWA(subject.subject_id),
+        getRemarks(subject.subject_id)
+      ]);
+    });
+
+    downloadCSV(csvContent, 'SF9_Report_Card.csv');
+  }
+};
+
+const getGrade = (subjectId, quarter) => {
+  const key = `subject_${subjectId}`;
+  const subjectData = JSON.parse(localStorage.getItem(key)) || [];
+  const student = subjectData.find(student => student.student_id === selectedStudent.value.student_id);
+
+  if (student) {
+    return student.grades ? student.grades[quarter] : 'No grade';
+  }
+  return 'No grade';
+};
+
+const calculateGWA = (subjectId) => {
+  const key = `subject_${subjectId}`;
+  const subjectData = JSON.parse(localStorage.getItem(key)) || [];
+
+  if (subjectData.length === 0) {
+    return 'No grade';
+  }
+
+  const student = subjectData.find(student => student.student_id === selectedStudent.value.student_id);
+
+  if (student && student.grades) {
+    const grades = [
+      student.grades['first'],
+      student.grades['second'],
+      student.grades['third'],
+      student.grades['fourth']
+    ];
+
+    if (grades.every(grade => grade === null || grade === '')) {
+      return 'No grade';
+    }
+
+    if (grades.some(grade => grade === null || grade === '' || isNaN(parseFloat(grade)))) {
+      return 'INC';
+    }
+
+    const validGrades = grades.map(grade => parseFloat(grade));
+    const average = validGrades.reduce((sum, grade) => sum + grade, 0) / validGrades.length;
+
+    return isNaN(average) ? 'INC' : average.toFixed(2);
+  }
+
+  return 'No grade';
+};
+
+const getRemarks = (subjectId) => {
+  const gwa = calculateGWA(subjectId);
+
+  if (gwa === "INC" || gwa === "No grade" || parseFloat(gwa) <= 75) {
+    return "Failed";
+  }
+
+  return "Passed";
+};
+
+const downloadCSV = (csvContent, fileName) => {
+  const blob = new Blob([csvContent.map(row => row.join(',')).join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.setAttribute('download', fileName);
+  link.click();
 };
 </script>
-
-
-<style scoped>
-.form-container {
-  padding-inline: 54px;
-}
-
-.advisory {
-  position: absolute;
-  top: 100px;
-  right: 50px;
-  font-size: 128px;
-  font-weight: bold;
-  opacity: 0.15;
-  color: #292929;
-}
-
-.search-container {
-  width: 100%;
-  display: flex;
-  justify-content: flex-start;
-  padding: 10px 0;
-}
-
-.search-bar {
-  position: relative;
-  width: 100%;
-  border: 1px solid #ccc;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-  padding: 25px;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.search-icon {
-  position: absolute;
-  width: 18px;
-  height: 18px;
-  margin-top: -10px;
-  margin-left: 20px;
-  filter: brightness(0) saturate(100%) invert(40%) sepia(1%) saturate(2000%) hue-rotate(180deg);
-}
-
-.search-bar input {
-  font-size: 14px;
-  font-weight: 600;
-  color: #6C6C6C;
-  width: 100%;
-  max-width: 350px;
-  padding: 10px 10px 10px 50px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-.content {
-  margin-top: -10px;
-  display: flex;
-}
-
-.namebar {
-  width: 30%;
-  max-height: 700px;
-  overflow-y: auto;
-  border: 1px solid #ccc;
-  margin-bottom: 20px;
-  border-bottom-left-radius: 10px;
-}
-
-.namebar::-webkit-scrollbar {
-  width: 9px;
-}
-
-.namebar::-webkit-scrollbar-track {
-  background: #D0D0D0;
-  border-radius: 22px;
-  margin: 20px;
-}
-
-.namebar::-webkit-scrollbar-thumb {
-  background: #484848;
-  border-radius: 22px;
-}
-
-.forms-name {
-  padding: 15px;
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.student-name {
-  padding: 20px;
-  color: #292929;
-  background: #F5F5F5;
-  margin-bottom: 5px;
-  cursor: pointer;
-}
-
-.main {
-  flex-grow: 1;
-  border: 1px solid #ccc;
-  border-bottom-right-radius: 10px;
-  margin-bottom: 20px;
-}
-
-.student-titles {
-  color: #295F98;
-  font-size: 24px;
-  font-weight: 600;
-  padding: 20px;
-}
-
-.grades-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  margin-top: 100px;
-}
-
-.grades-title {
-  color: #295F98;
-  font-size: 24px;
-  font-weight: 600;
-  margin: 0;
-}
-
-.modal-buttons {
-  display: flex;
-  gap: 10px;
-}
-
-.bordered-button {
-  width: 78px;
-  font-size: 12px;
-  font-weight: 600;
-  margin-top: 10px;
-  padding: 8px 12px;
-  border-radius: 5px;
-  background-color: #295F98;
-  color: #FFFFFF;
-  cursor: pointer;
-}
-
-.table-wrapper {
-  width: 101%;
-  padding: 11px;
-  margin-top: -30px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-  border: 1px solid #E3E9EC;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-  overflow: hidden;
-  padding: 0;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-th {
-  color: #464F60;
-  background-color: #F6F6F6;
-  padding: 8px;
-  text-align: center;
-}
-
-td {
-  color: #292929;
-  padding: 8px;
-  text-align: center;
-  font-weight: 600;
-}
-
-td:first-child {
-  background-color: #F6F6F6;
-}
-</style>
