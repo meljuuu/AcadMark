@@ -75,6 +75,3 @@ onMounted(() => {
     }
 });
 </script>
-
-<div class="flex-center">
-</div>
