@@ -21,7 +21,7 @@
                     <tr v-if="filteredStudents.length === 0">
                         <td colspan="6" class="p-2 text-center">No students available.</td>
                     </tr>
-                    <tr v-for="student in filteredStudents" :key="student.lrn" class="hover:bg-gray-50"
+                    <tr v-for="student in filteredStudents" :key="student.lrn" class="hover:bg-gray-200 cursor-pointer"
                         @click="openModal(student)">
                         <td class="p-2 w-1/6">{{ student.lrn }}</td>
                         <td class="p-2 w-1/6">{{ student.lastName + ", " + student.firstName + " " + student.middleName

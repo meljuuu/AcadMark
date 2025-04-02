@@ -1,7 +1,6 @@
 <template>
     <div class="flex justify-between m-5">
         <div class="flex justify-between w-90">
-            <Dropdown :showQuarter="true" v-model="selectedQuarter" />
             <Dropdown :showSort="true" v-model="selectedSort" />
         </div>
 
@@ -29,7 +28,7 @@
                     <td class="px-4 py-2">{{ student.lrn }}</td>
                     <td class="px-4 py-2">{{ student.lastName + ", " + student.firstName + " " + student.middleName }}
                     </td>
-                    <td class="px-4 py-2">{{ student.gender }}</td>
+                    <td class="px-4 py-2">{{ student.sex }}</td>
                     <td class="px-4 py-2">{{ getGradeForQuarter(student, "first") }}</td>
                     <td class="px-4 py-2">{{ getGradeForQuarter(student, "second") }}</td>
                     <td class="px-4 py-2">{{ getGradeForQuarter(student, "third") }}</td>
@@ -62,8 +61,7 @@ const headers = ref([
 ]);
 
 const students = ref([]);
-const selectedQuarter = ref("1st");
-const selectedSort = ref("default");
+const selectedSort = ref('default');
 const searchQuery = ref("");
 
 const fetchStudents = () => {
@@ -110,45 +108,46 @@ const getRemarks = (student) => {
     return 'Failed';
 };
 
+// Helper function to convert grades to numeric value for sorting
+const gradeToNumeric = (grade) => {
+    if (grade === 'No grade') return -1; // "No grade" is treated as the lowest grade
+    if (grade === 'INC') return 0; // "INC" is treated as higher than "No grade" but lower than valid grades
+    return parseFloat(grade);
+};
+
 const filteredStudents = computed(() => {
-    return students.value.filter(student => {
+    let sortedStudents = students.value.filter(student => {
         const fullName = (student.firstName + " " + student.middleName + " " + student.lastName).toLowerCase();
         return fullName.includes(searchQuery.value.toLowerCase());
     });
+
+    switch (selectedSort.value) {
+        case 'Sort by A-Z':
+            sortedStudents.sort((a, b) => a.lastName.localeCompare(b.lastName));
+            break;
+        case 'Sort by Z-A':
+            sortedStudents.sort((a, b) => b.lastName.localeCompare(a.lastName));
+            break;
+        case 'Sort by Grade (Highest)':
+            sortedStudents.sort((a, b) => {
+                const gradeA = getFinalGrade(a);
+                const gradeB = getFinalGrade(b);
+                return gradeToNumeric(gradeB) - gradeToNumeric(gradeA); // Highest grade first
+            });
+            break;
+        case 'Sort by Grade (Lowest)':
+            sortedStudents.sort((a, b) => {
+                const gradeA = getFinalGrade(a);
+                const gradeB = getFinalGrade(b);
+                return gradeToNumeric(gradeA) - gradeToNumeric(gradeB); // Lowest grade first
+            });
+            break;
+        default:
+            break;
+    }
+
+    return sortedStudents;
 });
-
-// Function to generate CSV
-const generateCSV = () => {
-    let csvContent = "data:text/csv;charset=utf-8,";
-
-    // Add headers
-    csvContent += headers.value.join(",") + "\n";
-
-    // Add student data
-    filteredStudents.value.forEach(student => {
-        const row = [
-            student.lrn,
-            `${student.lastName}, ${student.firstName} ${student.middleName}`,
-            student.gender,
-            getGradeForQuarter(student, "first"),
-            getGradeForQuarter(student, "second"),
-            getGradeForQuarter(student, "third"),
-            getGradeForQuarter(student, "fourth"),
-            getFinalGrade(student),
-            getRemarks(student)
-        ];
-        csvContent += row.join(",") + "\n";
-    });
-
-    // Create a download link
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "Student_Report.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-};
 
 onMounted(fetchStudents);
 </script>

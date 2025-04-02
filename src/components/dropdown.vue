@@ -58,6 +58,7 @@
           {{ option }}
         </option>
       </select>
+
     </div>
 
     <!-- Sort Dropdown -->
@@ -135,7 +136,7 @@ const subjectOptions = [
   'Business Mathematics', 'Music', 'Computer Science', 'Art History', 'Advanced Chemistry'
 ];
 const quarterOptions = ['1st', '2nd', '3rd', '4th'];
-const sortOptions = ['Sort by A-Z', 'Sort by Z-A', 'Sort by Date'];
+const sortOptions = ['Sort by A-Z', 'Sort by Z-A', 'Sort by Grade (Highest)', 'Sort by Grade (Lowest)'];
 const markStatusOptions = ['Marked', 'Unmarked', 'Show All'];
 
 // Selected values (reactive data)
@@ -150,8 +151,10 @@ const selectedMarkStatus = ref('Show All');
 
 // Function to emit the selected quarter
 const updateQuarter = () => {
-  emit("update:modelValue", selectedQuarter.value); // Emitting the event properly
+  console.log('Quarter selected:', selectedQuarter.value);
+  emit("update:modelValue", selectedQuarter.value);
 };
+
 
 // Function to emit the selected mark status
 const updateMarkStatus = () => {

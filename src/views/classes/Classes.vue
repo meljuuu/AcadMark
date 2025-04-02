@@ -1,14 +1,11 @@
 <template>
   <div>
     <h1 class="title">Classes</h1>
-    <div class="flex flex-col gap-5 flex-wrap">
-      <div class="flex justify-between" v-for="(group, index) in chunkedClasses" :key="index">
-        <Card v-for="classItem in group" :key="classItem.class_id" :trackStand="classItem.trackStand"
-          :className="classItem.className" :subjectName="getSubjectName(classItem.subject_id)"
-          :subject_id="classItem.subject_id"
-          :gradeLevel="classItem.gradeLevel"
-          :type="classItem.classType || 'Subject'" />
-      </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <Card v-for="classItem in classes" :key="classItem.class_id" :trackStand="classItem.trackStand"
+        :className="classItem.className" :subjectName="getSubjectName(classItem.subject_id)"
+        :subject_id="classItem.subject_id" :gradeLevel="classItem.gradeLevel"
+        :type="classItem.classType || 'Subject'" />
     </div>
   </div>
 </template>
@@ -27,19 +24,6 @@ export default {
       classes: [],
       subjects: {},
     };
-  },
-  computed: {
-    chunkedClasses() {
-      const chunkSize = 4;
-      return this.classes.reduce((resultArray, item, index) => {
-        const chunkIndex = Math.floor(index / chunkSize);
-        if (!resultArray[chunkIndex]) {
-          resultArray[chunkIndex] = [];
-        }
-        resultArray[chunkIndex].push(item);
-        return resultArray;
-      }, []);
-    },
   },
   methods: {
     getSubjectName(subjectId) {

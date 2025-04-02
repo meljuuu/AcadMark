@@ -35,13 +35,22 @@
                 style="box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 1px 1px;">
                 <nav class="flex justify-around border-b border-[#E0E0E0] p-5">
                     <ul v-for="(item, index) in navItems" :key="index" @click="activeComponent = item.component"
-                        class="text-lg font-semibold cursor-pointer"
+                        class="text-lg font-semibold cursor-pointer transition-colors duration-200 ease-in-out hover:text-blue"
                         :class="{ 'text-blue border-b-2 border-blue': activeComponent === item.component }">
                         {{ item.label }}
                     </ul>
                 </nav>
-                <component :is="activeComponent" :subject_id="subject_id" :trackStand="trackStand"></component>
+
+                <!-- Transition wrapper for smooth active component switch -->
+                <transition name="fade" mode="out-in">
+                    <div>
+                        <component :is="activeComponent" :subject_id="subject_id" :trackStand="trackStand"
+                            :key="activeComponent"></component>
+                    </div>
+                </transition>
+
             </div>
+
         </div>
         <!-- Display table only if the active component is 'Grading' -->
         <div v-if="activeComponent === 'SummaryOfGrades'" class="overflow-x-auto w-1/2 mt-5 mb-15">
