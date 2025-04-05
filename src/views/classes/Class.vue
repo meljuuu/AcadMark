@@ -53,7 +53,8 @@
                         <component :is="activeComponent" :subject_id="subject_id" :trackStand="trackStand"
                             :className="className" :subjectName="subjectName" :classType="classType"
                             :currentPage="currentPage" :itemsPerPage="itemsPerPage"
-                            @update:currentPage="currentPage = $event" :key="activeComponent"></component>
+                            @update:currentPage="currentPage = $event" @update:totalItems="updateTotalItems"
+                            :key="activeComponent"></component>
                     </div>
                 </transition>
 
@@ -61,7 +62,7 @@
 
         </div>
 
-        <div v-if="activeComponent === 'SummaryOfGrades' || activeComponent === 'Submitted'"
+        <div v-if="(activeComponent === 'SummaryOfGrades' || activeComponent === 'Submitted') && totalPages > 0"
             class="flex justify-center items-center gap-5 py-5">
             <img src="/assets/img/classes/arrow.png" alt="arrow" class="w-4 h-4 rotate-180 cursor-pointer"
                 @click="prevPage" :class="{ 'opacity-50 cursor-not-allowed': currentPage === 1 }">
@@ -74,6 +75,11 @@
             </div>
             <img src="/assets/img/classes/arrow.png" alt="arrow" class="w-4 h-4 cursor-pointer" @click="nextPage"
                 :class="{ 'opacity-50 cursor-not-allowed': currentPage === totalPages }">
+        </div>
+
+        <div v-if="(activeComponent === 'SummaryOfGrades' || activeComponent === 'Submitted') && totalPages === 0"
+            class="flex justify-center items-center py-5">
+            <p class="text-lg">No data available</p>
         </div>
 
         <div v-if="activeComponent === 'SummaryOfGrades'" class="overflow-x-auto w-1/2 mt-5 mb-15">
@@ -115,6 +121,13 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+
+        <!-- Debug info -->
+        <div v-if="activeComponent === 'SummaryOfGrades' || activeComponent === 'Submitted'"
+            class="text-xs text-gray-500 mt-2 text-center">
+            <p>Debug: Component: {{ activeComponent }}, Total Items: {{ totalItems }}, Total Pages: {{ totalPages }},
+                Current Page: {{ currentPage }}</p>
         </div>
     </div>
 
@@ -180,6 +193,9 @@ export default {
         });
 
         const totalPages = computed(() => {
+            if (totalItems.value === 0) {
+                return 0;
+            }
             return Math.ceil(totalItems.value / itemsPerPage.value);
         });
 
@@ -190,35 +206,22 @@ export default {
         };
 
         const nextPage = () => {
-            if (currentPage.value < totalPages.value) {
+            if (currentPage.value < totalPages.value && totalPages.value > 0) {
                 currentPage.value++;
             }
         };
 
+        const updateTotalItems = (count) => {
+            totalItems.value = count;
+            setTimeout(() => {
+                if (totalItems.value === 0) {
+                    currentPage.value = 1;
+                }
+            }, 0);
+        };
+
         watch(activeComponent, (newComponent) => {
             if (newComponent === 'SummaryOfGrades' || newComponent === 'Submitted') {
-                if (newComponent === 'SummaryOfGrades') {
-                    const subjectKey = `subject_${props.subject_id}`;
-                    const storedData = localStorage.getItem(subjectKey);
-                    if (storedData) {
-                        const students = JSON.parse(storedData);
-                        totalItems.value = students.length;
-                    } else {
-                        totalItems.value = 0;
-                    }
-                }
-
-                if (newComponent === 'Submitted') {
-                    const key = `submittedGrade_${props.subject_id}`;
-                    const storedData = localStorage.getItem(key);
-                    if (storedData) {
-                        const submittedStudents = JSON.parse(storedData);
-                        totalItems.value = submittedStudents.length;
-                    } else {
-                        totalItems.value = 0;
-                    }
-                }
-
                 currentPage.value = 1;
             }
         });
@@ -235,7 +238,111 @@ export default {
                 maleCount.value = studentsInSubject.filter(student => student.sex === 'Male').length;
                 femaleCount.value = studentsInSubject.filter(student => student.sex === 'Female').length;
             }
+
+            const subjectKey = `subject_${props.subject_id}`;
+            const submittedKey = `submittedGrade_${props.subject_id}`;
+
+            const subjectData = localStorage.getItem(subjectKey);
+            const submittedData = localStorage.getItem(submittedKey);
+
+            if (!subjectData) {
+                const sampleSubjectData = [
+                    {
+                        lrn: "123456789012",
+                        firstName: "Juan",
+                        lastName: "Dela Cruz",
+                        middleName: "Cruz",
+                        sex: "Male",
+                        birthDate: "2005-05-15",
+                        grades: {
+                            first: "85",
+                            second: "90",
+                            third: "88",
+                            fourth: "92"
+                        }
+                    },
+                    {
+                        lrn: "987654321098",
+                        firstName: "Maria",
+                        lastName: "Rosa",
+                        middleName: "Lopez",
+                        sex: "Female",
+                        birthDate: "2005-08-22",
+                        grades: {
+                            first: "92",
+                            second: "95",
+                            third: "90",
+                            fourth: "93"
+                        }
+                    }
+                ];
+                localStorage.setItem(subjectKey, JSON.stringify(sampleSubjectData));
+            }
+
+            if (!submittedData) {
+                const sampleSubmittedData = [
+                    {
+                        lrn: "123456789012",
+                        firstName: "Juan",
+                        lastName: "Dela Cruz",
+                        middleName: "Cruz",
+                        sex: "Male",
+                        birthDate: "2005-05-15",
+                        grades: {
+                            first: "85",
+                            second: "90",
+                            third: "88",
+                            fourth: "92"
+                        }
+                    },
+                    {
+                        lrn: "987654321098",
+                        firstName: "Maria",
+                        lastName: "Rosa",
+                        middleName: "Lopez",
+                        sex: "Female",
+                        birthDate: "2005-08-22",
+                        grades: {
+                            first: "92",
+                            second: "95",
+                            third: "90",
+                            fourth: "93"
+                        }
+                    }
+                ];
+                localStorage.setItem(submittedKey, JSON.stringify(sampleSubmittedData));
+            }
+
+            refreshData();
         });
+
+        const refreshData = () => {
+            if (activeComponent.value === 'SummaryOfGrades') {
+                const subjectKey = `subject_${props.subject_id}`;
+                const storedData = localStorage.getItem(subjectKey);
+                if (storedData) {
+                    const students = JSON.parse(storedData);
+                    totalItems.value = students.length;
+                } else {
+                    totalItems.value = 0;
+                }
+            } else if (activeComponent.value === 'Submitted') {
+                const key = `submittedGrade_${props.subject_id}`;
+                const storedData = localStorage.getItem(key);
+                if (storedData) {
+                    const submittedStudents = JSON.parse(storedData);
+                    totalItems.value = submittedStudents.length;
+                } else {
+                    totalItems.value = 0;
+                }
+            }
+
+            setTimeout(() => {
+                if (totalItems.value === 0) {
+                    currentPage.value = 1;
+                }
+            }, 0);
+        };
 
         return {
             subjectInfo,
@@ -250,7 +357,9 @@ export default {
             totalPages,
             prevPage,
             nextPage,
-            totalItems
+            totalItems,
+            refreshData,
+            updateTotalItems
         };
     }
 };

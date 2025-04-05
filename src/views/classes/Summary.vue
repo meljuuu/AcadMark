@@ -71,7 +71,7 @@ const props = defineProps({
     },
 });
 
-const emit = defineEmits(['update:currentPage']);
+const emit = defineEmits(['update:currentPage', 'update:totalItems']);
 
 const headers = ref([
     'LRN', 'Name', 'Gender', '1st Quarter', '2nd Quarter', '3rd Quarter', '4th Quarter', 'Final Grade', 'Remarks'
@@ -86,8 +86,12 @@ const fetchStudents = () => {
         const key = `submittedGrade_${props.subject_id}`;
         const storedData = JSON.parse(localStorage.getItem(key)) || [];
         students.value = storedData;
+        emit('update:currentPage', 1);
+        emit('update:totalItems', students.value.length);
     } catch (error) {
         students.value = [];
+        emit('update:currentPage', 1);
+        emit('update:totalItems', 0);
     }
 };
 
@@ -169,10 +173,17 @@ const filteredStudents = computed(() => {
 });
 
 const totalPages = computed(() => {
+    if (filteredStudents.value.length === 0) {
+        return 0;
+    }
     return Math.ceil(filteredStudents.value.length / props.itemsPerPage);
 });
 
 const paginatedStudents = computed(() => {
+    if (filteredStudents.value.length === 0) {
+        return [];
+    }
+
     const startIndex = (props.currentPage - 1) * props.itemsPerPage;
     const endIndex = startIndex + props.itemsPerPage;
     return filteredStudents.value.slice(startIndex, endIndex);
@@ -182,6 +193,8 @@ watch(filteredStudents, (newFilteredStudents) => {
     const newTotalPages = Math.ceil(newFilteredStudents.length / props.itemsPerPage);
     if (props.currentPage > newTotalPages && newTotalPages > 0) {
         emit('update:currentPage', newTotalPages);
+    } else if (newTotalPages === 0) {
+        emit('update:currentPage', 1);
     }
 }, { deep: true });
 
@@ -216,5 +229,13 @@ const generateCSV = () => {
     document.body.removeChild(link);
 };
 
-onMounted(fetchStudents);
+onMounted(() => {
+    fetchStudents();
+    if (students.value.length === 0) {
+        emit('update:currentPage', 1);
+        emit('update:totalItems', 0);
+    } else {
+        emit('update:totalItems', students.value.length);
+    }
+});
 </script>
