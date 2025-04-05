@@ -231,7 +231,6 @@ function saveGrades() {
 
         studentsInSubject.value[currentIndex.value].grades[gradeKey] = gradeToSave;
 
-        // Save to localStorage
         localStorage.setItem(`subject_${props.subject_id}`, JSON.stringify(studentsInSubject.value));
         localStorage.setItem(`submittedgrade_${props.subject_id}`, JSON.stringify(studentsInSubject.value));
 
@@ -254,7 +253,6 @@ function saveGrades() {
 
         let recentGrades = JSON.parse(localStorage.getItem('recentGrades') || '[]');
 
-        // Remove existing grade for this student, subject, and quarter
         recentGrades = recentGrades.filter(grade =>
             !(grade.student_id === selectedStudent.value.student_id &&
                 grade.subjectName === props.subjectName &&
@@ -325,7 +323,6 @@ function submitGrades() {
         return;
     }
 
-    // Remove and save using localStorage
     localStorage.removeItem(`submittedGrade_${props.subject_id}`);
 
     selectedStudents.forEach(student => {

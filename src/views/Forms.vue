@@ -199,7 +199,6 @@ const remarksClass = computed(() => {
   return remarks.value === 'Passed' ? 'text-green-600' : 'text-red-600';
 });
 
-// Calculate the average of all final grades for the selected student
 const calculateAverageGrade = computed(() => {
   if (!selectedStudent.value || studentSubjects.value.length === 0) {
     return '';
@@ -218,12 +217,10 @@ const calculateAverageGrade = computed(() => {
   return average.toFixed(2);
 });
 
-// Update the Grade input when the selected student changes
 watch(selectedStudent, () => {
   Grade.value = calculateAverageGrade.value;
 });
 
-// Update the Grade input when studentSubjects changes
 watch(studentSubjects, () => {
   Grade.value = calculateAverageGrade.value;
 }, { deep: true });

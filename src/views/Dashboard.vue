@@ -408,11 +408,9 @@ const recentSubmittedGrades = ref([]);
 const recentGraded = ref([]);
 
 onMounted(() => {
-  // Set the subjects and students data in localStorage
   localStorage.setItem('subjects', JSON.stringify(subjectData));
   localStorage.setItem('students', JSON.stringify(studentData));
 
-  // Create static data for recentSubmit (submitted grades)
   const staticRecentSubmit = [
     {
       lrn: "123456789012",
@@ -512,7 +510,6 @@ onMounted(() => {
     }
   ];
 
-  // Create static data for recentGrades (graded students)
   const staticRecentGrades = [
     {
       lrn: "123456789012",
@@ -646,11 +643,9 @@ onMounted(() => {
     }
   ];
 
-  // Set the static data in localStorage
   localStorage.setItem('recentSubmit', JSON.stringify(staticRecentSubmit));
   localStorage.setItem('recentGrades', JSON.stringify(staticRecentGrades));
 
-  // Process the data for display
   const submittedGrades = JSON.parse(localStorage.getItem('recentSubmit') || '[]');
   recentSubmittedGrades.value = submittedGrades.slice(0, 12).map(grade => ({
     lrn: grade.lrn,
