@@ -407,11 +407,9 @@ const recentSubmittedGrades = ref([]);
 const recentGraded = ref([]);
 
 onMounted(() => {
-  // Set initial data in localStorage
   localStorage.setItem('subjects', JSON.stringify(subjectData));
   localStorage.setItem('students', JSON.stringify(studentData));
 
-  // Load submitted grades and recent grades (limited to 10 entries for display)
   const submittedGrades = JSON.parse(localStorage.getItem('recentSubmit') || '[]');
   recentSubmittedGrades.value = submittedGrades.slice(0, 12).map(grade => ({
     lrn: grade.lrn,
@@ -434,20 +432,16 @@ onMounted(() => {
     remarks: grade.remarks
   }));
 
-  // Watch for changes in localStorage
   window.addEventListener('storage', (e) => {
     if (e.key === 'subjects') {
       const newSubjects = JSON.parse(e.newValue || '[]');
-      // Update any component state that depends on subjects if needed
     }
     if (e.key === 'students') {
       const newStudents = JSON.parse(e.newValue || '[]');
-      // Update any component state that depends on students if needed
     }
   });
 });
 
-// Cleanup the event listener when component is unmounted
 onUnmounted(() => {
   window.removeEventListener('storage', () => { });
 });
