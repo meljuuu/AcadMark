@@ -1,5 +1,6 @@
 <template>
     <div class="flex max-h-[412px]">
+        <!-- Left Section: Student Selection -->
         <div class="px-5 py-3 border-r border-[#d0d0d0]">
             <div class="flex items-center gap-5">
                 <Dropdown :showQuarter="true" v-model="selectedQuarter" />
@@ -7,17 +8,20 @@
                 <p class="font-semibold text-lg">{{ formattedDate }}</p>
             </div>
 
+            <!-- Select All Checkbox -->
             <div class="mt-4 flex items-center justify-end gap-2">
                 <label for="select-all" class="ml-2 text-xs">Select All</label>
                 <input type="checkbox" class="checkbox mr-[27px]" id="select-all" v-model="selectAll"
                     @change="toggleSelectAll" />
             </div>
 
+            <!-- Displaying Student Names Dynamically -->
             <div v-if="filteredStudents.length > 0" class="mt-4 overflow-y-auto max-h-[230px]">
                 <ul>
                     <li v-for="(student, index) in filteredStudents" :key="index" class="flex justify-between py-2 mr-3"
                         @click="setStudentInfo(index)">
                         <div class="flex items-center gap-5 cursor-pointer">
+                            <!-- Conditional background color based on grade presence for the current quarter -->
                             <div :class="{
                                 'bg-[#23AD00]': student.grades[quarterMapping[selectedQuarter]] !== null && student.grades[quarterMapping[selectedQuarter]] !== '',
                                 'bg-red-500': !student.grades[quarterMapping[selectedQuarter]]
@@ -42,6 +46,7 @@
             </div>
         </div>
 
+        <!-- Right Section: Student Info and Grading -->
         <div class="gap-3 flex flex-col mx-5 my-3 flex-1">
             <p class="text-blue font-semibold text-2xl">STUDENT INFO</p>
             <div class="flex flex-col gap-3">
@@ -132,7 +137,6 @@
 
 <script setup>
 import { ref, watch, onMounted } from 'vue';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import subjects from '../../data/subjects.json';
 import students from '../../data/students.json';
 import Dropdown from '../../components/dropdown.vue';
@@ -182,21 +186,50 @@ watch(currentIndex, () => {
 async function loadSubjectData() {
     try {
         const storedData = localStorage.getItem(`subject_${props.subject_id}`);
+        const submittedData = localStorage.getItem(`submittedGrade_${props.subject_id}`);
 
         if (storedData) {
             studentsInSubject.value = JSON.parse(storedData);
+
+            // If there are submitted grades, merge them with the stored data
+            if (submittedData) {
+                const submittedGrades = JSON.parse(submittedData);
+                studentsInSubject.value = studentsInSubject.value.map(student => {
+                    const submittedStudent = submittedGrades.find(s => s.student_id === student.student_id);
+                    if (submittedStudent) {
+                        return { ...student, ...submittedStudent };
+                    }
+                    return student;
+                });
+            }
         } else {
-            studentsInSubject.value = [];
+            const subject = subjects.find(sub => sub.subject_id === props.subject_id);
+            if (subject) {
+                studentsInSubject.value = students.filter(student => subject.student_id.includes(student.student_id))
+                    .map(student => ({
+                        ...student,
+                        selected: false,
+                        grades: student.grades || { "1st": null, "2nd": null, "3rd": null, "4th": null }
+                    }));
+
+                localStorage.setItem(`subject_${props.subject_id}`, JSON.stringify(studentsInSubject.value));
+            }
         }
 
         if (studentsInSubject.value.length > 0) {
             currentIndex.value = 0;
             selectedStudent.value = studentsInSubject.value[0];
+            loadGrade();
         }
     } catch (error) {
-        // Handle error silently
+        console.error('Error loading subject data:', error);
     }
 }
+
+// Add watch on subject_id to reload data when returning to the page
+watch(() => props.subject_id, () => {
+    loadSubjectData();
+});
 
 function setStudentInfo(index) {
     currentIndex.value = index;
@@ -207,14 +240,18 @@ function setStudentInfo(index) {
 function saveGrades() {
     if (selectedStudent.value) {
         const gradeKey = quarterMapping[selectedQuarter.value];
-
         const gradeToSave = Grade.value === '' || Grade.value === null ? 'No grade' : Grade.value;
 
+        // Update the grade in the current student object
         studentsInSubject.value[currentIndex.value].grades[gradeKey] = gradeToSave;
 
-        AsyncStorage.setItem(`subject_${props.subject_id}`, JSON.stringify(studentsInSubject.value));
-        AsyncStorage.setItem(`submittedgrade_${props.subject_id}`, JSON.stringify(studentsInSubject.value));
+        // Create a deep copy of the students array to ensure reactivity
+        const updatedStudents = JSON.parse(JSON.stringify(studentsInSubject.value));
 
+        // Save to localStorage immediately
+        localStorage.setItem(`subject_${props.subject_id}`, JSON.stringify(updatedStudents));
+
+        // Create the recent grade entry
         const recentGradeEntry = {
             student_id: selectedStudent.value.student_id,
             lrn: selectedStudent.value.lrn,
@@ -231,23 +268,21 @@ function saveGrades() {
             timestamp: new Date().toISOString()
         };
 
+        // Update recent grades
         let recentGrades = JSON.parse(localStorage.getItem('recentGrades') || '[]');
 
-        const existingIndex = recentGrades.findIndex(grade =>
-            grade.student_id === selectedStudent.value.student_id &&
-            grade.subjectName === props.subjectName
+        // Remove any existing entry for this student and subject
+        recentGrades = recentGrades.filter(grade =>
+            !(grade.student_id === selectedStudent.value.student_id &&
+                grade.subjectName === props.subjectName)
         );
 
-        if (existingIndex !== -1) {
-            recentGrades = recentGrades.filter(grade =>
-                !(grade.student_id === selectedStudent.value.student_id &&
-                    grade.subjectName === props.subjectName)
-            );
-        }
-
+        // Add the new grade entry
         recentGrades.unshift(recentGradeEntry);
-
         localStorage.setItem('recentGrades', JSON.stringify(recentGrades));
+
+        // Force a reload of the data to ensure everything is in sync
+        loadSubjectData();
     }
 }
 
@@ -309,49 +344,69 @@ function submitGrades() {
         return;
     }
 
-    AsyncStorage.removeItem(`submittedGrade_${props.subject_id}`)
-        .then(() => {
-            selectedStudents.forEach(student => {
-                if (!student.grades) {
-                    student.grades = {
-                        first: null,
-                        second: null,
-                        third: null,
-                        fourth: null,
-                    };
-                }
+    // Remove and save using localStorage
+    localStorage.removeItem(`submittedGrade_${props.subject_id}`);
 
-                student.grades = student.grades || null;
+    selectedStudents.forEach(student => {
+        if (!student.grades) {
+            student.grades = {
+                first: null,
+                second: null,
+                third: null,
+                fourth: null,
+            };
+        }
 
-                const newSubmissions = selectedStudents.map(student => {
-                    return {
-                        student_id: student.student_id,
-                        lrn: student.lrn,
-                        firstName: student.firstName,
-                        lastName: student.lastName,
-                        middleName: student.middleName,
-                        trackStand: props.trackStand,
-                        classType: props.classType || 'Subject',
-                        subjectName: props.subjectName,
-                        curriculum: student.curriculum,
-                        status: 'Pending',
-                        timestamp: new Date().toISOString()
-                    };
-                });
+        student.grades = student.grades || null;
 
-                let recentSubmit = JSON.parse(localStorage.getItem('recentSubmit') || '[]');
-
-                newSubmissions.forEach(submission => {
-                    recentSubmit = recentSubmit.filter(item => item.student_id !== submission.student_id);
-                });
-
-                recentSubmit.unshift(...newSubmissions);
-
-                localStorage.setItem('recentSubmit', JSON.stringify(recentSubmit));
-
-                AsyncStorage.setItem(`subject_${props.subject_id}`, JSON.stringify(studentsInSubject.value));
-                AsyncStorage.setItem(`submittedGrade_${props.subject_id}`, JSON.stringify(selectedStudents));
-            });
+        const newSubmissions = selectedStudents.map(student => {
+            return {
+                student_id: student.student_id,
+                lrn: student.lrn,
+                firstName: student.firstName,
+                lastName: student.lastName,
+                middleName: student.middleName,
+                trackStand: props.trackStand,
+                classType: props.classType || 'Subject',
+                subjectName: props.subjectName,
+                curriculum: student.curriculum,
+                status: 'Pending',
+                timestamp: new Date().toISOString()
+            };
         });
+
+        let recentSubmit = JSON.parse(localStorage.getItem('recentSubmit') || '[]');
+
+        newSubmissions.forEach(submission => {
+            recentSubmit = recentSubmit.filter(item => item.student_id !== submission.student_id);
+        });
+
+        recentSubmit.unshift(...newSubmissions);
+
+        localStorage.setItem('recentSubmit', JSON.stringify(recentSubmit));
+        localStorage.setItem(`subject_${props.subject_id}`, JSON.stringify(studentsInSubject.value));
+        localStorage.setItem(`submittedGrade_${props.subject_id}`, JSON.stringify(selectedStudents));
+    });
 }
+
+const showAllLocalStorage = () => {
+    console.log('=== LocalStorage Contents ===');
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        try {
+            const value = JSON.parse(localStorage.getItem(key));
+            console.log(`Key: ${key}`);
+            console.log('Value:', value);
+            console.log('-------------------');
+        } catch (e) {
+            console.log(`Key: ${key}`);
+            console.log('Value:', localStorage.getItem(key));
+            console.log('-------------------');
+        }
+    }
+};
+
+onMounted(() => {
+    showAllLocalStorage();
+});
 </script>

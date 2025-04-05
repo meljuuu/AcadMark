@@ -157,10 +157,25 @@ const students = ref([]);
 
 const loadStudents = () => {
     const subjectKey = `subject_${props.subject_id}`;
+    const submittedKey = `submittedGrade_${props.subject_id}`;
+
     const storedData = localStorage.getItem(subjectKey);
+    const submittedData = localStorage.getItem(submittedKey);
 
     if (storedData) {
         students.value = JSON.parse(storedData);
+
+        // If there are submitted grades, merge them with the stored data
+        if (submittedData) {
+            const submittedGrades = JSON.parse(submittedData);
+            students.value = students.value.map(student => {
+                const submittedStudent = submittedGrades.find(s => s.student_id === student.student_id);
+                if (submittedStudent) {
+                    return { ...student, ...submittedStudent };
+                }
+                return student;
+            });
+        }
     }
 };
 
