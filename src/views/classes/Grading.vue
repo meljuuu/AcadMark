@@ -181,22 +181,12 @@ watch(currentIndex, () => {
 
 async function loadSubjectData() {
     try {
-        const storedData = await AsyncStorage.getItem(`subject_${props.subject_id}`);
+        const storedData = localStorage.getItem(`subject_${props.subject_id}`);
 
         if (storedData) {
             studentsInSubject.value = JSON.parse(storedData);
         } else {
-            const subject = subjects.find(sub => sub.subject_id === props.subject_id);
-            if (subject) {
-                studentsInSubject.value = students.filter(student => subject.student_id.includes(student.student_id))
-                    .map(student => ({
-                        ...student,
-                        selected: false,
-                        grades: student.grades || { "1st": null, "2nd": null, "3rd": null, "4th": null }
-                    }));
-
-                await AsyncStorage.setItem(`subject_${props.subject_id}`, JSON.stringify(studentsInSubject.value));
-            }
+            studentsInSubject.value = [];
         }
 
         if (studentsInSubject.value.length > 0) {

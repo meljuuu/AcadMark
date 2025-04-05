@@ -71,7 +71,14 @@ onMounted(() => {
     if (subject) {
         studentsInSubject.value = students.filter(student =>
             subject.student_id.includes(student.student_id)
-        );
+        ).map(student => ({
+            ...student,
+            selected: false,
+            grades: student.grades || { "1st": null, "2nd": null, "3rd": null, "4th": null }
+        }));
+
+        // Store the subject data in localStorage
+        localStorage.setItem(`subject_${props.subject_id}`, JSON.stringify(studentsInSubject.value));
     }
 });
 </script>
