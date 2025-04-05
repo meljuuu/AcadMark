@@ -257,10 +257,6 @@ function saveGrades() {
 
         recentGrades.unshift(recentGradeEntry);
 
-        if (recentGrades.length > 10) {
-            recentGrades = recentGrades.slice(0, 10);
-        }
-
         localStorage.setItem('recentGrades', JSON.stringify(recentGrades));
     }
 }
@@ -361,20 +357,27 @@ function submitGrades() {
 
                 recentSubmit.unshift(...newSubmissions);
 
-                if (recentSubmit.length > 20) {
-                    recentSubmit = recentSubmit.slice(0, 20);
-                }
-
                 localStorage.setItem('recentSubmit', JSON.stringify(recentSubmit));
 
                 AsyncStorage.setItem(`subject_${props.subject_id}`, JSON.stringify(studentsInSubject.value))
+                    .then(() => {
+                        // Successfully saved
+                    })
+                    .catch(error => {
+                        // Handle error silently
+                    });
 
                 AsyncStorage.setItem(`submittedGrade_${props.subject_id}`, JSON.stringify(selectedStudents))
+                    .then(() => {
+                        // Successfully saved
+                    })
+                    .catch(error => {
+                        // Handle error silently
+                    });
             });
         })
+        .catch(error => {
+            // Handle error silently
+        });
 }
-
-onMounted(() => {
-    showAllLocalStorage();
-});
 </script>

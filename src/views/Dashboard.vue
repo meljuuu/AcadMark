@@ -411,9 +411,9 @@ onMounted(() => {
   localStorage.setItem('subjects', JSON.stringify(subjectData));
   localStorage.setItem('students', JSON.stringify(studentData));
 
-  // Load submitted grades and recent grades
+  // Load submitted grades and recent grades (limited to 10 entries for display)
   const submittedGrades = JSON.parse(localStorage.getItem('recentSubmit') || '[]');
-  recentSubmittedGrades.value = submittedGrades.map(grade => ({
+  recentSubmittedGrades.value = submittedGrades.slice(0, 12).map(grade => ({
     lrn: grade.lrn,
     name: `${grade.lastName}, ${grade.firstName} ${grade.middleName}`,
     classType: grade.classType,
@@ -421,7 +421,7 @@ onMounted(() => {
   }));
 
   const graded = JSON.parse(localStorage.getItem('recentGrades') || '[]');
-  recentGraded.value = graded.map(grade => ({
+  recentGraded.value = graded.slice(0, 10).map(grade => ({
     lrn: grade.lrn,
     name: `${grade.lastName}, ${grade.firstName} ${grade.middleName}`,
     curriculum: grade.curriculum === 'SHS' ? 'Senior High School' :

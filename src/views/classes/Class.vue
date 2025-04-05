@@ -5,7 +5,8 @@
         </p>
 
         <div class="flex flex-col gap-10">
-            <div class="flex items-center justify-between bg-blue px-7 py-5 rounded-xl">
+            <div :class="{ 'bg-blue': classType === 'Advisory', 'bg-green': classType === 'Subject' }"
+                class="flex items-center justify-between px-7 py-5 rounded-xl">
                 <div class="flex flex-col justify-between h-full">
                     <p class="text-white text-xl font-normal leading-none">{{ trackStand }}</p>
 
@@ -26,10 +27,16 @@
                     </div>
                 </div>
 
-                <div class="flex items-center justify-center pr-15 h-[150px]">
-                    <p class="font-bold text-[150px] text-[#3E6FA2]">{{ trackStand + " " + gradeLevel }}</p>
+                <div :class="{
+                    'text-[#3E6FA2]': classType === 'Advisory',
+                    'text-[#357e58]': classType === 'Subject'
+                }" class="flex items-center justify-center pr-15 h-[150px]">
+                    <p class="font-bold text-[150px]">{{ trackStand + ' ' + gradeLevel }}</p>
                 </div>
+
+
             </div>
+
 
             <div class="border-[1px] border-[#E0E0E0] rounded-t-xl"
                 style="box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 1px 1px;">
