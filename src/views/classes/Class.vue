@@ -60,6 +60,17 @@
 
         </div>
 
+        <div class="flex justify-center items-center gap-3">
+            <img src="/assets/img/classes/arrow.png" alt="arrow" class="w-4 h-4 rotate-180">
+            <div class="flex gap-2">
+                <p class="text-lg">1</p>
+                <p class="text-lg">2</p>
+                <p class="text-lg">3</p>
+                <p class="text-lg">4</p>
+            </div>
+            <img src="/assets/img/classes/arrow.png" alt="arrow" class="w-4 h-4">
+        </div>
+
         <div v-if="activeComponent === 'SummaryOfGrades'" class="overflow-x-auto w-1/2 mt-5 mb-15">
             <p class="text-lg font-semibold">Learner Progress and Achievement</p>
             <table class="w-full border-collapse rounded-b-[5px] border border-[#d9d9d9]"

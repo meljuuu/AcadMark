@@ -8,7 +8,7 @@
       <div class="login-box">
         <img src="/assets/img/login/sta-rita-logo.png" alt="School Logo" class="school-logo" />
         <h2>Sta. Rita Highschool</h2>
-        <p> Academic Grading Management System</p>
+        <p>Record Keeping Management System</p>
 
         <form @submit.prevent="login">
           <div class="input-group">

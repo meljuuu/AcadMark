@@ -38,7 +38,8 @@
             </div>
         </div>
 
-        <modal v-if="showLis" :subject_id="subject_id" :showLis="showLis" @close="showLis = false" />
+        <modal v-if="showLis" :subject_id="subject_id" :showLis="showLis" :showMessage="false" :selectedStudent="null"
+            :selectedQuarter="'1st'" :trackStand="'STEM'" :subjectName="subjectName" @close="showLis = false" />
     </div>
 </template>
 
@@ -49,7 +50,8 @@ import students from '../../data/students.json';
 import modal from '@/components/modal.vue';
 
 const props = defineProps({
-    subject_id: String
+    subject_id: String,
+    subjectName: String
 });
 
 const studentsInSubject = ref([]);

@@ -185,34 +185,28 @@ watch(currentIndex, () => {
 
 async function loadSubjectData() {
     try {
-        const storedData = localStorage.getItem(`subject_${props.subject_id}`);
-        const submittedData = localStorage.getItem(`submittedGrade_${props.subject_id}`);
-
-        if (storedData) {
-            studentsInSubject.value = JSON.parse(storedData);
-
-            // If there are submitted grades, merge them with the stored data
-            if (submittedData) {
-                const submittedGrades = JSON.parse(submittedData);
-                studentsInSubject.value = studentsInSubject.value.map(student => {
-                    const submittedStudent = submittedGrades.find(s => s.student_id === student.student_id);
-                    if (submittedStudent) {
-                        return { ...student, ...submittedStudent };
-                    }
-                    return student;
-                });
-            }
+        // First try to load from submitted grades
+        const submittedData = localStorage.getItem(`submittedgrade_${props.subject_id}`);
+        if (submittedData) {
+            studentsInSubject.value = JSON.parse(submittedData);
         } else {
-            const subject = subjects.find(sub => sub.subject_id === props.subject_id);
-            if (subject) {
-                studentsInSubject.value = students.filter(student => subject.student_id.includes(student.student_id))
-                    .map(student => ({
-                        ...student,
-                        selected: false,
-                        grades: student.grades || { "1st": null, "2nd": null, "3rd": null, "4th": null }
-                    }));
+            // If no submitted grades, try to load from subject data
+            const storedData = localStorage.getItem(`subject_${props.subject_id}`);
+            if (storedData) {
+                studentsInSubject.value = JSON.parse(storedData);
+            } else {
+                // If no stored data, initialize from subjects and students
+                const subject = subjects.find(sub => sub.subject_id === props.subject_id);
+                if (subject) {
+                    studentsInSubject.value = students.filter(student => subject.student_id.includes(student.student_id))
+                        .map(student => ({
+                            ...student,
+                            selected: false,
+                            grades: student.grades || { first: null, second: null, third: null, fourth: null }
+                        }));
 
-                localStorage.setItem(`subject_${props.subject_id}`, JSON.stringify(studentsInSubject.value));
+                    localStorage.setItem(`subject_${props.subject_id}`, JSON.stringify(studentsInSubject.value));
+                }
             }
         }
 
@@ -226,11 +220,6 @@ async function loadSubjectData() {
     }
 }
 
-// Add watch on subject_id to reload data when returning to the page
-watch(() => props.subject_id, () => {
-    loadSubjectData();
-});
-
 function setStudentInfo(index) {
     currentIndex.value = index;
     selectedStudent.value = studentsInSubject.value[index];
@@ -240,18 +229,15 @@ function setStudentInfo(index) {
 function saveGrades() {
     if (selectedStudent.value) {
         const gradeKey = quarterMapping[selectedQuarter.value];
+
         const gradeToSave = Grade.value === '' || Grade.value === null ? 'No grade' : Grade.value;
 
-        // Update the grade in the current student object
         studentsInSubject.value[currentIndex.value].grades[gradeKey] = gradeToSave;
 
-        // Create a deep copy of the students array to ensure reactivity
-        const updatedStudents = JSON.parse(JSON.stringify(studentsInSubject.value));
+        // Save to localStorage
+        localStorage.setItem(`subject_${props.subject_id}`, JSON.stringify(studentsInSubject.value));
+        localStorage.setItem(`submittedgrade_${props.subject_id}`, JSON.stringify(studentsInSubject.value));
 
-        // Save to localStorage immediately
-        localStorage.setItem(`subject_${props.subject_id}`, JSON.stringify(updatedStudents));
-
-        // Create the recent grade entry
         const recentGradeEntry = {
             student_id: selectedStudent.value.student_id,
             lrn: selectedStudent.value.lrn,
@@ -263,26 +249,24 @@ function saveGrades() {
             classType: props.classType,
             subjectName: props.subjectName,
             className: props.className,
+            quarter: selectedQuarter.value,
             grade: gradeToSave,
             remarks: gradeToSave === 'No grade' ? 'Failed' : (parseFloat(gradeToSave) <= 75 ? 'Failed' : 'Passed'),
             timestamp: new Date().toISOString()
         };
 
-        // Update recent grades
         let recentGrades = JSON.parse(localStorage.getItem('recentGrades') || '[]');
 
-        // Remove any existing entry for this student and subject
+        // Remove existing grade for this student, subject, and quarter
         recentGrades = recentGrades.filter(grade =>
             !(grade.student_id === selectedStudent.value.student_id &&
-                grade.subjectName === props.subjectName)
+                grade.subjectName === props.subjectName &&
+                grade.quarter === selectedQuarter.value)
         );
 
-        // Add the new grade entry
         recentGrades.unshift(recentGradeEntry);
-        localStorage.setItem('recentGrades', JSON.stringify(recentGrades));
 
-        // Force a reload of the data to ensure everything is in sync
-        loadSubjectData();
+        localStorage.setItem('recentGrades', JSON.stringify(recentGrades));
     }
 }
 
@@ -390,20 +374,7 @@ function submitGrades() {
 }
 
 const showAllLocalStorage = () => {
-    console.log('=== LocalStorage Contents ===');
-    for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        try {
-            const value = JSON.parse(localStorage.getItem(key));
-            console.log(`Key: ${key}`);
-            console.log('Value:', value);
-            console.log('-------------------');
-        } catch (e) {
-            console.log(`Key: ${key}`);
-            console.log('Value:', localStorage.getItem(key));
-            console.log('-------------------');
-        }
-    }
+    // Removed console.log functionality
 };
 
 onMounted(() => {

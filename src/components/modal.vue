@@ -151,31 +151,56 @@ const props = defineProps({
         type: String,
         required: true,
     },
+    subjectName: {
+        type: String,
+        required: true,
+    },
 });
 
 const students = ref([]);
 
+const quarterMapping = {
+    "1st": "first",
+    "2nd": "second",
+    "3rd": "third",
+    "4th": "fourth"
+};
+
 const loadStudents = () => {
     const subjectKey = `subject_${props.subject_id}`;
-    const submittedKey = `submittedGrade_${props.subject_id}`;
-
     const storedData = localStorage.getItem(subjectKey);
-    const submittedData = localStorage.getItem(submittedKey);
+    const recentGrades = JSON.parse(localStorage.getItem('recentGrades') || '[]');
 
     if (storedData) {
         students.value = JSON.parse(storedData);
 
-        // If there are submitted grades, merge them with the stored data
-        if (submittedData) {
-            const submittedGrades = JSON.parse(submittedData);
-            students.value = students.value.map(student => {
-                const submittedStudent = submittedGrades.find(s => s.student_id === student.student_id);
-                if (submittedStudent) {
-                    return { ...student, ...submittedStudent };
+        // Map recent grades to students
+        students.value.forEach(student => {
+            const studentGrades = recentGrades.filter(grade =>
+                grade.student_id === student.student_id &&
+                grade.subjectName === props.subjectName
+            );
+
+            if (studentGrades.length > 0) {
+                // Initialize grades object if it doesn't exist
+                if (!student.grades) {
+                    student.grades = {
+                        first: null,
+                        second: null,
+                        third: null,
+                        fourth: null
+                    };
                 }
-                return student;
-            });
-        }
+
+                // Update grades from recent grades
+                studentGrades.forEach(grade => {
+                    const quarterKey = quarterMapping[grade.quarter];
+                    if (quarterKey) {
+                        student.grades[quarterKey] = grade.grade;
+                    }
+                });
+            }
+        });
     }
 };
 
@@ -218,13 +243,6 @@ watchEffect(() => {
         loadStudents();
     }
 });
-
-const quarterMapping = {
-    "1st": "first",
-    "2nd": "second",
-    "3rd": "third",
-    "4th": "fourth"
-};
 
 const quarterGrade = computed(() => {
     if (props.selectedStudent) {
