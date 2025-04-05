@@ -12,18 +12,18 @@
               <p class="font-medium text-5xl">{{ advisoryStats.total }}</p>
               <p>Total Students</p>
             </div>
-            <div><img src="/public/assets/img/dashboard/total.png" alt="" class="w-auto"></div>
+            <div><img src="/assets/img/dashboard/total.png" alt="" class="w-auto"></div>
           </div>
 
           <div class="flex flex-col gap-5 items-center w-auto">
             <div class="flex items-center border-2 border-blue gap-2 px-2 py-5 rounded-xl w-full">
-              <img src="/public/assets/img/dashboard/male.png" alt="" class="w-auto">
+              <img src="/assets/img/dashboard/male.png" alt="" class="w-auto">
               <p class="text-[40px] font-medium">{{ advisoryStats.male }}</p>
               <p class="text-base">Male Students</p>
             </div>
 
             <div class="flex items-center border-2 border-blue gap-2 px-2 py-5 rounded-xl w-full">
-              <img src="/public/assets/img/dashboard/female.png" alt="" class="w-auto">
+              <img src="/assets/img/dashboard/female.png" alt="" class="w-auto">
               <p class="text-[40px] font-medium">{{ advisoryStats.female }}</p>
               <p class="text-base">Female Students</p>
             </div>
@@ -151,7 +151,7 @@
             </tbody>
           </table>
           <div v-else class="flex flex-col items-center justify-center py-10 text-gray-500">
-            <img src="/public/assets/img/dashboard/no-data.png" alt="No Data" class="w-32 h-32 mb-4 opacity-50" />
+            <img src="/assets/img/dashboard/no-data.png" alt="No Data" class="w-32 h-32 mb-4 opacity-50" />
             <p class="text-lg font-medium">No Submitted Grades Yet</p>
             <p class="text-sm">You haven't submitted any grades for review.</p>
           </div>
@@ -191,7 +191,7 @@
           </tbody>
         </table>
         <div v-else class="flex flex-col items-center justify-center py-10 text-gray-500">
-          <img src="/public/assets/img/dashboard/no-data.png" alt="No Data" class="w-32 h-32 mb-4 opacity-50" />
+          <img src="/assets/img/dashboard/no-data.png" alt="No Data" class="w-32 h-32 mb-4 opacity-50" />
           <p class="text-lg font-medium">No Grades Recorded Yet</p>
           <p class="text-sm">You haven't recorded any grades for your students.</p>
         </div>
