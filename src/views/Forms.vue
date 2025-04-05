@@ -29,30 +29,47 @@
         </div>
 
         <div class="flex flex-grow flex-col border-l border-gray-300 mb-5 rounded-br-lg p-5 gap-10">
-          <div class="flex flex-col gap-3">
-            <p class="text-2xl font-semibold text-blue">STUDENT INFO</p>
-            <div class="flex gap-10">
-              <div class="flex flex-col gap-3">
-                <p class="text-xs font-bold text-blue">Student Name</p>
-                <p class="text-2xl font-medium">{{ selectedStudentInfo.firstName }} {{ selectedStudentInfo.lastName }}
-                </p>
+          <div class="flex gap-20">
+            <div class="flex flex-col gap-3">
+              <p class="text-2xl font-semibold text-blue">STUDENT INFO</p>
+              <div class="flex gap-10">
+                <div class="flex flex-col gap-3">
+                  <p class="text-xs font-bold text-blue">Student Name</p>
+                  <p class="text-2xl font-medium">{{ selectedStudentInfo.firstName }} {{ selectedStudentInfo.lastName }}
+                  </p>
 
-                <p class="text-xs font-bold text-blue">LRN</p>
-                <p class="text-2xl font-medium">{{ selectedStudentInfo.lrn }}</p>
+                  <p class="text-xs font-bold text-blue">LRN</p>
+                  <p class="text-2xl font-medium">{{ selectedStudentInfo.lrn }}</p>
+                </div>
+                <div class="flex flex-col gap-3">
+                  <p class="text-xs font-bold text-blue">Sex</p>
+                  <p class="text-2xl font-medium">{{ selectedStudentInfo.sex }}</p>
+
+                  <p class="text-xs font-bold text-blue">Curriculum</p>
+                  <p class="text-2xl font-medium">{{ selectedStudentInfo.curriculum }}</p>
+                </div>
+                <div class="flex flex-col gap-3">
+                  <p class="text-xs font-bold text-blue">Birthdate</p>
+                  <p class="text-2xl font-medium">{{ selectedStudentInfo.birthDate }}</p>
+
+                  <p class="text-xs font-bold text-blue">Address</p>
+                  <p class="text-2xl font-medium">{{ selectedStudentInfo.address }}</p>
+                </div>
               </div>
-              <div class="flex flex-col gap-3">
-                <p class="text-xs font-bold text-blue">Sex</p>
-                <p class="text-2xl font-medium">{{ selectedStudentInfo.sex }}</p>
+            </div>
 
-                <p class="text-xs font-bold text-blue">Curriculum</p>
-                <p class="text-2xl font-medium">{{ selectedStudentInfo.curriculum }}</p>
+            <div class="flex gap-5 items-center">
+              <div>
+                <p class="text-blue text-xs font-bold">GWA</p>
+                <input type="text" class="border-[1px] w-35 h-9 text-center" v-model="Grade" readonly />
+
               </div>
-              <div class="flex flex-col gap-3">
-                <p class="text-xs font-bold text-blue">Birthdate</p>
-                <p class="text-2xl font-medium">{{ selectedStudentInfo.birthDate }}</p>
-
-                <p class="text-xs font-bold text-blue">Address</p>
-                <p class="text-2xl font-medium">{{ selectedStudentInfo.address }}</p>
+              <div>
+                <p class="text-blue text-xs font-bold">Remarks</p>
+                <div class="w-35 h-9 border-[1px] rounded-[5px] items-center justify-center flex">
+                  <!-- Dynamically show Passed or Failed -->
+                  <p class="font-bold" :class="remarksClass">{{ remarks }}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -79,7 +96,7 @@
                     <th class="bg-gray-100 text-center p-2 text-sm text-gray-700">2ND QUARTER</th>
                     <th class="bg-gray-100 text-center p-2 text-sm text-gray-700">3RD QUARTER</th>
                     <th class="bg-gray-100 text-center p-2 text-sm text-gray-700">4TH QUARTER</th>
-                    <th class="bg-gray-100 text-center p-2 text-sm text-gray-700">GWA</th>
+                    <th class="bg-gray-100 text-center p-2 text-sm text-gray-700">Final Grade</th>
                     <th class="bg-gray-100 text-center p-2 text-sm text-gray-700">Remarks</th>
                   </tr>
                 </thead>
@@ -115,7 +132,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import searchbar from '@/components/searchbar.vue';
 
 const searchQuery = ref('');
@@ -123,6 +140,7 @@ const students = ref([]);
 const subjects = ref([]);
 const selectedStudent = ref(null);
 const studentSubjects = ref([]);
+const Grade = ref('');
 
 onMounted(() => {
   const storedStudents = localStorage.getItem('students');
@@ -170,6 +188,46 @@ const selectedStudentInfo = computed(() => {
   };
 });
 
+const remarks = computed(() => {
+  if (!Grade.value || isNaN(parseFloat(Grade.value))) {
+    return 'No grade';
+  }
+  return parseFloat(Grade.value) >= 75 ? 'Passed' : 'Failed';
+});
+
+const remarksClass = computed(() => {
+  return remarks.value === 'Passed' ? 'text-green-600' : 'text-red-600';
+});
+
+// Calculate the average of all final grades for the selected student
+const calculateAverageGrade = computed(() => {
+  if (!selectedStudent.value || studentSubjects.value.length === 0) {
+    return '';
+  }
+
+  const finalGrades = studentSubjects.value.map(subject => {
+    const gwa = calculateGWA(subject.subject_id);
+    return gwa !== 'No grade' && gwa !== 'INC' ? parseFloat(gwa) : null;
+  }).filter(grade => grade !== null);
+
+  if (finalGrades.length === 0) {
+    return '';
+  }
+
+  const average = finalGrades.reduce((sum, grade) => sum + grade, 0) / finalGrades.length;
+  return average.toFixed(2);
+});
+
+// Update the Grade input when the selected student changes
+watch(selectedStudent, () => {
+  Grade.value = calculateAverageGrade.value;
+});
+
+// Update the Grade input when studentSubjects changes
+watch(studentSubjects, () => {
+  Grade.value = calculateAverageGrade.value;
+}, { deep: true });
+
 const generateCSV = (type) => {
   const student = selectedStudent.value;
 
@@ -183,7 +241,7 @@ const generateCSV = (type) => {
     downloadCSV(csvContent, 'SF10_Learners_Info.csv');
   } else if (type === 'SF9') {
     const csvContent = [
-      ['Subject', '1st Quarter', '2nd Quarter', '3rd Quarter', '4th Quarter', 'GWA', 'Remarks']
+      ['Subject', '1st Quarter', '2nd Quarter', '3rd Quarter', '4th Quarter', 'Final Grade', 'Remarks']
     ];
 
     studentSubjects.value.forEach(subject => {

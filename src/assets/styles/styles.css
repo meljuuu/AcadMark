@@ -12,9 +12,10 @@
   --color-black: #000000;
   --color-success: #23ad00;
   --color-error: #d30000;
-  --breakpoint-sm: 1rem;
-  --breakpoint-md: 48rem;
-  --breakpoint-lg: 64rem;
+  --breakpoint-ssm: 768px;
+  --breakpoint-sm: 1025px;
+  --breakpoint-md: 1441px;
+  --breakpoint-lg: 1920px;
   --breakpoint-xl: 80rem;
   --breakpoint-2xl: 96rem;
 }

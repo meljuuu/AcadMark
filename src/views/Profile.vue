@@ -2,7 +2,7 @@
     <div class="flex flex-col gap-6 py-5 px-2 md:p-3 max-w-[100vw]">
 
         <div class="flex flex-row gap-10">
-            <div class="w-full md:w-[400px] p-3 border border-[#cecece] rounded-2xl bg-white shadow-lg">
+            <div class="w-1/3 p-3 border border-[#cecece] rounded-2xl bg-white shadow-lg">
                 <div class="flex flex-col items-center gap-3">
                     <div class="w-50 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer"
                         @click="triggerImageUpload">
@@ -57,7 +57,7 @@
         </div>
 
         <div class="flex flex-col md:flex-row gap-10">
-            <div class="w-full md:w-[400px] py-5     border border-[#cecece] rounded-2xl bg-white shadow-lg">
+            <div class="sm:full md:w-1/3 py-5 border border-[#cecece] rounded-2xl bg-white shadow-lg">
                 <h3 class="text-xl px-3 font-semibold text-gray-800 mb-4 border-b border-[#E0E0E0] pb-3">Educational
                     Attainment
                 </h3>

@@ -79,7 +79,6 @@ onMounted(() => {
             grades: student.grades || { "1st": null, "2nd": null, "3rd": null, "4th": null }
         }));
 
-        // Store the subject data in localStorage
         localStorage.setItem(`subject_${props.subject_id}`, JSON.stringify(studentsInSubject.value));
     }
 });

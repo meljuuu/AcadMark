@@ -1,13 +1,14 @@
 <template>
-  <div class="flex flex-col gap-10 py-5 px-5 w-full overflow-x-hidden">
+  <div class="flex flex-col gap-10 py-5 px-5 overflow-x-hidden ssm:w-[75vw] sm:w-[80vw] md:w-[84vw]">
     <h1 class="title">Dashboard</h1>
 
-    <div class="flex flex-row justify-between gap-10 w-full">
-      <div class="p-5 border-blue border-2 w-1/2 rounded-2xl overflow-hidden">
+    <div class="flex ssm:flex-col sm:w-full md:flex-row justify-between ssm:gap-3 md:gap-10">
+      <div class="p-5 border-blue border-2 ssm:w-full md:w-1/2 rounded-2xl overflow-hidden">
         <p class="font-semibold text-[32px]">Advisory Class</p>
 
-        <div class="flex flex-row gap-10 p-5 items-center">
-          <div class="flex items-center border-2 border-blue px-10 py-17 rounded-2xl w-auto">
+        <div class="flex ssm:flex-col md:flex-row gap-10 p-5 items-center">
+          <div
+            class="flex items-center border-2 border-blue ssm:px-5 ssm:py-2 md:px-10 md:py-17 rounded-2xl ssm:w-full ssm:justify-center ssm:items-center md:w-auto">
             <div class="text-center">
               <p class="font-medium text-5xl">{{ advisoryStats.total }}</p>
               <p>Total Students</p>
@@ -15,23 +16,23 @@
             <div><img src="/assets/img/dashboard/total.png" alt="" class="w-auto"></div>
           </div>
 
-          <div class="flex flex-col gap-5 items-center w-auto">
+          <div class="flex md:flex-col ssm:flex-row gap-5 ssm:justify-between md:items-center w-full">
             <div class="flex items-center border-2 border-blue gap-2 px-2 py-5 rounded-xl w-full">
-              <img src="/assets/img/dashboard/male.png" alt="" class="w-auto">
-              <p class="text-[40px] font-medium">{{ advisoryStats.male }}</p>
+              <img src="/assets/img/dashboard/male.png" alt="" class="w-auto ssm:w-7">
+              <p class="text-[40px] ssm:text-[30px] font-medium">{{ advisoryStats.male }}</p>
               <p class="text-base">Male Students</p>
             </div>
 
             <div class="flex items-center border-2 border-blue gap-2 px-2 py-5 rounded-xl w-full">
-              <img src="/assets/img/dashboard/female.png" alt="" class="w-auto">
-              <p class="text-[40px] font-medium">{{ advisoryStats.female }}</p>
+              <img src="/assets/img/dashboard/female.png" alt="" class="w-auto ssm:w-7">
+              <p class="text-[40px] ssm:text-[30px] font-medium">{{ advisoryStats.female }}</p>
               <p class="text-base">Female Students</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="w-1/2 border border-[#cecece] p-5 rounded-2xl overflow-hidden"
+      <div class="ssm:w-full md:w-1/2 border border-[#cecece] p-5 rounded-2xl overflow-hidden"
         style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
         <p class="font-semibold text-[32px]">Subject Class</p>
 
@@ -103,8 +104,8 @@
       </div>
     </div>
 
-    <div class="flex flex-row justify-between gap-10 w-full">
-      <div class="w-1/2 p-5 border border-[#cecece] rounded-2xl flex flex-col gap-5 overflow-hidden"
+    <div class="flex ssm:flex-col md:flex-row justify-between gap-10 w-full">
+      <div class="ssm:w-full md:w-1/2 p-5 border border-[#cecece] rounded-2xl flex flex-col gap-5 overflow-hidden"
         style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
         <p class="font-semibold text-[32px]">Total Submitted Grades</p>
 
@@ -126,7 +127,7 @@
         </div>
       </div>
 
-      <div class="w-1/2 p-5 border border-[#cecece] rounded-2xl overflow-hidden"
+      <div class=" ssm:w-full md:w-1/2 p-5 border border-[#cecece] rounded-2xl overflow-hidden"
         style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
         <p class="font-semibold text-[32px]">Recent Submitted Grades</p>
 
@@ -153,7 +154,7 @@
           <div v-else class="flex flex-col items-center justify-center py-10 text-gray-500">
             <img src="/assets/img/dashboard/no-data.png" alt="No Data" class="w-32 h-32 mb-4 opacity-50" />
             <p class="text-lg font-medium">No Submitted Grades Yet</p>
-            <p class="text-sm">You haven't submitted any grades for review.</p>
+            <p class="text-ssm">You haven't submitted any grades for review.</p>
           </div>
         </div>
       </div>
@@ -193,7 +194,7 @@
         <div v-else class="flex flex-col items-center justify-center py-10 text-gray-500">
           <img src="/assets/img/dashboard/no-data.png" alt="No Data" class="w-32 h-32 mb-4 opacity-50" />
           <p class="text-lg font-medium">No Grades Recorded Yet</p>
-          <p class="text-sm">You haven't recorded any grades for your students.</p>
+          <p class="text-ssm">You haven't recorded any grades for your students.</p>
         </div>
       </div>
     </div>
@@ -407,9 +408,249 @@ const recentSubmittedGrades = ref([]);
 const recentGraded = ref([]);
 
 onMounted(() => {
+  // Set the subjects and students data in localStorage
   localStorage.setItem('subjects', JSON.stringify(subjectData));
   localStorage.setItem('students', JSON.stringify(studentData));
 
+  // Create static data for recentSubmit (submitted grades)
+  const staticRecentSubmit = [
+    {
+      lrn: "123456789012",
+      firstName: "Juan",
+      lastName: "Dela Cruz",
+      middleName: "Cruz",
+      classType: "Advisory",
+      status: "APPROVED"
+    },
+    {
+      lrn: "987654321098",
+      firstName: "Maria",
+      lastName: "Rosa",
+      middleName: "Lopez",
+      classType: "Subject",
+      status: "PENDING"
+    },
+    {
+      lrn: "123457890123",
+      firstName: "Antonio",
+      lastName: "Perez",
+      middleName: "Garcia",
+      classType: "Advisory",
+      status: "DECLINED"
+    },
+    {
+      lrn: "987655432112",
+      firstName: "Ana",
+      lastName: "Bautista",
+      middleName: "Santos",
+      classType: "Subject",
+      status: "APPROVED"
+    },
+    {
+      lrn: "123458901234",
+      firstName: "Luis",
+      lastName: "Martinez",
+      middleName: "Perez",
+      classType: "Advisory",
+      status: "PENDING"
+    },
+    {
+      lrn: "987654321234",
+      firstName: "Lina",
+      lastName: "Juan",
+      middleName: "Cruz",
+      classType: "Subject",
+      status: "APPROVED"
+    },
+    {
+      lrn: "123459012345",
+      firstName: "Joseph",
+      lastName: "Morales",
+      middleName: "Santiago",
+      classType: "Advisory",
+      status: "APPROVED"
+    },
+    {
+      lrn: "987655432345",
+      firstName: "Carmen",
+      lastName: "Santos",
+      middleName: "Gutierrez",
+      classType: "Subject",
+      status: "PENDING"
+    },
+    {
+      lrn: "123460123456",
+      firstName: "Roberto",
+      lastName: "Palacio",
+      middleName: "Martinez",
+      classType: "Advisory",
+      status: "DECLINED"
+    },
+    {
+      lrn: "987656543210",
+      firstName: "Maria",
+      lastName: "Navarro",
+      middleName: "Alegre",
+      classType: "Subject",
+      status: "APPROVED"
+    },
+    {
+      lrn: "123461234567",
+      firstName: "Lucas",
+      lastName: "Perez",
+      middleName: "Fernandez",
+      classType: "Advisory",
+      status: "PENDING"
+    },
+    {
+      lrn: "987657890123",
+      firstName: "Julia",
+      lastName: "Caballero",
+      middleName: "Suarez",
+      classType: "Subject",
+      status: "APPROVED"
+    }
+  ];
+
+  // Create static data for recentGrades (graded students)
+  const staticRecentGrades = [
+    {
+      lrn: "123456789012",
+      firstName: "Juan",
+      lastName: "Dela Cruz",
+      middleName: "Cruz",
+      curriculum: "SHS",
+      trackStand: "STEM",
+      classType: "Advisory",
+      className: "AIRE",
+      subjectName: "Mathematics",
+      grade: "95",
+      remarks: "Passed"
+    },
+    {
+      lrn: "987654321098",
+      firstName: "Maria",
+      lastName: "Rosa",
+      middleName: "Lopez",
+      curriculum: "JHS",
+      trackStand: "EIM",
+      classType: "Subject",
+      className: "TIERRA",
+      subjectName: "English",
+      grade: "88",
+      remarks: "Passed"
+    },
+    {
+      lrn: "123457890123",
+      firstName: "Antonio",
+      lastName: "Perez",
+      middleName: "Garcia",
+      curriculum: "SHS",
+      trackStand: "ABM",
+      classType: "Advisory",
+      className: "AIRE",
+      subjectName: "Mathematics",
+      grade: "82",
+      remarks: "Passed"
+    },
+    {
+      lrn: "987655432112",
+      firstName: "Ana",
+      lastName: "Bautista",
+      middleName: "Santos",
+      curriculum: "SHS",
+      trackStand: "STEM",
+      classType: "Subject",
+      className: "THEGO",
+      subjectName: "Physics",
+      grade: "78",
+      remarks: "Passed"
+    },
+    {
+      lrn: "123458901234",
+      firstName: "Luis",
+      lastName: "Martinez",
+      middleName: "Perez",
+      curriculum: "JHS",
+      trackStand: "ABM",
+      classType: "Advisory",
+      className: "FAVILLA",
+      subjectName: "Mathematics",
+      grade: "92",
+      remarks: "Passed"
+    },
+    {
+      lrn: "987654321234",
+      firstName: "Lina",
+      lastName: "Juan",
+      middleName: "Cruz",
+      curriculum: "JHS",
+      trackStand: "ABM",
+      classType: "Subject",
+      className: "SILANG",
+      subjectName: "English",
+      grade: "74",
+      remarks: "Failed"
+    },
+    {
+      lrn: "123459012345",
+      firstName: "Joseph",
+      lastName: "Morales",
+      middleName: "Santiago",
+      curriculum: "SHS",
+      trackStand: "ABM",
+      classType: "Advisory",
+      className: "AIRE",
+      subjectName: "Mathematics",
+      grade: "85",
+      remarks: "Passed"
+    },
+    {
+      lrn: "987655432345",
+      firstName: "Carmen",
+      lastName: "Santos",
+      middleName: "Gutierrez",
+      curriculum: "JHS",
+      trackStand: "STEM",
+      classType: "Subject",
+      className: "TIERRA",
+      subjectName: "Chemistry",
+      grade: "90",
+      remarks: "Passed"
+    },
+    {
+      lrn: "123460123456",
+      firstName: "Roberto",
+      lastName: "Palacio",
+      middleName: "Martinez",
+      curriculum: "JHS",
+      trackStand: "STEM",
+      classType: "Advisory",
+      className: "FAVILLA",
+      subjectName: "Mathematics",
+      grade: "87",
+      remarks: "Passed"
+    },
+    {
+      lrn: "987656543210",
+      firstName: "Maria",
+      lastName: "Navarro",
+      middleName: "Alegre",
+      curriculum: "SHS",
+      trackStand: "STEM",
+      classType: "Subject",
+      className: "THEGO",
+      subjectName: "Physics",
+      grade: "93",
+      remarks: "Passed"
+    }
+  ];
+
+  // Set the static data in localStorage
+  localStorage.setItem('recentSubmit', JSON.stringify(staticRecentSubmit));
+  localStorage.setItem('recentGrades', JSON.stringify(staticRecentGrades));
+
+  // Process the data for display
   const submittedGrades = JSON.parse(localStorage.getItem('recentSubmit') || '[]');
   recentSubmittedGrades.value = submittedGrades.slice(0, 12).map(grade => ({
     lrn: grade.lrn,

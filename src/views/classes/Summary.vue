@@ -24,10 +24,10 @@
                 </tr>
             </thead>
             <tbody class="text-center font-medium">
-                <tr v-if="filteredStudents.length === 0">
+                <tr v-if="paginatedStudents.length === 0">
                     <td colspan="8" class="px-4 py-2">No students available.</td>
                 </tr>
-                <tr v-for="student in filteredStudents" :key="student.lrn">
+                <tr v-for="student in paginatedStudents" :key="student.lrn">
                     <td class="px-4 py-2">{{ student.lrn }}</td>
                     <td class="px-4 py-2">{{ student.lastName + ", " + student.firstName + " " + student.middleName }}
                     </td>
@@ -48,7 +48,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import Dropdown from '@/components/dropdown.vue';
 import Searchbar from '@/components/searchbar.vue';
 
@@ -61,7 +61,17 @@ const props = defineProps({
         type: String,
         required: true,
     },
+    currentPage: {
+        type: Number,
+        required: true,
+    },
+    itemsPerPage: {
+        type: Number,
+        required: true,
+    },
 });
+
+const emit = defineEmits(['update:currentPage']);
 
 const headers = ref([
     'LRN', 'Name', 'Gender', '1st Quarter', '2nd Quarter', '3rd Quarter', '4th Quarter', 'Final Grade', 'Remarks'
@@ -157,6 +167,23 @@ const filteredStudents = computed(() => {
 
     return sortedStudents;
 });
+
+const totalPages = computed(() => {
+    return Math.ceil(filteredStudents.value.length / props.itemsPerPage);
+});
+
+const paginatedStudents = computed(() => {
+    const startIndex = (props.currentPage - 1) * props.itemsPerPage;
+    const endIndex = startIndex + props.itemsPerPage;
+    return filteredStudents.value.slice(startIndex, endIndex);
+});
+
+watch(filteredStudents, (newFilteredStudents) => {
+    const newTotalPages = Math.ceil(newFilteredStudents.length / props.itemsPerPage);
+    if (props.currentPage > newTotalPages && newTotalPages > 0) {
+        emit('update:currentPage', newTotalPages);
+    }
+}, { deep: true });
 
 const generateCSV = () => {
     const date = new Date().toLocaleDateString().replace(/\//g, '-');

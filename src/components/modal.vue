@@ -174,7 +174,6 @@ const loadStudents = () => {
     if (storedData) {
         students.value = JSON.parse(storedData);
 
-        // Map recent grades to students
         students.value.forEach(student => {
             const studentGrades = recentGrades.filter(grade =>
                 grade.student_id === student.student_id &&
@@ -182,7 +181,6 @@ const loadStudents = () => {
             );
 
             if (studentGrades.length > 0) {
-                // Initialize grades object if it doesn't exist
                 if (!student.grades) {
                     student.grades = {
                         first: null,
@@ -192,7 +190,6 @@ const loadStudents = () => {
                     };
                 }
 
-                // Update grades from recent grades
                 studentGrades.forEach(grade => {
                     const quarterKey = quarterMapping[grade.quarter];
                     if (quarterKey) {

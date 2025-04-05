@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1 class="title">Classes</h1>
-    <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-4 gap-5">
+    <div class="grid ssm:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
       <Card v-for="classItem in classes" :key="classItem.class_id" :trackStand="classItem.trackStand"
         :classType="classItem.classType" :className="classItem.className"
         :subjectName="getSubjectName(classItem.subject_id)" :subject_id="classItem.subject_id"

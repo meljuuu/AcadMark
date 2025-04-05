@@ -1,7 +1,7 @@
 <template>
   <div
-    class="sm:w-[100px] md:w-1/5 lg:w-1/6 max-w-[210px] w-auto bg-blue md:pt-15 sm:pt-5 rounded-tr-[30px] sticky top-0 h-screen flex flex-col"
-    style="box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;">
+    class="sm:w-[1/5] md:w-1/5 lg:w-1/6 max-w-[210px] w-auto bg-blue md:pt-15 sm:pt-5 rounded-tr-[30px] sticky top-0 h-screen flex flex-col"
+    style="box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px; flex-shrink: 0;">
 
     <div class="flex flex-col items-center m-4 gap-8">
       <img :src="imageSrc" alt="Teacher" class="w-[130px] h-[130px] rounded-full object-contain" />
@@ -100,9 +100,7 @@ onMounted(() => {
 });
 
 const confirmLogout = () => {
-  // Clear all localStorage
   localStorage.clear();
-  // Redirect to login page
   router.push('/login');
 };
 

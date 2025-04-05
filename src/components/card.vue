@@ -1,6 +1,6 @@
 <template>
     <div class="rounded-xl shadow-[rgba(0,0,0,0.35)_0px_5px_15px]">
-        <div class="relative w-sm border border-[#c0c0c0] rounded-xl overflow-hidden">
+        <div class="relative md:w-full border border-[#c0c0c0] rounded-xl overflow-hidden">
             <div class="p-5 relative z-10">
                 <p class="text-base font-medium" :class="cardColor.text">{{ trackStand }}</p>
                 <p class="text-5xl font-medium" :class="cardColor.text">{{ className }}</p>

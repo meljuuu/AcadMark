@@ -18,14 +18,14 @@
                     </tr>
                 </thead>
                 <tbody class="font-medium text-[15px]">
-                    <tr v-if="filteredStudents.length === 0">
+                    <tr v-if="paginatedStudents.length === 0">
                         <td colspan="6" class="p-2 text-center">No students available.</td>
                     </tr>
-                    <tr v-for="student in filteredStudents" :key="student.lrn" class="hover:bg-gray-200 cursor-pointer"
+                    <tr v-for="student in paginatedStudents" :key="student.lrn" class="hover:bg-gray-200 cursor-pointer"
                         @click="openModal(student)">
                         <td class="p-2 w-1/6">{{ student.lrn }}</td>
                         <td class="p-2 w-1/6">{{ student.lastName + ", " + student.firstName + " " + student.middleName
-                        }}</td>
+                            }}</td>
                         <td class="p-2 w-1/6">{{ student.sex }}</td>
                         <td class="p-2 w-1/6">{{ getAge(student.birthDate) }}</td>
                         <td class="p-2 w-1/6">{{ getGradeForQuarter(student) }}</td>
@@ -46,7 +46,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import Dropdown from '@/components/dropdown.vue';
 import Searchbar from '@/components/searchbar.vue';
 import modal from '@/components/modal.vue';
@@ -60,7 +60,17 @@ const props = defineProps({
         type: String,
         required: true,
     },
+    currentPage: {
+        type: Number,
+        required: true,
+    },
+    itemsPerPage: {
+        type: Number,
+        required: true,
+    },
 });
+
+const emit = defineEmits(['update:currentPage']);
 
 const students = ref([]);
 const selectedQuarter = ref("1st");
@@ -94,6 +104,23 @@ const filteredStudents = computed(() => {
             student.lastName.toLowerCase().includes(searchQuery.value.toLowerCase());
     });
 });
+
+const totalPages = computed(() => {
+    return Math.ceil(filteredStudents.value.length / props.itemsPerPage);
+});
+
+const paginatedStudents = computed(() => {
+    const startIndex = (props.currentPage - 1) * props.itemsPerPage;
+    const endIndex = startIndex + props.itemsPerPage;
+    return filteredStudents.value.slice(startIndex, endIndex);
+});
+
+watch(filteredStudents, (newFilteredStudents) => {
+    const newTotalPages = Math.ceil(newFilteredStudents.length / props.itemsPerPage);
+    if (props.currentPage > newTotalPages && newTotalPages > 0) {
+        emit('update:currentPage', newTotalPages);
+    }
+}, { deep: true });
 
 const getGradeForQuarter = (student) => {
     const quarterKey = quarterMapping[selectedQuarter.value];

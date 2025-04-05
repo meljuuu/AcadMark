@@ -185,17 +185,14 @@ watch(currentIndex, () => {
 
 async function loadSubjectData() {
     try {
-        // First try to load from submitted grades
         const submittedData = localStorage.getItem(`submittedgrade_${props.subject_id}`);
         if (submittedData) {
             studentsInSubject.value = JSON.parse(submittedData);
         } else {
-            // If no submitted grades, try to load from subject data
             const storedData = localStorage.getItem(`subject_${props.subject_id}`);
             if (storedData) {
                 studentsInSubject.value = JSON.parse(storedData);
             } else {
-                // If no stored data, initialize from subjects and students
                 const subject = subjects.find(sub => sub.subject_id === props.subject_id);
                 if (subject) {
                     studentsInSubject.value = students.filter(student => subject.student_id.includes(student.student_id))

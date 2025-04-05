@@ -52,7 +52,8 @@
                     <div>
                         <component :is="activeComponent" :subject_id="subject_id" :trackStand="trackStand"
                             :className="className" :subjectName="subjectName" :classType="classType"
-                            :key="activeComponent"></component>
+                            :currentPage="currentPage" :itemsPerPage="itemsPerPage"
+                            @update:currentPage="currentPage = $event" :key="activeComponent"></component>
                     </div>
                 </transition>
 
@@ -60,15 +61,19 @@
 
         </div>
 
-        <div class="flex justify-center items-center gap-3">
-            <img src="/assets/img/classes/arrow.png" alt="arrow" class="w-4 h-4 rotate-180">
-            <div class="flex gap-2">
-                <p class="text-lg">1</p>
-                <p class="text-lg">2</p>
-                <p class="text-lg">3</p>
-                <p class="text-lg">4</p>
+        <div v-if="activeComponent === 'SummaryOfGrades' || activeComponent === 'Submitted'"
+            class="flex justify-center items-center gap-5 py-5">
+            <img src="/assets/img/classes/arrow.png" alt="arrow" class="w-4 h-4 rotate-180 cursor-pointer"
+                @click="prevPage" :class="{ 'opacity-50 cursor-not-allowed': currentPage === 1 }">
+            <div class="flex gap-5 items-center justify-center">
+                <div v-for="page in totalPages" :key="page" class="text-lg cursor-pointer"
+                    :class="{ 'bg-[#2C2C2C] w-8 h-8 rounded-md text-white flex items-center justify-center': currentPage === page }"
+                    @click="currentPage = page">
+                    <p>{{ page }}</p>
+                </div>
             </div>
-            <img src="/assets/img/classes/arrow.png" alt="arrow" class="w-4 h-4">
+            <img src="/assets/img/classes/arrow.png" alt="arrow" class="w-4 h-4 cursor-pointer" @click="nextPage"
+                :class="{ 'opacity-50 cursor-not-allowed': currentPage === totalPages }">
         </div>
 
         <div v-if="activeComponent === 'SummaryOfGrades'" class="overflow-x-auto w-1/2 mt-5 mb-15">
@@ -117,7 +122,7 @@
 </template>
 
 <script>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import subjects from '../../data/subjects.json';
 import students from '../../data/students.json';
@@ -146,6 +151,9 @@ export default {
         const maleCount = ref(0);
         const femaleCount = ref(0);
         const activeComponent = ref('Classlist');
+        const currentPage = ref(1);
+        const itemsPerPage = ref(10);
+        const totalItems = ref(0);
 
         const router = useRouter();
 
@@ -171,6 +179,50 @@ export default {
             return 0;
         });
 
+        const totalPages = computed(() => {
+            return Math.ceil(totalItems.value / itemsPerPage.value);
+        });
+
+        const prevPage = () => {
+            if (currentPage.value > 1) {
+                currentPage.value--;
+            }
+        };
+
+        const nextPage = () => {
+            if (currentPage.value < totalPages.value) {
+                currentPage.value++;
+            }
+        };
+
+        watch(activeComponent, (newComponent) => {
+            if (newComponent === 'SummaryOfGrades' || newComponent === 'Submitted') {
+                if (newComponent === 'SummaryOfGrades') {
+                    const subjectKey = `subject_${props.subject_id}`;
+                    const storedData = localStorage.getItem(subjectKey);
+                    if (storedData) {
+                        const students = JSON.parse(storedData);
+                        totalItems.value = students.length;
+                    } else {
+                        totalItems.value = 0;
+                    }
+                }
+
+                if (newComponent === 'Submitted') {
+                    const key = `submittedGrade_${props.subject_id}`;
+                    const storedData = localStorage.getItem(key);
+                    if (storedData) {
+                        const submittedStudents = JSON.parse(storedData);
+                        totalItems.value = submittedStudents.length;
+                    } else {
+                        totalItems.value = 0;
+                    }
+                }
+
+                currentPage.value = 1;
+            }
+        });
+
         onMounted(() => {
             const subject = subjects.find(sub => sub.subject_id === props.subject_id);
             if (subject) {
@@ -192,7 +244,13 @@ export default {
             activeComponent,
             navItems,
             goBack,
-            totalStudents
+            totalStudents,
+            currentPage,
+            itemsPerPage,
+            totalPages,
+            prevPage,
+            nextPage,
+            totalItems
         };
     }
 };
