@@ -204,7 +204,7 @@ async function loadSubjectData() {
             selectedStudent.value = studentsInSubject.value[0];
         }
     } catch (error) {
-        console.error("Error loading subject data:", error);
+        // Handle error silently
     }
 }
 
@@ -359,25 +359,9 @@ function submitGrades() {
 
                 localStorage.setItem('recentSubmit', JSON.stringify(recentSubmit));
 
-                AsyncStorage.setItem(`subject_${props.subject_id}`, JSON.stringify(studentsInSubject.value))
-                    .then(() => {
-                        // Successfully saved
-                    })
-                    .catch(error => {
-                        // Handle error silently
-                    });
-
-                AsyncStorage.setItem(`submittedGrade_${props.subject_id}`, JSON.stringify(selectedStudents))
-                    .then(() => {
-                        // Successfully saved
-                    })
-                    .catch(error => {
-                        // Handle error silently
-                    });
+                AsyncStorage.setItem(`subject_${props.subject_id}`, JSON.stringify(studentsInSubject.value));
+                AsyncStorage.setItem(`submittedGrade_${props.subject_id}`, JSON.stringify(selectedStudents));
             });
-        })
-        .catch(error => {
-            // Handle error silently
         });
 }
 </script>

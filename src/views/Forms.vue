@@ -61,9 +61,11 @@
             <div class="flex justify-between items-center mb-3">
               <p class="text-2xl font-semibold text-blue">GRADES</p>
               <div class="flex gap-2">
-                <button class="bg-blue text-white py-2 px-3 rounded-md text-sm font-semibold cursor-pointer"
+                <button
+                  class="bg-blue text-white py-2 px-3 rounded-md text-sm font-semibold cursor-pointer hover:bg-[#cecece]"
                   @click="generateCSV('SF10')">SF10</button>
-                <button class="bg-blue text-white py-2 px-3 rounded-md text-sm font-semibold cursor-pointer"
+                <button
+                  class="bg-blue text-white py-2 px-3 rounded-md text-sm font-semibold cursor-pointer hover:bg-[#cecece]"
                   @click="generateCSV('SF9')">SF9</button>
               </div>
             </div>

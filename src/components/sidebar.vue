@@ -20,7 +20,6 @@
       </router-link>
     </nav>
 
-    <!-- Logout Button -->
     <div class="mt-auto mb-8">
       <button @click="showLogoutModal = true"
         class="nav-link hover:text-red-500 transition-colors duration-200 flex items-center justify-center cursor-pointer">
@@ -29,7 +28,6 @@
       </button>
     </div>
 
-    <!-- Logout Confirmation Modal -->
     <div v-if="showLogoutModal" class="modal-overlay">
       <div class="modal-content max-w-md">
         <h2 class="text-xl font-bold mb-4 text-blue">Confirm Logout</h2>
