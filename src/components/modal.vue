@@ -1,5 +1,5 @@
     <template>
-        <div class="fixed inset-0 z-50 p-2.5 bg-black/50 p-[10%]">
+        <div class="fixed inset-0 z-50 bg-black/50 p-[10%]">
 
             <div v-if="showLis">
                 <button @click="$emit('close')"
@@ -120,6 +120,19 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Success Modal -->
+            <div v-if="showSubmitSuccess" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+                <div class="bg-white rounded-xl p-8 text-center shadow-xl max-w-sm w-full">
+                    <h2 class="text-xl font-semibold text-green-600 mb-4">Success!</h2>
+                    <p class="text-gray-700">Grades have been successfully submitted.</p>
+                    <button @click="$emit('close')"
+                        class="mt-6 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                        OK
+                    </button>
+                </div>
+            </div>
+
         </div>
     </template>
 

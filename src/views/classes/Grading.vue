@@ -47,7 +47,9 @@
             <div class="flex justify-end mt-2 mr-5">
                 <button
                     class="bg-blue px-3 py-2 text-xs font-semibold text-white rounded-sm hover:bg-[#cecece] cursor-pointer"
-                    @click="submitGrades">Submit Grades</button>
+                    @click="submitGrades">
+                    Submit Grades
+                </button>
             </div>
         </div>
 
@@ -138,6 +140,18 @@
             </div>
         </div>
     </div>
+
+    <!-- Move the modal outside the main container -->
+    <div v-if="showSubmitSuccess" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
+        <div class="bg-white rounded-xl p-8 text-center shadow-xl max-w-sm w-full">
+            <h2 class="text-xl font-semibold text-green-600 mb-4">Success!</h2>
+            <p class="text-gray-700">Grades have been successfully submitted.</p>
+            <button @click="showSubmitSuccess = false"
+                class="mt-6 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 cursor-pointer">
+                OK
+            </button>
+        </div>
+    </div>
 </template>
 
 <script setup>
@@ -146,6 +160,7 @@ import subjects from '../../data/subjects.json';
 import students from '../../data/students.json';
 import Dropdown from '../../components/dropdown.vue';
 import { computed } from 'vue';
+import Modal from '../../components/modal.vue';
 
 const props = defineProps({
     trackStand: String,
@@ -164,6 +179,7 @@ const currentIndex = ref(0);
 const Grade = ref("");
 const selectedQuarter = ref("1st");
 const selectedMarkStatus = ref("");
+const showSubmitSuccess = ref(false);
 
 const quarterMapping = {
     "1st": "first",
@@ -346,35 +362,38 @@ function submitGrades() {
         }
 
         student.grades = student.grades || null;
-
-        const newSubmissions = selectedStudents.map(student => {
-            return {
-                student_id: student.student_id,
-                lrn: student.lrn,
-                firstName: student.firstName,
-                lastName: student.lastName,
-                middleName: student.middleName,
-                trackStand: props.trackStand,
-                classType: props.classType || 'Subject',
-                subjectName: props.subjectName,
-                curriculum: student.curriculum,
-                status: 'Pending',
-                timestamp: new Date().toISOString()
-            };
-        });
-
-        let recentSubmit = JSON.parse(localStorage.getItem('recentSubmit') || '[]');
-
-        newSubmissions.forEach(submission => {
-            recentSubmit = recentSubmit.filter(item => item.student_id !== submission.student_id);
-        });
-
-        recentSubmit.unshift(...newSubmissions);
-
-        localStorage.setItem('recentSubmit', JSON.stringify(recentSubmit));
-        localStorage.setItem(`subject_${props.subject_id}`, JSON.stringify(studentsInSubject.value));
-        localStorage.setItem(`submittedGrade_${props.subject_id}`, JSON.stringify(selectedStudents));
     });
+
+    const newSubmissions = selectedStudents.map(student => {
+        return {
+            student_id: student.student_id,
+            lrn: student.lrn,
+            firstName: student.firstName,
+            lastName: student.lastName,
+            middleName: student.middleName,
+            trackStand: props.trackStand,
+            classType: props.classType || 'Subject',
+            subjectName: props.subjectName,
+            curriculum: student.curriculum,
+            status: 'Pending',
+            timestamp: new Date().toISOString()
+        };
+    });
+
+    let recentSubmit = JSON.parse(localStorage.getItem('recentSubmit') || '[]');
+
+    newSubmissions.forEach(submission => {
+        recentSubmit = recentSubmit.filter(item => item.student_id !== submission.student_id);
+    });
+
+    recentSubmit.unshift(...newSubmissions);
+
+    localStorage.setItem('recentSubmit', JSON.stringify(recentSubmit));
+    localStorage.setItem(`subject_${props.subject_id}`, JSON.stringify(studentsInSubject.value));
+    localStorage.setItem(`submittedGrade_${props.subject_id}`, JSON.stringify(selectedStudents));
+
+    // Set showSubmitSuccess to true after successful submission
+    showSubmitSuccess.value = true;
 }
 
 const showAllLocalStorage = () => {
