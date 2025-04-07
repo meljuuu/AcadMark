@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="mb-5">
         <p class="text-black text-2xl font-semibold mb-8 cursor-pointer hover:text-blue-500" @click="goBack">
             &lt; <span class="underline hover:underline">Back</span>
         </p>
