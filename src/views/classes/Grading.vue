@@ -1,5 +1,5 @@
 <template>
-    <div class="flex max-h-[412px]">
+    <div class="flex max-h-[412px] overflow-x-auto scrollbar-hide">
         <!-- Left Section: Student Selection -->
         <div class="px-5 py-3 border-r border-[#d0d0d0]">
             <div class="flex items-center gap-5">
@@ -16,7 +16,8 @@
             </div>
 
             <!-- Displaying Student Names Dynamically -->
-            <div v-if="filteredStudents.length > 0" class="mt-4 overflow-y-auto max-h-[230px]">
+            <div v-if="filteredStudents.length > 0"
+                class="mt-4 overflow-y-auto overflow-x-auto scrollbar-hide max-h-[230px]">
                 <ul>
                     <li v-for="(student, index) in filteredStudents" :key="index"
                         class="flex justify-between py-2 mr-3 rounded-md transition-colors duration-200 px-2"
@@ -28,7 +29,7 @@
                                 'bg-[#23AD00]': student.grades[quarterMapping[selectedQuarter]] !== null && student.grades[quarterMapping[selectedQuarter]] !== '',
                                 'bg-red-500': !student.grades[quarterMapping[selectedQuarter]]
                             }" class="w-5 h-5 rounded-2xl"></div>
-                            <p class="font-medium text-base"
+                            <p class="font-medium text-base truncate max-w-[150px]"
                                 :class="{ 'text-blue font-semibold': isSelectedStudent(student) }">
                                 {{ student.lastName + ", " + student.firstName + " " + student.middleName }}
                             </p>

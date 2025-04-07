@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-10 py-5 px-5 overflow-x-hidden ssm:w-[75vw] sm:w-[80vw] md:w-[84vw]">
+  <div class="flex flex-col gap-10 py-5 px-5 overflow-x-hidden ssm:w-[75vw] sm:w-[80vw] md:w-[84vw] max-w-[84vw]">
     <h1 class="title">Dashboard</h1>
 
     <div class="flex ssm:flex-col sm:w-full md:flex-row justify-between ssm:gap-3 md:gap-10">
