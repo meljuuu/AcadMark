@@ -122,7 +122,7 @@
             </div>
 
             <!-- Success Modal -->
-            <div v-if="showSubmitSuccess" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+            <div v-if="showSubmitSuccess" class="fixed inset-0 bg-black/50 flex items-center justify-center">
                 <div class="bg-white rounded-xl p-8 text-center shadow-xl max-w-sm w-full">
                     <h2 class="text-xl font-semibold text-green-600 mb-4">Success!</h2>
                     <p class="text-gray-700">Grades have been successfully submitted.</p>

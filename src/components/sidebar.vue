@@ -23,13 +23,13 @@
     <div class="mt-auto mb-8">
       <button @click="showLogoutModal = true"
         class="nav-link hover:text-red-500 transition-colors duration-200 flex items-center justify-center cursor-pointer">
-        <img src="/public/assets/img/sidebar/logout.png" alt="Logout" class="w-6 h-6 mr-2" />
+        <img src="/assets/img/sidebar/logout.png" alt="Logout" class="w-6 h-6 mr-2" />
         <span class="font-semibold text-[16px]">Logout</span>
       </button>
     </div>
 
     <div v-if="showLogoutModal" class="modal-overlay">
-      <div class="modal-content max-w-md">
+      <div class="modal-content max-w-md z-50">
         <h2 class="text-xl font-bold mb-4 text-blue">Confirm Logout</h2>
         <p class="mb-6 text-gray">Are you sure you want to logout?</p>
         <div class="flex justify-end gap-3">
@@ -102,9 +102,5 @@ onMounted(() => {
 const confirmLogout = () => {
   localStorage.clear();
   router.push('/login');
-};
-
-const handleLogout = () => {
-  showLogoutModal.value = true;
 };
 </script>
