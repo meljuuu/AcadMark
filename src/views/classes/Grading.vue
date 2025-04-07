@@ -11,14 +11,16 @@
             <!-- Select All Checkbox -->
             <div class="mt-4 flex items-center justify-end gap-2">
                 <label for="select-all" class="ml-2 text-xs">Select All</label>
-                <input type="checkbox" class="checkbox mr-[27px]" id="select-all" v-model="selectAll"
+                <input type="checkbox" class="checkbox mr-[35px]" id="select-all" v-model="selectAll"
                     @change="toggleSelectAll" />
             </div>
 
             <!-- Displaying Student Names Dynamically -->
             <div v-if="filteredStudents.length > 0" class="mt-4 overflow-y-auto max-h-[230px]">
                 <ul>
-                    <li v-for="(student, index) in filteredStudents" :key="index" class="flex justify-between py-2 mr-3"
+                    <li v-for="(student, index) in filteredStudents" :key="index"
+                        class="flex justify-between py-2 mr-3 rounded-md transition-colors duration-200 px-2"
+                        :class="{ 'bg-blue-100 border-blue': isSelectedStudent(student) }"
                         @click="setStudentInfo(index)">
                         <div class="flex items-center gap-5 cursor-pointer">
                             <!-- Conditional background color based on grade presence for the current quarter -->
@@ -26,8 +28,10 @@
                                 'bg-[#23AD00]': student.grades[quarterMapping[selectedQuarter]] !== null && student.grades[quarterMapping[selectedQuarter]] !== '',
                                 'bg-red-500': !student.grades[quarterMapping[selectedQuarter]]
                             }" class="w-5 h-5 rounded-2xl"></div>
-                            <p class="font-medium text-base">{{ student.lastName + ", " + student.firstName + " " +
-                                student.middleName }}</p>
+                            <p class="font-medium text-base"
+                                :class="{ 'text-blue font-semibold': isSelectedStudent(student) }">
+                                {{ student.lastName + ", " + student.firstName + " " + student.middleName }}
+                            </p>
                         </div>
                         <div>
                             <input type="checkbox" class="checkbox" v-model="student.selected" />
@@ -315,6 +319,11 @@ const remarksClass = computed(() => {
     }
     return Grade.value <= 75 ? "text-red-500" : "text-green-500";
 });
+
+const isSelectedStudent = (student) => {
+    return selectedStudent.value && student.lrn === selectedStudent.value.lrn;
+};
+
 function submitGrades() {
     const selectedStudents = studentsInSubject.value.filter(student => student.selected);
 

@@ -8,7 +8,7 @@
 
         <div class="flex ssm:flex-col md:flex-row gap-10 p-5 items-center">
           <div
-            class="flex items-center border-2 border-blue ssm:px-5 ssm:py-2 md:px-10 md:py-17 rounded-2xl ssm:w-full ssm:justify-center ssm:items-center md:w-auto">
+            class="flex items-center border-2 gap-5 border-blue ssm:px-5 ssm:py-2 md:px-10 md:py-17 rounded-2xl ssm:w-full ssm:justify-center ssm:items-center md:w-auto">
             <div class="text-center">
               <p class="font-medium text-5xl">{{ advisoryStats.total }}</p>
               <p>Total Students</p>
