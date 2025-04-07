@@ -1,6 +1,6 @@
 <template>
   <div class="fixed top-0 left-0 w-full bg-blue shadow-md z-1">
-    <div class="flex items-center px-5 py-2 sm:ml-40 md:ml-50 lg:ml-50"
+    <div class="flex items-center px-5 py-2 sm:ml-40 md:ml-60"
       :class="{ 'justify-between': isDashboard, 'justify-end': !isDashboard }">
       <h1 v-if="isDashboard" class="sm:text-2xl md:text-3xl lg:text-4xl font-semibold text-white">
         Welcome Teacher {{ teacherFirstName }}!
