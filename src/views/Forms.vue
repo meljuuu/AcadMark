@@ -3,7 +3,7 @@
     <div class="flex justify-between">
       <p class="title">Forms</p>
 
-      <p class="text-8xl font-extrabold text-[#d6d6d6] relative top-[-30px]">ADVISORY</p>
+      <p class="text-8xl font-extrabold text-[#d6d6d6] relative top-[-30px] z-0">ADVISORY</p>
     </div>
 
     <div class="rounded-sm" style="box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 1px 1px;">
