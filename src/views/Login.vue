@@ -22,7 +22,7 @@
                 required />
               <label>Password</label>
               <span @click="togglePassword" class="toggle-password">
-                <img :src="showPassword ? '/assets/img/login/iconoir_eye.png' : '/assets/img/login/iconoir_eye.png'"
+                <img :src="showPassword ? '/assets/img/login/iconoir_eye.png' : '/assets/img/login/iconoir_closed.png'"
                   alt="Toggle Password Visibility" class="eye-icon" />
               </span>
             </div>
@@ -84,7 +84,6 @@ const login = () => {
 </script>
 
 
-
 <style scoped>
 .login-container {
   display: flex;
@@ -127,9 +126,22 @@ const login = () => {
   }
 }
 
+@keyframes slideInFromLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
 .illustration {
   width: 75%;
   z-index: 10;
+  animation: slideInFromLeft 2s ease-out forwards;
 }
 
 .right-section {
