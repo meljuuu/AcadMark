@@ -408,244 +408,25 @@ const recentSubmittedGrades = ref([]);
 const recentGraded = ref([]);
 
 onMounted(() => {
-  localStorage.setItem('subjects', JSON.stringify(subjectData));
-  localStorage.setItem('students', JSON.stringify(studentData));
+  // Store the initial data in localStorage if not already present
+  if (!localStorage.getItem('subjects')) {
+    localStorage.setItem('subjects', JSON.stringify(subjectData));
+  }
 
-  const staticRecentSubmit = [
-    {
-      lrn: "123456789012",
-      firstName: "Juan",
-      lastName: "Dela Cruz",
-      middleName: "Cruz",
-      classType: "Advisory",
-      status: "APPROVED"
-    },
-    {
-      lrn: "987654321098",
-      firstName: "Maria",
-      lastName: "Rosa",
-      middleName: "Lopez",
-      classType: "Subject",
-      status: "PENDING"
-    },
-    {
-      lrn: "123457890123",
-      firstName: "Antonio",
-      lastName: "Perez",
-      middleName: "Garcia",
-      classType: "Advisory",
-      status: "DECLINED"
-    },
-    {
-      lrn: "987655432112",
-      firstName: "Ana",
-      lastName: "Bautista",
-      middleName: "Santos",
-      classType: "Subject",
-      status: "APPROVED"
-    },
-    {
-      lrn: "123458901234",
-      firstName: "Luis",
-      lastName: "Martinez",
-      middleName: "Perez",
-      classType: "Advisory",
-      status: "PENDING"
-    },
-    {
-      lrn: "987654321234",
-      firstName: "Lina",
-      lastName: "Juan",
-      middleName: "Cruz",
-      classType: "Subject",
-      status: "APPROVED"
-    },
-    {
-      lrn: "123459012345",
-      firstName: "Joseph",
-      lastName: "Morales",
-      middleName: "Santiago",
-      classType: "Advisory",
-      status: "APPROVED"
-    },
-    {
-      lrn: "987655432345",
-      firstName: "Carmen",
-      lastName: "Santos",
-      middleName: "Gutierrez",
-      classType: "Subject",
-      status: "PENDING"
-    },
-    {
-      lrn: "123460123456",
-      firstName: "Roberto",
-      lastName: "Palacio",
-      middleName: "Martinez",
-      classType: "Advisory",
-      status: "DECLINED"
-    },
-    {
-      lrn: "987656543210",
-      firstName: "Maria",
-      lastName: "Navarro",
-      middleName: "Alegre",
-      classType: "Subject",
-      status: "APPROVED"
-    },
-    {
-      lrn: "123461234567",
-      firstName: "Lucas",
-      lastName: "Perez",
-      middleName: "Fernandez",
-      classType: "Advisory",
-      status: "PENDING"
-    },
-    {
-      lrn: "987657890123",
-      firstName: "Julia",
-      lastName: "Caballero",
-      middleName: "Suarez",
-      classType: "Subject",
-      status: "APPROVED"
-    }
-  ];
+  if (!localStorage.getItem('students')) {
+    localStorage.setItem('students', JSON.stringify(studentData));
+  }
 
-  const staticRecentGrades = [
-    {
-      lrn: "123456789012",
-      firstName: "Juan",
-      lastName: "Dela Cruz",
-      middleName: "Cruz",
-      curriculum: "SHS",
-      trackStand: "STEM",
-      classType: "Advisory",
-      className: "AIRE",
-      subjectName: "Mathematics",
-      grade: "95",
-      remarks: "Passed"
-    },
-    {
-      lrn: "987654321098",
-      firstName: "Maria",
-      lastName: "Rosa",
-      middleName: "Lopez",
-      curriculum: "JHS",
-      trackStand: "EIM",
-      classType: "Subject",
-      className: "TIERRA",
-      subjectName: "English",
-      grade: "88",
-      remarks: "Passed"
-    },
-    {
-      lrn: "123457890123",
-      firstName: "Antonio",
-      lastName: "Perez",
-      middleName: "Garcia",
-      curriculum: "SHS",
-      trackStand: "ABM",
-      classType: "Advisory",
-      className: "AIRE",
-      subjectName: "Mathematics",
-      grade: "82",
-      remarks: "Passed"
-    },
-    {
-      lrn: "987655432112",
-      firstName: "Ana",
-      lastName: "Bautista",
-      middleName: "Santos",
-      curriculum: "SHS",
-      trackStand: "STEM",
-      classType: "Subject",
-      className: "THEGO",
-      subjectName: "Physics",
-      grade: "78",
-      remarks: "Passed"
-    },
-    {
-      lrn: "123458901234",
-      firstName: "Luis",
-      lastName: "Martinez",
-      middleName: "Perez",
-      curriculum: "JHS",
-      trackStand: "ABM",
-      classType: "Advisory",
-      className: "FAVILLA",
-      subjectName: "Mathematics",
-      grade: "92",
-      remarks: "Passed"
-    },
-    {
-      lrn: "987654321234",
-      firstName: "Lina",
-      lastName: "Juan",
-      middleName: "Cruz",
-      curriculum: "JHS",
-      trackStand: "ABM",
-      classType: "Subject",
-      className: "SILANG",
-      subjectName: "English",
-      grade: "74",
-      remarks: "Failed"
-    },
-    {
-      lrn: "123459012345",
-      firstName: "Joseph",
-      lastName: "Morales",
-      middleName: "Santiago",
-      curriculum: "SHS",
-      trackStand: "ABM",
-      classType: "Advisory",
-      className: "AIRE",
-      subjectName: "Mathematics",
-      grade: "85",
-      remarks: "Passed"
-    },
-    {
-      lrn: "987655432345",
-      firstName: "Carmen",
-      lastName: "Santos",
-      middleName: "Gutierrez",
-      curriculum: "JHS",
-      trackStand: "STEM",
-      classType: "Subject",
-      className: "TIERRA",
-      subjectName: "Chemistry",
-      grade: "90",
-      remarks: "Passed"
-    },
-    {
-      lrn: "123460123456",
-      firstName: "Roberto",
-      lastName: "Palacio",
-      middleName: "Martinez",
-      curriculum: "JHS",
-      trackStand: "STEM",
-      classType: "Advisory",
-      className: "FAVILLA",
-      subjectName: "Mathematics",
-      grade: "87",
-      remarks: "Passed"
-    },
-    {
-      lrn: "987656543210",
-      firstName: "Maria",
-      lastName: "Navarro",
-      middleName: "Alegre",
-      curriculum: "SHS",
-      trackStand: "STEM",
-      classType: "Subject",
-      className: "THEGO",
-      subjectName: "Physics",
-      grade: "93",
-      remarks: "Passed"
-    }
-  ];
+  // Load data from localStorage
+  loadDashboardData();
 
-  localStorage.setItem('recentSubmit', JSON.stringify(staticRecentSubmit));
-  localStorage.setItem('recentGrades', JSON.stringify(staticRecentGrades));
+  // Set up event listener for storage changes
+  window.addEventListener('storage', handleStorageChange);
+});
 
+// Add a function to load dashboard data
+function loadDashboardData() {
+  // Load submitted grades
   const submittedGrades = JSON.parse(localStorage.getItem('recentSubmit') || '[]');
   recentSubmittedGrades.value = submittedGrades.slice(0, 12).map(grade => ({
     lrn: grade.lrn,
@@ -654,6 +435,7 @@ onMounted(() => {
     status: grade.status
   }));
 
+  // Load graded entries
   const graded = JSON.parse(localStorage.getItem('recentGrades') || '[]');
   recentGraded.value = graded.slice(0, 10).map(grade => ({
     lrn: grade.lrn,
@@ -667,18 +449,16 @@ onMounted(() => {
     grade: grade.grade,
     remarks: grade.remarks
   }));
+}
 
-  window.addEventListener('storage', (e) => {
-    if (e.key === 'subjects') {
-      const newSubjects = JSON.parse(e.newValue || '[]');
-    }
-    if (e.key === 'students') {
-      const newStudents = JSON.parse(e.newValue || '[]');
-    }
-  });
-});
+// Handle storage events to update data when it changes
+function handleStorageChange(e) {
+  if (e.key === 'recentSubmit' || e.key === 'recentGrades') {
+    loadDashboardData();
+  }
+}
 
 onUnmounted(() => {
-  window.removeEventListener('storage', () => { });
+  window.removeEventListener('storage', handleStorageChange);
 });
 </script>

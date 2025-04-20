@@ -286,21 +286,21 @@ const calculateGWA = (subjectId) => {
       student.grades['fourth']
     ];
 
+    // Check if all grades are empty or invalid
     if (grades.every(grade => grade === undefined || !grade || grade === null || grade === '' || grade === '-' || grade === 'No grade')) {
       return 'No grade';
     }
 
-    const hasValidGrades = grades.some(grade => grade !== undefined && grade && grade !== null && grade !== '' && grade !== '-' && grade !== 'No grade');
-    const hasEmptyGrades = grades.some(grade => grade === undefined || !grade || grade === null || grade === '' || grade === '-' || grade === 'No grade');
+    // Filter out invalid grades and convert to numbers
+    const validGrades = grades
+      .filter(grade => grade !== undefined && grade && grade !== null && grade !== '' && grade !== '-' && grade !== 'No grade')
+      .map(grade => parseFloat(grade));
 
-    if (hasValidGrades && hasEmptyGrades) {
-      return 'INC';
+    // If there's at least one valid grade, calculate the average
+    if (validGrades.length > 0) {
+      const average = validGrades.reduce((sum, grade) => sum + grade, 0) / validGrades.length;
+      return isNaN(average) ? 'No grade' : average.toFixed(2);
     }
-
-    const validGrades = grades.map(grade => parseFloat(grade));
-    const average = validGrades.reduce((sum, grade) => sum + grade, 0) / validGrades.length;
-
-    return isNaN(average) ? 'No grade' : average.toFixed(2);
   }
 
   return 'No grade';

@@ -38,7 +38,7 @@
             </div>
 
 
-            <div class="border-[1px] border-[#E0E0E0] rounded-t-xl"
+            <div class="border-[1px] border-[#E0E0E0] rounded-t-xl mb-5"
                 style="box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 1px 1px;">
                 <nav class="flex justify-around border-b border-[#E0E0E0] p-5">
                     <ul v-for="(item, index) in navItems" :key="index" @click="activeComponent = item.component"

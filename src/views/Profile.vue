@@ -56,7 +56,7 @@
             </div>
         </div>
 
-        <div class="flex flex-col md:flex-row gap-10">
+        <div class="flex flex-col md:flex-row gap-10 mb-5">
             <div class="sm:full md:w-1/3 py-5 border border-[#cecece] rounded-2xl bg-white shadow-lg">
                 <h3 class="text-xl px-3 font-semibold text-gray-800 mb-4 border-b border-[#E0E0E0] pb-3">Educational
                     Attainment
