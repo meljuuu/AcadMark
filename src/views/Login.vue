@@ -47,41 +47,39 @@
 
 <script setup>
 import { ref, defineEmits } from 'vue';
-import teachersData from '../data/teachers.json';
+import { loginTeacher } from '../service/authService.js'; // Make sure the path is correct
 
 const emit = defineEmits(['logged-in']);
+
 const email = ref('');
 const password = ref('');
 const showPassword = ref(false);
 const rememberMe = ref(false);
 const errorMessage = ref('');
-const teachers = ref(teachersData.teachers);
 
 const togglePassword = () => {
   showPassword.value = !showPassword.value;
 };
 
-const login = () => {
+const login = async () => {
   errorMessage.value = '';
+  try {
+    const data = await loginTeacher(email.value, password.value);
 
-
-  const teacher = teachers.value.find(t => t.email === email.value && t.password === password.value);
-
-  if (teacher) {
-
-    localStorage.setItem('teacherID', teacher.teacher_ID);
+    localStorage.setItem('teacherID', data.teacher_ID);
 
     emit('logged-in', {
-      teacher_ID: teacher.teacher_ID,
-      email: teacher.email,
-      firstName: teacher.firstName,
-      lastName: teacher.lastName
+      teacher_ID: data.teacher_ID,
+      email: data.email,
+      firstName: data.firstName,
+      lastName: data.lastName,
     });
-  } else {
-    errorMessage.value = 'Invalid email or password. Please try again.';
+  } catch (error) {
+    errorMessage.value = error || 'Invalid email or password.';
   }
 };
 </script>
+
 
 
 <style scoped>
