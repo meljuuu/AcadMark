@@ -19,19 +19,16 @@ export const loginTeacher = async (email, password) => {
       };
     }
 
-    // If not admin, check teacher login
-    const teacher = teachersData.teachers.find(
-      (t) => t.email === email && t.password === password
-    );
-    if (teacher) {
-      return {
-        ...teacher,
-        isAdmin: false,
-      };
-    }
-
-    throw new Error('Invalid email or password');
+    // If not admin, proceed with teacher login API call
+    const response = await API.post('/login', {
+      email,
+      password,
+    });
+    return {
+      ...response.data,
+      isAdmin: false,
+    };
   } catch (error) {
-    throw error.message || 'Login failed';
+    throw error.response?.data?.error || 'Login failed';
   }
 };
