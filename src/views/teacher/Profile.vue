@@ -436,7 +436,8 @@ const initializeEditProfile = () => {
 
 const saveProfileChanges = async () => {
     try {
-        await updateProfile(editedProfile.value);
+        const updatedData = await updateProfile(editedProfile.value);
+        teacherData.value = { ...teacherData.value, ...updatedData };
         showEditModal.value = false;
     } catch (error) {
         console.error('Error updating profile:', error);

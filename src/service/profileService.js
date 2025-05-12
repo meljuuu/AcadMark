@@ -38,7 +38,7 @@ export const updateProfile = async (profileData) => {
         'Authorization': `Bearer ${token}`,
       }
     });
-    return response.data;
+    return response.data.teacher; // Return updated teacher data
   } catch (error) {
     console.error('Error updating profile:', error);
     throw error;
