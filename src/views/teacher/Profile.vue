@@ -57,7 +57,7 @@
         </div>
 
         <div class="flex flex-col md:flex-row gap-10 mb-5">
-            <div class="sm:full md:w-1/3 py-5 border border-[#cecece] rounded-2xl bg-white shadow-lg">
+            <div class="sm:full md:w-1/2 py-5 border border-[#cecece] rounded-2xl bg-white shadow-lg">
                 <div class="border-b border-[#E0E0E0] p-5 flex justify-between items-center">
                     <h3 class="text-xl px-3 font-medium text-gray-800">Lesson Plan</h3>
                     <div class="flex gap-2">
@@ -71,21 +71,22 @@
                 <div v-for="(plan, index) in lessonPlans" :key="index" 
                      class="p-5 border-b border-[#E0E0E0] cursor-pointer"
                      @click="openEditModal(plan)">
-                    <div class="flex items-center gap-4">
-                        <div class="flex items-center gap-4">
+                    <div class="flex items-start gap-4">
+                        <div class="flex items-center gap-4 w-1/3">
                             <input type="checkbox" 
                                    :checked="selectedLessonPlan.includes(index)"
                                    @click.stop="toggleLessonPlanSelection(index)"
                                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                            <div>
+                            <div class="pt-2">
                                 <p class="font-semibold">Lesson Plan {{ plan.lessonPlanNo }}</p>
-                                <p class="text-sm text-gray-500">{{ plan.gradeLevel }}</p>
+                                <p class="text-sm text-gray-500">{{ plan.gradeLevel }} - {{ plan.section }}</p>
                             </div>
                         </div>                        
-                        <div class="flex-grow flex items-center justify-center mb-7">
-                            <p class="font-semibold">{{ plan.category }}</p>
+                        <div class="w-1/3">
+                            <p class="font-semibold mt-1">{{ plan.category }}</p>
                         </div>
-                        <div class="flex items-center mb-7">
+                        <div class="w-1/3 flex justify-items-center ">
+                            <div class="pt-1">
                             <span :class="{
                                 'text-orange': plan.status === 'Pending',
                                 'text-red-500': plan.status === 'Declined',
@@ -94,6 +95,7 @@
                                 {{ plan.status }}
                             </span>
                         </div>
+                        </div>
                     </div>
                     <a :href="plan.link" target="_blank" class="text-blue-600 hover:underline mt-2 block ml-8">
                         View Lesson Plan
@@ -101,7 +103,7 @@
                 </div>
             </div>
 
-            <div class="flex-1 py-3 border border-[#cecece] rounded-2xl bg-white shadow-lg">
+            <div class="md:w-1/2 py-3 border border-[#cecece] rounded-2xl bg-white shadow-lg">
                 <div class="flex justify-between items-center px-3 mb-4 border-b border-[#E0E0E0] pb-3">
                     <h3 class="text-xl font-semibold text-gray-800">Research Innovation</h3>
                     <button @click="showAddResearchModal = true"
@@ -271,8 +273,15 @@
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="lessonPlanNo">
                             Lesson Plan No.
                         </label>
-                        <input v-model="newLessonPlan.lessonPlanNo" type="text" id="lessonPlanNo" required
-                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        <input 
+                            v-model="newLessonPlan.lessonPlanNo" 
+                            type="text" 
+                            id="lessonPlanNo" 
+                            required
+                            pattern="[0-9]*"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        >
                     </div>
                     <div class="relative">
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="category">
@@ -339,8 +348,14 @@
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div class="relative">
                         <label class="block text-gray-700 text-sm font-bold mb-2">Lesson Plan No.</label>
-                        <input v-model="editingLessonPlan.lessonPlanNo" type="text" required
-                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        <input 
+                            v-model="editingLessonPlan.lessonPlanNo" 
+                            type="text" 
+                            required
+                            pattern="[0-9]*"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        >
                     </div>
                     <div class="relative">
                         <label class="block text-gray-700 text-sm font-bold mb-2">Category</label>
@@ -350,19 +365,27 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div class="relative">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Grade Level</label>
-                        <select v-model="editingLessonPlan.gradeLevel" required
-                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline pr-8">
-                            <option v-for="grade in gradeLevels" :key="grade" :value="grade">{{ grade }}</option>
-                        </select>
-                    </div>
-                    <div class="relative">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Section</label>
-                        <input v-model="editingLessonPlan.section" type="text" required
-                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    </div>
-                </div>
+    <div class="relative">
+        <label class="block text-gray-700 text-sm font-bold mb-2">Grade Level</label>
+        <select 
+            v-model="editingLessonPlan.gradeLevel" 
+            required
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline pr-8"
+        >
+            <option v-for="grade in gradeLevels" 
+                    :key="grade" 
+                    :value="grade.replace('Grade ', '')"
+                    :selected="grade.replace('Grade ', '') === editingLessonPlan.gradeLevel">
+                {{ grade }}
+            </option>
+        </select>
+    </div>
+    <div class="relative">
+        <label class="block text-gray-700 text-sm font-bold mb-2">Section</label>
+        <input v-model="editingLessonPlan.section" type="text" required
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+    </div>
+</div>
 
                 <div class="relative mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2">Lesson Plan Link</label>
@@ -477,8 +500,17 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue';
-import teachersData from '@/data/teachers.json';
-import { getProfile, updateProfile, updateAvatar, addResearch, deleteResearchById } from '@/service/profileService';
+import { 
+  getProfile, 
+  updateProfile, 
+  updateAvatar, 
+  addResearch, 
+  deleteResearchById,
+  getLessonPlans,
+  addLessonPlan,
+  updateLessonPlan,
+  deleteLessonPlan
+} from '@/service/profileService';
 
 const emit = defineEmits(['logged-in']);
 const fileInput = ref(null);
@@ -509,7 +541,7 @@ const newLessonPlan = ref({
     gradeLevel: '',
     section: '',
     link: '',
-    status: 'Approved'
+    status: 'Pending'
 });
 const lessonPlans = ref([]);
 const gradeLevels = ['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'];
@@ -589,21 +621,36 @@ const handleImageUpload = async (event) => {
     }
 };
 
-const saveNewLessonPlan = () => {
-    lessonPlans.value.push({ 
-        ...newLessonPlan.value,
-        gradeLevel: newLessonPlan.value.gradeLevel,
-        section: newLessonPlan.value.section
-    });
-    newLessonPlan.value = { 
-        lessonPlanNo: '', 
-        category: '', 
-        gradeLevel: '', 
-        section: '',
-        link: '', 
-        status: 'Pending' 
-    };
-    showAddLessonPlanModal.value = false;
+const saveNewLessonPlan = async () => {
+    try {
+        await addLessonPlan({
+            ...newLessonPlan.value,
+            gradeLevel: newLessonPlan.value.gradeLevel,
+            section: newLessonPlan.value.section
+        });
+
+        // Refresh the lesson plans list
+        const lessonRes = await getLessonPlans();
+        lessonPlans.value = lessonRes.map(lp => ({
+            ...lp,
+            lessonPlanNo: lp.lesson_plan_no,
+            gradeLevel: lp.grade_level,
+            section: lp.section
+        }));
+        
+        newLessonPlan.value = { 
+            lessonPlanNo: '', 
+            category: '', 
+            gradeLevel: '', 
+            section: '',
+            link: '', 
+            status: 'Pending' 
+        };
+        showAddLessonPlanModal.value = false;
+    } catch (error) {
+        console.error('Error saving lesson plan:', error);
+        alert('Failed to save lesson plan: ' + error.message);
+    }
 };
 
 const removeSelectedLessonPlan = () => {
@@ -614,15 +661,19 @@ const removeSelectedLessonPlan = () => {
     }
 };
 
-const confirmDeleteLessonPlan = () => {
-    if (selectedLessonPlan.value.length > 0) {
-        // Sort indices in descending order to avoid splicing issues
-        const sortedIndices = [...selectedLessonPlan.value].sort((a, b) => b - a);
-        for (const index of sortedIndices) {
-            lessonPlans.value.splice(index, 1);
-        }
-        localStorage.setItem('lessonPlan', JSON.stringify(lessonPlans.value));
+const confirmDeleteLessonPlan = async () => {
+    try {
+        await Promise.all(selectedLessonPlan.value.map(index => 
+            deleteLessonPlan(lessonPlans.value[index].LessonPlan_ID)
+        ));
+        
+        lessonPlans.value = lessonPlans.value.filter((_, index) => 
+            !selectedLessonPlan.value.includes(index)
+        );
         selectedLessonPlan.value = [];
+    } catch (error) {
+        console.error('Error deleting lesson plans:', error);
+        alert('Failed to delete lesson plans: ' + error.message);
     }
     showDeleteLessonPlanConfirmation.value = false;
 };
@@ -637,13 +688,44 @@ const openEditModal = (plan) => {
     }
 };
 
-const saveEditedLessonPlan = () => {
-    const index = lessonPlans.value.findIndex(p => p.lessonPlanNo === editingLessonPlan.value.lessonPlanNo);
-    if (index !== -1) {
-        lessonPlans.value[index] = { ...editingLessonPlan.value };
-        localStorage.setItem('lessonPlan', JSON.stringify(lessonPlans.value));
+const saveEditedLessonPlan = async () => {
+    try {
+        console.log('Editing ID:', editingLessonPlan.value.LessonPlan_ID);
+        
+        // Always include all fields
+        const payload = {
+            lesson_plan_no: editingLessonPlan.value.lessonPlanNo.toString(), // Ensure string
+            category: editingLessonPlan.value.category,
+            grade_level: editingLessonPlan.value.gradeLevel,
+            section: editingLessonPlan.value.section,
+            link: editingLessonPlan.value.link
+        };
+
+        console.log('Update Payload:', payload);
+        
+        const updated = await updateLessonPlan(
+            editingLessonPlan.value.LessonPlan_ID,
+            payload
+        );
+        
+        // Update the lessonPlans array reactively
+        const index = lessonPlans.value.findIndex(
+            p => p.LessonPlan_ID === updated.LessonPlan_ID
+        );
+        
+        if (index !== -1) {
+            lessonPlans.value[index] = {
+                ...updated,
+                lessonPlanNo: updated.lesson_plan_no, // Map backend fields to frontend
+                gradeLevel: updated.grade_level,
+                section: updated.section
+            };
+        }
+        
+        showEditLessonPlanModal.value = false;
+    } catch (error) {
+        console.error('Full Error:', error);
     }
-    showEditLessonPlanModal.value = false;
 };
 
 const deleteResearch = (researchId) => {
@@ -677,15 +759,26 @@ watch(showEditModal, (newValue) => {
 
 onMounted(async () => {
     try {
-        const response = await getProfile();
+        const [profileRes, lessonRes] = await Promise.all([
+            getProfile(),
+            getLessonPlans()
+        ]);
+        
         teacherData.value = {
-            ...response.teacher,
-            research: response.teacher.research || []
+            ...profileRes.teacher,
+            research: profileRes.teacher.research || []
         };
+        
+        lessonPlans.value = lessonRes.map(lp => ({
+            ...lp,
+            lessonPlanNo: lp.lesson_plan_no,
+            gradeLevel: lp.grade_level,
+            section: lp.section
+        }));
     } catch (error) {
-        console.error('Profile initialization error:', error);
+        console.error('Initialization error:', error);
         teacherData.value = createDefaultProfile();
-        alert('Failed to load profile: ' + error.message);
+        alert('Failed to load data: ' + error.message);
     }
 });
 

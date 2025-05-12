@@ -5,6 +5,9 @@ const API = axios.create({
   withCredentials: false,
 });
 
+
+// ----------------------- PROFILE ---------------------------
+
 export const getProfile = async () => {
   try {
     const teacherID = localStorage.getItem('teacherID'); // Get teacherID from localStorage
@@ -64,6 +67,8 @@ export const updateAvatar = async (file) => {
   }
 };
 
+// ----------------------- RESEARCH ---------------------------
+
 export const addResearch = async (researchData) => {
   try {
     const token = localStorage.getItem('token');
@@ -93,6 +98,75 @@ export const deleteResearchById = async (researchId) => {
     return response.data;
   } catch (error) {
     console.error('Backend error:', error.response?.data);
+    throw error;
+  }
+};
+
+// ----------------------- LESSON PLAN ---------------------------
+
+export const getLessonPlans = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await API.get('/teacher/lesson-plans', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching lesson plans:', error);
+    throw error;
+  }
+};
+
+export const addLessonPlan = async (lessonPlanData) => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await API.post('/teacher/lesson-plans', {
+      lesson_plan_no: lessonPlanData.lessonPlanNo,
+      category: lessonPlanData.category,
+      grade_level: lessonPlanData.gradeLevel,
+      section: lessonPlanData.section,
+      link: lessonPlanData.link,
+      status: 'Pending' // Force status to Pending for new entries
+    }, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error adding lesson plan:', error);
+    throw error;
+  }
+};
+
+export const updateLessonPlan = async (id, data) => {
+  try {
+    const response = await API.put(`/teacher/lesson-plans/${id}`, {
+      lesson_plan_no: data.lesson_plan_no, // Ensure string conversion
+      category: data.category,
+      grade_level: data.grade_level,
+      section: data.section,
+      link: data.link
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error updating lesson plan:', error.response?.data);
+    throw error;
+  }
+};
+
+export const deleteLessonPlan = async (id) => {
+  try {
+    const token = localStorage.getItem('token');
+    await API.delete(`/teacher/lesson-plans/${id}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      }
+    });
+  } catch (error) {
+    console.error('Error deleting lesson plan:', error);
     throw error;
   }
 };
