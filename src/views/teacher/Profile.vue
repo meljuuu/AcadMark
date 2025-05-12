@@ -5,9 +5,10 @@
             <div class="w-1/3 p-3 border border-[#cecece] rounded-2xl bg-white shadow-lg">
                 <div class="flex flex-col items-center gap-3">
                     <div class="w-50 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer"
-                        @click="triggerImageUpload">
+                        @click="triggerImageUpload"
+                        style="width: 150px; height: 150px; border-radius: 50%; overflow: hidden;">
                         <img :src="teacherData.avatar || '/assets/img/profile/avatar.png'" alt="Profile Avatar"
-                            class="w-full h-full object-cover rounded-full">
+                            class="w-full h-full object-cover">
                         <input type="file" ref="fileInput" accept="image/*" class="hidden" @change="handleImageUpload">
                     </div>
 
@@ -365,27 +366,26 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-4 mb-4">
-    <div class="relative">
-        <label class="block text-gray-700 text-sm font-bold mb-2">Grade Level</label>
-        <select 
-            v-model="editingLessonPlan.gradeLevel" 
-            required
-            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline pr-8"
-        >
-            <option v-for="grade in gradeLevels" 
-                    :key="grade" 
-                    :value="grade.replace('Grade ', '')"
-                    :selected="grade.replace('Grade ', '') === editingLessonPlan.gradeLevel">
-                {{ grade }}
-            </option>
-        </select>
-    </div>
-    <div class="relative">
-        <label class="block text-gray-700 text-sm font-bold mb-2">Section</label>
-        <input v-model="editingLessonPlan.section" type="text" required
-            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-    </div>
-</div>
+                    <div class="relative">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Grade Level</label>
+                        <select 
+                            v-model="editingLessonPlan.gradeLevel" 
+                            required
+                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline pr-8"
+                        >
+                            <option v-for="grade in gradeLevels" 
+                                    :key="grade" 
+                                    :value="grade.replace('Grade ', '')">
+                                {{ grade }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="relative">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Section</label>
+                        <input v-model="editingLessonPlan.section" type="text" required
+                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    </div>
+                </div>
 
                 <div class="relative mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2">Lesson Plan Link</label>
@@ -612,9 +612,16 @@ const handleImageUpload = async (event) => {
     const file = event.target.files[0];
     if (file) {
         try {
-            await updateAvatar(file);
-            const data = await getProfile();
-            teacherData.value = data.teacher;
+            // Convert the image file to a base64 string
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const base64Image = e.target.result;
+                // Store the base64 string in localStorage
+                localStorage.setItem('teacherAvatar', base64Image);
+                // Update the teacherData avatar
+                teacherData.value.avatar = base64Image;
+            };
+            reader.readAsDataURL(file);
         } catch (error) {
             console.error('Error updating avatar:', error);
         }
@@ -759,6 +766,12 @@ watch(showEditModal, (newValue) => {
 
 onMounted(async () => {
     try {
+        // Check if there's an avatar in localStorage
+        const savedAvatar = localStorage.getItem('teacherAvatar');
+        if (savedAvatar) {
+            teacherData.value.avatar = savedAvatar;
+        }
+
         const [profileRes, lessonRes] = await Promise.all([
             getProfile(),
             getLessonPlans()
@@ -766,7 +779,8 @@ onMounted(async () => {
         
         teacherData.value = {
             ...profileRes.teacher,
-            research: profileRes.teacher.research || []
+            research: profileRes.teacher.research || [],
+            avatar: savedAvatar || profileRes.teacher.avatar || '/assets/img/profile/avatar.png'
         };
         
         lessonPlans.value = lessonRes.map(lp => ({

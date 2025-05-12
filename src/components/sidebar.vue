@@ -4,7 +4,13 @@
     style="box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px; flex-shrink: 0;">
 
     <div class="flex flex-col items-center m-4 gap-6">
-      <img :src="imageSrc" alt="Teacher" class="w-[130px] h-[130px] rounded-full object-contain" />
+      <div class="w-[130px] h-[130px] rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+        <img 
+          :src="imageSrc" 
+          alt="Teacher" 
+          class="w-full h-full object-cover"
+        />
+      </div>
       <div class="flex flex-col items-center gap-1.5">
         <p class="text-white text-center font-medium text-[20px]">{{ fullName }}</p>
         <p class="text-white text-center font-normal text-[16px]">{{ position }}</p>
@@ -59,7 +65,30 @@ const router = useRouter();
 const activeIndex = ref(0);
 const showLogoutModal = ref(false);
 
+// Initialize with default avatar
 const imageSrc = ref("/assets/img/profile/avatar.png");
+
+// Function to update the image source from localStorage
+const updateImageFromStorage = () => {
+  const savedAvatar = localStorage.getItem('teacherAvatar');
+  if (savedAvatar) {
+    imageSrc.value = savedAvatar;
+  } else {
+    // Fallback to the default avatar if nothing is in localStorage
+    imageSrc.value = "/assets/img/profile/avatar.png";
+  }
+};
+
+// Call the function when the component mounts
+onMounted(() => {
+  updateImageFromStorage();
+});
+
+// Watch for changes in localStorage
+watch(() => localStorage.getItem('teacherAvatar'), () => {
+  updateImageFromStorage();
+});
+
 const isAdmin = localStorage.getItem('isAdmin') === 'true';
 
 const teacherLinks = ref([
@@ -77,7 +106,6 @@ const adminLinks = ref([
   { name: "Masterlist", path: "/admin/master-list", icon: "/assets/img/sidebar/masterlist.png" },
 ]);
 
-
 const links = computed(() => {
   return isAdmin ? adminLinks.value : teacherLinks.value;
 });
@@ -92,45 +120,6 @@ const fullName = computed(() => {
 const position = computed(() => {
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   return user.position || '';
-});
-
-const updateImageFromStorage = () => {
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  if (user.avatar) {
-    imageSrc.value = user.avatar;
-  }
-};
-
-watch(() => localStorage.getItem('user'), updateImageFromStorage, { deep: true });
-
-// Listen for the avatarUpdated event
-window.addEventListener('avatarUpdated', updateImageFromStorage);
-
-onMounted(async () => {
-  try {
-    // Fetch profile data from backend
-    const profileResponse = await getProfile();
-    const profileData = profileResponse.teacher;
-    
-    // Update localStorage user data
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const updatedUser = {
-      ...user,
-      firstName: profileData.firstName,
-      lastName: profileData.lastName,
-      middleName: profileData.middleName,
-      avatar: profileData.avatar,
-      position: profileData.position
-    };
-    localStorage.setItem('user', JSON.stringify(updatedUser));
-    
-    // Update image source
-    if (profileData.avatar) {
-      imageSrc.value = profileData.avatar;
-    }
-  } catch (error) {
-    console.error('Error fetching profile:', error);
-  }
 });
 
 const confirmLogout = () => {
