@@ -98,7 +98,15 @@
                             <div v-for="(research, index) in teacherData.research" :key="index"
                                 class="w-full flex-shrink-0">
                                 <div class="bg-gray-50 p-6 rounded-lg">
-                                    <h4 class="text-xl font-semibold text-gray-800 mb-4">{{ research.Title }}</h4>
+                                    <div class="flex justify-between items-center">
+                                        <h4 class="text-xl font-semibold text-gray-800 mb-4">{{ research.Title }}</h4>
+                                        <button @click.stop="deleteResearch(research.Research_ID)" 
+                                                class="text-red-500 hover:text-red-700 cursor-pointer transition-colors duration-200 p-1 rounded hover:bg-red-50">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                            </svg>
+                                        </button>
+                                    </div>
                                     <p class="text-gray-600 leading-relaxed">{{ research.Abstract }}</p>
                                     <p class="text-sm text-gray-500 mt-2">Submitted: {{ formatDate(research.created_at) }}</p>
                                 </div>
@@ -358,12 +366,30 @@
         </div>
     </div>
 
+    <div v-if="showDeleteConfirmation" class="fixed inset-0 flex items-center justify-center z-50"
+         style="background-color: rgba(0, 0, 0, 0.8);">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 class="text-2xl font-semibold mb-4">Confirm Delete</h3>
+            <p class="mb-6">Are you sure you want to delete this research?</p>
+            <div class="flex justify-end gap-3">
+                <button @click="showDeleteConfirmation = false"
+                        class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-200 cursor-pointer">
+                    Cancel
+                </button>
+                <button @click="confirmDelete"
+                        class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors duration-200 cursor-pointer">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
 </template>
 
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import teachersData from '@/data/teachers.json';
-import { getProfile, updateProfile, updateAvatar, addResearch } from '@/service/profileService';
+import { getProfile, updateProfile, updateAvatar, addResearch, deleteResearchById } from '@/service/profileService';
 
 const emit = defineEmits(['logged-in']);
 const fileInput = ref(null);
@@ -401,6 +427,8 @@ const gradeLevels = ['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'G
 const selectedLessonPlan = ref(null);
 const showEditLessonPlanModal = ref(false);
 const editingLessonPlan = ref(null);
+const showDeleteConfirmation = ref(false);
+const researchToDelete = ref(null);
 
 const nextSlide = () => {
     if (teacherData.value.research && currentSlide.value < teacherData.value.research.length - 1) {
@@ -505,6 +533,29 @@ const saveEditedLessonPlan = () => {
         localStorage.setItem('lessonPlan', JSON.stringify(lessonPlans.value));
     }
     showEditLessonPlanModal.value = false;
+};
+
+const deleteResearch = (researchId) => {
+    researchToDelete.value = researchId;
+    showDeleteConfirmation.value = true;
+};
+
+const confirmDelete = async () => {
+    try {
+        await deleteResearchById(researchToDelete.value);
+        const profileResponse = await getProfile();
+        teacherData.value.research = profileResponse.teacher.research || [];
+        
+        if (currentSlide.value >= teacherData.value.research.length) {
+            currentSlide.value = Math.max(0, teacherData.value.research.length - 1);
+        }
+    } catch (error) {
+        console.error('Error deleting research:', error);
+        alert('Failed to delete research: ' + error.response?.data?.message || error.message);
+    } finally {
+        showDeleteConfirmation.value = false;
+        researchToDelete.value = null;
+    }
 };
 
 watch(showEditModal, (newValue) => {

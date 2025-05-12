@@ -81,3 +81,18 @@ export const addResearch = async (researchData) => {
     throw error;
   }
 };
+
+export const deleteResearchById = async (researchId) => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await API.delete(`/teacher/research/${researchId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Backend error:', error.response?.data);
+    throw error;
+  }
+};
