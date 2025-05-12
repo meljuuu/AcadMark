@@ -69,29 +69,31 @@
                 </div>
 
                 <div v-for="(plan, index) in lessonPlans" :key="index" 
-                     class="p-5 border-b border-[#E0E0E0] cursor-pointer">
+                     class="p-5 border-b border-[#E0E0E0] cursor-pointer"
+                     @click="openEditModal(plan)">
                     <div class="flex items-center gap-4">
                         <div class="flex items-center gap-4">
-                            <input type="radio" 
-                                   :checked="selectedLessonPlan === index"
-                                   @click="toggleLessonPlanSelection(index)"
-                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                            <input type="checkbox" 
+                                   :checked="selectedLessonPlan.includes(index)"
+                                   @click.stop="toggleLessonPlanSelection(index)"
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                             <div>
                                 <p class="font-semibold">Lesson Plan {{ plan.lessonPlanNo }}</p>
                                 <p class="text-sm text-gray-500">{{ plan.gradeLevel }}</p>
                             </div>
-                        </div>
-                        <div class="flex-grow flex items-center justify-center mb-5">
+                        </div>                        
+                        <div class="flex-grow flex items-center justify-center mb-7">
                             <p class="font-semibold">{{ plan.category }}</p>
                         </div>
-                        <div class="flex items-center mb-5">
-                            <p class="text-orange">{{ plan.status }}</p>
+                        <div class="flex items-center mb-7">
+                            <span :class="{
+                                'text-orange': plan.status === 'Pending',
+                                'text-red-500': plan.status === 'Declined',
+                                'text-green-500': plan.status === 'Approved'
+                            }">
+                                {{ plan.status }}
+                            </span>
                         </div>
-                        <button @click="openEditModal(plan)" class="text-blue-500 hover:text-blue-700 mb-5 cursor-pointer">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                            </svg>
-                        </button>
                     </div>
                     <a :href="plan.link" target="_blank" class="text-blue-600 hover:underline mt-2 block ml-8">
                         View Lesson Plan
@@ -454,11 +456,11 @@ const newLessonPlan = ref({
     gradeLevel: '',
     section: '',
     link: '',
-    status: 'Pending'
+    status: 'Approved'
 });
 const lessonPlans = ref([]);
 const gradeLevels = ['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'];
-const selectedLessonPlan = ref(null);
+const selectedLessonPlan = ref([]);
 const showEditLessonPlanModal = ref(false);
 const editingLessonPlan = ref(null);
 const showDeleteConfirmation = ref(false);
@@ -550,7 +552,7 @@ const saveNewLessonPlan = () => {
 };
 
 const removeSelectedLessonPlan = () => {
-    if (selectedLessonPlan.value !== null) {
+    if (selectedLessonPlan.value.length > 0) {
         showDeleteLessonPlanConfirmation.value = true;
     } else {
         alert('No lesson plan selected.');
@@ -558,10 +560,14 @@ const removeSelectedLessonPlan = () => {
 };
 
 const confirmDeleteLessonPlan = () => {
-    if (selectedLessonPlan.value !== null) {
-        lessonPlans.value = lessonPlans.value.filter((_, index) => index !== selectedLessonPlan.value);
+    if (selectedLessonPlan.value.length > 0) {
+        // Sort indices in descending order to avoid splicing issues
+        const sortedIndices = [...selectedLessonPlan.value].sort((a, b) => b - a);
+        for (const index of sortedIndices) {
+            lessonPlans.value.splice(index, 1);
+        }
         localStorage.setItem('lessonPlan', JSON.stringify(lessonPlans.value));
-        selectedLessonPlan.value = null;
+        selectedLessonPlan.value = [];
     }
     showDeleteLessonPlanConfirmation.value = false;
 };
@@ -642,10 +648,11 @@ const formatDate = (dateString) => {
 };
 
 const toggleLessonPlanSelection = (index) => {
-    if (selectedLessonPlan.value === index) {
-        selectedLessonPlan.value = null;
+    const currentIndex = selectedLessonPlan.value.indexOf(index);
+    if (currentIndex === -1) {
+        selectedLessonPlan.value.push(index);
     } else {
-        selectedLessonPlan.value = index;
+        selectedLessonPlan.value.splice(currentIndex, 1);
     }
 };
 </script>
