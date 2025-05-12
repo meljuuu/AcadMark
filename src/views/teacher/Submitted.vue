@@ -25,13 +25,13 @@
                         @click="openModal(student)">
                         <td class="p-2 w-1/6">{{ student.lrn }}</td>
                         <td class="p-2 w-1/6">{{ student.lastName + ", " + student.firstName + " " + student.middleName
-                        }}</td>
+                            }}</td>
                         <td class="p-2 w-1/6">{{ student.sex }}</td>
                         <td class="p-2 w-1/6">{{ getAge(student.birthDate) }}</td>
                         <td class="p-2 w-1/6">{{ getGradeForQuarter(student) }}</td>
                         <td class="p-2 w-1/6">
                             <span
-                                class="px-4 py-2 rounded text-white inline-block w-[135px] font-light text-center bg-[#FF9204]">
+                                class="px-4 py-2 rounded text-white inline-block w-[135px] font-light text-center bg-orange">
                                 Pending
                             </span>
                         </td>

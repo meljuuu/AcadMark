@@ -47,8 +47,11 @@
 
 <script setup>
 import { ref, defineEmits } from 'vue';
-import { loginTeacher } from '../service/authService.js'; // Make sure the path is correct
+import { useRouter } from 'vue-router';
+import { loginTeacher } from '../service/authService.js';
+import teachersData from '../data/teachers.json';
 
+const router = useRouter();
 const emit = defineEmits(['logged-in']);
 
 const email = ref('');
@@ -63,17 +66,52 @@ const togglePassword = () => {
 
 const login = async () => {
   errorMessage.value = '';
+
+  // First check if it's an admin login
+  const admin = teachersData.admin.find(a => a.username === email.value && a.password === password.value);
+
+  if (admin) {
+    const adminCredentials = {
+      username: admin.username,
+      password: admin.password,
+      firstName: admin.firstName,
+      lastName: admin.lastName,
+      middleName: admin.middleName || '',
+      isAdmin: true
+    };
+    localStorage.setItem('user', JSON.stringify(adminCredentials));
+    localStorage.setItem('isAdmin', 'true');
+    emit('logged-in', adminCredentials);
+    router.push('/admin/dashboard');
+    return;
+  }
+
+  // If not admin, try teacher login
   try {
     const data = await loginTeacher(email.value, password.value);
 
-    localStorage.setItem('teacherID', data.teacher_ID);
-
-    emit('logged-in', {
+    const teacherCredentials = {
       teacher_ID: data.teacher_ID,
       email: data.email,
       firstName: data.firstName,
       lastName: data.lastName,
-    });
+      middleName: data.middleName || '',
+      employeeNo: data.employeeNo || '',
+      contactNumber: data.contactNumber || '',
+      address: data.address || '',
+      position: data.position || '',
+      education: data.education || '',
+      research: data.research || [],
+      avatar: data.avatar || null,
+      isAdmin: false
+    };
+
+    localStorage.setItem('user', JSON.stringify(teacherCredentials));
+    localStorage.setItem('isAdmin', 'false');
+    localStorage.setItem('teacherID', data.teacher_ID);
+
+    emit('logged-in', teacherCredentials);
+    router.push('/dashboard');
   } catch (error) {
     errorMessage.value = error || 'Invalid email or password.';
   }

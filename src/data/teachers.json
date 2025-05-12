@@ -29,5 +29,16 @@
       ],
       "position": "Teacher IV"
     }
+  ],
+
+  "admin": [
+    {
+      "admin_ID": "A001",
+      "firstName": "Alden",
+      "lastName": "Richards",
+      "middleName": "Pogi",
+      "username": "admin@gmail.com",
+      "password": "password"
+    }
   ]
 }
