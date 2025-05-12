@@ -109,6 +109,7 @@ const login = async () => {
     localStorage.setItem('user', JSON.stringify(teacherCredentials));
     localStorage.setItem('isAdmin', 'false');
     localStorage.setItem('teacherID', data.teacher_ID);
+    localStorage.setItem('token', data.token);
 
     emit('logged-in', teacherCredentials);
     router.push('/dashboard');
