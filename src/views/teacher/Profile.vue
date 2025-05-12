@@ -14,7 +14,7 @@
                     <div class="text-center">
                         <h2 class="text-4xl font-semibold text-gray-800">{{ teacherData.firstName }} {{teacherData.middleName }} {{
                             teacherData.lastName }}</h2>
-                        <p class="text-2xl font-semibold">{{ teacherData.position }} Teacher</p>
+                        <p class="text-2xl font-semibold">{{ teacherData.position }}</p>
                     </div>
                 </div>
             </div>
@@ -699,7 +699,7 @@ const createDefaultProfile = () => ({
     address: '',
     avatar: '/assets/img/profile/avatar.png',
     research: [],
-    position: 'Teacher'
+    position: ''
 });
 
 const formatDate = (dateString) => {
