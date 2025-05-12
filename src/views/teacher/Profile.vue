@@ -420,6 +420,59 @@
         </div>
     </div>
 
+    <div v-if="showApprovedLessonPlanModal" class="fixed inset-0 flex items-center justify-center z-50"
+        style="background-color: rgba(0, 0, 0, 0.8);">
+        <div class="bg-white rounded-lg p-6 w-full max-w-2xl">
+            <h3 class="text-2xl font-semibold mb-4">Approved Lesson Plan</h3>
+            <form @submit.prevent="() => showApprovedLessonPlanModal = false">
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="relative">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Lesson Plan No.</label>
+                        <input v-model="approvedLessonPlan.lessonPlanNo" type="text" readonly
+                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-gray-100 leading-tight focus:outline-none focus:shadow-outline">
+                    </div>
+                    <div class="relative">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Category</label>
+                        <input v-model="approvedLessonPlan.category" type="text" readonly
+                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-gray-100 leading-tight focus:outline-none focus:shadow-outline">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="relative">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Grade Level</label>
+                        <input v-model="approvedLessonPlan.gradeLevel" type="text" readonly
+                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-gray-100 leading-tight focus:outline-none focus:shadow-outline">
+                    </div>
+                    <div class="relative">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Section</label>
+                        <input v-model="approvedLessonPlan.section" type="text" readonly
+                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-gray-100 leading-tight focus:outline-none focus:shadow-outline">
+                    </div>
+                </div>
+
+                <div class="relative mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Lesson Plan Link</label>
+                    <input v-model="approvedLessonPlan.link" type="url" readonly
+                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-gray-100 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
+
+                <div class="relative mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Comments</label>
+                    <textarea v-model="approvedLessonPlan.comments" rows="4" readonly
+                              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-gray-100 leading-tight focus:outline-none focus:shadow-outline"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-2">
+                    <button type="button" @click="showApprovedLessonPlanModal = false"
+                            class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-[#cecece] transition-colors duration-200 cursor-pointer">
+                        Close
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 </template>
 
 <script setup>
@@ -466,6 +519,8 @@ const editingLessonPlan = ref(null);
 const showDeleteConfirmation = ref(false);
 const researchToDelete = ref(null);
 const showDeleteLessonPlanConfirmation = ref(false);
+const showApprovedLessonPlanModal = ref(false);
+const approvedLessonPlan = ref(null);
 
 const nextSlide = () => {
     if (teacherData.value.research && currentSlide.value < teacherData.value.research.length - 1) {
@@ -573,8 +628,13 @@ const confirmDeleteLessonPlan = () => {
 };
 
 const openEditModal = (plan) => {
-    editingLessonPlan.value = { ...plan };
-    showEditLessonPlanModal.value = true;
+    if (plan.status === 'Approved') {
+        approvedLessonPlan.value = { ...plan };
+        showApprovedLessonPlanModal.value = true;
+    } else {
+        editingLessonPlan.value = { ...plan };
+        showEditLessonPlanModal.value = true;
+    }
 };
 
 const saveEditedLessonPlan = () => {
@@ -654,5 +714,10 @@ const toggleLessonPlanSelection = (index) => {
     } else {
         selectedLessonPlan.value.splice(currentIndex, 1);
     }
+};
+
+const saveApprovedLessonPlan = () => {
+    // Implementation of saving the approved lesson plan
+    showApprovedLessonPlanModal.value = false;
 };
 </script>
