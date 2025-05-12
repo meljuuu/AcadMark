@@ -70,14 +70,30 @@
 
                 <div v-for="(plan, index) in lessonPlans" :key="index" 
                      class="p-5 border-b border-[#E0E0E0] cursor-pointer">
-                    <div @click="openEditModal(plan)" class="flex justify-between items-center">
-                        <div>
-                            <p class="font-semibold">Lesson Plan {{ plan.lessonPlanNo }}</p>
-                            <p class="text-sm text-gray-500">Grade {{ plan.gradeLevel }} - {{ plan.category }}</p>
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-4">
+                            <input type="radio" 
+                                   :checked="selectedLessonPlan === index"
+                                   @click="toggleLessonPlanSelection(index)"
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                            <div>
+                                <p class="font-semibold">Lesson Plan {{ plan.lessonPlanNo }}</p>
+                                <p class="text-sm text-gray-500">{{ plan.gradeLevel }}</p>
+                            </div>
                         </div>
-                        <p class="text-orange">{{ plan.status }}</p>
+                        <div class="flex-grow flex items-center justify-center mb-5">
+                            <p class="font-semibold">{{ plan.category }}</p>
+                        </div>
+                        <div class="flex items-center mb-5">
+                            <p class="text-orange">{{ plan.status }}</p>
+                        </div>
+                        <button @click="openEditModal(plan)" class="text-blue-500 hover:text-blue-700 mb-5 cursor-pointer">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                        </button>
                     </div>
-                    <a :href="plan.link" target="_blank" class="text-blue-600 hover:underline mt-2 block">
+                    <a :href="plan.link" target="_blank" class="text-blue-600 hover:underline mt-2 block ml-8">
                         View Lesson Plan
                     </a>
                 </div>
@@ -384,6 +400,24 @@
         </div>
     </div>
 
+    <div v-if="showDeleteLessonPlanConfirmation" class="fixed inset-0 flex items-center justify-center z-50"
+         style="background-color: rgba(0, 0, 0, 0.8);">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 class="text-2xl font-semibold mb-4">Confirm Delete</h3>
+            <p class="mb-6">Are you sure you want to delete this lesson plan?</p>
+            <div class="flex justify-end gap-3">
+                <button @click="showDeleteLessonPlanConfirmation = false"
+                        class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-200 cursor-pointer">
+                    Cancel
+                </button>
+                <button @click="confirmDeleteLessonPlan"
+                        class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors duration-200 cursor-pointer">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
 </template>
 
 <script setup>
@@ -429,6 +463,7 @@ const showEditLessonPlanModal = ref(false);
 const editingLessonPlan = ref(null);
 const showDeleteConfirmation = ref(false);
 const researchToDelete = ref(null);
+const showDeleteLessonPlanConfirmation = ref(false);
 
 const nextSlide = () => {
     if (teacherData.value.research && currentSlide.value < teacherData.value.research.length - 1) {
@@ -515,10 +550,20 @@ const saveNewLessonPlan = () => {
 };
 
 const removeSelectedLessonPlan = () => {
-    if(confirm('Are you sure you want to delete this lesson plan?')) {
+    if (selectedLessonPlan.value !== null) {
+        showDeleteLessonPlanConfirmation.value = true;
+    } else {
+        alert('No lesson plan selected.');
+    }
+};
+
+const confirmDeleteLessonPlan = () => {
+    if (selectedLessonPlan.value !== null) {
         lessonPlans.value = lessonPlans.value.filter((_, index) => index !== selectedLessonPlan.value);
         localStorage.setItem('lessonPlan', JSON.stringify(lessonPlans.value));
+        selectedLessonPlan.value = null;
     }
+    showDeleteLessonPlanConfirmation.value = false;
 };
 
 const openEditModal = (plan) => {
@@ -594,5 +639,13 @@ const createDefaultProfile = () => ({
 const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
+};
+
+const toggleLessonPlanSelection = (index) => {
+    if (selectedLessonPlan.value === index) {
+        selectedLessonPlan.value = null;
+    } else {
+        selectedLessonPlan.value = index;
+    }
 };
 </script>
