@@ -67,14 +67,17 @@ export const updateAvatar = async (file) => {
 export const addResearch = async (researchData) => {
   try {
     const token = localStorage.getItem('token');
-    const response = await API.post('/teacher/research', researchData, {
+    const response = await API.post('/teacher/research', {
+      Title: researchData.Title,
+      Abstract: researchData.Abstract
+    }, {
       headers: {
         'Authorization': `Bearer ${token}`,
       }
     });
     return response.data;
   } catch (error) {
-    console.error('Error adding research:', error);
+    console.error('Backend error:', error.response?.data);
     throw error;
   }
 };

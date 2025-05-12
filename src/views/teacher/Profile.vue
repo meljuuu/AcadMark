@@ -12,9 +12,9 @@
                     </div>
 
                     <div class="text-center">
-                        <h2 class="text-4xl font-semibold text-gray-800">{{ teacherData.firstName }} {{
+                        <h2 class="text-4xl font-semibold text-gray-800">{{ teacherData.firstName }} {{teacherData.middleName }} {{
                             teacherData.lastName }}</h2>
-                        <p class="text-2xl font-semibold">{{ teacherData.position }}</p>
+                        <p class="text-2xl font-semibold">{{ teacherData.position }} Teacher</p>
                     </div>
                 </div>
             </div>
@@ -98,8 +98,9 @@
                             <div v-for="(research, index) in teacherData.research" :key="index"
                                 class="w-full flex-shrink-0">
                                 <div class="bg-gray-50 p-6 rounded-lg">
-                                    <h4 class="text-xl font-semibold text-gray-800 mb-4">{{ research.title }}</h4>
-                                    <p class="text-gray-600 leading-relaxed">{{ research.abstract }}</p>
+                                    <h4 class="text-xl font-semibold text-gray-800 mb-4">{{ research.Title }}</h4>
+                                    <p class="text-gray-600 leading-relaxed">{{ research.Abstract }}</p>
+                                    <p class="text-sm text-gray-500 mt-2">Submitted: {{ formatDate(research.created_at) }}</p>
                                 </div>
                             </div>
                         </div>
@@ -207,17 +208,17 @@
             <h3 class="text-2xl font-semibold mb-4">Add New Research</h3>
             <form @submit.prevent="saveNewResearch">
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="title">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="Title">
                         Research Title
                     </label>
-                    <input v-model="newResearch.title" type="text" id="title" required
+                    <input v-model="newResearch.Title" type="text" id="title" required
                         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                 </div>
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="abstract">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="Abstract">
                         Abstract
                     </label>
-                    <textarea v-model="newResearch.abstract" id="abstract" required rows="4"
+                    <textarea v-model="newResearch.Abstract" id="abstract" required rows="4"
                         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
                 </div>
                 <div class="flex justify-end gap-2">
@@ -374,8 +375,8 @@ const currentSlide = ref(0);
 const showAddResearchModal = ref(false);
 const showEditModal = ref(false);
 const newResearch = ref({
-    title: '',
-    abstract: ''
+    Title: '',
+    Abstract: ''
 });
 const editedProfile = ref({
     firstName: '',
@@ -415,8 +416,15 @@ const prevSlide = () => {
 
 const saveNewResearch = async () => {
     try {
-        await addResearch(newResearch.value);
+        const response = await addResearch(newResearch.value);
+        
+        // Replace the manual unshift with proper refresh
+        const profileResponse = await getProfile();
+        teacherData.value.research = profileResponse.teacher.research || [];
+        
         showAddResearchModal.value = false;
+        newResearch.value = { Title: '', Abstract: '' };
+        currentSlide.value = 0;
     } catch (error) {
         console.error('Error adding research:', error);
     }
@@ -507,37 +515,33 @@ watch(showEditModal, (newValue) => {
 
 onMounted(async () => {
     try {
-        const data = await getProfile();
-        console.log('Profile Data:', data);
-        if (data && data.teacher) {
-            teacherData.value = data.teacher;
-        } else {
-            console.error('No teacher data found in response');
-            teacherData.value = {
-                firstName: '',
-                lastName: '',
-                middleName: '',
-                employeeNo: '',
-                email: '',
-                contactNumber: '',
-                address: '',
-                avatar: '/assets/img/profile/avatar.png', // Default avatar
-                research: [],
-            };
-        }
-    } catch (error) {
-        console.error('Error fetching profile data:', error);
+        const response = await getProfile();
         teacherData.value = {
-            firstName: '',
-            lastName: '',
-            middleName: '',
-            employeeNo: '',
-            email: '',
-            contactNumber: '',
-            address: '',
-            avatar: '/assets/img/profile/avatar.png', // Default avatar
-            research: [],
+            ...response.teacher,
+            research: response.teacher.research || []
         };
+    } catch (error) {
+        console.error('Profile initialization error:', error);
+        teacherData.value = createDefaultProfile();
+        alert('Failed to load profile: ' + error.message);
     }
 });
+
+const createDefaultProfile = () => ({
+    firstName: '',
+    lastName: '',
+    middleName: '',
+    employeeNo: '',
+    email: '',
+    contactNumber: '',
+    address: '',
+    avatar: '/assets/img/profile/avatar.png',
+    research: [],
+    position: 'Teacher'
+});
+
+const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+};
 </script>
