@@ -13,20 +13,33 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
-import teacherData from '@/data/teachers.json';
+import { getProfile } from '@/service/profileService';
 
 const route = useRoute();
 const teacherFirstName = ref('');
 
-const isDashboard = computed(() => route.path === '/dashboard');
+const isDashboard = computed(() => {
+  const allowedPaths = ['/dashboard', '/profile', '/classes', '/forms'];
+  return allowedPaths.includes(route.path);
+});
 
-onMounted(() => {
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  if (user) {
-    const teacher = teacherData.teachers.find(t => t.teacher_ID === user.teacher_ID);
-    if (teacher) {
-      teacherFirstName.value = teacher.firstName;
+onMounted(async () => {
+  try {
+    const profileResponse = await getProfile();
+    const profileData = profileResponse.teacher;
+    
+    teacherFirstName.value = profileData.firstName;
+    
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!user.firstName) {
+      localStorage.setItem('user', JSON.stringify({
+        ...user,
+        firstName: profileData.firstName,
+        lastName: profileData.lastName
+      }));
     }
+  } catch (error) {
+    console.error('Error fetching profile:', error);
   }
 });
 </script>

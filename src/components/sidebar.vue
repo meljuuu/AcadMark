@@ -3,20 +3,23 @@
     class="sm:w-[1/5] md:w-1/5 lg:w-1/6 max-w-[220px] w-auto bg-blue md:pt-15 sm:pt-5 rounded-tr-[30px] sticky top-0 h-screen flex flex-col"
     style="box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px; flex-shrink: 0;">
 
-    <div class="flex flex-col items-center m-4 gap-8">
+    <div class="flex flex-col items-center m-4 gap-6">
       <img :src="imageSrc" alt="Teacher" class="w-[130px] h-[130px] rounded-full object-contain" />
-      <p class="text-white text-center font-normal text-[16px]">{{ fullName }}</p>
-      <div class="w-full border-b border-[#A6ACAF]"></div>
+      <div class="flex flex-col items-center gap-1.5">
+        <p class="text-white text-center font-medium text-[20px]">{{ fullName }}</p>
+        <p class="text-white text-center font-normal text-[16px]">{{ position }}</p>
+      </div>
+      <div class="w-full border-b-[0.5px] border-[#A6ACAF]"></div>
     </div>
 
-    <nav class="flex flex-col w-full mt-5 relative flex-1">
+    <nav class="flex flex-col w-full mt-5 relative flex-1 gap-2">
       <div class="absolute left-0 w-full bg-[#3E6FA2] transitions-all duration-300 rounded-r-lg"
-        :style="{ top: `${activeIndex * 57}px`, height: '50px' }"></div>
+        :style="{ top: `${activeIndex * 50}px`, height: '42px' }"></div>
 
-      <router-link v-for="(link, index) in links" :key="index" :to="link.path" class="nav-link relative"
+      <router-link v-for="(link, index) in links" :key="index" :to="link.path" class="nav-link relative py-2"
         :class="{ 'active': activeIndex === index }" @click="activeIndex = index">
         <img :src="link.icon" :alt="link.name" class="w-6 h-6 mr-2 sm:hidden md:block" />
-        <span class="font-semibold text-[16px]">{{ link.name }}</span>
+        <span class="font-semibold text-[17px]">{{ link.name }}</span>
       </router-link>
     </nav>
 
@@ -24,7 +27,7 @@
       <button @click="showLogoutModal = true"
         class="nav-link hover:text-red-500 transition-colors duration-200 flex items-center justify-center cursor-pointer">
         <img src="/assets/img/sidebar/logout.png" alt="Logout" class="w-6 h-6 mr-2" />
-        <span class="font-semibold text-[16px]">Logout</span>
+        <span class="font-semibold text-[17px]">Logout</span>
       </button>
     </div>
 
@@ -50,14 +53,13 @@
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
 import { useRouter } from 'vue-router';
-import teacherData from '@/data/teachers.json';
+import { getProfile } from '@/service/profileService';
 
 const router = useRouter();
 const activeIndex = ref(0);
 const showLogoutModal = ref(false);
 
 const imageSrc = ref("/assets/img/profile/avatar.png");
-
 const isAdmin = localStorage.getItem('isAdmin') === 'true';
 
 const teacherLinks = ref([
@@ -87,6 +89,11 @@ const fullName = computed(() => {
   return fullName;
 });
 
+const position = computed(() => {
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  return user.position || '';
+});
+
 const updateImageFromStorage = () => {
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   if (user.avatar) {
@@ -99,10 +106,30 @@ watch(() => localStorage.getItem('user'), updateImageFromStorage, { deep: true }
 // Listen for the avatarUpdated event
 window.addEventListener('avatarUpdated', updateImageFromStorage);
 
-onMounted(() => {
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  if (user.avatar) {
-    imageSrc.value = user.avatar;
+onMounted(async () => {
+  try {
+    // Fetch profile data from backend
+    const profileResponse = await getProfile();
+    const profileData = profileResponse.teacher;
+    
+    // Update localStorage user data
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const updatedUser = {
+      ...user,
+      firstName: profileData.firstName,
+      lastName: profileData.lastName,
+      middleName: profileData.middleName,
+      avatar: profileData.avatar,
+      position: profileData.position
+    };
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+    
+    // Update image source
+    if (profileData.avatar) {
+      imageSrc.value = profileData.avatar;
+    }
+  } catch (error) {
+    console.error('Error fetching profile:', error);
   }
 });
 
