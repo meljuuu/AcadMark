@@ -57,13 +57,14 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch, onUnmounted } from "vue";
 import { useRouter } from 'vue-router';
 import { getProfile } from '@/service/profileService';
 
 const router = useRouter();
 const activeIndex = ref(0);
 const showLogoutModal = ref(false);
+const profileData = ref(null); // Store fetched profile data
 
 // Initialize with default avatar
 const imageSrc = ref("/assets/img/profile/avatar.png");
@@ -79,14 +80,32 @@ const updateImageFromStorage = () => {
   }
 };
 
-// Call the function when the component mounts
+// Listen for the 'avatar-updated' event
+const handleAvatarUpdate = (event) => {
+  if (event.detail) {
+    imageSrc.value = event.detail; // Use the event detail directly
+  } else {
+    updateImageFromStorage(); // Fallback to localStorage
+  }
+};
+
 onMounted(() => {
+  window.addEventListener('avatar-updated', handleAvatarUpdate);
   updateImageFromStorage();
 });
 
-// Watch for changes in localStorage
-watch(() => localStorage.getItem('teacherAvatar'), () => {
-  updateImageFromStorage();
+onUnmounted(() => {
+  window.removeEventListener('avatar-updated', handleAvatarUpdate);
+});
+
+// Fetch profile data on component mount
+onMounted(async () => {
+  try {
+    const data = await getProfile();
+    profileData.value = data.teacher;
+  } catch (error) {
+    console.error('Failed to fetch profile data:', error);
+  }
 });
 
 const isAdmin = localStorage.getItem('isAdmin') === 'true';
@@ -111,15 +130,13 @@ const links = computed(() => {
 });
 
 const fullName = computed(() => {
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  const middleInitial = user.middleName ? user.middleName[0] + '.' : '';
-  const fullName = `${user.firstName} ${middleInitial} ${user.lastName}`;
-  return fullName;
+  if (!profileData.value) return '';
+  const middleName = profileData.value.middleName ? profileData.value.middleName : '';
+  return `${profileData.value.firstName} ${middleName} ${profileData.value.lastName}`;
 });
 
 const position = computed(() => {
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  return user.position || '';
+  return profileData.value?.position || '';
 });
 
 const confirmLogout = () => {

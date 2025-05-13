@@ -6,7 +6,7 @@
                 <div class="flex flex-col items-center gap-3">
                     <div class="w-50 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer"
                         @click="triggerImageUpload"
-                        style="width: 150px; height: 150px; border-radius: 50%; overflow: hidden;">
+                        style="width: 150px; height: 150px; border-radius: 50%; overflow: hidden; margin-top: 2rem;">
                         <img :src="teacherData.avatar || '/assets/img/profile/avatar.png'" alt="Profile Avatar"
                             class="w-full h-full object-cover">
                         <input type="file" ref="fileInput" accept="image/*" class="hidden" @change="handleImageUpload">
@@ -612,14 +612,13 @@ const handleImageUpload = async (event) => {
     const file = event.target.files[0];
     if (file) {
         try {
-            // Convert the image file to a base64 string
             const reader = new FileReader();
             reader.onload = (e) => {
                 const base64Image = e.target.result;
-                // Store the base64 string in localStorage
                 localStorage.setItem('teacherAvatar', base64Image);
-                // Update the teacherData avatar
                 teacherData.value.avatar = base64Image;
+                // Emit a custom event globally
+                window.dispatchEvent(new CustomEvent('avatar-updated', { detail: base64Image }));
             };
             reader.readAsDataURL(file);
         } catch (error) {
@@ -827,4 +826,8 @@ const saveApprovedLessonPlan = () => {
     // Implementation of saving the approved lesson plan
     showApprovedLessonPlanModal.value = false;
 };
+
+watch(() => localStorage.getItem('teacherAvatar'), () => {
+  updateImageFromStorage(); // This should update the avatar in the sidebar
+});
 </script>
