@@ -375,7 +375,7 @@
                         >
                             <option v-for="grade in gradeLevels" 
                                     :key="grade" 
-                                    :value="grade.replace('Grade ', '')">
+                                    :value="grade">
                                 {{ grade }}
                             </option>
                         </select>
