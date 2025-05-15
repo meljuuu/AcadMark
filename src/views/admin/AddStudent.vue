@@ -1,7 +1,9 @@
 <template>
+    <!-- ===================== Main Container ===================== -->
     <div class="p-5">
         <p class="font-semibold text-6xl mb-7">Add Student</p>
 
+        <!-- ===================== Tab Navigation ===================== -->
         <div class="flex justify-between p-8 rounded-t-xl" style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
             <div v-for="tab in tabs" :key="tab.value" class="w-[48%] cursor-pointer"
                 :class="activeTab === tab.value ? 'border-blue border-b-2' : ''" @click="activeTab = tab.value">
@@ -12,11 +14,14 @@
         </div>
 
         <div class="my-5">
+            <!-- ===================== Add Student Tab ===================== -->
             <div class="flex flex-col gap-10" v-if="activeTab === 'add'">
+                <!-- ========== Individual Registration Form ========== -->
                 <div class="p-7 rounded-t-xl" style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
                     <p class="font-semibold text-xl text-blue mb-5">Individual Registration Form</p>
 
                     <form @submit.prevent="handleAddStudentSubmit" class="flex flex-col gap-5">
+                        <!-- Render each row of fields -->
                         <div v-for="row in groupedFields" :key="row[0].name" class="flex flex-row gap-5">
                             <div v-for="addStudentField in row" :key="addStudentField.name"
                                 :class="addStudentField.class || 'relative grow'">
@@ -24,7 +29,7 @@
                                     {{ addStudentField.label }}
                                 </label>
 
-                                <!-- Select Input -->
+                                <!-- Render select or input based on field type -->
                                 <select v-if="addStudentField.type === 'select'"
                                     v-model="formData[addStudentField.name]"
                                     class="w-full py-3 px-5 border rounded appearance-none"
@@ -35,13 +40,12 @@
                                     </option>
                                 </select>
 
-                                <!-- Text Input -->
                                 <input v-else :type="addStudentField.type" v-model="formData[addStudentField.name]"
                                     class="w-full py-3 px-5 border rounded" :placeholder="addStudentField.placeholder"
                                     :maxlength="addStudentField.maxLength" :pattern="addStudentField.pattern"
                                     :title="addStudentField.title" :required="addStudentField.required" />
 
-                                <!-- Select Dropdown Icon -->
+                                <!-- Dropdown icon for select fields -->
                                 <div v-if="addStudentField.type === 'select'"
                                     class="absolute inset-y-0 right-5 flex items-center pointer-events-none">
                                     <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" stroke-width="2"
@@ -52,6 +56,7 @@
                             </div>
                         </div>
 
+                        <!-- Submit Button for Individual Form -->
                         <div class="flex justify-end mt-5">
                             <button type="submit"
                                 class="bg-blue text-white px-6 py-2 rounded hover:bg-blue-600 transition-colors cursor-pointer">
@@ -61,12 +66,13 @@
                     </form>
                 </div>
 
+                <!-- ========== Bulk Registration Form ========== -->
                 <div class="p-7 rounded-t-xl" style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
                     <p class="font-semibold text-xl text-blue mb-5">Bulk Registration Form</p>
 
                     <form @submit.prevent="handleBulkSubmit" class="flex flex-col gap-5">
+                        <!-- Bulk Form: Grade, Curriculum, Track -->
                         <div class="flex flex-row gap-5 w-[70%]">
-                            <!-- Grade Level -->
                             <div class="relative grow">
                                 <label class="absolute top-[-10px] left-[20px] text-sm bg-white px-2">Grade
                                     Level</label>
@@ -84,8 +90,6 @@
                                     </svg>
                                 </div>
                             </div>
-
-                            <!-- Curriculum -->
                             <div class="relative grow">
                                 <label class="absolute top-[-10px] left-[20px] text-sm bg-white px-2">Curriculum</label>
                                 <select v-model="bulkFormData.curriculum"
@@ -102,8 +106,6 @@
                                     </svg>
                                 </div>
                             </div>
-
-                            <!-- Track -->
                             <div class="relative grow">
                                 <label class="absolute top-[-10px] left-[20px] text-sm bg-white px-2">Track</label>
                                 <select v-model="bulkFormData.track"
@@ -122,7 +124,7 @@
                             </div>
                         </div>
 
-                        <!-- CSV Upload Section -->
+                        <!-- Bulk Form: CSV Upload -->
                         <div class="mt-5">
                             <div class="gap-4 justify-center w-full  border border-black rounded-lg">
                                 <label class="flex items-center gap-2 cursor-pointer">
@@ -133,7 +135,6 @@
                                         <img src="/assets/img/upload.svg" alt="upload" class="w-[30px] h-[30px]" />
                                         <p class="text-blue">Upload CSV File</p>
                                     </div>
-
                                 </label>
                                 <span v-if="selectedFile" class="text-sm text-gray-600">
                                     Selected: {{ selectedFile.name }}
@@ -141,6 +142,7 @@
                             </div>
                         </div>
 
+                        <!-- Submit Button for Bulk Form -->
                         <div class="flex justify-end mt-5">
                             <button type="submit"
                                 class="bg-blue text-white px-6 py-2 rounded hover:bg-blue-600 transition-colors cursor-pointer">
@@ -151,8 +153,10 @@
                 </div>
             </div>
 
+            <!-- ===================== Submitted Students Tab ===================== -->
             <div v-else-if="activeTab === 'submitted'">
                 <div class="flex flex-col gap-10">
+                    <!-- ========== Filters and Searchbar ========== -->
                     <div class="p-7 rounded-t-xl" style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
                         <div class="flex justify-between">
                             <div class="flex flex-wrap gap-5">
@@ -161,13 +165,13 @@
                                 <Dropdown :showSex="true" v-model="selectedSex" />
                                 <Dropdown :showAcademicTrack="true" v-model="selectedAcademicTrack" />
                             </div>
-
                             <div class="w-[30%]">
                                 <Searchbar v-model="searchQuery" />
                             </div>
                         </div>
                     </div>
 
+                    <!-- ========== Students Table ========== -->
                     <div class="p-7 rounded-t-xl" style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
                         <div class="overflow-auto">
                             <table class="w-full border-collapse text-center text-sm">
@@ -196,7 +200,7 @@
                                         <td class="p-2">{{ student.curriculum }}</td>
                                         <td class="p-2">{{ student.track }}</td>
                                         <td class="p-2">{{ student.sex }}</td>
-                                        <td class="p-2">{{ formatDate(student.birthdate) }}</td>
+                                        <td class="p-2">{{ student.birthdate }}</td>
                                         <td class="p-2">{{ student.age }}</td>
                                         <td class="p-2">
                                             <span
@@ -213,7 +217,7 @@
             </div>
         </div>
 
-        <!-- Student Modal -->
+        <!-- ===================== Student Modal (View/Edit) ===================== -->
         <div v-if="showModal" class="fixed inset-0 z-50 bg-black/50 p-[5%] ml-40">
             <div class="bg-white p-10 flex flex-col gap-5 max-h-[90vh] overflow-y-auto">
                 <div class="flex justify-between items-center">
@@ -221,6 +225,7 @@
                 </div>
 
                 <form @submit.prevent="handleUpdateStudent" class="flex flex-col gap-5">
+                    <!-- Render modal form fields in rows -->
                     <div v-for="row in groupedFields" :key="row[0].name" class="flex flex-row gap-5">
                         <div v-for="addStudentField in row" :key="addStudentField.name"
                             :class="addStudentField.class || 'relative grow'">
@@ -257,12 +262,14 @@
                         </div>
                     </div>
 
+                    <!-- Comment Section -->
                     <div class="flex flex-col gap-2">
                         <label class="text-blue font-semibold text-2xl" for="comment">COMMENT</label>
                         <textarea v-model="comment" rows="10" class="border-1 rounded-lg p-2"
                             placeholder="Superadmin comment here..." disabled="true"></textarea>
                     </div>
 
+                    <!-- Modal Action Buttons -->
                     <div class="flex justify-end gap-2 mt-5">
                         <button type="button" @click="closeModal"
                             class="bg-[#656464] text-white px-6 py-2 rounded hover:bg-gray-600 transition-colors cursor-pointer">
@@ -285,34 +292,35 @@
 
 <script setup>
 import { ref, reactive, computed } from 'vue'
-import Dropdown from '@/components/dropdown.vue';
+import Dropdown from '@/components/dropdown.vue'
 import Searchbar from '@/components/searchbar.vue'
 
+// ===================== TAB STATE =====================
 const tabs = [
     { label: 'Add Student', value: 'add' },
     { label: 'Submitted', value: 'submitted' },
 ]
-
 const activeTab = ref('add')
 
+// ===================== FORM FIELD DEFINITIONS =====================
 const addStudentFields = [
-    // row 1
+    // Row 1: Basic academic info
     { name: 'gradeLevel', label: 'Grade Level', type: 'select', placeholder: 'Select Grade Level', options: ['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'], required: true, row: 1 },
     { name: 'curriculum', label: 'Curriculum', type: 'select', placeholder: 'Select Curriculum', options: ['Junior High School', 'Senior High School'], required: true, row: 1 },
     { name: 'track', label: 'Track', type: 'select', placeholder: 'Select Track', options: ['TVL', 'Academic', 'Arts and Design', 'Sports', 'ABM', 'STEM', 'HUMMS'], required: true, row: 1 },
     { name: 'lrn', label: 'LRN', type: 'text', required: true, row: 1 },
-    // row 2
+    // Row 2: Personal info
     { name: 'fullName', label: 'Full Name', type: 'text', placeholder: 'LastName, First Name Middle Initial', required: true, row: 2 },
     { name: 'sex', label: 'Sex', type: 'select', placeholder: 'Select Sex', options: ['Male', 'Female'], required: true, row: 2 },
     { name: 'birthdate', label: 'Birthdate', type: 'date', required: true, row: 2, class: 'relative grow-2' },
     { name: 'age', label: 'Age', type: 'text', maxLength: 2, pattern: '\\d{1,2}', title: 'Age must be a two-digit number', required: true, row: 2, class: 'relative grow max-w-[150px]' },
     { name: 'religion', label: 'Religious Affiliation', type: 'text', row: 2, class: 'relative grow-2' },
-    // row 3
+    // Row 3: Address
     { name: 'street', label: 'House No. /Street/ Purok', type: 'text', required: true, row: 3, class: 'relative grow-2' },
     { name: 'barangay', label: 'Barangay', type: 'text', required: true, row: 3, class: 'relative grow-2' },
     { name: 'city', label: 'Municipality/City', type: 'text', required: true, row: 3, class: 'relative grow-2' },
     { name: 'province', label: 'Province', type: 'text', required: true, row: 3, class: 'relative grow-2' },
-    // row 4
+    // Row 4: Family/Guardian info
     { name: 'father', label: "Father's Name", type: 'text', row: 4, class: 'relative grow-2' },
     { name: 'mother', label: "Mother's Name", type: 'text', row: 4, class: 'relative grow-2' },
     { name: 'guardian', label: "Guardian's Name", type: 'text', row: 4 },
@@ -328,163 +336,115 @@ const groupedFields = computed(() => {
     return rows
 })
 
+// ===================== STATIC STUDENT DATA =====================
+// All students are kept in this reactive array 
+const students = ref([])
+
+// ===================== INDIVIDUAL REGISTRATION STATE =====================
 const formData = reactive(Object.fromEntries(addStudentFields.map(f => [f.name, ''])))
 
-const handleAddStudentSubmit = () => {
-    const existingStudents = JSON.parse(localStorage.getItem('addedStudent') || '[]')
-    existingStudents.push({ ...formData })
-    localStorage.setItem('addedStudent', JSON.stringify(existingStudents))
+function handleAddStudentSubmit() {
+    students.value.push({ ...formData })
     Object.keys(formData).forEach(key => (formData[key] = ''))
 }
 
+// ===================== BULK REGISTRATION STATE =====================
 const bulkFormData = reactive({
     gradeLevel: '',
     curriculum: '',
     track: '',
 })
-
 const fileInput = ref(null)
 const selectedFile = ref(null)
 
-const handleFileUpload = (event) => {
+function handleFileUpload(event) {
     const file = event.target.files[0]
     if (file && file.type === 'text/csv') {
         selectedFile.value = file
     } else {
         alert('Please upload a valid CSV file')
-        if (fileInput.value) {
-            fileInput.value.value = ''
-        }
+        if (fileInput.value) fileInput.value.value = ''
         selectedFile.value = null
     }
 }
 
-const handleBulkSubmit = async () => {
-    try {
-        if (!selectedFile.value) {
-            alert('Please upload a CSV file')
-            return
-        }
-
-        console.log('Bulk form submitted:', {
-            ...bulkFormData,
-            file: selectedFile.value
-        })
-
-        bulkFormData.gradeLevel = ''
-        bulkFormData.curriculum = ''
-        bulkFormData.track = ''
-        selectedFile.value = null
-        if (fileInput.value) {
-            fileInput.value.value = ''
-        }
-    } catch (error) {
-        console.error('Error submitting bulk form:', error)
+async function handleBulkSubmit() {
+    if (!selectedFile.value) {
+        alert('Please upload a CSV file')
+        return
     }
+    bulkFormData.gradeLevel = ''
+    bulkFormData.curriculum = ''
+    bulkFormData.track = ''
+    selectedFile.value = null
+    if (fileInput.value) fileInput.value.value = ''
 }
 
+// ===================== FILTERS & SEARCH FOR SUBMITTED STUDENTS =====================
 const selectedGrade = ref('')
 const selectedCurriculum = ref('')
 const selectedSex = ref('')
 const selectedAcademicTrack = ref('')
 const searchQuery = ref('')
 
-const localStorageUpdateTrigger = ref(0)
-
 const filteredStudents = computed(() => {
-    localStorageUpdateTrigger.value
-
-    const students = JSON.parse(localStorage.getItem('addedStudent') || '[]')
-
-    let filtered = students.filter(student => {
+    let filtered = students.value.filter(student => {
         const matchesGrade = !selectedGrade.value || student.gradeLevel === selectedGrade.value
         const matchesCurriculum = !selectedCurriculum.value || student.curriculum === selectedCurriculum.value
         const matchesSex = !selectedSex.value || student.sex === selectedSex.value
         const matchesTrack = !selectedAcademicTrack.value || student.track === selectedAcademicTrack.value
-
         return matchesGrade && matchesCurriculum && matchesSex && matchesTrack
     })
-
     if (searchQuery.value) {
         filtered = filtered.filter(student =>
-            student.fullName.toLowerCase().includes(searchQuery.value.toLowerCase())
+            student.fullName && student.fullName.toLowerCase().includes(searchQuery.value.toLowerCase())
         )
     }
-
     return filtered
 })
 
-const resetFilters = () => {
-    selectedGrade.value = ''
-    selectedCurriculum.value = ''
-    selectedSex.value = ''
-    selectedAcademicTrack.value = ''
-    searchQuery.value = ''
-}
-
-const formatDate = (dateString) => {
-    if (!dateString) return ''
-    const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    })
-}
-
+// ===================== MODAL FOR VIEWING/EDITING STUDENT =====================
 const showModal = ref(false)
 const selectedStudent = ref(null)
 const modalFormData = reactive(Object.fromEntries(addStudentFields.map(f => [f.name, ''])))
 const isEditing = ref(false)
 const comment = ref('')
 
-const openModal = (student) => {
+function openModal(student) {
     selectedStudent.value = student
     isEditing.value = false
+    Object.keys(modalFormData).forEach(key => { modalFormData[key] = '' })
     Object.keys(modalFormData).forEach(key => {
-        modalFormData[key] = ''
-    })
-    Object.keys(modalFormData).forEach(key => {
-        if (student[key] !== undefined) {
-            modalFormData[key] = student[key]
-        }
+        if (student[key] !== undefined) modalFormData[key] = student[key]
     })
     comment.value = student.comment || ''
     showModal.value = true
 }
 
-const closeModal = () => {
+function closeModal() {
     showModal.value = false
     selectedStudent.value = null
     isEditing.value = false
     comment.value = ''
 }
 
-const startEditing = () => {
+function startEditing() {
     isEditing.value = true
 }
 
-const handleUpdateStudent = () => {
-    const existingStudents = JSON.parse(localStorage.getItem('addedStudent') || '[]')
-
-    const index = existingStudents.findIndex(s => s.lrn === modalFormData.lrn)
+function handleUpdateStudent() {
+    if (!selectedStudent.value) return
+    const index = students.value.findIndex(s => s.lrn === modalFormData.lrn)
     if (index !== -1) {
-        existingStudents[index] = {
-            ...existingStudents[index],
+        students.value[index] = {
+            ...students.value[index],
             ...modalFormData,
             comment: comment.value
         }
-
-
-        localStorage.setItem('addedStudent', JSON.stringify(existingStudents))
-
-        localStorageUpdateTrigger.value++
-
         alert('Student record updated successfully!')
     } else {
         alert('Error: Student record not found!')
     }
-
     isEditing.value = false
     closeModal()
 }

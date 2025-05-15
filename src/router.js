@@ -6,7 +6,7 @@ import Forms from '@/views/teacher/Forms.vue';
 import Profile from '@/views/teacher/Profile.vue';
 import Login from '@/views/Login.vue';
 import adminDashboard from '@/views/admin/Dashboard.vue';
-import MasterList from '@/views/admin/MasterList.vue';
+import MasterList from '@/views/admin/MasterList/MasterList.vue';
 import AddClass from '@/views/admin/AddClass.vue';
 import Record from '@/views/admin/Record.vue';
 import AddStudent from '@/views/admin/AddStudent.vue';

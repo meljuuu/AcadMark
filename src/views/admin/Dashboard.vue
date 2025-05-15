@@ -7,7 +7,7 @@
 <script>
 export default {
     name: 'Dasboard',
-    data() {
+    data() {``
         return {};
     },
     methods: {},

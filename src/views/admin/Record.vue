@@ -43,7 +43,7 @@
                             <td class="p-2">{{ student.track }}</td>
                             <td class="p-2">{{ student.section || '-' }}</td>
                             <td class="p-2">{{ student.sex }}</td>
-                            <td class="p-2">{{ formatDate(student.birthdate) }}</td>
+                            <td class="p-2">{{ student.birthdate }}</td>
                             <td class="p-2">{{ student.age }}</td>
                         </tr>
                     </tbody>
@@ -85,21 +85,4 @@ const filteredStudents = computed(() => {
     return filtered;
 });
 
-const formatDate = (dateString) => {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
-};
-
-const resetFilters = () => {
-    selectedGrade.value = '';
-    selectedCurriculum.value = '';
-    selectedSex.value = '';
-    selectedAcademicTrack.value = '';
-    searchQuery.value = '';
-};
 </script>
