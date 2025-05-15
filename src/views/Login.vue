@@ -67,26 +67,55 @@ const togglePassword = () => {
 const login = async () => {
   errorMessage.value = '';
 
-  // First check if it's an admin login
-  const admin = teachersData.admin.find(a => a.username === email.value && a.password === password.value);
+  // Superadmin check
+  const superadmin = teachersData.superadmin?.find(
+    sa => sa.username === email.value && sa.password === password.value
+  );
+
+  if (superadmin) {
+    const superAdminCredentials = {
+      superadmin_ID: superadmin.superadmin_ID,
+      username: superadmin.username,
+      firstName: superadmin.firstName,
+      lastName: superadmin.lastName,
+      middleName: superadmin.middleName || '',
+      isAdmin: true,
+      isSuperAdmin: true
+    };
+    localStorage.setItem('user', JSON.stringify(superAdminCredentials));
+    localStorage.setItem('isAdmin', 'true');
+    localStorage.setItem('isSuperAdmin', 'true');
+    localStorage.setItem('superadminID', superadmin.superadmin_ID);
+
+    emit('logged-in', superAdminCredentials);
+    router.push('/superadmin/dashboard'); // Ensure this route exists
+    return;
+  }
+
+  // Admin check
+  const admin = teachersData.admin?.find(
+    a => a.username === email.value && a.password === password.value
+  );
 
   if (admin) {
     const adminCredentials = {
       username: admin.username,
-      password: admin.password,
       firstName: admin.firstName,
       lastName: admin.lastName,
       middleName: admin.middleName || '',
-      isAdmin: true
+      isAdmin: true,
+      isSuperAdmin: false
     };
     localStorage.setItem('user', JSON.stringify(adminCredentials));
     localStorage.setItem('isAdmin', 'true');
+    localStorage.setItem('isSuperAdmin', 'false');
+
     emit('logged-in', adminCredentials);
     router.push('/admin/dashboard');
     return;
   }
 
-  // If not admin, try teacher login
+  // Teacher check
   try {
     const data = await loginTeacher(email.value, password.value);
 
@@ -103,11 +132,13 @@ const login = async () => {
       education: data.education || '',
       research: data.research || [],
       avatar: data.avatar || null,
-      isAdmin: false
+      isAdmin: false,
+      isSuperAdmin: false
     };
 
     localStorage.setItem('user', JSON.stringify(teacherCredentials));
     localStorage.setItem('isAdmin', 'false');
+    localStorage.setItem('isSuperAdmin', 'false');
     localStorage.setItem('teacherID', data.teacher_ID);
     localStorage.setItem('token', data.token);
 

@@ -57,35 +57,31 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRouter } from 'vue-router';
 import { getProfile } from '@/service/profileService';
 
 const router = useRouter();
 const activeIndex = ref(0);
 const showLogoutModal = ref(false);
-const profileData = ref(null); // Store fetched profile data
+const profileData = ref(null);
 
-// Initialize with default avatar
 const imageSrc = ref("/assets/img/profile/avatar.png");
 
-// Function to update the image source from localStorage
 const updateImageFromStorage = () => {
   const savedAvatar = localStorage.getItem('teacherAvatar');
   if (savedAvatar) {
     imageSrc.value = savedAvatar;
   } else {
-    // Fallback to the default avatar if nothing is in localStorage
     imageSrc.value = "/assets/img/profile/avatar.png";
   }
 };
 
-// Listen for the 'avatar-updated' event
 const handleAvatarUpdate = (event) => {
   if (event.detail) {
-    imageSrc.value = event.detail; // Use the event detail directly
+    imageSrc.value = event.detail;
   } else {
-    updateImageFromStorage(); // Fallback to localStorage
+    updateImageFromStorage();
   }
 };
 
@@ -98,16 +94,24 @@ onUnmounted(() => {
   window.removeEventListener('avatar-updated', handleAvatarUpdate);
 });
 
-// Fetch profile data on component mount
 onMounted(async () => {
   try {
     const data = await getProfile();
     profileData.value = data.teacher;
+
+    if (data.teacher?.avatar) {
+      imageSrc.value = data.teacher.avatar;
+    } else {
+      updateImageFromStorage();
+    }
   } catch (error) {
     console.error('Failed to fetch profile data:', error);
+    updateImageFromStorage();
   }
 });
 
+// Get roles from localStorage or from profile data
+const isSuperAdmin = localStorage.getItem('isSuperAdmin') === 'true';
 const isAdmin = localStorage.getItem('isAdmin') === 'true';
 
 const teacherLinks = ref([
@@ -125,8 +129,22 @@ const adminLinks = ref([
   { name: "Masterlist", path: "/admin/master-list", icon: "/assets/img/sidebar/masterlist.png" },
 ]);
 
+const superadminLinks = ref([
+  { name: "Dashboard", path: "/superadmin/dashboard", icon: "/assets/img/sidebar/dashboard.png" },
+  { name: "Personnel", path: "/superadmin/personnel", icon: "/assets/img/sidebar/users.png" },
+  { name: "Grades", path: "/superadmin/grades", icon: "/assets/img/sidebar/settings.png" },
+  { name: "Students", path: "/superadmin/students", icon: "/assets/img/sidebar/reports.png" },
+  { name: "Classes", path: "/superadmin/classes", icon: "/assets/img/sidebar/audit.png" },
+]);
+
 const links = computed(() => {
-  return isAdmin ? adminLinks.value : teacherLinks.value;
+  if (isSuperAdmin) {
+    return superadminLinks.value;
+  } else if (isAdmin) {
+    return adminLinks.value;
+  } else {
+    return teacherLinks.value;
+  }
 });
 
 const fullName = computed(() => {
@@ -144,3 +162,4 @@ const confirmLogout = () => {
   router.push('/login');
 };
 </script>
+

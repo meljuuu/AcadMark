@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h1 class="text-5xl font-bold">This is the Dashboard Admin</h1>
+        <h1 class="text-5xl font-bold">This is the Super Admin Dashboard</h1>
     </div>
 </template>
 

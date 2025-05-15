@@ -1,15 +1,27 @@
 import { createRouter, createWebHistory } from 'vue-router';
+// Teacher Views
 import Dashboard from '@/views/teacher/Dashboard.vue';
 import Classes from '@/views/teacher/classes/Classes.vue';
 import Class from '@/views/teacher/classes/Class.vue';
 import Forms from '@/views/teacher/Forms.vue';
 import Profile from '@/views/teacher/Profile.vue';
+
+// Login
 import Login from '@/views/Login.vue';
+
+// Admin Views
 import adminDashboard from '@/views/admin/Dashboard.vue';
 import MasterList from '@/views/admin/MasterList/MasterList.vue';
 import AddClass from '@/views/admin/AddClass.vue';
 import Record from '@/views/admin/Record.vue';
 import AddStudent from '@/views/admin/AddStudent.vue';
+
+// Superadmin Views
+import SADashboard from './views/superadmin/SADashboard.vue';
+import SAPersonnel from './views/superadmin/SAPersonnel.vue';
+import SAGrades from './views/superadmin/SAGrades.vue';
+import SAStudents from './views/superadmin/SAStudents.vue';
+import SAClasses from './views/superadmin/SAClasses.vue';
 
 const routes = [
   {
@@ -19,9 +31,13 @@ const routes = [
   },
   {
     path: '/',
-    redirect: (to) => {
+    redirect: () => {
+      const isSuperAdmin = localStorage.getItem('isSuperAdmin') === 'true';
       const isAdmin = localStorage.getItem('isAdmin') === 'true';
-      return isAdmin ? '/admin/dashboard' : '/dashboard';
+
+      if (isSuperAdmin) return '/superadmin/dashboard';
+      if (isAdmin) return '/admin/dashboard';
+      return '/dashboard';
     },
   },
   {
@@ -86,6 +102,36 @@ const routes = [
     meta: { requiresAuth: true, requiresAdmin: true },
   },
   {
+    path: '/superadmin/dashboard',
+    name: 'superadmin-dashboard',
+    component: SADashboard,
+    meta: { requiresAuth: true, requiresSuperAdmin: true },
+  },
+  {
+    path: '/superadmin/personnel',
+    name: 'superadmin-personnel',
+    component: SAPersonnel,
+    meta: { requiresAuth: true, requiresSuperAdmin: true },
+  },
+  {
+    path: '/superadmin/grades',
+    name: 'superadmin-grades',
+    component: SAGrades,
+    meta: { requiresAuth: true, requiresSuperAdmin: true },
+  },
+  {
+    path: '/superadmin/students',
+    name: 'superadmin-students',
+    component: SAStudents,
+    meta: { requiresAuth: true, requiresSuperAdmin: true },
+  },
+  {
+    path: '/superadmin/classes',
+    name: 'superadmin-classes',
+    component: SAClasses,
+    meta: { requiresAuth: true, requiresSuperAdmin: true },
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: '/dashboard',
   },
@@ -99,20 +145,22 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const user = localStorage.getItem('user');
   const isAdmin = localStorage.getItem('isAdmin') === 'true';
+  const isSuperAdmin = localStorage.getItem('isSuperAdmin') === 'true';
 
   if (to.path === '/login' && user) {
-    next('/dashboard');
+    if (isSuperAdmin) next('/superadmin/dashboard');
+    else if (isAdmin) next('/admin/dashboard');
+    else next('/dashboard');
     return;
   }
 
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (!user) {
       next('/login');
-    } else if (
-      to.matched.some((record) => record.meta.requiresAdmin) &&
-      !isAdmin
-    ) {
-      next('/dashboard'); // Redirect non-admin users to dashboard
+    } else if (to.meta.requiresSuperAdmin && !isSuperAdmin) {
+      next('/dashboard');
+    } else if (to.meta.requiresAdmin && !isAdmin) {
+      next('/dashboard');
     } else {
       next();
     }

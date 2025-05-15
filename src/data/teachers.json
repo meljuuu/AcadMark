@@ -40,5 +40,17 @@
       "username": "admin@gmail.com",
       "password": "password"
     }
+  ],
+
+   "superadmin": [
+    {
+      "superadmin_ID": "SA001",
+      "firstName": "Maine",
+      "lastName": "Mendoza",
+      "middleName": "Maganda",
+      "username": "superadmin@gmail.com",
+      "password": "password"
+    }
   ]
+
 }
