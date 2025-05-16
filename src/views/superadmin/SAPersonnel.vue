@@ -15,7 +15,6 @@
         </div>
 
         <div class="buttons">
-          <!-- Use your Buttons component and listen to 'open-modal' -->
           <Buttons label="Add Faculty" @open-modal="showModal = true" />
         </div>
       </div>
@@ -563,8 +562,8 @@
 
   th {
     padding-top: 20px;
-    background: #295f98;
-    color: white;
+    background: #F6F6F6;
+    color: #000;
     position: sticky;
     top: 0;
     z-index: 1;

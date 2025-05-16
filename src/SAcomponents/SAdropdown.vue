@@ -51,6 +51,32 @@
         {{ track }}
       </option>
     </select>
+
+    <!-- Status -->
+    <select
+      v-if="showStatus"
+      v-model="selectedStatus"
+      class="filter-dropdown"
+      @change="$emit('update:selectedStatus', selectedStatus)"
+    >
+      <option disabled value="">Status</option>
+      <option v-for="status in statuses" :key="status" :value="status">
+        {{ status }}
+      </option>
+    </select>
+
+    <!-- Gender -->
+    <select
+      v-if="showGender"
+      v-model="selectedGender"
+      class="filter-dropdown"
+      @change="$emit('update:selectedGender', selectedGender)"
+    >
+      <option disabled value="">Gender</option>
+      <option v-for="gender in genders" :key="gender" :value="gender">
+        {{ gender }}
+      </option>
+    </select>
   </div>
 </template>
 
@@ -62,17 +88,23 @@ defineProps({
   showGrade: { type: Boolean, default: false },
   showCurriculum: { type: Boolean, default: false },
   showTrack: { type: Boolean, default: false },
+  showStatus: { type: Boolean, default: false },
+  showGender: { type: Boolean, default: false }
 });
 
 const selectedAccess = ref("");
 const selectedGrade = ref("");
 const selectedCurriculum = ref("");
 const selectedTrack = ref("");
+const selectedStatus = ref("");
+const selectedGender = ref("");
 
 const accesss = ["Teacher", "Admin", "Record"];
 const grades = [7, 8, 9, 10, 11, 12];
 const curriculums = ["BEC", "K-12", "SPED"];
 const tracks = ["STEM", "ABM", "TVL", "HUMSS"];
+const statuses = ["Active", "Inactive"];
+const genders = ["Male", "Female"];
 </script>
 
 <style scoped>

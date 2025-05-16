@@ -1,61 +1,54 @@
 <template>
-
-<h1 class="text-5xl font-bold mb-6">Classes</h1>
+  <h1 class="text-5xl font-bold mb-6">Classes</h1>
 
   <div class="container mx-auto p-6 shadow-lg">
     <div class="bg-white rounded-2xl shadow-sm p-6 space-y-6">
       <!-- Filters & Search -->
       <div class="flex flex-wrap justify-between items-center gap-4">
-        <!-- Left Filters -->
         <div class="flex flex-wrap gap-4">
-          <select v-model="filters.status" class="min-w-[140px] border border-gray-300 rounded-md px-4 py-3 text-base">
-            <option value="">Status</option>
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-          </select>
+          <Dropdown
+            :showStatus="true"
+            @update:selectedStatus="selectedStatus = $event"
+          />
 
-          <select v-model="filters.grade" class="min-w-[140px] border border-gray-300 rounded-md px-4 py-3 text-base">
-            <option value="">Grade 7-10</option>
-            <option value="7">Grade 7</option>
-            <option value="8">Grade 8</option>
-            <option value="9">Grade 9</option>
-            <option value="10">Grade 10</option>
-          </select>
+          <Dropdown
+            :showGrade="true"
+            @update:selectedGrade="selectedGrade = $event"
+          />
 
-          <select v-model="filters.schoolType" class="min-w-[200px] border border-gray-300 rounded-md px-4 py-3 text-base">
-            <option value="">Junior/Senior High School</option>
-            <option value="Junior">Junior High School</option>
-            <option value="Senior">Senior High School</option>
-          </select>
+          <Dropdown
+            :showCurriculum="true"
+            @update:selectedCurriculum="selectedCurriculum = $event"
+          />
 
-          <select v-model="filters.track" class="min-w-[140px] border border-gray-300 rounded-md px-4 py-3 text-base">
-            <option value="">Track</option>
-            <option value="STEM">STEM</option>
-            <option value="ABM">ABM</option>
-            <option value="HUMSS">HUMSS</option>
-          </select>
+          <Dropdown
+            :showTrack="true"
+            @update:selectedTrack="selectedTrack = $event"
+          />
         </div>
 
-        <!-- Right-aligned search -->
         <div class="relative w-[400px]">
-            <input
-                v-model="filters.search"
-                type="text"
-                placeholder="Search"
-                class="w-full border border-gray-300 rounded-md pl-11 pr-4 py-3 text-base"
+          <input
+            v-model="filters.search"
+            type="text"
+            placeholder="Search"
+            class="w-full border border-gray-300 rounded-md pl-11 pr-4 py-3 text-base"
+          />
+          <svg
+            class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z"
             />
-            <svg
-                class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-            >
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+          </svg>
         </div>
-
       </div>
 
       <!-- Table -->
@@ -81,16 +74,9 @@
               class="hover:bg-gray-50 cursor-pointer transition"
               @click="openModal(item)"
             >
-              <!-- Checkbox column -->
               <td class="px-6 py-4">
-                <input 
-                  type="checkbox" 
-                  :value="item.id" 
-                  v-model="selectedRows" 
-                  @click.stop 
-                />
+                <input type="checkbox" :value="item.id" v-model="selectedRows" @click.stop />
               </td>
-
               <td class="px-5 py-4">{{ item.grade }}</td>
               <td class="px-13 py-4">{{ item.curriculum }}</td>
               <td class="px-7 py-4">{{ item.track }}</td>
@@ -119,7 +105,9 @@
       v-if="selected"
       class="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
     >
-      <div class="bg-white rounded-xl shadow-md w-full max-w-md p-6 space-y-4 relative">
+      <div
+        class="bg-white rounded-xl shadow-md w-full max-w-md p-6 space-y-4 relative"
+      >
         <button
           class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-xl"
           @click="selected = null"
@@ -141,7 +129,10 @@
         </div>
 
         <div class="mt-4">
-          <label class="block text-base font-medium text-gray-700 mb-1">Comment</label>
+          <label
+            class="block text-base font-medium text-gray-700 mb-1"
+            >Comment</label
+          >
           <textarea
             v-model="selected.comment"
             rows="4"
@@ -155,62 +146,74 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed } from "vue";
+import Dropdown from "@/SAcomponents/SAdropdown.vue";
 
+// Reactive filter states
+const selectedStatus = ref("");
+const selectedGrade = ref("");
+const selectedCurriculum = ref("");
+const selectedTrack = ref("");
+
+// Search input state
 const filters = ref({
-  status: '',
-  grade: '',
-  schoolType: '',
-  track: '',
-  search: '',
-})
+  search: "",
+});
 
+// Sample data (replace with your real data)
 const data = ref([
   {
     id: 1,
-    grade: '7',
-    curriculum: 'K-12',
-    track: 'STEM',
-    section: 'A',
-    adviser: 'Mr. Santos',
-    students: 35,
-    date: '2024-06-10',
-    status: 'Active',
-    comment: 'Well-performing class',
+    grade: 10,
+    curriculum: "K-12",
+    track: "STEM",
+    section: "A",
+    adviser: "Mr. Smith",
+    students: 30,
+    date: "2023-05-01",
+    status: "Active",
+    comment: "",
   },
   {
     id: 2,
-    grade: '10',
-    curriculum: 'K-12',
-    track: 'ABM',
-    section: 'B',
-    adviser: 'Ms. Reyes',
-    students: 40,
-    date: '2024-06-12',
-    status: 'Inactive',
-    comment: 'Needs improvement',
+    grade: 11,
+    curriculum: "BEC",
+    track: "ABM",
+    section: "B",
+    adviser: "Ms. Johnson",
+    students: 25,
+    date: "2023-04-15",
+    status: "Inactive",
+    comment: "",
   },
-  // Add more items as needed
-])
+  // ... more items here
+]);
 
-const selected = ref(null)
-const selectedRows = ref([])
+const selectedRows = ref([]);
+const selected = ref(null);
 
-const filteredData = computed(() =>
-  data.value.filter((item) => {
-    return (
-      (!filters.value.status || item.status === filters.value.status) &&
-      (!filters.value.grade || item.grade === filters.value.grade) &&
-      (!filters.value.track || item.track === filters.value.track) &&
-      (!filters.value.search ||
-        Object.values(item).some((val) =>
-          String(val).toLowerCase().includes(filters.value.search.toLowerCase())
-        ))
-    )
-  })
-)
+// Computed filtered data based on dropdowns and search
+const filteredData = computed(() => {
+  return data.value.filter((item) => {
+    const matchesStatus =
+      !selectedStatus.value || item.status === selectedStatus.value;
+    const matchesGrade =
+      !selectedGrade.value || item.grade === Number(selectedGrade.value);
+    const matchesCurriculum =
+      !selectedCurriculum.value || item.curriculum === selectedCurriculum.value;
+    const matchesTrack =
+      !selectedTrack.value || item.track === selectedTrack.value;
 
-const openModal = (item) => {
-  selected.value = { ...item }
+    const searchTerm = filters.value.search.toLowerCase();
+    const matchesSearch =
+      item.adviser.toLowerCase().includes(searchTerm) ||
+      item.section.toLowerCase().includes(searchTerm);
+
+    return matchesStatus && matchesGrade && matchesCurriculum && matchesTrack && matchesSearch;
+  });
+});
+
+function openModal(item) {
+  selected.value = item;
 }
 </script>

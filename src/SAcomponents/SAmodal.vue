@@ -41,7 +41,7 @@
               <div class="form-group">
                 <label>Subject</label>
                 <select v-model="form.subject" required>
-                  <option disabled value="">Select a subject</option>
+                  <option disabled value=""></option>
                   <option>Social Studies</option>
                   <option>English</option>
                   <option>Science</option>
