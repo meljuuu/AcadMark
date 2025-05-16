@@ -131,7 +131,7 @@ const routes = [
     meta: { requiresAuth: true, requiresSuperAdmin: true },
   },
   {
-    path:'/superadmin/components/insideCard',
+    path:'/superadmin/insideCard',
     name: 'insideCard',
     component: insideCard,
     meta: { requiresAuth: true, requiresSuperAdmin: true },

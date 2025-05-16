@@ -28,29 +28,44 @@
     </div>
 
     <div class="card-grid mt-9">
-      <div
-        class="card"
-        v-for="(card, index) in filteredCards"
-        :key="index"
-      >
-        <div class="header">
+        <div
+            class="card cursor-pointer hover:shadow-lg transition"
+            v-for="(card, index) in filteredCards"
+            :key="index"
+            @click="goToInsideCard(card)"
+        >
+            <div class="header">
             <p>Junior High School</p>
-        </div>
-        <div class="grade">Grade {{ card.grade }}</div>
-        <div class="section" v-if="card.section && card.curriculum">
-        {{ card.section }} - {{ card.curriculum }}
-        </div>
-        <div class="seal">
+            </div>
+            <div class="grade">Grade {{ card.grade }}</div>
+            <div class="section" v-if="card.section && card.curriculum">
+            {{ card.section }} - {{ card.curriculum }}
+            </div>
+            <div class="seal">
             <img src="/assets/img/logo.png" alt="">
+            </div>
         </div>
-      </div>
     </div>
+
   </div>
 </template>
 
 
 <script setup>
 import { ref, computed } from "vue";
+import { useRouter } from 'vue-router';
+
+const router = useRouter()
+
+function goToInsideCard(card) {
+  router.push({
+    name: 'insideCard',
+    params: {
+      grade: card.grade,
+      section: card.section
+    }
+  })
+}
 
 const selectedGrade = ref("");
 const selectedCurriculum = ref("");
