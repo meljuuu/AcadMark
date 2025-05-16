@@ -18,12 +18,10 @@
 
           <div class="input-group">
             <div class="password-field">
-              <input :type="showPassword ? 'text' : 'password'" v-model="password" placeholder="Enter Password"
-                required />
+              <input :type="showPassword ? 'text' : 'password'" v-model="password" placeholder="Enter Password" required />
               <label>Password</label>
               <span @click="togglePassword" class="toggle-password">
-                <img :src="showPassword ? '/assets/img/login/iconoir_eye.png' : '/assets/img/login/iconoir_closed.png'"
-                  alt="Toggle Password Visibility" class="eye-icon" />
+                <img :src="showPassword ? '/assets/img/login/iconoir_eye.png' : '/assets/img/login/iconoir_closed.png'" alt="Toggle Password Visibility" class="eye-icon" />
               </span>
             </div>
           </div>
@@ -50,15 +48,18 @@ import { ref, defineEmits } from 'vue';
 import { useRouter } from 'vue-router';
 import { loginTeacher } from '../service/authService.js';
 import teachersData from '../data/teachers.json';
+import { useToast } from 'vue-toastification';
 
 const router = useRouter();
 const emit = defineEmits(['logged-in']);
+const toast = useToast();
 
 const email = ref('');
 const password = ref('');
 const showPassword = ref(false);
 const rememberMe = ref(false);
 const errorMessage = ref('');
+
 
 const togglePassword = () => {
   showPassword.value = !showPassword.value;
@@ -67,35 +68,8 @@ const togglePassword = () => {
 const login = async () => {
   errorMessage.value = '';
 
-  // Superadmin check
-  const superadmin = teachersData.superadmin?.find(
-    sa => sa.username === email.value && sa.password === password.value
-  );
-
-  if (superadmin) {
-    const superAdminCredentials = {
-      superadmin_ID: superadmin.superadmin_ID,
-      username: superadmin.username,
-      firstName: superadmin.firstName,
-      lastName: superadmin.lastName,
-      middleName: superadmin.middleName || '',
-      isAdmin: true,
-      isSuperAdmin: true
-    };
-    localStorage.setItem('user', JSON.stringify(superAdminCredentials));
-    localStorage.setItem('isAdmin', 'true');
-    localStorage.setItem('isSuperAdmin', 'true');
-    localStorage.setItem('superadminID', superadmin.superadmin_ID);
-
-    emit('logged-in', superAdminCredentials);
-    router.push('/superadmin/dashboard'); // Ensure this route exists
-    return;
-  }
-
-  // Admin check
-  const admin = teachersData.admin?.find(
-    a => a.username === email.value && a.password === password.value
-  );
+  // Admin login check from local file
+  const admin = teachersData.admin.find(a => a.username === email.value && a.password === password.value);
 
   if (admin) {
     const adminCredentials = {
@@ -111,44 +85,47 @@ const login = async () => {
     localStorage.setItem('isSuperAdmin', 'false');
 
     emit('logged-in', adminCredentials);
+    toast.success('Login successful!');
     router.push('/admin/dashboard');
     return;
   }
 
-  // Teacher check
+  // Try login through API
   try {
-    const data = await loginTeacher(email.value, password.value);
+    const { user, token, role } = await loginTeacher(email.value, password.value);
 
     const teacherCredentials = {
-      teacher_ID: data.teacher_ID,
-      email: data.email,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      middleName: data.middleName || '',
-      employeeNo: data.employeeNo || '',
-      contactNumber: data.contactNumber || '',
-      address: data.address || '',
-      position: data.position || '',
-      education: data.education || '',
-      research: data.research || [],
-      avatar: data.avatar || null,
-      isAdmin: false,
-      isSuperAdmin: false
+      teacher_ID: user.Teacher_ID,
+      email: user.Email,
+      firstName: user.FirstName,
+      lastName: user.LastName,
+      middleName: user.MiddleName || '',
+      employeeNo: user.EmployeeNo || '',
+      contactNumber: user.ContactNumber || '',
+      address: user.Address || '',
+      position: user.Position || '',
+      education: user.Education || '',
+      research: user.Research || [],
+      avatar: user.Avatar || null,
+      isAdmin: role === 'Admin'
     };
 
     localStorage.setItem('user', JSON.stringify(teacherCredentials));
-    localStorage.setItem('isAdmin', 'false');
-    localStorage.setItem('isSuperAdmin', 'false');
-    localStorage.setItem('teacherID', data.teacher_ID);
-    localStorage.setItem('token', data.token);
+    localStorage.setItem('isAdmin', teacherCredentials.isAdmin.toString());
+    localStorage.setItem('teacherID', user.Teacher_ID);
+    localStorage.setItem('token', token);
 
     emit('logged-in', teacherCredentials);
-    router.push('/dashboard');
+     toast.success('Login successful!');
+    // Route based on role
+    router.push(teacherCredentials.isAdmin ? '/admin/dashboard' : '/dashboard');
   } catch (error) {
     errorMessage.value = error || 'Invalid email or password.';
+    toast.error(errorMessage.value);
   }
 };
 </script>
+
 
 
 

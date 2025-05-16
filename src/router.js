@@ -31,13 +31,9 @@ const routes = [
   },
   {
     path: '/',
-    redirect: () => {
-      const isSuperAdmin = localStorage.getItem('isSuperAdmin') === 'true';
+    redirect: (to) => {
       const isAdmin = localStorage.getItem('isAdmin') === 'true';
-
-      if (isSuperAdmin) return '/superadmin/dashboard';
-      if (isAdmin) return '/admin/dashboard';
-      return '/dashboard';
+      return isAdmin ? '/admin/dashboard' : '/dashboard';
     },
   },
   {
@@ -75,31 +71,31 @@ const routes = [
     path: '/admin/dashboard',
     name: 'admin-dashboard',
     component: adminDashboard,
-    meta: { requiresAuth: true, requiresAdmin: true },
+    meta: { requiresAuth: true },
   },
   {
     path: '/admin/master-list',
     name: 'admin-master-list',
     component: MasterList,
-    meta: { requiresAuth: true, requiresAdmin: true },
+    meta: { requiresAuth: true },
   },
   {
     path: '/admin/add-class',
     name: 'admin-add-class',
     component: AddClass,
-    meta: { requiresAuth: true, requiresAdmin: true },
+    meta: { requiresAuth: true },
   },
   {
     path: '/admin/record',
     name: 'admin-record',
     component: Record,
-    meta: { requiresAuth: true, requiresAdmin: true },
+    meta: { requiresAuth: true },
   },
   {
     path: '/admin/add-student',
     name: 'admin-add-student',
     component: AddStudent,
-    meta: { requiresAuth: true, requiresAdmin: true },
+    meta: { requiresAuth: true },
   },
   {
     path: '/superadmin/dashboard',
@@ -148,21 +144,25 @@ router.beforeEach((to, from, next) => {
   const isSuperAdmin = localStorage.getItem('isSuperAdmin') === 'true';
 
   if (to.path === '/login' && user) {
-    if (isSuperAdmin) next('/superadmin/dashboard');
-    else if (isAdmin) next('/admin/dashboard');
-    else next('/dashboard');
+    // Redirect logged-in users based on their role
+    if (isSuperAdmin) {
+      next('/superadmin/dashboard');
+    } else if (isAdmin) {
+      next('/admin/dashboard');
+    } else {
+      next('/dashboard');
+    }
     return;
   }
 
-  if (to.matched.some((record) => record.meta.requiresAuth)) {
+  if (to.matched.some(record => record.meta.requiresAuth)) {
     if (!user) {
       next('/login');
     } else if (to.meta.requiresSuperAdmin && !isSuperAdmin) {
-      next('/dashboard');
-    } else if (to.meta.requiresAdmin && !isAdmin) {
+      // 🚫 Block access to superadmin routes for non-superadmins
       next('/dashboard');
     } else {
-      next();
+      next(); // ✅ Allow access
     }
   } else {
     next();

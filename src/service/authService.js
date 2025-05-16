@@ -1,5 +1,4 @@
 import axios from 'axios';
-import teachersData from '../data/teachers.json';
 
 const API = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -8,25 +7,24 @@ const API = axios.create({
 
 export const loginTeacher = async (email, password) => {
   try {
-    // First check if it's an admin login
-    const admin = teachersData.admin.find(
-      (a) => a.username === email && a.password === password
-    );
-    if (admin) {
-      return {
-        ...admin,
-        isAdmin: true,
-      };
-    }
-
-    // If not admin, proceed with teacher login API call
     const response = await API.post('/login', {
       email,
       password,
     });
+    
+    const user = response.data.teacher;
+    const token = response.data.token;
+
+    console.log("user: ", user);
+
+
+    localStorage.setItem('user', JSON.stringify(user));
+    localStorage.setItem('token', token);
+
     return {
-      ...response.data,
-      isAdmin: false,
+      user,
+      token,
+      role: user.Position, 
     };
   } catch (error) {
     throw error.response?.data?.error || 'Login failed';
