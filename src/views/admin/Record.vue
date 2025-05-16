@@ -54,9 +54,10 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import Dropdown from '@/components/dropdown.vue';
 import Searchbar from '@/components/searchbar.vue';
+import { getAllAcceptedStudents } from '@/service/studentService'
 
 const selectedGrade = ref('');
 const selectedCurriculum = ref('');
@@ -64,10 +65,29 @@ const selectedSex = ref('');
 const selectedAcademicTrack = ref('');
 const searchQuery = ref('');
 
-const filteredStudents = computed(() => {
-    const students = JSON.parse(localStorage.getItem('addedStudent') || '[]');
+const students = ref([]);
 
-    let filtered = students.filter(student => {
+onMounted(async () => {
+    try {
+        const response = await getAllAcceptedStudents();
+        students.value = response.students.map((student) => ({
+            gradeLevel: student.Grade_Level,
+            lrn: student.LRN,
+            fullName: `${student.FirstName} ${student.MiddleName || ''} ${student.LastName}`.trim(),
+            curriculum: student.Curriculum,
+            track: student.Track,
+            section: student.Section || null,
+            sex: student.Sex,
+            birthdate: student.BirthDate,
+            age: student.Age,
+        }));
+    } catch (error) {
+        console.error('Failed to fetch students:', error);
+    }
+});
+
+const filteredStudents = computed(() => {
+    let filtered = students.value.filter(student => {
         const matchesGrade = !selectedGrade.value || student.gradeLevel === selectedGrade.value;
         const matchesCurriculum = !selectedCurriculum.value || student.curriculum === selectedCurriculum.value;
         const matchesSex = !selectedSex.value || student.sex === selectedSex.value;
@@ -84,5 +104,4 @@ const filteredStudents = computed(() => {
 
     return filtered;
 });
-
 </script>
