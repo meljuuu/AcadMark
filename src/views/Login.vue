@@ -60,7 +60,6 @@ const showPassword = ref(false);
 const rememberMe = ref(false);
 const errorMessage = ref('');
 
-
 const togglePassword = () => {
   showPassword.value = !showPassword.value;
 };
@@ -68,31 +67,41 @@ const togglePassword = () => {
 const login = async () => {
   errorMessage.value = '';
 
-  // Admin login check from local file
-  const admin = teachersData.admin.find(a => a.username === email.value && a.password === password.value);
+  // Check if user exists in local admin data (admin/superadmin)
+  const admin = teachersData.admin.find(
+    a => a.username === email.value && a.password === password.value
+  );
 
   if (admin) {
+    const isSuperAdmin = admin.role?.toLowerCase() === 'superadmin';
+
     const adminCredentials = {
       username: admin.username,
       firstName: admin.firstName,
       lastName: admin.lastName,
       middleName: admin.middleName || '',
       isAdmin: true,
-      isSuperAdmin: false
+      isSuperAdmin: isSuperAdmin
     };
+
     localStorage.setItem('user', JSON.stringify(adminCredentials));
     localStorage.setItem('isAdmin', 'true');
-    localStorage.setItem('isSuperAdmin', 'false');
+    localStorage.setItem('isSuperAdmin', isSuperAdmin.toString());
 
     emit('logged-in', adminCredentials);
     toast.success('Login successful!');
-    router.push('/admin/dashboard');
+    router.push(isSuperAdmin ? '/superadmin/dashboard' : '/admin/dashboard');
     return;
   }
 
-  // Try login through API
+  // Try login through API (teacher login)
   try {
-    const { user, token, role } = await loginTeacher(email.value, password.value);
+    const { user, token } = await loginTeacher(email.value, password.value);
+
+    // Determine roles based on Position from API
+    const position = user.Position?.toLowerCase() || '';
+    const isSuperAdmin = position === 'superadmin';
+    const isAdmin = position === 'admin';
 
     const teacherCredentials = {
       teacher_ID: user.Teacher_ID,
@@ -107,24 +116,34 @@ const login = async () => {
       education: user.Education || '',
       research: user.Research || [],
       avatar: user.Avatar || null,
-      isAdmin: role === 'Admin'
+      isAdmin,
+      isSuperAdmin
     };
 
     localStorage.setItem('user', JSON.stringify(teacherCredentials));
-    localStorage.setItem('isAdmin', teacherCredentials.isAdmin.toString());
+    localStorage.setItem('isAdmin', isAdmin.toString());
+    localStorage.setItem('isSuperAdmin', isSuperAdmin.toString());
     localStorage.setItem('teacherID', user.Teacher_ID);
     localStorage.setItem('token', token);
 
     emit('logged-in', teacherCredentials);
-     toast.success('Login successful!');
-    // Route based on role
-    router.push(teacherCredentials.isAdmin ? '/admin/dashboard' : '/dashboard');
+    toast.success('Login successful!');
+
+    if (isSuperAdmin) {
+      router.push('/superadmin/dashboard');
+    } else if (isAdmin) {
+      router.push('/admin/dashboard');
+    } else {
+      router.push('/dashboard');
+    }
+
   } catch (error) {
     errorMessage.value = error || 'Invalid email or password.';
     toast.error(errorMessage.value);
   }
 };
 </script>
+
 
 
 

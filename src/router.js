@@ -139,12 +139,12 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const user = localStorage.getItem('user');
+  const user = JSON.parse(localStorage.getItem('user'));
   const isAdmin = localStorage.getItem('isAdmin') === 'true';
   const isSuperAdmin = localStorage.getItem('isSuperAdmin') === 'true';
 
   if (to.path === '/login' && user) {
-    // Redirect logged-in users based on their role
+    // Redirect based on role
     if (isSuperAdmin) {
       next('/superadmin/dashboard');
     } else if (isAdmin) {
@@ -158,15 +158,17 @@ router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (!user) {
       next('/login');
-    } else if (to.meta.requiresSuperAdmin && !isSuperAdmin) {
-      // 🚫 Block access to superadmin routes for non-superadmins
-      next('/dashboard');
+    } else if (to.matched.some(record => record.meta.requiresSuperAdmin) && !isSuperAdmin) {
+      next('/dashboard'); // block access to superadmin routes
+    } else if (to.matched.some(record => record.meta.requiresAdmin) && !isAdmin) {
+      next('/dashboard'); // block access to admin routes
     } else {
-      next(); // ✅ Allow access
+      next(); // allowed
     }
   } else {
-    next();
+    next(); // public routes
   }
 });
+
 
 export default router;
