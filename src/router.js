@@ -23,6 +23,9 @@ import SAGrades from './views/superadmin/SAGrades.vue';
 import SAStudents from './views/superadmin/SAStudents.vue';
 import SAClasses from './views/superadmin/SAClasses.vue';
 
+// Inside the superadmin card
+import insideCard from './views/superadmin/components/insideCard.vue';
+
 const routes = [
   {
     path: '/login',
@@ -128,9 +131,16 @@ const routes = [
     meta: { requiresAuth: true, requiresSuperAdmin: true },
   },
   {
+    path:'/superadmin/components/insideCard',
+    name: 'insideCard',
+    component: insideCard,
+    meta: { requiresAuth: true, requiresSuperAdmin: true },
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: '/dashboard',
   },
+  
 ];
 
 const router = createRouter({
