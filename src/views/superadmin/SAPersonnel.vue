@@ -18,33 +18,92 @@
           <Buttons label="Add Faculty" @open-modal="showModal = true" />
         </div>
       </div>
-
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>EMPLOYEE</th>
-              <th>NAME</th>
-              <th>QUALIFICATION</th>
-              <th>ACCESS</th>
-              <th>EMAIL</th>
-              <th>ACTION</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="personnel in paginatedPersonnel"
-              :key="personnel.employee"
-            >
-              <td>{{ personnel.employee }}</td>
-              <td>{{ personnel.name }}</td>
-              <td>{{ personnel.qualification }}</td>
-              <td>{{ personnel.access }}</td>
-              <td>{{ personnel.email }}</td>
-              <td>Actions here</td>
-            </tr>
-          </tbody>
-        </table>
+  
+      <div class="content">
+        <div class="filtering-section">
+          <div class="search-bar">
+            <input type="text" v-model="searchQuery" placeholder="Search..." />
+            <!-- Uncomment these when you have the components and modals ready -->
+            <!--
+            <Buttons @click="openAddModal" />
+            <ImportClassListButton @click="openImportModal" />
+            <Modal ref="addModalRef" />
+            -->
+          </div>
+        </div>
+  
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>EMPLOYEE</th>
+                <th>NAME</th>
+                <th>QUALIFICATION</th>
+                <th>ACCESS</th>
+                <th>EMAIL</th>
+                <th>ACTION</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="(student, index) in paginatedStudents"
+                :key="student.lrn"
+                @click="showUnReleasedModal(student)"
+              >
+                <td>{{ student.lrn }}</td>
+                <td>{{ student.name }}</td>
+                <td>{{ student.track }}</td>
+                <td>{{ student.curriculum }}</td>
+                <td>{{ student.batch }}</td>
+                <td>
+                  <span :class="['status', student.status.toLowerCase().replace(/\s+/g, '-')]">
+                    {{ student.status }}
+                  </span>
+                </td>
+              </tr>
+              <tr v-if="filteredStudents.length === 0">
+                <td colspan="6" style="text-align:center; padding: 20px;">No results found.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+  
+        <div class="pagination" v-if="totalPages > 1">
+          <button
+            :disabled="currentPage === 1"
+            @click="currentPage--"
+          >
+            Prev
+          </button>
+          <button
+            v-for="page in totalPages"
+            :key="page"
+            @click="goToPage(page)"
+            :class="{ active: currentPage === page }"
+          >
+            {{ page }}
+          </button>
+          <button
+            :disabled="currentPage === totalPages"
+            @click="currentPage++"
+          >
+            Next
+          </button>
+        </div>
+  
+        <!-- Example modal placeholder -->
+        <div v-if="modalVisible" class="modal-overlay" @click.self="closeModal">
+          <div class="modal-content">
+            <h3>Student Details</h3>
+            <p><strong>Employee</strong> {{ modalStudent.lrn }}</p>
+            <p><strong>Name</strong> {{ modalStudent.name }}</p>
+            <p><strong>Qualification</strong> {{ modalStudent.track }}</p>
+            <p><strong>Access</strong> {{ modalStudent.curriculum }}</p>
+            <p><strong>Email</strong> {{ modalStudent.batch }}</p>
+            <p><strong>Action</strong> {{ modalStudent.status }}</p>
+            <button @click="closeModal">Close</button>
+          </div>
+        </div>
       </div>
     </div>
 

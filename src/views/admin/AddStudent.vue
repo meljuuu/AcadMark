@@ -204,8 +204,9 @@
                                         <td class="p-2">{{ student.age }}</td>
                                         <td class="p-2">
                                             <span
-                                                class="px-4 py-2 rounded text-white inline-block w-[135px] font-light text-center bg-orange">
-                                                Pending
+                                                class="px-4 py-2 rounded text-white inline-block w-[135px] font-light text-center"
+                                                :class="student.status === 'Accepted' ? 'bg-green-500' : 'bg-orange-500'">
+                                                {{ student.status }}
                                             </span>
                                         </td>
                                     </tr>
@@ -291,10 +292,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, onMounted, watch } from 'vue'
 import Dropdown from '@/components/dropdown.vue'
 import Searchbar from '@/components/searchbar.vue'
-
+import { getAllStudents, createStudent } from '@/service/studentService'
 // ===================== TAB STATE =====================
 const tabs = [
     { label: 'Add Student', value: 'add' },
@@ -302,30 +303,59 @@ const tabs = [
 ]
 const activeTab = ref('add')
 
+onMounted(async () => {
+  try {
+    const response = await getAllStudents();  // or axios call
+
+    // Access the array inside response.students
+    const data = response.students;
+
+    students.value = data.map(s => ({
+      gradeLevel: s.Grade_Level,
+      lrn: s.LRN,
+      fullName: `${s.LastName}, ${s.FirstName} ${s.MiddleName || ''}`.trim(),
+      curriculum: s.Curriculum === 'JHS' ? 'Junior High School' : (s.Curriculum === 'SHS' ? 'Senior High School' : s.Curriculum),
+      track: s.Track,
+      sex: s.Sex === 'M' ? 'Male' : (s.Sex === 'F' ? 'Female' : s.Sex),
+      birthdate: s.BirthDate,
+      age: s.Age,
+      status: s.Status || 'Pending',
+      original: s,
+    }));
+
+  } catch (error) {
+    console.error('Failed to fetch students:', error);
+  }
+});
+
 // ===================== FORM FIELD DEFINITIONS =====================
 const addStudentFields = [
     // Row 1: Basic academic info
-    { name: 'gradeLevel', label: 'Grade Level', type: 'select', placeholder: 'Select Grade Level', options: ['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'], required: true, row: 1 },
-    { name: 'curriculum', label: 'Curriculum', type: 'select', placeholder: 'Select Curriculum', options: ['Junior High School', 'Senior High School'], required: true, row: 1 },
-    { name: 'track', label: 'Track', type: 'select', placeholder: 'Select Track', options: ['TVL', 'Academic', 'Arts and Design', 'Sports', 'ABM', 'STEM', 'HUMMS'], required: true, row: 1 },
-    { name: 'lrn', label: 'LRN', type: 'text', required: true, row: 1 },
+    { name: 'Grade_Level', label: 'Grade Level', type: 'select', placeholder: 'Select Grade Level', options: ['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'], required: true, row: 1 },
+    { name: 'Curriculum', label: 'Curriculum', type: 'select', placeholder: 'Select Curriculum', options: [], required: true, row: 1 },
+    { name: 'Track', label: 'Track', type: 'select', placeholder: 'Select Track', options: [], required: true, row: 1 },
+    { name: 'LRN', label: 'LRN', type: 'text', required: true, row: 1 },
     // Row 2: Personal info
-    { name: 'fullName', label: 'Full Name', type: 'text', placeholder: 'LastName, First Name Middle Initial', required: true, row: 2 },
-    { name: 'sex', label: 'Sex', type: 'select', placeholder: 'Select Sex', options: ['Male', 'Female'], required: true, row: 2 },
-    { name: 'birthdate', label: 'Birthdate', type: 'date', required: true, row: 2, class: 'relative grow-2' },
-    { name: 'age', label: 'Age', type: 'text', maxLength: 2, pattern: '\\d{1,2}', title: 'Age must be a two-digit number', required: true, row: 2, class: 'relative grow max-w-[150px]' },
-    { name: 'religion', label: 'Religious Affiliation', type: 'text', row: 2, class: 'relative grow-2' },
+    { name: 'LastName', label: 'Last Name', type: 'text', placeholder: 'Last Name', required: true, row: 2 },
+    { name: 'FirstName', label: 'First Name', type: 'text', placeholder: 'First Name', required: true, row: 2 },
+    { name: 'MiddleName', label: 'Middle Name', type: 'text', placeholder: 'Middle Name', row: 2 },
+    { name: 'Suffix', label: 'Suffix', type: 'select', options: ['Sr.', 'Jr.', 'II', 'III'], row: 2,  },
+    { name: 'Sex', label: 'Sex', type: 'select', placeholder: 'Select Sex', options: ['Male', 'Female'], required: true, row: 2, },
+    { name: 'BirthDate', label: 'Birthdate', type: 'date', required: true, row: 2, class: 'relative grow-2' },
+    { name: 'Age', label: 'Age', type: 'text', maxLength: 2, pattern: '\\d{1,2}', title: 'Age must be a two-digit number', required: true, row: 2, class: 'relative grow max-w-[100px]' },
+
     // Row 3: Address
-    { name: 'street', label: 'House No. /Street/ Purok', type: 'text', required: true, row: 3, class: 'relative grow-2' },
-    { name: 'barangay', label: 'Barangay', type: 'text', required: true, row: 3, class: 'relative grow-2' },
-    { name: 'city', label: 'Municipality/City', type: 'text', required: true, row: 3, class: 'relative grow-2' },
-    { name: 'province', label: 'Province', type: 'text', required: true, row: 3, class: 'relative grow-2' },
+    { name: 'Religion', label: 'Religious Affiliation', type: 'text', row: 3, class: 'relative grow-2' },
+    { name: 'HouseNo', label: 'House No. /Street/ Purok', type: 'text', required: true, row: 3, class: 'relative grow-2' },
+    { name: 'Barangay', label: 'Barangay', type: 'text', required: true, row: 3, class: 'relative grow-2' },
+    { name: 'Municipality', label: 'Municipality/City', type: 'text', required: true, row: 3, class: 'relative grow-2' },
+    { name: 'Province', label: 'Province', type: 'text', required: true, row: 3, class: 'relative grow-2' },
     // Row 4: Family/Guardian info
-    { name: 'father', label: "Father's Name", type: 'text', row: 4, class: 'relative grow-2' },
-    { name: 'mother', label: "Mother's Name", type: 'text', row: 4, class: 'relative grow-2' },
-    { name: 'guardian', label: "Guardian's Name", type: 'text', row: 4 },
-    { name: 'relationship', label: 'Relationship w/ Guardian', type: 'text', row: 4 },
-    { name: 'contact', label: 'Guardian/Parent Contact No.', type: 'text', required: true, row: 4 }
+    { name: 'FatherName', label: "Father's Name", type: 'text', row: 4, class: 'relative grow-2' },
+    { name: 'MotherName', label: "Mother's Name", type: 'text', row: 4, class: 'relative grow-2' },
+    { name: 'Guardian', label: "Guardian's Name", type: 'text', row: 4 },
+    { name: 'Relationship', label: 'Relationship w/ Guardian', type: 'text', row: 4 },
+    { name: 'ContactNumber', label: 'Guardian/Parent Contact No.', type: 'text', required: true, row: 4 }
 ]
 
 const groupedFields = computed(() => {
@@ -343,10 +373,68 @@ const students = ref([])
 // ===================== INDIVIDUAL REGISTRATION STATE =====================
 const formData = reactive(Object.fromEntries(addStudentFields.map(f => [f.name, ''])))
 
-function handleAddStudentSubmit() {
-    students.value.push({ ...formData })
-    Object.keys(formData).forEach(key => (formData[key] = ''))
+const trackOptions = {
+    'Junior High School': ['Academic', 'Arts and Design', 'Sports'],
+    'Senior High School': ['TVL', 'ABM', 'HUMMS', 'STEM']
 }
+
+watch(() => formData.Grade_Level, (newValue) => {
+  if (['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10'].includes(newValue)) {
+    formData.Curriculum = 'Junior High School'
+  } else if (['Grade 11', 'Grade 12'].includes(newValue)) {
+    formData.Curriculum = 'Senior High School'
+  } else {
+    formData.Curriculum = ''
+  }
+
+  // Reset track when grade level changes
+  formData.track = ''
+
+  // Update curriculum options (so it can display the selected value)
+  const curriculumField = addStudentFields.find(field => field.name === 'Curriculum')
+  if (curriculumField) {
+    curriculumField.options = ['Junior High School', 'Senior High School']
+  }
+
+  // Update track options dynamically
+    const trackField = addStudentFields.find(field => field.name === 'Track')
+  if (trackField) {
+      trackField.options = trackOptions[formData.Curriculum] || []
+  }
+})
+
+async function handleAddStudentSubmit() {
+    try {
+        const dataToSend = JSON.parse(JSON.stringify(formData))
+
+        // Convert Sex to 'M' or 'F'
+        if (dataToSend.Sex === 'Male') dataToSend.Sex = 'M'
+        else if (dataToSend.Sex === 'Female') dataToSend.Sex = 'F'
+
+        // Convert Curriculum to 'JHS' or 'SHS'
+        if (dataToSend.Curriculum === 'Junior High School') dataToSend.Curriculum = 'JHS'
+        else if (dataToSend.Curriculum === 'Senior High School') dataToSend.Curriculum = 'SHS'
+
+        // Remove 'Grade ' from Grade_Level (e.g., "Grade 12" => "12")
+        if (dataToSend.Grade_Level?.startsWith('Grade ')) {
+            dataToSend.Grade_Level = dataToSend.Grade_Level.replace('Grade ', '')
+        }
+
+        console.log("DATA TO SEND:", dataToSend)
+
+        // Send to backend
+        const response = await createStudent(dataToSend)
+
+        students.value.push({ ...response.data })
+
+        // Reset form
+        Object.keys(formData).forEach(key => (formData[key] = ''))
+    } catch (error) {
+        console.error('Error adding student:', error)
+    }
+}
+
+
 
 // ===================== BULK REGISTRATION STATE =====================
 const bulkFormData = reactive({
@@ -388,19 +476,11 @@ const selectedAcademicTrack = ref('')
 const searchQuery = ref('')
 
 const filteredStudents = computed(() => {
-    let filtered = students.value.filter(student => {
-        const matchesGrade = !selectedGrade.value || student.gradeLevel === selectedGrade.value
-        const matchesCurriculum = !selectedCurriculum.value || student.curriculum === selectedCurriculum.value
-        const matchesSex = !selectedSex.value || student.sex === selectedSex.value
-        const matchesTrack = !selectedAcademicTrack.value || student.track === selectedAcademicTrack.value
-        return matchesGrade && matchesCurriculum && matchesSex && matchesTrack
-    })
-    if (searchQuery.value) {
-        filtered = filtered.filter(student =>
-            student.fullName && student.fullName.toLowerCase().includes(searchQuery.value.toLowerCase())
-        )
-    }
-    return filtered
+    if (!searchQuery.value) return students.value
+    return students.value.filter(student =>
+        student.fullName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        student.lrn?.toString().includes(searchQuery.value)
+    )
 })
 
 // ===================== MODAL FOR VIEWING/EDITING STUDENT =====================
