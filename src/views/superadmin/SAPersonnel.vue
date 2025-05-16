@@ -98,7 +98,6 @@
   </template>
   
   <script>
-  import Dropdown from '@/components/Dropdown.vue'; // Adjust path as needed
   
   export default {
     components: {
@@ -158,7 +157,6 @@
       },
     },
     watch: {
-      // Reset to page 1 when filters or search changes
       searchQuery() {
         this.currentPage = 1;
       },
