@@ -5,33 +5,41 @@
   </div>
 
   <div class="container mt-8">
-    <div class="head">
-        <div class="filtering-section">
-            <select v-model="selectedStatus" class="filter-dropdown">
-                <option disabled value="">Status</option>
-                <option v-for="status in statuses" :key="status" :value="status">
-                {{ status }}
-                </option>
-            </select>
+        <div class="head">
+          <div class="filtering-section">
+          <select v-model="selectedStatus" class="filter-dropdown">
+            <option value="All">Status (All)</option>
+            <option v-for="status in statuses" :key="status" :value="status">
+              {{ status }}
+            </option>
+          </select>
 
-            <select v-model="selectedGender" class="filter-dropdown">
-                <option disabled value="">Gender</option>
-                <option v-for="gender in genders" :key="gender" :value="gender">
-                {{ gender }}
-                </option>
-            </select>
+          <select v-model="selectedGender" class="filter-dropdown">
+            <option value="All">Gender (All)</option>
+            <option v-for="gender in genders" :key="gender" :value="gender">
+              {{ gender }}
+            </option>
+          </select>
 
-            <select v-model="selectedTrack" class="filter-dropdown">
-                <option disabled value="">Track</option>
-                <option v-for="track in tracks" :key="track" :value="track">
-                {{ track }}
-                </option>
-            </select>
+          <select v-model="selectedTrack" class="filter-dropdown">
+            <option value="All">Track (All)</option>
+            <option v-for="track in tracks" :key="track" :value="track">
+              {{ track }}
+            </option>
+          </select>
         </div>
 
-        <div class="search-bar">
-            <input type="text" v-model="searchQuery" placeholder="Search..." />
+        <div class="search-bar p-4">
+          <div class="relative w-[320px]">
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Search..."
+              class="border border-[#295f98] rounded pl-10 pr-4 py-3 w-full"
+            />
+          </div>
         </div>
+
     </div>
 
     <div class="table-container">
@@ -115,21 +123,27 @@ const openGradeModal = (student) => {
   showModal.value = true
 }
 
-const selectedTrack = ref("");
-const selectedGender = ref("");
-const selectedStatus = ref("");
+const selectedStatus = ref("All");
+const selectedGender = ref("All");
+const selectedTrack = ref("All");
+const searchQuery = ref('');
 
-const tracks = ["STEM", "ABM", "TVL", "HUMSS"];
-const genders = ["Male", "Female"];
 const statuses = ["Pending", "Approved", "Not Approved"];
+const genders = ["Male", "Female"];
+const tracks = ["STEM", "ABM", "TVL", "HUMSS"];
 
 
-const filteredCards = computed(() => {
-  return cards.value.filter(card => {
-    const matchGrade = !selectedGrade.value || card.grade === Number(selectedGrade.value);
-    const matchCurriculum = !selectedCurriculum.value || card.curriculum === selectedCurriculum.value;
-    const matchTrack = !selectedTrack.value || card.track === selectedTrack.value;
-    return matchGrade && matchCurriculum && matchTrack;
+const filteredStudents = computed(() => {
+  return students.value.filter((student) => {
+    const matchesSearch = `${student.firstName} ${student.lastName}`
+      .toLowerCase()
+      .includes(searchQuery.value.toLowerCase());
+
+    const matchesStatus = selectedStatus.value === 'All' || student.status === selectedStatus.value;
+    const matchesGender = selectedGender.value === 'All' || student.gender === selectedGender.value;
+    const matchesTrack = selectedTrack.value === 'All' || student.track === selectedTrack.value;
+
+    return matchesSearch && matchesStatus && matchesGender && matchesTrack;
   });
 });
 
@@ -164,7 +178,7 @@ const students = ref([
   // add more students as needed
 ])
 
-const paginatedStudents = computed(() => students.value)
+const paginatedStudents = computed(() => filteredStudents.value)
 
 const selectedStudents = ref([])
 
@@ -260,7 +274,7 @@ span:hover {
     padding: 8px;
     border: 1px solid #295f98;
     border-radius: 5px;
-    width: 520px;
+    width: 100%;
   }
 
 .table-container {

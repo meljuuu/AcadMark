@@ -72,16 +72,16 @@
                 </select>
             </div>
 
-            <div class="search-bar">
-                <div class="relative">
-                  <input
+            <div class="search-bar p-4">
+              <div class="relative w-full max-w-md">
+                <input
                   v-model="searchQuery"
                   type="text"
-                  placeholder="Search..."
-                  class="border border-[#295f98] rounded px-15 py-3 "
-                  />
-                  <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                </div>
+                  placeholder="Search by name..."
+                  class="border border-[#295f98] rounded pl-10 pr-4 py-3 w-full"
+                />
+                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+              </div>
             </div>
         </div>
        
@@ -151,6 +151,7 @@
 import { ref, computed, watch } from "vue";
 import StudentModal from "./components/StudentModal.vue";
 
+
 const selectedStudent = ref(null)
 const isModalOpen = ref(false)
 
@@ -184,20 +185,21 @@ const selectedGrade = ref("");
 const selectedCurriculum = ref("");
 const selectedGender = ref("");
 const selectedTrack = ref("");
+const searchQuery = ref('');
 
 // Filtering logic
 const filteredStudents = computed(() => {
   return students.value.filter(student => {
-    return (
-      (selectedStatus.value === "" || student.status === selectedStatus.value) &&
-      (selectedGrade.value === "" || parseInt(student.grade) === parseInt(selectedGrade.value)) &&
-      (selectedCurriculum.value === "" || student.curriculum === selectedCurriculum.value) &&
-      (selectedGender.value === "" || student.gender === selectedGender.value) &&
-      (selectedTrack.value === "" || student.track === selectedTrack.value)
-    );
+    const matchesSearch = student.name.toLowerCase().includes(searchQuery.value.toLowerCase());
+    const matchesStatus = selectedStatus.value === "" || student.status === selectedStatus.value;
+    const matchesGrade = selectedGrade.value === "" || parseInt(student.grade) === parseInt(selectedGrade.value);
+    const matchesCurriculum = selectedCurriculum.value === "" || student.curriculum === selectedCurriculum.value;
+    const matchesGender = selectedGender.value === "" || student.gender === selectedGender.value;
+    const matchesTrack = selectedTrack.value === "" || student.track === selectedTrack.value;
+
+    return matchesSearch && matchesStatus && matchesGrade && matchesCurriculum && matchesGender && matchesTrack;
   });
 });
-
 
 const students = ref([
   {
