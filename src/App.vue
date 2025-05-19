@@ -3,7 +3,7 @@
     <Sidebar v-if="!isLoginPage" class="z-50" />
     <div class="flex-1 overflow-hidden">
       <HeaderBar v-if="!isLoginPage" />
-      <main :class="{ 'ml-2 mt-34 px-[54px] pt-[32px]': !isLoginPage }">
+      <main :class="{ 'mt-24 px-[38px] pt-[32px]': !isLoginPage }">
         <router-view v-slot="{ Component }">
           <component :is="Component" @logged-in="handleLogin" />
         </router-view>

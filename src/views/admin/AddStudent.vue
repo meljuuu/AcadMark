@@ -296,12 +296,15 @@ import { ref, reactive, computed, onMounted, watch } from 'vue'
 import Dropdown from '@/components/dropdown.vue'
 import Searchbar from '@/components/searchbar.vue'
 import { getAllStudents, createStudent } from '@/service/studentService'
+import { useToast } from 'vue-toastification'
 // ===================== TAB STATE =====================
 const tabs = [
     { label: 'Add Student', value: 'add' },
     { label: 'Submitted', value: 'submitted' },
 ]
+
 const activeTab = ref('add')
+const toast = useToast()
 
 onMounted(async () => {
   try {
@@ -429,8 +432,10 @@ async function handleAddStudentSubmit() {
 
         // Reset form
         Object.keys(formData).forEach(key => (formData[key] = ''))
+        toast.success('Student added successfully!')
     } catch (error) {
         console.error('Error adding student:', error)
+        toast.error('Failed to add student. Please try again.')
     }
 }
 
