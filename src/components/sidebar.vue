@@ -57,11 +57,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from "vue";
-import { useRouter } from 'vue-router';
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
+import { useRouter, useRoute } from 'vue-router';
+
 import { getProfile } from '@/service/profileService';
 
 const router = useRouter();
+const route = useRoute();  // <-- Added to track current route
 const activeIndex = ref(0);
 const showLogoutModal = ref(false);
 const profileData = ref(null);
@@ -162,5 +164,14 @@ const confirmLogout = () => {
   localStorage.clear();
   router.push('/login');
 };
+
+// --------------- New code to keep activeIndex synced with route ---------------
+const updateActiveIndex = () => {
+  activeIndex.value = links.value.findIndex(link => route.path.startsWith(link.path));
+};
+
+// Watch for route changes and update activeIndex immediately on mount
+watch(route, updateActiveIndex, { immediate: true });
+
 </script>
 
