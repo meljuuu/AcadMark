@@ -76,6 +76,14 @@ export default {
       comment: '',
     };
   },
+  computed: {
+    remark() {
+      return this.grade >= 75 ? 'Passed' : 'Failed';
+    },
+    remarkClass() {
+      return this.grade >= 75 ? 'bg-green-100 text-green-800 border-green-400' : 'bg-red-100 text-red-800 border-red-400';
+    },
+  },
   methods: {
     reject() {
       if (!this.comment || this.comment.trim() === '') {
