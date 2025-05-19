@@ -379,11 +379,14 @@ tr:hover {
 .red {
     background-color: #D30000;
 }
+.red:hover {
+  background-color: #D95353;
+}
 .green {
     background-color: #0C5A48;
 }
-.red:hover,
 .green:hover {
-    
+  background-color: #2E574E;
 }
+
 </style>

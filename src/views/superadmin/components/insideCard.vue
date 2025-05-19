@@ -309,8 +309,14 @@ th {
 .red {
     background-color: #D30000;
 }
+.red:hover {
+  background-color: #D95353;
+}
 .green {
     background-color: #0C5A48;
+}
+.green:hover {
+  background-color: #2E574E;
 }
 
 .text-green-600 {
