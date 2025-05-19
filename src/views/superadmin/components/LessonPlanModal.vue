@@ -1,7 +1,16 @@
 <template>
   <div class="fixed inset-0 flex items-center justify-center z-50" style="background-color: rgba(0, 0, 0, 0.8);">
     <div class="bg-white rounded-lg p-6 w-full max-w-2xl">
-      <h3 class="text-2xl font-semibold mb-4 text-[#295f98]">Lesson Plan</h3>
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-2xl font-semibold text-[#295f98]">Lesson Plan</h3>
+        <button
+          @click="$emit('close')"
+          class="text-gray-500 hover:text-red-600 text-2xl font-bold focus:outline-none cursor-pointer"
+          aria-label="Close"
+        >
+          &times;
+        </button>
+      </div>
       <form @submit.prevent="accept">
         <div class="grid grid-cols-2 gap-4 mb-4">
           <div class="floating-label mb-4">
