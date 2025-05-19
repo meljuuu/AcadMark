@@ -72,7 +72,7 @@ import Swal from 'sweetalert2'
 export default {
   data() {
     return {
-      grade: 80,
+      grade: 75,
       comment: '',
     };
   },
@@ -84,25 +84,68 @@ export default {
       return this.grade >= 75 ? 'bg-green-100 text-green-800 border-green-400' : 'bg-red-100 text-red-800 border-red-400';
     },
   },
-  methods: {
-    reject() {
-      if (!this.comment || this.comment.trim() === '') {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Comment Required',
-          text: 'Please provide a comment before rejecting.',
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#D30000'
-        });
-        return;
-      }
-      console.log('Rejected with comment:', this.comment);
-      this.$emit('close');
-    },
-    accept() {
-      console.log('Accepted with grade:', this.grade, 'Comment:', this.comment);
-      this.$emit('close');
+ methods: {
+  reject() {
+    if (!this.comment || this.comment.trim() === '') {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Comment Required',
+        text: 'Please provide a comment before rejecting.',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#D30000'
+      });
+      return;
     }
+
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'Do you really want to reject this?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#D30000',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, Reject',
+      cancelButtonText: 'Cancel'
+    }).then(result => {
+      if (result.isConfirmed) {
+        console.log('Rejected with comment:', this.comment);
+        this.$emit('close');
+        Swal.fire({
+          icon: 'success',
+          title: 'Rejected',
+          text: 'The item has been rejected.',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      }
+    });
+  },
+
+  accept() {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'Do you want to accept this?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#28a745',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, Accept',
+      cancelButtonText: 'Cancel'
+    }).then(result => {
+      if (result.isConfirmed) {
+        console.log('Accepted with grade:', this.grade, 'Comment:', this.comment);
+        this.$emit('close');
+        Swal.fire({
+          icon: 'success',
+          title: 'Accepted',
+          text: 'The item has been accepted successfully.',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      }
+    });
   }
+}
+
 };
 </script>

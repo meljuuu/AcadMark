@@ -130,7 +130,7 @@
           <!-- Action Buttons -->
           <div class="form-actions">
             <button type="button" class="cancel-btn" @click="rejectAlert">Reject</button>
-            <button type="submit" class="submit-btn">Accept</button>
+            <button type="submit" class="submit-btn">Accept</button>          
           </div>
         </form>
       </div>
@@ -180,16 +180,60 @@ function rejectAlert() {
     return;
   }
 
-  showModal.value = false;
+  Swal.fire({
+    title: 'Are you sure?',
+    text: 'Do you want to reject this with your comment?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#D30000',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Yes, Reject',
+    cancelButtonText: 'Cancel'
+  }).then(result => {
+    if (result.isConfirmed) {
+      showModal.value = false;
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Rejected',
+        text: 'The item has been rejected successfully.',
+        showConfirmButton: false,
+        timer: 1500
+      });
+    }
+  });
 }
 
 function closeModal() {
   showModal.value = false;
 }
 
-function submitForm() {
-  console.log('Form submitted:', form)
+const submitForm = async () => {
+  const result = await Swal.fire({
+    title: 'Are you sure?',
+    text: 'Do you want to accept this?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#28a745',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Yes, Accept',
+    cancelButtonText: 'Cancel'
+  });
+
+  if (result.isConfirmed) {
+    Swal.fire({
+      icon: 'success',
+      title: 'Accepted',
+      text: 'The item has been accepted.',
+      timer: 1500,
+      showConfirmButton: false
+    });
+    showModal.value = false;
+    emit('close');
+    console.log('Accepted with comment:', form.comment);
+  }
 }
+
 
 function emitClose() {
   emit('close')

@@ -94,14 +94,14 @@
             </tbody>
         </table>
         <GradeModal
-  v-if="showModal"
-  :student="selectedStudent"
-  @close="showModal = false"
-/>
+          v-if="showModal"
+          :student="selectedStudent"
+          @close="showModal = false"
+        />
 
         <div class="button mt-5">
-            <button class="red">Reject</button>
-            <button class="green">Accept</button>
+            <button class="red" @click="reject">Reject</button>
+            <button class="green" @click="acceptAlert">Accept</button>
         </div>
     </div>
   </div>
@@ -111,6 +111,7 @@
 import { useRouter } from 'vue-router'
 import { ref, computed, watch } from "vue";
 import GradeModal from './GradeModal.vue';
+import Swal from 'sweetalert2'
 
 const router = useRouter()
 const goBack = () => router.back()
@@ -198,6 +199,53 @@ function toggleSelectAll(event) {
     selectedStudents.value = []
   }
 }
+
+const reject = async () => {
+  const result = await Swal.fire({
+    title: 'Are you sure?',
+    text: 'Do you really want to reject this?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#D30000',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Yes, Reject',
+    cancelButtonText: 'Cancel'
+  });
+
+  if (result.isConfirmed) {
+    Swal.fire({
+      icon: 'success',
+      title: 'Rejected',
+      text: 'The item has been rejected.',
+      timer: 1500,
+      showConfirmButton: false
+    });
+  }
+};
+
+const acceptAlert = () => {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: 'Do you want to accept this?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#28a745',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Yes, Accept',
+    cancelButtonText: 'Cancel'
+  }).then((result) => {
+    
+    if (result.isConfirmed) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Accepted',
+        text: 'The item has been accepted successfully.',
+        showConfirmButton: false,
+        timer: 1500
+      });
+    }
+  });
+};
 </script>
 
 <style scoped>

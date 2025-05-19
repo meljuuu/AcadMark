@@ -141,8 +141,8 @@
         </div>
 
         <div class="button">
-            <button class="red">Reject</button>
-            <button class="green">Accept</button>
+            <button class="red" @click="reject">Reject</button>
+            <button class="green" @click="acceptAlert">Accept</button>
         </div>
     </div>
 </template>
@@ -150,7 +150,7 @@
 <script setup>
 import { ref, computed, watch } from "vue";
 import StudentModal from "./components/StudentModal.vue";
-
+import Swal from 'sweetalert2'
 
 const selectedStudent = ref(null)
 const isModalOpen = ref(false)
@@ -267,6 +267,53 @@ const statusClass = (status) => {
     default:
       return '';
   }
+};
+
+const reject = async () => {
+  const result = await Swal.fire({
+    title: 'Are you sure?',
+    text: 'Do you really want to reject this?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#D30000',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Yes, Reject',
+    cancelButtonText: 'Cancel'
+  });
+
+  if (result.isConfirmed) {
+    Swal.fire({
+      icon: 'success',
+      title: 'Rejected',
+      text: 'The item has been rejected.',
+      timer: 1500,
+      showConfirmButton: false
+    });
+  }
+};
+
+const acceptAlert = () => {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: 'Do you want to accept this?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#28a745',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Yes, Accept',
+    cancelButtonText: 'Cancel'
+  }).then((result) => {
+    
+    if (result.isConfirmed) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Accepted',
+        text: 'The item has been accepted successfully.',
+        showConfirmButton: false,
+        timer: 1500
+      });
+    }
+  });
 };
 </script>
 
