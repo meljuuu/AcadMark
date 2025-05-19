@@ -94,14 +94,14 @@
                     class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 cursor-pointer"
                     @click="openEditModal(employee)"
                   >
-                    <i class="fas fa-edit"></i> Edit
+                    <i class="fas fa-edit"></i>
                   </button>
 
                   <button
                     class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 cursor-pointer"
+                    @click="confirmDelete(employee)"
                   >
-                  <i class="fas fa-trash-alt"></i>
-                    Delete
+                    <i class="fas fa-trash-alt"></i>
                   </button>
                 </td>
               </tr>
@@ -147,114 +147,135 @@
   </div>
 </template>
 
-
 <script>
 import { ref } from 'vue';
+import Swal from 'sweetalert2';
 import AddFacultyModal from './components/AddFacultyModal.vue';
 import EditFacultyModal from './components/EditFacultyModal.vue';
 
+<<<<<<< Updated upstream
 
 export default {
   components: {
   AddFacultyModal,
   EditFacultyModal,
+=======
+export default {
+  components: {
+    AddFacultyModal,
+    EditFacultyModal,
+>>>>>>> Stashed changes
   },
-    data() {
-      return {
-        showModal: false,
-        showEditModal: false,
-        editData: null,
-        currentPage: 1,
-        perPage: 10,
-        selectedAccess: '',
-        searchQuery: '',
-        employees: [
-          { empNo: 'EMP001', name: 'John Doe', qualification: 'BSEd - English', access: 'Teacher', email: 'john@example.com' },
-          { empNo: 'EMP002', name: 'Jane Smith', qualification: 'BSEd - Math', access: 'Admin', email: 'jane@example.com' },
-          { empNo: 'EMP003', name: 'Alice Johnson', qualification: 'BSEd - Science', access: 'Teacher', email: 'alice@example.com' },
-          { empNo: 'EMP004', name: 'Mark Lee', qualification: 'BSEd - Filipino', access: 'Teacher', email: 'mark@example.com' },
-          { empNo: 'EMP005', name: 'Ella Cruz', qualification: 'BSEd - English', access: 'Admin', email: 'ella@example.com' },
-          { empNo: 'EMP006', name: 'Chris Evans', qualification: 'BSEd - Math', access: 'Teacher', email: 'chris@example.com' },
-          { empNo: 'EMP007', name: 'Marie Gomez', qualification: 'BSEd - Science', access: 'Teacher', email: 'marie@example.com' },
-          { empNo: 'EMP008', name: 'Nathan Reyes', qualification: 'BSEd - Filipino', access: 'Admin', email: 'nathan@example.com' },
-          { empNo: 'EMP009', name: 'Sophia Tan', qualification: 'BSEd - English', access: 'Teacher', email: 'sophia@example.com' },
-          { empNo: 'EMP010', name: 'Leo Cruz', qualification: 'BSEd - Math', access: 'Teacher', email: 'leo@example.com' },
-          { empNo: 'EMP011', name: 'Angela Torres', qualification: 'BSEd - Science', access: 'Teacher', email: 'angela@example.com' },
-          { empNo: 'EMP012', name: 'Victor Santos', qualification: 'BSEd - Filipino', access: 'Admin', email: 'victor@example.com' },
-          { empNo: 'EMP013', name: 'Bea Lim', qualification: 'BSEd - English', access: 'Teacher', email: 'bea@example.com' },
-          { empNo: 'EMP014', name: 'Joshua Dela Cruz', qualification: 'BSEd - Math', access: 'Teacher', email: 'joshua@example.com' },
-          { empNo: 'EMP015', name: 'Rica Ramirez', qualification: 'BSEd - Science', access: 'Admin', email: 'rica@example.com' },
-          { empNo: 'EMP016', name: 'Kevin Chua', qualification: 'BSEd - Filipino', access: 'Teacher', email: 'kevin@example.com' },
-          { empNo: 'EMP017', name: 'Mika Santos', qualification: 'BSEd - English', access: 'Teacher', email: 'mika@example.com' },
-          { empNo: 'EMP018', name: 'Daniel Gomez', qualification: 'BSEd - Math', access: 'Admin', email: 'daniel@example.com' },
-          { empNo: 'EMP019', name: 'Hannah Uy', qualification: 'BSEd - Science', access: 'Teacher', email: 'hannah@example.com' },
-          { empNo: 'EMP020', name: 'Ivan De Leon', qualification: 'BSEd - Filipino', access: 'Teacher', email: 'ivan@example.com' },
-        ],
-      };
+  data() {
+    return {
+      showModal: false,
+      showEditModal: false,
+      editData: null,
+      currentPage: 1,
+      perPage: 10,
+      selectedAccess: '',
+      searchQuery: '',
+      employees: [
+        { empNo: 'EMP001', name: 'John Doe', qualification: 'BSEd - English', access: 'Teacher', email: 'john@example.com' },
+        { empNo: 'EMP002', name: 'Jane Smith', qualification: 'BSEd - Math', access: 'Admin', email: 'jane@example.com' },
+        { empNo: 'EMP003', name: 'Alice Johnson', qualification: 'BSEd - Science', access: 'Teacher', email: 'alice@example.com' },
+        { empNo: 'EMP004', name: 'Mark Lee', qualification: 'BSEd - Filipino', access: 'Teacher', email: 'mark@example.com' },
+        { empNo: 'EMP005', name: 'Ella Cruz', qualification: 'BSEd - English', access: 'Admin', email: 'ella@example.com' },
+        { empNo: 'EMP006', name: 'Chris Evans', qualification: 'BSEd - Math', access: 'Teacher', email: 'chris@example.com' },
+        { empNo: 'EMP007', name: 'Marie Gomez', qualification: 'BSEd - Science', access: 'Teacher', email: 'marie@example.com' },
+        { empNo: 'EMP008', name: 'Nathan Reyes', qualification: 'BSEd - Filipino', access: 'Admin', email: 'nathan@example.com' },
+        { empNo: 'EMP009', name: 'Sophia Tan', qualification: 'BSEd - English', access: 'Teacher', email: 'sophia@example.com' },
+        { empNo: 'EMP010', name: 'Leo Cruz', qualification: 'BSEd - Math', access: 'Teacher', email: 'leo@example.com' },
+        { empNo: 'EMP011', name: 'Angela Torres', qualification: 'BSEd - Science', access: 'Teacher', email: 'angela@example.com' },
+        { empNo: 'EMP012', name: 'Victor Santos', qualification: 'BSEd - Filipino', access: 'Admin', email: 'victor@example.com' },
+        { empNo: 'EMP013', name: 'Bea Lim', qualification: 'BSEd - English', access: 'Teacher', email: 'bea@example.com' },
+        { empNo: 'EMP014', name: 'Joshua Dela Cruz', qualification: 'BSEd - Math', access: 'Teacher', email: 'joshua@example.com' },
+        { empNo: 'EMP015', name: 'Rica Ramirez', qualification: 'BSEd - Science', access: 'Admin', email: 'rica@example.com' },
+        { empNo: 'EMP016', name: 'Kevin Chua', qualification: 'BSEd - Filipino', access: 'Teacher', email: 'kevin@example.com' },
+        { empNo: 'EMP017', name: 'Mika Santos', qualification: 'BSEd - English', access: 'Teacher', email: 'mika@example.com' },
+        { empNo: 'EMP018', name: 'Daniel Gomez', qualification: 'BSEd - Math', access: 'Admin', email: 'daniel@example.com' },
+        { empNo: 'EMP019', name: 'Hannah Uy', qualification: 'BSEd - Science', access: 'Teacher', email: 'hannah@example.com' },
+        { empNo: 'EMP020', name: 'Ivan De Leon', qualification: 'BSEd - Filipino', access: 'Teacher', email: 'ivan@example.com' },
+      ],
+    };
+  },
+  methods: {
+    handleFacultySubmit(name) {
+      console.log('Faculty submitted:', name);
     },
-    methods: {
-      handleFacultySubmit(name) {
-        console.log('Faculty submitted:', name);
-        // Add logic to store or emit data
-      },
-       openEditModal(employee) {
-        this.editData = { ...employee };
-        this.showEditModal = true;
-      },
-      handleFacultyEdit(updatedData) {
-        console.log('Faculty updated:', updatedData);
-        // You can update the employees list here based on empNo or index
-        const index = this.employees.findIndex(emp => emp.empNo === updatedData.empNo);
-        if (index !== -1) {
-          this.employees[index] = { ...updatedData };
+    openEditModal(employee) {
+      this.editData = { ...employee };
+      this.showEditModal = true;
+    },
+    handleFacultyEdit(updatedData) {
+      console.log('Faculty updated:', updatedData);
+      const index = this.employees.findIndex(emp => emp.empNo === updatedData.empNo);
+      if (index !== -1) {
+        this.employees[index] = { ...updatedData };
+      }
+      this.showEditModal = false;
+    },
+    confirmDelete(employee) {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: `Delete employee ${employee.name}? This action cannot be undone.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.employees = this.employees.filter(emp => emp.empNo !== employee.empNo);
+          Swal.fire('Deleted!', 'Employee has been deleted.', 'success');
         }
-        this.showEditModal = false;
-      },
+      });
     },
-    computed: {
-      totalPages() {
-        return Math.ceil(this.filteredEmployees.length / this.perPage);
-      },
-      paginatedEmployees() {
-        const start = (this.currentPage - 1) * this.perPage;
-        return this.filteredEmployees.slice(start, start + this.perPage);
-      },
-      filteredEmployees() {
-        const query = this.searchQuery.toLowerCase();
-        return this.employees.filter((employee) => {
-          const matchesAccess =
-            this.selectedAccess === '' || employee.access === this.selectedAccess;
-
-          const matchesSearch =
-            employee.empNo.toLowerCase().includes(query) ||
-            employee.name.toLowerCase().includes(query) ||
-            employee.qualification.toLowerCase().includes(query) ||
-            employee.access.toLowerCase().includes(query) ||
-            employee.email.toLowerCase().includes(query);
-
-          return matchesAccess && matchesSearch;
-        });
-      },
-      pageNumbers() {
-        const pages = [];
-        const total = this.totalPages;
-        const current = this.currentPage;
-
-        if (total <= 7) {
-          for (let i = 1; i <= total; i++) pages.push(i);
-        } else {
-          pages.push(1);
-          if (current > 3) pages.push('...');
-          const start = Math.max(2, current - 1);
-          const end = Math.min(total - 1, current + 1);
-          for (let i = start; i <= end; i++) pages.push(i);
-          if (current < total - 2) pages.push('...');
-          pages.push(total);
-        }
-        return pages;
-      },
+  },
+  computed: {
+    totalPages() {
+      return Math.ceil(this.filteredEmployees.length / this.perPage);
     },
-  };
+    paginatedEmployees() {
+      const start = (this.currentPage - 1) * this.perPage;
+      return this.filteredEmployees.slice(start, start + this.perPage);
+    },
+    filteredEmployees() {
+      const query = this.searchQuery.toLowerCase();
+      return this.employees.filter((employee) => {
+        const matchesAccess =
+          this.selectedAccess === '' || employee.access === this.selectedAccess;
+
+        const matchesSearch =
+          employee.empNo.toLowerCase().includes(query) ||
+          employee.name.toLowerCase().includes(query) ||
+          employee.qualification.toLowerCase().includes(query) ||
+          employee.access.toLowerCase().includes(query) ||
+          employee.email.toLowerCase().includes(query);
+
+        return matchesAccess && matchesSearch;
+      });
+    },
+    pageNumbers() {
+      const pages = [];
+      const total = this.totalPages;
+      const current = this.currentPage;
+
+      if (total <= 7) {
+        for (let i = 1; i <= total; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        if (current > 3) pages.push('...');
+        const start = Math.max(2, current - 1);
+        const end = Math.min(total - 1, current + 1);
+        for (let i = start; i <= end; i++) pages.push(i);
+        if (current < total - 2) pages.push('...');
+        pages.push(total);
+      }
+      return pages;
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -285,6 +306,4 @@ export default {
 .filter-dropdown:focus {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='18' height='18' fill='%23295f98'><path d='M7 14l5-5 5 5H7z'/></svg>");
 }
-
 </style>
-

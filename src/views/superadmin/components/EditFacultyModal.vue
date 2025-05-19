@@ -113,6 +113,7 @@
 
 <script setup>
 import { ref, watch } from 'vue';
+import Swal from 'sweetalert2';
 
 const props = defineProps({
   modelValue: Boolean,
@@ -163,7 +164,11 @@ watch(() => props.modelValue, (visible) => {
 
 const handleSubmit = () => {
   if (password.value && password.value !== confirmPassword.value) {
-    alert('Passwords do not match');
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops...',
+      text: 'Passwords do not match',
+    });
     return;
   }
 
@@ -183,8 +188,17 @@ const handleSubmit = () => {
 
   emit('update', updatedData);
   emit('update:modelValue', false);
+
+  Swal.fire({
+    icon: 'success',
+    title: 'Updated!',
+    text: 'Faculty data has been updated successfully.',
+    timer: 1500,
+    showConfirmButton: false,
+  });
 };
 </script>
+
 
 <style scoped>
 .floating-label {

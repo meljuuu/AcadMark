@@ -75,6 +75,11 @@
                 </table>
             </div>
 
+        <div class="button">
+            <button class="red">Reject</button>
+            <button class="green">Accept</button>
+        </div>
+
             <div class="flex justify-center items-center mt-4 space-x-1 pt-4 border-t border-gray-300">
                 <button
                     class="px-3 border border-[#295F98] text-[#295F98] py-1 rounded w-28 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex items-center justify-center gap-1 cursor-pointer"
@@ -119,7 +124,7 @@ export default {
     return {
       rawClasses: [],
       currentPage: 1,
-      itemsPerPage: 5,
+      itemsPerPage: 10,
       searchQuery: "",
       filters: {
         grade: "",
@@ -391,5 +396,34 @@ tr:hover {
 
 .text-black {
   color: black;
+}
+.button {
+    width: 100%;
+    display: flex;
+    justify-content: end;
+    gap: 15px;
+}
+.red,
+.green {
+    padding: 5px 30px;
+    align-items: center;
+    color: #ffffff;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.red {
+    background-color: #D30000;
+}
+.red:hover {
+  background-color: #D95353;
+}
+.green {
+    background-color: #0C5A48;
+}
+.red:hover {
+    background-color: #FF0000;
+}
+.green:hover {
+    background-color: #0C5A48;
 }
 </style>
