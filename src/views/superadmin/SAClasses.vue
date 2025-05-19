@@ -5,24 +5,24 @@
         <div class="bg-white shadow-lg border border-gray-200 rounded-lg p-6 mb-6 flex flex-col" style="height: 865px;">
            <div class="flex flex-wrap justify-between items-center mb-4 gap-4">
             <!-- Filters on the left -->
-                <div class="filters flex gap-4 flex-wrap">
+                <div class="filters flex-wrap">
                     <select class="filter-dropdown" v-model="filters.grade" @change="handleChange">
-                    <option value="">All Grades</option>
+                    <option value="">Grades (All)</option>
                     <option v-for="grade in uniqueGrades" :key="grade" :value="grade">{{ grade }}</option>
                     </select>
 
                     <select class="filter-dropdown" v-model="filters.curriculum" @change="handleChange">
-                    <option value="">All Curriculums</option>
+                    <option value="">Curriculums (All)</option>
                     <option v-for="curriculum in uniqueCurriculums" :key="curriculum" :value="curriculum">{{ curriculum }}</option>
                     </select>
 
                     <select class="filter-dropdown" v-model="filters.track" @change="handleChange">
-                    <option value="">All Tracks</option>
+                    <option value="">Tracks (All)</option>
                     <option v-for="track in uniqueTracks" :key="track" :value="track">{{ track }}</option>
                     </select>
 
                     <select class="filter-dropdown" v-model="filters.status" @change="handleChange">
-                    <option value="">All Statuses</option>
+                    <option value="">Status (All)</option>
                     <option v-for="status in uniqueStatuses" :key="status" :value="status">{{ status }}</option>
                     </select>
                 </div>
@@ -231,14 +231,16 @@ export default {
 }
 
 .filters {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+    display: flex;
+    gap: 20px;
+    flex-wrap: nowrap;
+    align-items: center;
+    margin-left: 15px;
 }
 
 .filter-dropdown {
   padding: 10px 15px;
-  width: 150px;
+  width: 210px;
   border: 1px solid #295f98;
   border-radius: 5px;
   font-size: 14px;

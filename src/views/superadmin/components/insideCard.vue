@@ -257,6 +257,8 @@ span:hover {
     border: 2px solid #EEEEEE;
     padding: 30px 20px;
     border-radius: 5px;
+    width: 100%;          /* Makes it wider but still responsive */
+    max-width: 3400px;   /* Optional: limits width on large screens */
 }
 
 .head {

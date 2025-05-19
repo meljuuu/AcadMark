@@ -3,6 +3,7 @@
   <transition name="modal-fade" @after-leave="emitClose">
     <div class="modal-overlay" v-if="showModal" @click.self="closeModal">
       <div class="modal-content">
+        <button @click="closeModal" class="absolute top-5 right-6 text-gray-500 hover:text-gray-800 text-3xl cursor-pointer">&times;</button>
         <h2 class="modal-title">Individual Registration Form</h2>
         <form @submit.prevent="submitForm">
           <!-- Row 1 -->
@@ -119,12 +120,16 @@
           <!-- Comment Section -->
           <div class="form-comment">
             <label class="title">COMMENT</label>
-            <textarea rows="6" v-model="form.comment"></textarea>
+            <textarea 
+              rows="6" 
+              v-model="form.comment" 
+              placeholder="Enter comment...">
+            </textarea>
           </div>
 
           <!-- Action Buttons -->
           <div class="form-actions">
-            <button type="button" class="cancel-btn" @click="closeModal">Reject</button>
+            <button type="button" class="cancel-btn" @click="rejectAlert">Reject</button>
             <button type="submit" class="submit-btn">Accept</button>
           </div>
         </form>
@@ -136,6 +141,7 @@
   
 <script setup>
 import { reactive, ref } from 'vue'
+import Swal from 'sweetalert2'
 
 const form = reactive({
   gradeLevel: '',
@@ -162,17 +168,33 @@ const form = reactive({
 const emit = defineEmits(['close'])
 const showModal = ref(true)
 
-function submitForm() {
-  console.log('Form submitted:', form)
+function rejectAlert() {
+  if (form.comment.trim() === '') {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Comment Required',
+      text: 'Please provide a comment before rejecting.',
+      confirmButtonText: 'OK',
+      confirmButtonColor: '#D30000'
+    });
+    return;
+  }
+
+  showModal.value = false;
 }
 
 function closeModal() {
-  showModal.value = false
+  showModal.value = false;
+}
+
+function submitForm() {
+  console.log('Form submitted:', form)
 }
 
 function emitClose() {
   emit('close')
 }
+
 </script>
 
   
@@ -191,18 +213,36 @@ function emitClose() {
   }
   
   .modal-content {
-  background: white;
-  padding: 30px;
-  border-radius: 8px;
-  width: 95%;
-  max-width: 1572px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
+    position: relative;
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    width: 95%;
+    max-width: 1572px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }
+
+.modal-close-btn {
+  position: absolute;
+  top: 15px;
+  right: 25px;
+  font-size: 40px;
+  background: none;
+  border: none;
+  color: #000;
+  cursor: pointer;
+  z-index: 10001;
+}
+
+.modal-close-btn:hover {
+  color: #D30000;
+}
+
   
   .modal-title {
     margin: 0 0 20px 0;
@@ -255,6 +295,7 @@ function emitClose() {
 
   textarea {
     border: 1px solid #000000;
+    padding: 10px;
   }
 
   .title {
@@ -294,3 +335,8 @@ function emitClose() {
   }
   </style>
   
+<style>
+.swal2-container {
+  z-index: 10000 !important;
+}
+</style>

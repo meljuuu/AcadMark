@@ -138,7 +138,7 @@ const filteredCards = computed(() => {
 
 .filter-dropdown {
   padding: 15px 20px;
-  width: 200px;
+  width: 210px;
   border: 1px solid #295f98;
   border-radius: 5px;
   font-size: 14px;

@@ -270,7 +270,7 @@ const handleFacultySubmit = (name) => {
 
 .filter-dropdown {
   padding: 10px 15px;
-  width: 150px;
+  width: 210px;
   border: 1px solid #295f98;
   border-radius: 5px;
   font-size: 14px;

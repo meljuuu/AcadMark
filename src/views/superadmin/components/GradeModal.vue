@@ -2,7 +2,7 @@
     <div class="fixed inset-0 flex items-center justify-center z-50" style="background-color: rgba(0, 0, 0, 0.2);">
         <div class="bg-white rounded-lg w-full max-w-3xl p-6 shadow-lg relative">
         <!-- Close Button -->
-        <button @click="$emit('close')" class="absolute top-2 right-4 text-gray-500 hover:text-gray-800 text-3xl">&times;</button>
+        <button @click="$emit('close')" class="absolute top-2 right-4 text-gray-500 hover:text-gray-800 text-3xl cursor-pointer">&times;</button>
 
         <!-- STUDENT INFO -->
         <h2 class="text-blue-800 font-semibold text-xl mb-4" style="color: #295F98;">STUDENT INFO</h2>
@@ -67,6 +67,8 @@
 </template>
 
 <script>
+import Swal from 'sweetalert2'
+
 export default {
   data() {
     return {
@@ -74,23 +76,25 @@ export default {
       comment: '',
     };
   },
-  computed: {
-    remark() {
-      return this.grade >= 75 ? 'Passed' : 'Failed';
-    },
-    remarkClass() {
-      return this.grade >= 75 ? 'bg-green-100 text-green-800 border-green-400' : 'bg-red-100 text-red-800 border-red-400';
-    },
-  },
   methods: {
     reject() {
+      if (!this.comment || this.comment.trim() === '') {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Comment Required',
+          text: 'Please provide a comment before rejecting.',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#D30000'
+        });
+        return;
+      }
       console.log('Rejected with comment:', this.comment);
       this.$emit('close');
     },
     accept() {
       console.log('Accepted with grade:', this.grade, 'Comment:', this.comment);
       this.$emit('close');
-    },
-  },
+    }
+  }
 };
 </script>
