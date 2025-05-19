@@ -387,8 +387,11 @@ tr:hover {
 .green {
     background-color: #0C5A48;
 }
+.red:hover {
+    background-color: #FF0000;
+}
 .green:hover {
-  background-color: #2E574E;
+    background-color: #0C5A48;
 }
 
 </style>
