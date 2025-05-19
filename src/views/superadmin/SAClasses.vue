@@ -112,153 +112,107 @@
 </template>
 
 <script>
+import { getClassesWithStudentCount } from "@/service/superadminService";
 
-  export default {
-    data() {
-        return {
-        filters: {
-            grade: '',
-            curriculum: '',
-            track: '',
-            status: '',
-        },
-        searchQuery: '',
-        currentPage: 1,
-        itemsPerPage: 10,
-        personnel: [
-            { grade: 7,  curriculum: "K-12", track: "STEM",   section: "A",  adviser: "Mr. Alvin Cruz",        student: 32, date: "2024-06-03", status: "Active"  },
-            { grade: 7,  curriculum: "BEC",  track: "ABM",    section: "B",  adviser: "Ms. Bianca Reyes",      student: 29, date: "2024-06-04", status: "Pending"  },
-            { grade: 7,  curriculum: "SPED",track: "TVL",    section: "C",  adviser: "Mr. Carlo Santos",      student: 24, date: "2024-05-30", status: "Inactive"},
-            { grade: 7,  curriculum: "K-12",track: "HUMSS",  section: "D",  adviser: "Mrs. Dana Vicente",     student: 28, date: "2024-06-01", status: "Active"  },
-
-            { grade: 8,  curriculum: "K-12",track: "STEM",   section: "A",  adviser: "Mr. Edgar Ramos",       student: 31, date: "2024-06-02", status: "Active"  },
-            { grade: 8,  curriculum: "BEC", track: "ABM",    section: "B",  adviser: "Ms. Faith Molina",      student: 26, date: "2024-06-05", status: "Inactive"},
-            { grade: 8,  curriculum: "SPED",track: "TVL",    section: "C",  adviser: "Mr. Gary Flores",       student: 27, date: "2024-05-28", status: "Active"  },
-            { grade: 8,  curriculum: "K-12",track: "HUMSS",  section: "D",  adviser: "Mrs. Hazel Abad",       student: 30, date: "2024-05-31", status: "Pending"  },
-
-            { grade: 9,  curriculum: "K-12",track: "STEM",   section: "A",  adviser: "Mr. Ivan Torres",       student: 33, date: "2024-06-03", status: "Inactive"},
-            { grade: 9,  curriculum: "BEC", track: "ABM",    section: "B",  adviser: "Ms. Jane Lim",          student: 25, date: "2024-06-04", status: "Active"  },
-            { grade: 9,  curriculum: "SPED",track: "TVL",    section: "C",  adviser: "Mr. Kent Navarro",      student: 23, date: "2024-06-01", status: "Pending"  },
-            { grade: 9,  curriculum: "K-12",track: "HUMSS",  section: "D",  adviser: "Mrs. Liza Bautista",    student: 30, date: "2024-05-29", status: "Inactive"},
-
-            { grade: 10, curriculum: "K-12",track: "STEM",   section: "A",  adviser: "Mr. Mark Sevilla",      student: 34, date: "2024-06-02", status: "Active"  },
-            { grade: 10, curriculum: "BEC", track: "ABM",    section: "B",  adviser: "Ms. Nica Herrera",      student: 28, date: "2024-06-05", status: "Active"  },
-            { grade: 10, curriculum: "SPED",track: "TVL",    section: "C",  adviser: "Mr. Oscar Dizon",       student: 26, date: "2024-05-30", status: "Inactive"},
-            { grade: 10, curriculum: "K-12",track: "HUMSS",  section: "D",  adviser: "Mrs. Paula Gomez",      student: 29, date: "2024-05-31", status: "Active"  },
-
-            { grade: 11, curriculum: "K-12",track: "STEM",   section: "A",  adviser: "Mr. Quinn Rivera",      student: 35, date: "2024-06-03", status: "Active"  },
-            { grade: 11, curriculum: "BEC", track: "ABM",    section: "B",  adviser: "Ms. Rina Alvarez",      student: 30, date: "2024-06-04", status: "Inactive"},
-            { grade: 11, curriculum: "SPED",track: "TVL",    section: "C",  adviser: "Mr. Simon Velasco",     student: 22, date: "2024-06-01", status: "Active"  },
-            { grade: 11, curriculum: "K-12",track: "HUMSS",  section: "D",  adviser: "Mrs. Tina Cuevas",      student: 31, date: "2024-05-29", status: "Active"  },
-
-            { grade: 11, curriculum: "K-12",track: "STEM",   section: "E",  adviser: "Ms. Uma Magno",         student: 28, date: "2024-06-06", status: "Active"  },
-            { grade: 11, curriculum: "BEC", track: "ABM",    section: "F",  adviser: "Mr. Vince Carreon",     student: 27, date: "2024-06-07", status: "Inactive"},
-            { grade: 11, curriculum: "SPED",track: "TVL",    section: "G",  adviser: "Ms. Wendy Perez",       student: 24, date: "2024-06-03", status: "Pending"  },
-            { grade: 11, curriculum: "K-12",track: "HUMSS",  section: "H",  adviser: "Mr. Xavier Uy",         student: 32, date: "2024-06-02", status: "Active"  },
-
-            { grade: 12, curriculum: "K-12",track: "STEM",   section: "A",  adviser: "Ms. Yna De Guzman",     student: 36, date: "2024-06-04", status: "Active"  },
-            { grade: 12, curriculum: "BEC", track: "ABM",    section: "B",  adviser: "Mr. Zach Lopez",        student: 29, date: "2024-06-05", status: "Inactive"},
-            { grade: 12, curriculum: "SPED",track: "TVL",    section: "C",  adviser: "Ms. Abby Soriano",      student: 25, date: "2024-06-01", status: "Active"  },
-            { grade: 12, curriculum: "K-12",track: "HUMSS",  section: "D",  adviser: "Mr. Ben Santos",        student: 30, date: "2024-05-30", status: "Pending"  },
-
-            { grade: 12, curriculum: "K-12",track: "STEM",   section: "E",  adviser: "Mrs. Carla Ramos",      student: 33, date: "2024-06-06", status: "Active"  },
-            { grade: 12, curriculum: "BEC", track: "ABM",    section: "F",  adviser: "Mr. Derek Sison",       student: 28, date: "2024-06-07", status: "Inactive"},
-            { grade: 12, curriculum: "SPED",track: "TVL",    section: "G",  adviser: "Ms. Ella Villanueva",   student: 26, date: "2024-06-03", status: "Pending"  },
-            { grade: 12, curriculum: "K-12",track: "HUMSS",  section: "H",  adviser: "Mr. Felix Robles",      student: 31, date: "2024-06-02", status: "Active"  },
-
-            { grade: 9,  curriculum: "K-12",track: "STEM",   section: "E",  adviser: "Ms. Gail Vallar",       student: 28, date: "2024-06-08", status: "Inactive"},
-            { grade: 10, curriculum: "BEC", track: "ABM",    section: "E",  adviser: "Mr. Hugo Reyes",        student: 27, date: "2024-06-09", status: "Active"  },
-            { grade: 8,  curriculum: "SPED",track: "TVL",    section: "E",  adviser: "Ms. Iris Villa",        student: 23, date: "2024-06-10", status: "Inactive"},
-            { grade: 7,  curriculum: "K-12",track: "HUMSS",  section: "E",  adviser: "Mr. Jake Santos",       student: 29, date: "2024-06-05", status: "Pending"  },
-
-            { grade: 10, curriculum: "K-12",track: "STEM",   section: "F",  adviser: "Mrs. Kara Del Rosario", student: 30, date: "2024-06-06", status: "Pending"  },
-            { grade: 11, curriculum: "BEC", track: "ABM",    section: "I",  adviser: "Mr. Leo Ramos",         student: 28, date: "2024-06-07", status: "Inactive"},
-            { grade: 7,  curriculum: "SPED",track: "TVL",    section: "F",  adviser: "Ms. Mona Cruz",         student: 24, date: "2024-06-08", status: "Active"  },
-            { grade: 9,  curriculum: "K-12",track: "HUMSS",  section: "F",  adviser: "Mr. Noel Pascual",      student: 30, date: "2024-06-09", status: "Active"  }
-        ],
-      };
-    },
-     computed: {
-        uniqueGrades() {
-        return [...new Set(this.personnel.map((p) => p.grade))].sort((a, b) => a - b);
-        },
-        uniqueCurriculums() {
-        return [...new Set(this.personnel.map((p) => p.curriculum))].sort();
-        },
-        uniqueTracks() {
-        return [...new Set(this.personnel.map((p) => p.track))].sort();
-        },
-        uniqueStatuses() {
-        return [...new Set(this.personnel.map((p) => p.status))].sort();
-        },
-        filteredPersonnel() {
-        return this.personnel.filter((p) => {
-            const matchesGrade = this.filters.grade ? p.grade == this.filters.grade : true;
-            const matchesCurriculum = this.filters.curriculum ? p.curriculum === this.filters.curriculum : true;
-            const matchesTrack = this.filters.track ? p.track === this.filters.track : true;
-            const matchesStatus = this.filters.status ? p.status === this.filters.status : true;
-
-            const search = this.searchQuery.trim().toLowerCase();
-            const matchesSearch = search
-            ? (
-                p.grade.toString() +
-                ' ' +
-                p.curriculum +
-                ' ' +
-                p.track +
-                ' ' +
-                p.section +
-                ' ' +
-                p.adviser +
-                ' ' +
-                p.student.toString() +
-                ' ' +
-                p.date +
-                ' ' +
-                p.status
-                )
-                .toLowerCase()
-                .includes(search)
-            : true;
-
-            return matchesGrade && matchesCurriculum && matchesTrack && matchesStatus && matchesSearch;
+export default {
+  data() {
+    return {
+      rawClasses: [],
+      currentPage: 1,
+      itemsPerPage: 5,
+      searchQuery: "",
+      filters: {
+        grade: "",
+        curriculum: "",
+        track: "",
+        status: "",
+      },
+    };
+  },
+  computed: {
+    personnel() {
+      return this.rawClasses
+        .map(item => ({
+          grade: item.Grade_Level,
+          curriculum: item.Curriculum,
+          track: item.Track,
+          section: item.Section,
+          adviser: item.adviser
+          ? `${item.adviser.FirstName} ${item.adviser.MiddleName} ${item.adviser.LastName}`
+          : "N/A",
+          student: item.student_added ?? 0,
+          date: new Date(item.created_at).toLocaleDateString(),
+          status: item.Status,
+        }))
+        .filter(item => {
+          const matchesGrade = this.filters.grade ? item.grade === this.filters.grade : true;
+          const matchesCurriculum = this.filters.curriculum ? item.curriculum === this.filters.curriculum : true;
+          const matchesTrack = this.filters.track ? item.track === this.filters.track : true;
+          const matchesStatus = this.filters.status ? item.status === this.filters.status : true;
+          const matchesSearch = Object.values(item).some(val =>
+            String(val).toLowerCase().includes(this.searchQuery.toLowerCase())
+          );
+          return matchesGrade && matchesCurriculum && matchesTrack && matchesStatus && matchesSearch;
         });
-        },
-        totalPages() {
-        return Math.ceil(this.filteredPersonnel.length / this.itemsPerPage);
-        },
-        paginatedPersonnel() {
-        const start = (this.currentPage - 1) * this.itemsPerPage;
-        return this.filteredPersonnel.slice(start, start + this.itemsPerPage);
-        },
     },
-    methods: {
-        handleChange() {
-        this.currentPage = 1;
-        },
-        prevPage() {
-        if (this.currentPage > 1) this.currentPage--;
-        },
-        nextPage() {
-        if (this.currentPage < this.totalPages) this.currentPage++;
-        },
-       statusClass(status) {
-        const baseClass = 'inline-block w-[100px] text-center px-2 py-1 text-white rounded-lg text-sm font-medium';
-
-       switch (status) {
-          case 'Active':
-            return 'status-active';
-          case 'Pending':
-            return 'status-pending';
-          case 'Inactive':
-            return 'status-inactive';
-          default:
-            return 'status-default';
-        }
-        }
+    paginatedPersonnel() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      return this.personnel.slice(start, start + this.itemsPerPage);
     },
+    totalPages() {
+      return Math.ceil(this.personnel.length / this.itemsPerPage);
+    },
+    uniqueGrades() {
+      return [...new Set(this.rawClasses.map(c => c.Grade_Level).filter(Boolean))];
+    },
+    uniqueCurriculums() {
+      return [...new Set(this.rawClasses.map(c => c.Curriculum).filter(Boolean))];
+    },
+    uniqueTracks() {
+      return [...new Set(this.rawClasses.map(c => c.Track).filter(Boolean))];
+    },
+    uniqueStatuses() {
+      return [...new Set(this.rawClasses.map(c => c.Status).filter(Boolean))];
+    },
+  },
+  methods: {
+    async fetchClasses() {
+      try {
+        const data = await getClassesWithStudentCount();
+        this.rawClasses = data;
+      } catch (error) {
+        console.error("Failed to fetch classes:", error);
+      }
+    },
+    handleChange() {
+      this.currentPage = 1;
+    },
+    prevPage() {
+      if (this.currentPage > 1) this.currentPage--;
+    },
+    nextPage() {
+      if (this.currentPage < this.totalPages) this.currentPage++;
+    },
+    statusClass(status) {
+      switch (status?.toLowerCase()) {
+        case "active":
+          return "text-green-600 font-semibold";
+        case "inactive":
+          return "text-red-600 font-semibold";
+        default:
+          return "text-gray-600 font-semibold";
+      }
+    },
+  },
+  mounted() {
+    this.fetchClasses();
+  },
 };
 </script>
+
+
+
+
 
 <style scoped>
 .container {
