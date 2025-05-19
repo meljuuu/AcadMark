@@ -1,6 +1,6 @@
 <template>
   <div class="flex min-h-screen">
-    <Sidebar v-if="!isLoginPage" class="z-9999" />
+    <Sidebar v-if="!isLoginPage" class="z-50" />
     <div class="flex-1 overflow-hidden">
       <HeaderBar v-if="!isLoginPage" />
       <main :class="{ 'ml-2 mt-34 px-[54px] pt-[32px]': !isLoginPage }">
