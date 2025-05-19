@@ -245,15 +245,15 @@
        statusClass(status) {
         const baseClass = 'inline-block w-[100px] text-center px-2 py-1 text-white rounded-lg text-sm font-medium';
 
-        switch (status) {
-            case 'Active':
-            return `${baseClass} bg-green-600`;
-            case 'Pending':
-            return `${baseClass} bg-yellow-500`;
-            case 'Inactive':
-            return `${baseClass} bg-red-600`;
-            default:
-            return `${baseClass} bg-gray-400`;
+       switch (status) {
+          case 'Active':
+            return 'status-active';
+          case 'Pending':
+            return 'status-pending';
+          case 'Inactive':
+            return 'status-inactive';
+          default:
+            return 'status-default';
         }
         }
     },
@@ -413,9 +413,24 @@ tr:hover {
 .bg-yellow {
   background-color: #ffc107;
 }
+.status-active {
+  font-weight: 600;
+  color: #16a34a; /* green-600 */
+}
 
-.text-white {
-  color: white;
+.status-pending {
+  font-weight: 600;
+  color: #eab308; /* yellow-500 */
+}
+
+.status-inactive {
+  font-weight: 600;
+  color: #dc2626; /* red-600 */
+}
+
+.status-default {
+  font-weight: 600;
+  color: #9ca3af; /* gray-400 */
 }
 
 .text-black {
