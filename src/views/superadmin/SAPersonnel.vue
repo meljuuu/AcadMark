@@ -153,16 +153,11 @@ import { ref } from 'vue';
 import AddFacultyModal from './components/AddFacultyModal.vue';
 import EditFacultyModal from './components/EditFacultyModal.vue';
 
-const showModal = ref(false);
 
-const handleFacultySubmit = (name) => {
-  console.log('Faculty submitted:', name);
-  // You can handle saving or emitting to parent/store here
-};
-  export default {
-    components: {
-    AddFacultyModal,
-    EditFacultyModal,
+export default {
+  components: {
+  AddFacultyModal,
+  EditFacultyModal,
   },
     data() {
       return {
