@@ -80,10 +80,16 @@
                     >
                       <i class="fas fa-eye"></i>
                     </button>
-                    <button class="bg-green-600 hover:bg-green-700 text-white border border-green-600 px-3 py-1 rounded flex items-center space-x-1 cursor-pointer">
+                    <button
+                      class="bg-green-600 hover:bg-green-700 text-white border border-green-600 px-3 py-1 rounded flex items-center space-x-1 cursor-pointer"
+                      @click="acceptAlert"
+                    >
                       <i class="fas fa-check"></i>
                     </button>
-                    <button class="bg-red-600 hover:bg-red-700 text-white border border-red-600 px-3 py-1 rounded flex items-center space-x-1 cursor-pointer">
+                    <button
+                      class="bg-red-600 hover:bg-red-700 text-white border border-red-600 px-3 py-1 rounded flex items-center space-x-1 cursor-pointer"
+                      @click="reject"
+                    >
                       <i class="fas fa-times"></i>
                     </button>
                   </td>
@@ -147,6 +153,7 @@
 
 <script>
 import LessonPlanModal from './components/LessonPlanModal.vue';
+import Swal from 'sweetalert2'
 
 export default {
   components: {
@@ -307,6 +314,50 @@ export default {
     closeLessonModal() {
       this.showModal = false;
       this.selectedLesson = null;
+    },
+    acceptAlert() {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: 'Do you want to accept this?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, Accept',
+        cancelButtonText: 'Cancel'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Accepted',
+            text: 'The item has been accepted successfully.',
+            showConfirmButton: false,
+            timer: 1500
+          });
+        }
+      });
+    },
+    reject() {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: 'Do you really want to reject this?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#D30000',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, Reject',
+        cancelButtonText: 'Cancel'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Rejected',
+            text: 'The item has been rejected.',
+            timer: 1500,
+            showConfirmButton: false
+          });
+        }
+      });
     }
   },
   computed: {

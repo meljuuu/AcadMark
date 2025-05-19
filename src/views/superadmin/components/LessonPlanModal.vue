@@ -82,6 +82,7 @@
           </button>
           <button
             type="submit"
+            @click="accept"
             class="bg-green-800 text-white px-4 py-2 rounded-md hover:bg-green-900 transition-colors duration-200 cursor-pointer"
           >
             Accept
@@ -93,6 +94,8 @@
 </template>
 
 <script>
+import Swal from 'sweetalert2';
+
 export default {
   data() {
     return {
@@ -107,15 +110,42 @@ export default {
     };
   },
   methods: {
-    reject() {
-      console.log('Rejected with comment:', this.comment);
-      this.$emit('close');
-    },
-    accept() {
-      console.log('Accepted with comment:', this.comment);
-      this.$emit('close');
-    },
+  reject() {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'You are about to reject this lesson plan.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, reject it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        console.log('Rejected with comment:', this.comment);
+        Swal.fire('Rejected!', 'The lesson plan has been rejected.', 'error');
+        this.$emit('close');
+      }
+    });
   },
+  accept() {
+    Swal.fire({
+      title: 'Accept this lesson plan?',
+      text: 'You are about to accept this lesson plan.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#28a745',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, accept it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        console.log('Accepted with comment:', this.comment);
+        Swal.fire('Accepted!', 'The lesson plan has been accepted.', 'success');
+        this.$emit('close');
+      }
+    });
+  },
+},
+
 };
 </script>
 
