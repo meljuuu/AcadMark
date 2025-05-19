@@ -36,37 +36,66 @@
 
     <div class="table-container">
         <table>
-          <thead>
-            <tr>
-              <th>LRN</th>
-              <th>NAME</th>
-              <th>GENDER</th>
-              <th>AGE</th>
-              <th>GRADE</th>
-              <th>STATUS</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="personnel in paginatedPersonnel"
-              :key="personnel.employee"
-            >
-              <td>{{ personnel.employee }}</td>
-              <td>{{ personnel.name }}</td>
-              <td>{{ personnel.qualification }}</td>
-              <td>{{ personnel.access }}</td>
-              <td>{{ personnel.email }}</td>
-              <td>Actions here</td>
-            </tr>
-          </tbody>
+            <thead>
+                <tr>
+                <!-- Checkbox to select all -->
+                <th>
+                    <input
+                    type="checkbox"
+                    :checked="allSelected"
+                    @change="toggleSelectAll"
+                    />
+                </th>
+                <th>LRN</th>
+                <th>NAME</th>
+                <th>GENDER</th>
+                <th>AGE</th>
+                <th>GRADE</th>
+                <th>STATUS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="student in paginatedStudents" :key="student.lrn">
+                <!-- Row checkbox -->
+                <td>
+                    <input
+                    type="checkbox"
+                    :value="student.lrn"
+                    v-model="selectedStudents"
+                    />
+                </td>
+                <td>{{ student.lrn }}</td>
+                <td>{{ student.lastName }}, {{ student.firstName }}</td>
+                <td>{{ student.gender }}</td>
+                <td>{{ student.age }}</td>
+                <td>Grade {{ student.grade }}</td>
+                <td>
+                    <span
+                    :class="{
+                        'text-green-600': student.status === 'Approved',
+                        'text-red-600': student.status === 'Not Approved',
+                        'text-yellow-600': student.status === 'Pending'
+                    }"
+                    >
+                    {{ student.status }}
+                    </span>
+                </td>
+                </tr>
+            </tbody>
         </table>
-      </div>
+
+        <div class="btn">
+            <button>Reject</button>
+            <button>Approved</button>
+
+        </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { useRouter } from 'vue-router'
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 
 const router = useRouter()
 const goBack = () => router.back()
@@ -89,6 +118,58 @@ const filteredCards = computed(() => {
     return matchGrade && matchCurriculum && matchTrack;
   });
 });
+
+const students = ref([
+  {
+    lrn: '123456789012',
+    firstName: 'Juan',
+    lastName: 'Dela Cruz',
+    gender: 'Male',
+    age: 15,
+    grade: 9,
+    status: 'Approved',
+  },
+  {
+    lrn: '987654321098',
+    firstName: 'Maria',
+    lastName: 'Santos',
+    gender: 'Female',
+    age: 14,
+    grade: 8,
+    status: 'Not Approved',
+  },
+  {
+    lrn: '112233445566',
+    firstName: 'Pedro',
+    lastName: 'Garcia',
+    gender: 'Male',
+    age: 16,
+    grade: 10,
+    status: 'Pending',
+  },
+  // add more students as needed
+])
+
+const paginatedStudents = computed(() => students.value)
+
+const selectedStudents = ref([])
+
+// Computed to check if all visible students are selected
+const allSelected = computed(() => {
+  return (
+    paginatedStudents.value.length > 0 &&
+    paginatedStudents.value.every((s) => selectedStudents.value.includes(s.lrn))
+  )
+})
+
+// Select or deselect all visible students
+function toggleSelectAll(event) {
+  if (event.target.checked) {
+    selectedStudents.value = paginatedStudents.value.map((s) => s.lrn)
+  } else {
+    selectedStudents.value = []
+  }
+}
 </script>
 
 <style scoped>
@@ -167,4 +248,42 @@ span:hover {
     border-radius: 5px;
     width: 520px;
   }
+
+.table-container {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+th,
+td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  text-align: center;
+}
+
+th {
+  background-color: #f4f4f4;
+}
+
+.text-green-600 {
+  color: #2C6C2A;
+}
+.text-red-600 {
+  color: #D30000;
+}
+.text-yellow-600 {
+  color: #FF9204;
+}
+.text-green-600,
+.text-red-600,
+.text-yellow-600 {
+    padding: 5px 30px;
+    border-radius: 5px;
+    font-size: 14px;
+}
 </style>
