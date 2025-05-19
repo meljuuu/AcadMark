@@ -153,18 +153,11 @@ import Swal from 'sweetalert2';
 import AddFacultyModal from './components/AddFacultyModal.vue';
 import EditFacultyModal from './components/EditFacultyModal.vue';
 
-<<<<<<< Updated upstream
 
 export default {
   components: {
   AddFacultyModal,
   EditFacultyModal,
-=======
-export default {
-  components: {
-    AddFacultyModal,
-    EditFacultyModal,
->>>>>>> Stashed changes
   },
   data() {
     return {
