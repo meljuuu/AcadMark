@@ -283,7 +283,6 @@ function emitClose() {
 .submit-btn {
     background-color: #0C5A48;
 }
-  
   /* Modal transition */
   .modal-fade-enter-active,
   .modal-fade-leave-active {

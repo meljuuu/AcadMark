@@ -110,7 +110,12 @@
                         class="cursor-pointer hover:bg-gray-100"
                     >
                     <td class="px-6 py-4 border-b border-gray-300">
-                        <input type="checkbox" v-model="selectedStudents" :value="student.lrn" />
+                        <input 
+                          type="checkbox" 
+                          v-model="selectedStudents" 
+                          :value="student.lrn" 
+                          @click.stop 
+                        />
                     </td>
                     <td class="px-6 py-4 border-b border-gray-300">{{ student.grade }}</td>
                     <td class="px-6 py-4 border-b border-gray-300">{{ student.lrn }}</td>
@@ -139,7 +144,6 @@
             <button class="red">Reject</button>
             <button class="green">Accept</button>
         </div>
-
     </div>
 </template>
 

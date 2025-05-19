@@ -38,7 +38,6 @@
         <table>
             <thead>
                 <tr>
-                <!-- Checkbox to select all -->
                 <th>
                     <input
                     type="checkbox"
@@ -55,13 +54,16 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="student in paginatedStudents" :key="student.lrn">
-                <!-- Row checkbox -->
+                <tr v-for="student in paginatedStudents"
+                    :key="student.lrn"
+                    @click="openGradeModal(student)"
+                    class="cursor-pointer hover:bg-gray-100">
                 <td>
                     <input
                     type="checkbox"
                     :value="student.lrn"
                     v-model="selectedStudents"
+                    @click.stop
                     />
                 </td>
                 <td>{{ student.lrn }}</td>
@@ -83,11 +85,15 @@
                 </tr>
             </tbody>
         </table>
+        <GradeModal
+  v-if="showModal"
+  :student="selectedStudent"
+  @close="showModal = false"
+/>
 
-        <div class="btn">
-            <button>Reject</button>
-            <button>Approved</button>
-
+        <div class="button mt-5">
+            <button class="red">Reject</button>
+            <button class="green">Accept</button>
         </div>
     </div>
   </div>
@@ -96,10 +102,18 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { ref, computed, watch } from "vue";
+import GradeModal from './GradeModal.vue';
 
 const router = useRouter()
 const goBack = () => router.back()
 
+const showModal = ref(false)
+const selectedStudent = ref(null)
+
+const openGradeModal = (student) => {
+  selectedStudent.value = student
+  showModal.value = true
+}
 
 const selectedTrack = ref("");
 const selectedGender = ref("");
@@ -259,6 +273,14 @@ table {
   text-align: left;
 }
 
+tr {
+  cursor: pointer;
+}
+
+tr:hover { 
+  background-color: #f6f6f6;
+}
+
 th,
 td {
   padding: 10px;
@@ -268,6 +290,27 @@ td {
 
 th {
   background-color: #f4f4f4;
+}
+
+.button {
+    width: 100%;
+    display: flex;
+    justify-content: end;
+    gap: 15px;
+}
+.red,
+.green {
+    padding: 5px 30px;
+    align-items: center;
+    color: #ffffff;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.red {
+    background-color: #D30000;
+}
+.green {
+    background-color: #0C5A48;
 }
 
 .text-green-600 {
