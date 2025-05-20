@@ -138,7 +138,7 @@ const superadminLinks = ref([
   { name: "Students", path: "/superadmin/students", icon: "fa-solid fa-user-graduate" },      
   { name: "Classes", path: "/superadmin/classes", icon: "fa-solid fa-chalkboard" },   
   { name: "Lesson Plan", path: "/superadmin/lessonplan", icon: "fa-solid fa-clipboard-list" },
-  { name: "Subjects", path: "/superadmin/subjects", icon: "fa-solid fa-book" },
+  { name: "Settings", path: "/superadmin/settings", icon: "fa-solid fa-book" },
 
 ]);
 
