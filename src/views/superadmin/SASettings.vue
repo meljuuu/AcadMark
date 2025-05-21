@@ -63,16 +63,18 @@
                         </div>
                     </div>
                     <div class="flex justify-end">
-                        <button type="submit" class="bg-green-800 text-white px-4 py-2 rounded-md hover:bg-green-900 transition-colors duration-200 cursor-pointer">
+                        <button 
+                        type="button"
+                        @click="confirmAddSubject"
+                        class="bg-green-800 text-white px-4 py-2 rounded-md hover:bg-green-900 transition-colors duration-200 cursor-pointer">
                             Add Subject
                         </button>
                     </div>
                 </form>
             </div>
 
-            <div class="mx-auto bg-white shadow-lg p-8 rounded-2xl w-full border border-gray-200 h-[875px] flex flex-col">
+            <div class="mx-auto bg-white shadow-lg p-8 rounded-2xl w-full border border-gray-200 h-[940px] flex flex-col">
                 <div class="mb-4 flex items-center justify-between gap-4">
-                <!-- Search Input on the left -->
                     <div class="relative">
                         <input
                             v-model="searchQuery"
@@ -83,7 +85,6 @@
                         <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                     </div>
 
-                    <!-- Selects on the right -->
                     <div class="flex gap-4">
                         <select v-model="selectedId" class="filter-dropdown">
                         <option value="">All</option>
@@ -124,8 +125,7 @@
                                 <td class="px-6 py-4 flex space-x-2 text-lg">
                                     <button
                                         class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 cursor-pointer"
-                                        @click="confirmDelete"
-                                    >
+                                        @click="confirmDeleteSubject">
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
                                 </td>
@@ -168,11 +168,223 @@
             </div>
         </div>
 
+
         <div v-else-if="activeTab === 'Section'">
-          <p>This is the content for <strong>Section</strong>.</p>
-        </div>
+          <div class="mx-auto bg-white shadow-lg p-8 rounded-2xl w-full w-full mb-6 border border-gray-200">
+                <form>
+                    <div class="grid grid-cols-3 gap-4 mb-4">
+                        <div class="floating-label mb-4">
+                            <input
+                                type="text"
+                                class="input"
+                                placeholder=" "
+                            />
+                            <label>School Year</label>
+                        </div>
+                        <div class="floating-label mb-4">
+                            <input
+                                type="text"
+                                class="input"
+                                placeholder=" "
+                            />
+                            <label>Start Date</label>
+                        </div>
+                        <div class="floating-label mb-4">
+                            <input
+                                type="text"
+                                class="input"
+                                placeholder=" "
+                            />
+                            <label>End Date</label>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-4 gap-4 mb-8">
+                      <div class="floating-label">
+                        <select class="input" v-model="selectedHighSchool" required>
+                          <option value=""></option>
+                          <option v-for="school in highSchool" :key="school" :value="school">
+                            {{ school }}
+                          </option>
+                        </select>
+                        <label>High School</label>
+                      </div>
+
+                      <div class="floating-label">
+                        <select class="input" v-model="selectedGrade" required :disabled="!selectedHighSchool">
+                          <option value=""></option>
+                          <option v-for="grade in filteredGrades" :key="grade" :value="grade">
+                            {{ grade }}
+                          </option>
+                        </select>
+                        <label>Grade Level</label>
+                      </div>
+
+                     <div class="floating-label">
+                      <select class="input" v-model="selectedCurriculumTrack" required :disabled="!selectedHighSchool">
+                        <option value=""></option>
+                        <option v-for="item in filteredCurriculumTrack" :key="item" :value="item">
+                          {{ item }}
+                        </option>
+                      </select>
+                      <label>{{ curriculumOrTrackLabel }}</label>
+                    </div>
+                  </div>
+
+                  <div class="space-y-2">
+                      <div class="flex items-end gap-2">
+                        <div class="floating-label mb-4">
+                          <input
+                            v-model="newSection"
+                            type="text"
+                            class="input"
+                            placeholder=" "
+                          />
+                          <label>Section</label>
+                        </div>
+                        <button
+                          @click="addSection"
+                          type="button"
+                          class="bg-blue-500 text-white px-3 py-1 rounded h-9 cursor-pointer"
+                          title="Add Section"
+                        >
+                          +
+                        </button>
+                      </div>
+
+                      <div
+                        v-for="(section, index) in sections"
+                        :key="index"
+                        class="flex items-end gap-2"
+                      >
+                        <div class="floating-label mb-4">
+                          <input
+                            v-model="section.value"
+                            type="text"
+                            class="input"
+                            placeholder=" "
+                            disabled
+                          />
+                          <label>Section</label>
+                        </div>
+
+                        <button
+                          @click="removeSection(index)"
+                          class="bg-red-500 text-white px-3 py-1 rounded h-9 cursor-pointer"
+                          title="Remove Section"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    </div>
+                   <div class="flex justify-end">
+                        <button 
+                          type="button"
+                          @click="confirmAddSection"
+                          class="bg-green-800 text-white px-4 py-2 rounded-md hover:bg-green-900 transition-colors duration-200 cursor-pointer">
+                            Add Section
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="mx-auto bg-white shadow-lg p-8 rounded-2xl w-full border border-gray-200 h-[940px] flex flex-col">
+                <div class="mb-4 flex items-center justify-between gap-4">
+                    <div class="relative">
+                        <input
+                            v-model="searchRecordsQuery"
+                            type="text"
+                            placeholder="Search..."
+                            class="border border-[#295f98] rounded px-10 py-2 text-lg"
+                            />
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+
+                    <div class="flex gap-4">
+                      <select v-model="selectedRecordsHighSchool" class="filter-dropdown">
+                        <option value="">All</option>
+                        <option v-for="school in uniqueRecordsHighSchools" :key="school" :value="school">{{ school }}</option>
+                      </select>
+
+                      <select v-model="selectedRecordsGradeLevel" class="filter-dropdown">
+                        <option value="">All</option>
+                        <option v-for="level in uniqueRecordsGradeLevels" :key="level" :value="level">{{ level }}</option>
+                      </select>
+
+                      <select v-model="selectedRecordsTrack" class="filter-dropdown">
+                        <option value="">All</option>
+                        <option v-for="track in uniqueRecordsTracks" :key="track" :value="track">{{ track }}</option>
+                      </select>
+                    </div>
+                </div>
 
 
+                <!-- Scrollable Table Section -->
+                <div class="overflow-y-auto flex-grow">
+                  <table class="min-w-full divide-y divide-gray-200 text-left">
+                    <thead class="bg-gray-100 text-gray-700 text-sm uppercase">
+                      <tr>
+                        <th class="px-6 py-3">Academic Duration</th>
+                        <th class="px-6 py-3">High School Education</th>
+                        <th class="px-6 py-3">Grade Level</th>
+                        <th class="px-6 py-3">Curriculum/ Track</th>
+                        <th class="px-6 py-3">Section</th>
+                        <th class="px-6 py-3">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                      <tr v-for="(record, index) in paginatedRecords" :key="index">
+                        <td class="px-6 py-4 whitespace-nowrap text-lg"> {{ record.schoolYear }} ({{ record.startDate }} - {{ record.endDate }})</td>
+                        <td class="px-6 py-4 text-lg">{{ record.highSchool }}</td>
+                        <td class="px-6 py-4 text-lg">{{ record.gradeLevel }}</td>
+                        <td class="px-6 py-4 text-lg">{{ record.curriculumTrack }}</td>
+                        <td class="px-6 py-4 text-lg">{{ record.section }}</td>
+                        <td class="px-6 py-4 flex space-x-2 text-lg">
+                          <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 cursor-pointer"
+                            @click="confirmDeleteRecord">
+                            <i class="fas fa-trash-alt"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="flex justify-center items-center mt-4 space-x-1 pt-4 border-t border-gray-300">
+                  <button
+                    class="px-3 text-lg border border-[#295F98] text-[#295F98] py-1 rounded w-28 disabled:opacity-50 whitespace-nowrap flex items-center justify-center gap-1 cursor-pointer"
+                    :disabled="currentRecordsPage === 1"
+                    @click="currentRecordsPage--"
+                  >
+                    <span>←</span> Previous
+                  </button>
+
+                  <button
+                    v-for="page in recordsPageNumbers"
+                    :key="page"
+                    class="py-1 text-lg border border-[#295F98] rounded w-10 text-center"
+                    :class="{
+                      'bg-[#295F98] text-white': page === currentRecordsPage,
+                      'text-gray-600': page !== currentRecordsPage,
+                      'cursor-default': page === '...',
+                      'cursor-pointer': page !== '...',
+                    }"
+                    @click="page !== '...' && (currentRecordsPage = page)"
+                    :disabled="page === '...'"
+                  >
+                    {{ page }}
+                  </button>
+
+                  <button
+                    class="px-3 text-lg border border-[#295F98] text-[#295F98] py-1 rounded w-28 disabled:opacity-50 whitespace-nowrap flex items-center justify-center gap-1 cursor-pointer"
+                    :disabled="currentRecordsPage === totalRecordsPages"
+                    @click="currentRecordsPage++"
+                  >
+                    Next <span>→</span>
+                  </button>
+                </div>
+              </div>
+            </div>
       </div>
     </div>
   </div>
@@ -184,10 +396,180 @@ import Swal from 'sweetalert2';
 
 const tabs = ['Subjects', 'Section']
 const activeTab = ref('Subjects')
+
+const highSchool = ["Junior High School", "Senior High School"]
+const juniorGrades = ["Grade 7", "Grade 8", "Grade 9", "Grade 10"]
+const seniorGrades = ["Grade 11", "Grade 12"]
+const juniorCurriculum = ["SPA", "SPJ", "BEC", "SHS"]
+const seniorTrack = ["TVL", "HUMMS", "TVL-IEM"]
+
 const searchQuery = ref('')
 const selectedId = ref('')
 const selectedCode = ref('')
 const selectedGrade = ref('')
+const selectedHighSchool = ref('')
+const selectedCurriculumTrack = ref('')
+
+const searchRecordsQuery = ref('')
+const selectedRecordsHighSchool = ref('')
+const selectedRecordsGradeLevel = ref('')
+const selectedRecordsTrack = ref('')
+
+const filteredGrades = computed(() => {
+  if (selectedHighSchool.value === "Junior High School") {
+    return juniorGrades
+  } else if (selectedHighSchool.value === "Senior High School") {
+    return seniorGrades
+  } else {
+    return []
+  }
+})
+
+const filteredCurriculumTrack = computed(() => {
+  if (selectedHighSchool.value === "Junior High School") {
+    return juniorCurriculum
+  } else if (selectedHighSchool.value === "Senior High School") {
+    return seniorTrack
+  } else {
+    return []
+  }
+})
+
+const curriculumOrTrackLabel = computed(() => {
+  if (selectedHighSchool.value === "Junior High School") {
+    return 'Curriculum'
+  } else if (selectedHighSchool.value === "Senior High School") {
+    return 'Track'
+  } else {
+    return 'Curriculum/Track'
+  }
+})
+
+const sections = ref([]);
+const newSection = ref('');
+
+const addSection = () => {
+  const trimmed = newSection.value.trim();
+  if (!trimmed) return;
+  sections.value.push({ value: trimmed });
+  newSection.value = '';
+};
+
+const removeSection = (index) => {
+  sections.value.splice(index, 1);
+};
+
+const academicRecords = ref([
+  {
+    schoolYear: 'SY 2021-2022',
+    startDate: 'Jun 2021',
+    endDate: 'Mar 2022',
+    highSchool: 'Junior High School',
+    gradeLevel: 'Grade 10',
+    curriculumTrack: 'SPJ',
+    section: '10-Diamond',
+  },
+  {
+    schoolYear: 'SY 2022-2023',
+    startDate: 'Jun 2022',
+    endDate: 'Mar 2023',
+    highSchool: 'Senior High School',
+    gradeLevel: 'Grade 11',
+    curriculumTrack: 'TVL',
+    section: '11-STEM A',
+  },
+  {
+    schoolYear: 'SY 2023-2024',
+    startDate: 'Jun 2023',
+    endDate: 'Mar 2024',
+    highSchool: 'Senior High School',
+    gradeLevel: 'Grade 12',
+    curriculumTrack: 'HUMMS',
+    section: '12-STEM B',
+  },
+  {
+    schoolYear: 'SY 2015-2016',
+    startDate: 'Jun 2015',
+    endDate: 'Mar 2016',
+    highSchool: 'Junior High School',
+    gradeLevel: 'Grade 7',
+    curriculumTrack: 'BEC',
+    section: '7-Topaz',
+  },
+  {
+    schoolYear: 'SY 2016-2017',
+    startDate: 'Jun 2016',
+    endDate: 'Mar 2017',
+    highSchool: 'Junior High School',
+    gradeLevel: 'Grade 8',
+    curriculumTrack: 'SPA',
+    section: '8-Emerald',
+  },
+  {
+    schoolYear: 'SY 2017-2018',
+    startDate: 'Jun 2017',
+    endDate: 'Mar 2018',
+    highSchool: 'Junior High School',
+    gradeLevel: 'Grade 9',
+    curriculumTrack: 'SHS',
+    section: '9-Ruby',
+  },
+  {
+    schoolYear: 'SY 2018-2019',
+    startDate: 'Jun 2018',
+    endDate: 'Mar 2019',
+    highSchool: 'Junior High School',
+    gradeLevel: 'Grade 10',
+    curriculumTrack: 'SPJ',
+    section: '10-Amethyst',
+  },
+  {
+    schoolYear: 'SY 2019-2020',
+    startDate: 'Jun 2019',
+    endDate: 'Mar 2020',
+    highSchool: 'Senior High School',
+    gradeLevel: 'Grade 11',
+    curriculumTrack: 'TVL-IEM',
+    section: '11-TVL B',
+  },
+  {
+    schoolYear: 'SY 2020-2021',
+    startDate: 'Jun 2020',
+    endDate: 'Mar 2021',
+    highSchool: 'Senior High School',
+    gradeLevel: 'Grade 12',
+    curriculumTrack: 'TVL',
+    section: '12-TVL A',
+  },
+  {
+    schoolYear: 'SY 2014-2015',
+    startDate: 'Jun 2014',
+    endDate: 'Mar 2015',
+    highSchool: 'Junior High School',
+    gradeLevel: 'Grade 8',
+    curriculumTrack: 'BEC',
+    section: '8-Garnet',
+  },
+  {
+    schoolYear: 'SY 2013-2014',
+    startDate: 'Jun 2013',
+    endDate: 'Mar 2014',
+    highSchool: 'Junior High School',
+    gradeLevel: 'Grade 7',
+    curriculumTrack: 'SPA',
+    section: '7-Pearl',
+  },
+  {
+    schoolYear: 'SY 2024-2025',
+    startDate: 'Jun 2024',
+    endDate: 'Mar 2025',
+    highSchool: 'Senior High School',
+    gradeLevel: 'Grade 12',
+    curriculumTrack: 'TVL-IEM',
+    section: '12-ICT C',
+  }
+])
+
 
 const subjects = ref([
   { id: '101', code: 'ENG101', name: 'English Language', grade: 'Grade 7' },
@@ -213,12 +595,11 @@ const filteredSubjects = computed(() => {
   const query = searchQuery.value.toLowerCase()
 
   return subjects.value.filter(subject => {
-    // Expanded search across multiple fields
     const matchesSearch =
-        subject.name.toLowerCase().includes(query) ||
-        subject.id.toString().toLowerCase().includes(query) ||
-        subject.code.toLowerCase().includes(query) ||
-        subject.grade.toLowerCase().includes(query)
+      subject.name.toLowerCase().includes(query) ||
+      subject.id.toString().toLowerCase().includes(query) ||
+      subject.code.toLowerCase().includes(query) ||
+      subject.grade.toLowerCase().includes(query)
 
     const matchesId = !selectedId.value || subject.id === selectedId.value
     const matchesCode = !selectedCode.value || subject.code === selectedCode.value
@@ -248,7 +629,111 @@ const pageNumbers = computed(() => {
   return pages
 })
 
-const confirmDelete = async () => {
+
+const uniqueRecordsHighSchools = computed(() =>
+  [...new Set(academicRecords.value.map(record => record.highSchool))])
+
+const uniqueRecordsGradeLevels = computed(() =>
+  [...new Set(academicRecords.value.map(record => record.gradeLevel))])
+
+const uniqueRecordsTracks = computed(() =>
+  [...new Set(academicRecords.value.map(record => record.curriculumTrack))])
+
+const currentRecordsPage = ref(1)
+const recordsPerPage = 10
+
+const filteredRecordsList = computed(() => {
+  const query = searchRecordsQuery.value.toLowerCase()
+
+  return academicRecords.value.filter(record => {
+    const matchesSearch =
+      record.schoolYear.toLowerCase().includes(query) ||
+      record.highSchool.toLowerCase().includes(query) ||
+      record.gradeLevel.toLowerCase().includes(query) ||
+      record.curriculumTrack.toLowerCase().includes(query) ||
+      record.section.toLowerCase().includes(query)
+
+    const matchesHighSchool = !selectedRecordsHighSchool.value || record.highSchool === selectedRecordsHighSchool.value
+    const matchesGrade = !selectedRecordsGradeLevel.value || record.gradeLevel === selectedRecordsGradeLevel.value
+    const matchesTrack = !selectedRecordsTrack.value || record.curriculumTrack === selectedRecordsTrack.value
+
+    return matchesSearch && matchesHighSchool && matchesGrade && matchesTrack
+  })
+})
+
+const totalRecordsPages = computed(() =>
+  Math.ceil(filteredRecordsList.value.length / recordsPerPage)
+)
+
+const paginatedRecords = computed(() => {
+  const start = (currentRecordsPage.value - 1) * recordsPerPage
+  return filteredRecordsList.value.slice(start, start + recordsPerPage)
+})
+
+const recordsPageNumbers = computed(() => {
+  const pages = []
+  for (let i = 1; i <= totalRecordsPages.value; i++) {
+    pages.push(i)
+  }
+  return pages
+})
+
+const confirmAddSection = async () => {
+  const result = await Swal.fire({
+    title: 'Add Section',
+    text: 'Are you sure you want to add a new section?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Yes, Add',
+    cancelButtonText: 'Cancel'
+  });
+
+  if (result.isConfirmed) {
+    // Call your actual logic here
+    addSection();
+
+    await Swal.fire({
+      icon: 'success',
+      title: 'Added',
+      text: 'The section has been added successfully.',
+      timer: 1500,
+      showConfirmButton: false
+    });
+  }
+};
+
+const confirmAddSubject = async () => {
+  const result = await Swal.fire({
+    title: 'Add Subject',
+    text: 'Are you sure you want to add a new subject?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Yes, Add',
+    cancelButtonText: 'Cancel'
+  });
+
+  if (result.isConfirmed) {
+    // Call your actual logic here
+    addSection();
+
+    await Swal.fire({
+      icon: 'success',
+      title: 'Added',
+      text: 'The subject has been added successfully.',
+      timer: 1500,
+      showConfirmButton: false
+    });
+  }
+};
+
+
+
+
+const confirmDeleteSubject = async () => {
   const result = await Swal.fire({
     title: 'Are you sure?',
     text: 'Do you really want to delete this subject?',
@@ -271,13 +756,35 @@ const confirmDelete = async () => {
   }
 };
 
-// Reset to page 1 when filters or search query change
-watch([searchQuery, selectedId, selectedCode, selectedGrade], () => {
+const confirmDeleteRecord = async () => {
+  const result = await Swal.fire({
+    title: 'Are you sure?',
+    text: 'Do you really want to delete this record?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#D30000',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Yes, Delete',
+    cancelButtonText: 'Cancel'
+  });
+
+  if (result.isConfirmed) {
+    Swal.fire({
+      icon: 'success',
+      title: 'Deleted',
+      text: 'The record has been deleted.',
+      timer: 1500,
+      showConfirmButton: false
+    });
+  }
+};
+
+watch([searchQuery, selectedId, selectedCode, selectedGrade, 
+searchRecordsQuery, selectedRecordsHighSchool, selectedRecordsGradeLevel, selectedRecordsTrack], () => {
   currentPage.value = 1
 })
-
-
 </script>
+
 
 <style scoped>
 .floating-label {
@@ -309,6 +816,18 @@ watch([searchQuery, selectedId, selectedCode, selectedGrade], () => {
   transform: translateY(1.5rem);
   font-size: 1rem;
 }
+
+.floating-label select {
+  padding: 1rem 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 0.375rem;
+  background: white;
+  transform: translateY(1.5rem);
+  font-size: 1rem;
+}
+
+
+
 
 .filters {
   display: flex;
