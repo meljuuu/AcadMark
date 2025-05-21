@@ -491,35 +491,79 @@ const filteredStudents = computed(() => {
 // ===================== MODAL FOR VIEWING/EDITING STUDENT =====================
 const showModal = ref(false)
 const selectedStudent = ref(null)
+
+// Create reactive modalFormData with initial keys from addStudentFields
 const modalFormData = reactive(Object.fromEntries(addStudentFields.map(f => [f.name, ''])))
+
 const isEditing = ref(false)
 const comment = ref('')
 
 function openModal(student) {
-    selectedStudent.value = student
-    isEditing.value = false
-    Object.keys(modalFormData).forEach(key => { modalFormData[key] = '' })
-    Object.keys(modalFormData).forEach(key => {
-        if (student[key] !== undefined) modalFormData[key] = student[key]
-    })
-    comment.value = student.comment || ''
-    showModal.value = true
+    showModal.value = true;
+    isEditing.value = false;
+
+    const original = student.original;
+
+    // Reset modalFormData before filling
+    for (const key in modalFormData) {
+        modalFormData[key] = original[key] ?? '';
+    }
+
+    // === Map backend values to display-friendly values ===
+    if (original.Sex === 'M') modalFormData.Sex = 'Male';
+    else if (original.Sex === 'F') modalFormData.Sex = 'Female';
+
+    if (original.Curriculum === 'JHS') {
+        modalFormData.Curriculum = 'Junior High School';
+    } else if (original.Curriculum === 'SHS') {
+        modalFormData.Curriculum = 'Senior High School';
+    }
+
+    // Convert "7" ➝ "Grade 7"
+    if (original.Grade_Level) {
+        modalFormData.Grade_Level = `Grade ${original.Grade_Level}`;
+    }
+
+    // === Set curriculum options ===
+    const curriculumField = addStudentFields.find(f => f.name === 'Curriculum');
+    if (curriculumField) {
+        curriculumField.options = ['Junior High School', 'Senior High School'];
+    }
+
+    // === Set track options ===
+    const curriculum = modalFormData.Curriculum;
+    const trackField = addStudentFields.find(f => f.name === 'Track');
+    if (trackField) {
+        trackField.options = trackOptions[curriculum] || [];
+    }
 }
 
+
+// ✅ Called when user cancels/close modal
 function closeModal() {
     showModal.value = false
     selectedStudent.value = null
     isEditing.value = false
     comment.value = ''
+
+    // Clear form data
+    Object.keys(modalFormData).forEach(key => {
+        modalFormData[key] = ''
+    })
 }
 
+// ✅ Enables form editing
 function startEditing() {
     isEditing.value = true
 }
 
+// ✅ Handles updating student data
 function handleUpdateStudent() {
     if (!selectedStudent.value) return
+
+    // Locate the student by LRN and update in the source list
     const index = students.value.findIndex(s => s.lrn === modalFormData.lrn)
+
     if (index !== -1) {
         students.value[index] = {
             ...students.value[index],
@@ -530,7 +574,9 @@ function handleUpdateStudent() {
     } else {
         alert('Error: Student record not found!')
     }
+
     isEditing.value = false
     closeModal()
 }
+
 </script>
