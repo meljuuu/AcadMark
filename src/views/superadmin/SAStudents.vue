@@ -1,321 +1,353 @@
 <template>
-    <div>
-        <h1 class="text-5xl font-bold">Student</h1>
-    </div>
+  <div>
+    <h1 class="text-5xl font-bold">Student</h1>
 
     <div class="content mt-4">
-        <div class="top-head">
-             <div class="filtering-section">
-                <!-- Status -->
-                <select
-                    v-if="showStatus"
-                    v-model="selectedStatus"
-                    class="filter-dropdown"
-                    @change="$emit('update:selectedStatus', selectedStatus)"
-                    >
-                    <option value="">Status (All)</option>
-                    <option v-for="status in statuses" :key="status" :value="status">
-                        {{ status }}
-                    </option>
-                </select>
+      <div class="top-head">
+        <div class="filtering-section">
+          <!-- Status -->
+          <select
+            v-if="showStatus"
+            v-model="selectedStatus"
+            class="filter-dropdown"
+            @change="$emit('update:selectedStatus', selectedStatus)"
+          >
+            <option value="">Status (All)</option>
+            <option v-for="status in statuses" :key="status" :value="status">
+              {{ status }}
+            </option>
+          </select>
 
-                <!-- Grade -->
-                <select
-                    v-if="showGrade"
-                    v-model="selectedGrade"
-                    class="filter-dropdown"
-                    @change="$emit('update:selectedGrade', selectedGrade)"
-                    >
-                    <option value="">Grade Level (All)</option>
-                    <option v-for="grade in grades" :key="grade" :value="grade">
-                        Grade {{ grade }}
-                    </option>
-                </select>
+          <!-- Grade -->
+          <select
+            v-if="showGrade"
+            v-model="selectedGrade"
+            class="filter-dropdown"
+            @change="$emit('update:selectedGrade', selectedGrade)"
+          >
+            <option value="">Grade Level (All)</option>
+            <option v-for="grade in grades" :key="grade" :value="grade">
+              Grade {{ grade }}
+            </option>
+          </select>
 
-                <!-- Curriculum -->
-                <select
-                    v-if="showCurriculum"
-                    v-model="selectedCurriculum"
-                    class="filter-dropdown"
-                    @change="$emit('update:selectedCurriculum', selectedCurriculum)"
-                    >
-                    <option value="">Curriculum (All)</option>
-                    <option v-for="curriculum in curriculums" :key="curriculum" :value="curriculum">
-                        {{ curriculum }}
-                    </option>
-                </select>
+          <!-- Curriculum -->
+          <select
+            v-if="showCurriculum"
+            v-model="selectedCurriculum"
+            class="filter-dropdown"
+            @change="$emit('update:selectedCurriculum', selectedCurriculum)"
+          >
+            <option value="">Curriculum (All)</option>
+            <option
+              v-for="curriculum in curriculums"
+              :key="curriculum"
+              :value="curriculum"
+            >
+              {{ curriculum }}
+            </option>
+          </select>
 
-                <!-- Gender -->
-                <select
-                    v-if="showGender"
-                    v-model="selectedGender"
-                    class="filter-dropdown"
-                    @change="$emit('update:selectedGender', selectedGender)"
-                    >
-                    <option value="">Gender (All)</option>
-                    <option v-for="gender in genders" :key="gender" :value="gender">
-                        {{ gender }}
-                    </option>
-                </select>
+          <!-- Gender -->
+          <select
+            v-if="showGender"
+            v-model="selectedGender"
+            class="filter-dropdown"
+            @change="$emit('update:selectedGender', selectedGender)"
+          >
+            <option value="">Gender (All)</option>
+            <option v-for="gender in genders" :key="gender.value" :value="gender.value">
+              {{ gender.label }}
+            </option>
+          </select>
 
-                <!-- Track -->
-                <select
-                    v-if="showTrack"
-                    v-model="selectedTrack"
-                    class="filter-dropdown"
-                    @change="$emit('update:selectedTrack', selectedTrack)"
-                    >
-                    <option value="">Track (All)</option>
-                    <option v-for="track in tracks" :key="track" :value="track">
-                        {{ track }}
-                    </option>
-                </select>
-            </div>
-
-            <div class="search-bar p-4">
-              <div class="relative w-full max-w-md">
-                <input
-                  v-model="searchQuery"
-                  type="text"
-                  placeholder="Search by name..."
-                  class="border border-[#295f98] rounded pl-10 pr-4 py-3 w-full"
-                />
-                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-              </div>
-            </div>
+          <!-- Track -->
+          <select
+            v-if="showTrack"
+            v-model="selectedTrack"
+            class="filter-dropdown"
+            @change="$emit('update:selectedTrack', selectedTrack)"
+          >
+            <option value="">Track (All)</option>
+            <option v-for="track in tracks" :key="track" :value="track">
+              {{ track }}
+            </option>
+          </select>
         </div>
-       
-        <div class="table-container mt-7">
-            <table>
-                <thead>
-                    <tr>
-                    <th class="border-b border-gray-300">
-                        <input type="checkbox" v-model="selectAll" @change="toggleSelectAll" />
-                    </th>
-                    <th class="border-b border-gray-300">Grade Level</th>
-                    <th class="border-b border-gray-300">LRN</th>
-                    <th class="border-b border-gray-300">Name</th>
-                    <th class="border-b border-gray-300">Curriculum</th>
-                    <th class="border-b border-gray-300">Track</th>
-                    <th class="border-b border-gray-300">Gender</th>
-                    <th class="border-b border-gray-300">Birthdate</th>
-                    <th class="border-b border-gray-300">Age</th>
-                    <th class="border-b border-gray-300">Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="student in paginatedStudents" 
-                        :key="student.lrn" 
-                        @click="openModal(student)"
-                        class="cursor-pointer hover:bg-gray-100"
-                    >
-                    <td class="px-6 py-4 border-b border-gray-300">
-                        <input 
-                          type="checkbox" 
-                          v-model="selectedStudents" 
-                          :value="student.lrn" 
-                          @click.stop 
-                        />
-                    </td>
-                    <td class="px-6 py-4 border-b border-gray-300">{{ student.grade }}</td>
-                    <td class="px-6 py-4 border-b border-gray-300">{{ student.lrn }}</td>
-                    <td class="px-6 py-4 border-b border-gray-300">{{ student.name }}</td>
-                    <td class="px-6 py-4 border-b border-gray-300">{{ student.curriculum }}</td>
-                    <td class="px-6 py-4 border-b border-gray-300">{{ student.track }}</td>
-                    <td class="px-6 py-4 border-b border-gray-300">{{ student.gender }}</td>
-                    <td class="px-6 py-4 border-b border-gray-300">{{ student.birthdate }}</td>
-                    <td class="px-6 py-4 border-b border-gray-300">{{ student.age }}</td>
-                    <td class="px-6 py-4 border-b border-gray-300">
-                        <span :class="statusClass(student.status)">
-                        {{ student.status }}
-                        </span>
-                    </td>
-                    </tr>
-                </tbody>
-            </table>
-            <StudentModal 
-              v-if="isModalOpen" 
-              :student="selectedStudent" 
-              @close="closeModal" 
+
+        <div class="search-bar p-4">
+          <div class="relative w-full max-w-md">
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Search by name..."
+              class="border border-[#295f98] rounded pl-10 pr-4 py-3 w-full"
             />
+            <i
+              class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            ></i>
+          </div>
         </div>
+      </div>
 
-        <div class="button">
-            <button class="red" @click="reject">Reject</button>
-            <button class="green" @click="acceptAlert">Accept</button>
-        </div>
+      <div class="table-container mt-7">
+        <table>
+          <thead>
+            <tr>
+              <th class="border-b border-gray-300">
+                <input type="checkbox" v-model="selectAll" @change="toggleSelectAll" />
+              </th>
+              <th class="border-b border-gray-300">Grade Level</th>
+              <th class="border-b border-gray-300">LRN</th>
+              <th class="border-b border-gray-300">Name</th>
+              <th class="border-b border-gray-300">Curriculum</th>
+              <th class="border-b border-gray-300">Track</th>
+              <th class="border-b border-gray-300">Gender</th>
+              <th class="border-b border-gray-300">Birthdate</th>
+              <th class="border-b border-gray-300">Age</th>
+              <th class="border-b border-gray-300">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="student in paginatedStudents"
+              :key="student.lrn"
+              @click="openModal(student)"
+              class="cursor-pointer hover:bg-gray-100"
+            >
+              <td class="px-6 py-4 border-b border-gray-300">
+                <input
+                  type="checkbox"
+                  v-model="selectedStudents"
+                  :value="student.lrn"
+                  @click.stop
+                />
+              </td>
+              <td class="px-6 py-4 border-b border-gray-300">{{ student.grade }}</td>
+              <td class="px-6 py-4 border-b border-gray-300">{{ student.lrn }}</td>
+              <td class="px-6 py-4 border-b border-gray-300">{{ student.name }}</td>
+              <td class="px-6 py-4 border-b border-gray-300">{{ student.curriculum }}</td>
+              <td class="px-6 py-4 border-b border-gray-300">{{ student.track }}</td>
+              <td class="px-6 py-4 border-b border-gray-300">{{ student.gender }}</td>
+              <td class="px-6 py-4 border-b border-gray-300">{{ student.birthdate }}</td>
+              <td class="px-6 py-4 border-b border-gray-300">{{ student.age }}</td>
+              <td class="px-6 py-4 border-b border-gray-300">
+                <span :class="statusClass(student.status)">{{ student.status }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Modal -->
+        <StudentModal
+          v-if="isModalOpen"
+          :student="selectedStudent"
+          :showModal="isModalOpen"
+          @close="closeModal"
+        />
+
+
+
+
+
+
+
+
+      </div>
+
+      <div class="button">
+        <button class="red" @click="reject">Reject</button>
+        <button class="green" @click="acceptAlert">Accept</button>
+      </div>
     </div>
+  </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import StudentModal from "./components/StudentModal.vue";
-import Swal from 'sweetalert2'
+import Swal from "sweetalert2";
+import { getAllStudentsData } from "@/service/superadminService";
+import { getStudentById } from "@/service/superadminService"
 
-const selectedStudent = ref(null)
-const isModalOpen = ref(false)
+const students = ref([]);
+const isModalOpen = ref(false);
+const selectedStudent = ref(null);
 
-const openModal = (student) => {
-  selectedStudent.value = students
-  isModalOpen.value = true
-}
+// Modal controls
+const openModal = async (student) => {
+  try {
+    const fullStudent = await getStudentById(student.Student_ID); // or student.LRN if your endpoint uses that
+    selectedStudent.value = fullStudent;
+    isModalOpen.value = true;
+  } catch (error) {
+    console.error("Failed to open student modal:", error);
+  }
+};
+
 
 const closeModal = () => {
-  isModalOpen.value = false
-  selectedStudent.value = null
-}
+  isModalOpen.value = false;
+  selectedStudent.value = null;
+};
 
-// Filter visibility
+// Fetch students on mount
+onMounted(async () => {
+  try {
+    const response = await getAllStudentsData();
+    students.value = response.data.map((student) => ({
+      Student_ID: student.Student_ID,
+      grade: student.Grade_Level,
+      lrn: student.LRN,
+      name: `${student.FirstName} ${student.MiddleName ? student.MiddleName[0] + "." : ""} ${student.LastName}${student.Suffix ? ", " + student.Suffix : ""}`,
+      curriculum: student.Curriculum,
+      track: student.Track,
+      gender: student.Sex,
+      birthdate: student.BirthDate,
+      age: student.Age,
+      status: student.Status,
+    }));
+  } catch (error) {
+    console.error("Failed to load students:", error);
+  }
+});
+
+// Filter visibility toggles
 const showStatus = ref(true);
 const showGrade = ref(true);
 const showCurriculum = ref(true);
 const showGender = ref(true);
 const showTrack = ref(true);
 
-// Dropdown options
+// Dropdown filter values
 const statuses = ["Pending", "Accepted", "Rejected"];
-const grades = ['7', '8', '9', '10']; 
-const curriculums = ["Junior High School", "Senior High School"];
-const genders = ["Male", "Female"];
+const grades = ["7", "8", "9", "10"];
+const curriculums = ["JHS", "SHS"];
+const genders = [
+  { label: "Male", value: "M" },
+  { label: "Female", value: "F" },
+];
 const tracks = ["STEM", "ABM", "TVL", "HUMSS"];
 
-// Selected filter values
 const selectedStatus = ref("");
 const selectedGrade = ref("");
 const selectedCurriculum = ref("");
 const selectedGender = ref("");
 const selectedTrack = ref("");
-const searchQuery = ref('');
+const searchQuery = ref("");
 
 // Filtering logic
 const filteredStudents = computed(() => {
-  return students.value.filter(student => {
-    const matchesSearch = student.name.toLowerCase().includes(searchQuery.value.toLowerCase());
-    const matchesStatus = selectedStatus.value === "" || student.status === selectedStatus.value;
-    const matchesGrade = selectedGrade.value === "" || parseInt(student.grade) === parseInt(selectedGrade.value);
-    const matchesCurriculum = selectedCurriculum.value === "" || student.curriculum === selectedCurriculum.value;
-    const matchesGender = selectedGender.value === "" || student.gender === selectedGender.value;
-    const matchesTrack = selectedTrack.value === "" || student.track === selectedTrack.value;
+  return students.value.filter((student) => {
+    const matchesSearch = student.name
+      .toLowerCase()
+      .includes(searchQuery.value.toLowerCase());
+    const matchesStatus =
+      selectedStatus.value === "" || student.status === selectedStatus.value;
+    const matchesGrade =
+      selectedGrade.value === "" ||
+      parseInt(student.grade) === parseInt(selectedGrade.value);
+    const matchesCurriculum =
+      selectedCurriculum.value === "" ||
+      student.curriculum === selectedCurriculum.value;
+    const matchesGender =
+      selectedGender.value === "" || student.gender === selectedGender.value;
+    const matchesTrack =
+      selectedTrack.value === "" || student.track === selectedTrack.value;
 
-    return matchesSearch && matchesStatus && matchesGrade && matchesCurriculum && matchesGender && matchesTrack;
+    return (
+      matchesSearch &&
+      matchesStatus &&
+      matchesGrade &&
+      matchesCurriculum &&
+      matchesGender &&
+      matchesTrack
+    );
   });
 });
 
-const students = ref([
-  {
-    grade: '7',
-    lrn: '123456789012',
-    name: 'Juan Dela Cruz',
-    curriculum: 'Junior High School',
-    track: 'STEM',
-    gender: 'Male',
-    birthdate: '2010-01-15',
-    age: 14,
-    status: 'Accepted'
-  },
-  {
-    grade: '8',
-    lrn: '234567890123',
-    name: 'Maria Santos',
-    curriculum: 'Senior High School',
-    track: 'ABM',
-    gender: 'Female',
-    birthdate: '2009-07-30',
-    age: 15,
-    status: 'Pending'
-  },
-  {
-    grade: '10',
-    lrn: '345678901234',
-    name: 'Pedro Reyes',
-    curriculum: 'Junior High School',
-    track: 'TVL',
-    gender: 'Male',
-    birthdate: '2008-05-10',
-    age: 16,
-    status: 'Rejected'
-  }
-]);
-
+// Pagination placeholder (can expand later)
 const paginatedStudents = computed(() => filteredStudents.value);
 
+// Checkbox selection logic
 const selectedStudents = ref([]);
 const selectAll = ref(false);
 
 const toggleSelectAll = () => {
   if (selectAll.value) {
-    selectedStudents.value = students.value.map(student => student.lrn);
+    selectedStudents.value = students.value.map((student) => student.lrn);
   } else {
     selectedStudents.value = [];
   }
 };
 
-// Automatically toggle `selectAll` when individual checkboxes change
 watch(selectedStudents, (newVal) => {
   selectAll.value = newVal.length === students.value.length;
 });
 
-// Status color helper
+// Status class helper
 const statusClass = (status) => {
   switch (status.toLowerCase()) {
-    case 'accepted':
-      return 'text-green-600 font-semibold';
-    case 'pending':
-      return 'text-yellow-600 font-semibold';
-    case 'rejected':
-      return 'text-red-600 font-semibold';
+    case "accepted":
+      return "text-green-600 font-semibold";
+    case "pending":
+      return "text-yellow-600 font-semibold";
+    case "rejected":
+      return "text-red-600 font-semibold";
     default:
-      return '';
+      return "";
   }
 };
 
+// Actions
 const reject = async () => {
   const result = await Swal.fire({
-    title: 'Are you sure?',
-    text: 'Do you really want to reject this?',
-    icon: 'warning',
+    title: "Are you sure?",
+    text: "Do you really want to reject this?",
+    icon: "warning",
     showCancelButton: true,
-    confirmButtonColor: '#D30000',
-    cancelButtonColor: '#6c757d',
-    confirmButtonText: 'Yes, Reject',
-    cancelButtonText: 'Cancel'
+    confirmButtonColor: "#D30000",
+    cancelButtonColor: "#6c757d",
+    confirmButtonText: "Yes, Reject",
+    cancelButtonText: "Cancel",
   });
 
   if (result.isConfirmed) {
     Swal.fire({
-      icon: 'success',
-      title: 'Rejected',
-      text: 'The item has been rejected.',
+      icon: "success",
+      title: "Rejected",
+      text: "Student rejected successfully!",
       timer: 1500,
-      showConfirmButton: false
+      showConfirmButton: false,
     });
   }
 };
 
-const acceptAlert = () => {
-  Swal.fire({
-    title: 'Are you sure?',
-    text: 'Do you want to accept this?',
-    icon: 'question',
+const acceptAlert = async () => {
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: "Do you want to accept this student?",
+    icon: "question",
     showCancelButton: true,
-    confirmButtonColor: '#28a745',
-    cancelButtonColor: '#6c757d',
-    confirmButtonText: 'Yes, Accept',
-    cancelButtonText: 'Cancel'
-  }).then((result) => {
-    
-    if (result.isConfirmed) {
-      Swal.fire({
-        icon: 'success',
-        title: 'Accepted',
-        text: 'The item has been accepted successfully.',
-        showConfirmButton: false,
-        timer: 1500
-      });
-    }
+    confirmButtonColor: "#007bff",
+    cancelButtonColor: "#6c757d",
+    confirmButtonText: "Yes, Accept",
+    cancelButtonText: "Cancel",
   });
+
+  if (result.isConfirmed) {
+    Swal.fire({
+      icon: "success",
+      title: "Accepted",
+      text: "Student accepted successfully!",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  }
 };
 </script>
+
+
 
 
 <style scoped>

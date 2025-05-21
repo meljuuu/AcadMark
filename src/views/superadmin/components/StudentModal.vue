@@ -1,5 +1,4 @@
 <template>
-  <!-- Individual Registration Modal -->
   <transition name="modal-fade" @after-leave="emitClose">
     <div class="modal-overlay" v-if="showModal" @click.self="closeModal">
       <div class="modal-content">
@@ -37,11 +36,12 @@
                 <option>HUMSS</option>
                 <option>GAS</option>
                 <option>TVL</option>
+                <option>Sports</option>
               </select>
             </div>
             <div class="form-group">
               <label>LRN</label>
-              <input type="text" v-model="form.lrn" class="w-[350px]"/>
+              <input type="text" v-model="form.lrn" class="w-[350px]" />
             </div>
           </div>
 
@@ -49,7 +49,7 @@
           <div class="form-row">
             <div class="form-group">
               <label>Full Name</label>
-              <input type="text" v-model="form.fullName" class="w-[350px]"/>
+              <input type="text" v-model="form.fullName" class="w-[350px]" />
             </div>
             <div class="form-group">
               <label>Sex</label>
@@ -61,15 +61,15 @@
             </div>
             <div class="form-group">
               <label>Birth Date (mm/dd/yy)</label>
-              <input type="date" v-model="form.birthdate" class="w-[350px]"/>
+              <input type="date" v-model="form.birthdate" class="w-[350px]" />
             </div>
             <div class="form-group">
               <label>Age</label>
-              <input type="text" v-model="form.age" class="w-[160px]"/>
+              <input type="text" v-model="form.age" class="w-[160px]" />
             </div>
             <div class="form-group">
               <label>Religious Affiliation</label>
-              <input type="text" v-model="form.religiousAffiliation" class="w-[350px]"/>
+              <input type="text" v-model="form.religiousAffiliation" class="w-[350px]" />
             </div>
           </div>
 
@@ -77,19 +77,19 @@
           <div class="form-row">
             <div class="form-group">
               <label>House No. / Street / Purok</label>
-              <input type="text" v-model="form.street" class="w-[350px]"/>
+              <input type="text" v-model="form.street" class="w-[350px]" />
             </div>
             <div class="form-group">
               <label>Barangay</label>
-              <input type="text" v-model="form.barangay" class="w-[350px]"/>
+              <input type="text" v-model="form.barangay" class="w-[350px]" />
             </div>
             <div class="form-group">
               <label>Municipality/City</label>
-              <input type="text" v-model="form.city" class="w-[350px]"/>
+              <input type="text" v-model="form.city" class="w-[350px]" />
             </div>
             <div class="form-group">
               <label>Province</label>
-              <input type="text" v-model="form.province" class="w-[350px]"/>
+              <input type="text" v-model="form.province" class="w-[350px]" />
             </div>
           </div>
 
@@ -97,40 +97,36 @@
           <div class="form-row">
             <div class="form-group">
               <label>Father’s Name</label>
-              <input type="text" v-model="form.fatherName" class="w-[350px]"/>
+              <input type="text" v-model="form.fatherName" class="w-[350px]" />
             </div>
             <div class="form-group">
               <label>Mother’s Name</label>
-              <input type="text" v-model="form.motherName" class="w-[350px]"/>
+              <input type="text" v-model="form.motherName" class="w-[350px]" />
             </div>
             <div class="form-group">
               <label>Guardian’s Name</label>
-              <input type="text" v-model="form.guardianName" class="w-[230px]"/>
+              <input type="text" v-model="form.guardianName" class="w-[230px]" />
             </div>
             <div class="form-group">
               <label>Relationship w/ Guardian</label>
-              <input type="text" v-model="form.guardianRelationship" class="w-[230px]"/>
+              <input type="text" v-model="form.guardianRelationship" class="w-[230px]" />
             </div>
             <div class="form-group">
               <label>Guardian/Parent Contact No.</label>
-              <input type="text" v-model="form.guardianContact" class="w-[230px]"/>
+              <input type="text" v-model="form.guardianContact" class="w-[230px]" />
             </div>
           </div>
 
           <!-- Comment Section -->
           <div class="form-comment">
             <label class="title">COMMENT</label>
-            <textarea 
-              rows="6" 
-              v-model="form.comment" 
-              placeholder="Enter comment...">
-            </textarea>
+            <textarea rows="6" v-model="form.comment" placeholder="Enter comment..."></textarea>
           </div>
 
           <!-- Action Buttons -->
           <div class="form-actions">
             <button type="button" class="cancel-btn" @click="rejectAlert">Reject</button>
-            <button type="submit" class="submit-btn">Accept</button>          
+            <button type="submit" class="submit-btn">Accept</button>
           </div>
         </form>
       </div>
@@ -138,111 +134,125 @@
   </transition>
 </template>
 
-  
 <script setup>
-import { reactive, ref } from 'vue'
-import Swal from 'sweetalert2'
+import { reactive, watch } from "vue";
+import Swal from "sweetalert2";
 
+// Props
+const props = defineProps({
+  student: {
+    type: Object,
+    required: true,
+  },
+  showModal: {
+    type: Boolean,
+    required: true,
+  },
+});
+
+const emit = defineEmits(["close"]);
+
+// Form state
 const form = reactive({
-  gradeLevel: '',
-  curriculum: '',
-  track: '',
-  lrn: '',
-  fullName: '',
-  sex: '',
-  birthdate: '',
-  age: '',
-  religiousAffiliation: '',
-  street: '',
-  barangay: '',
-  city: '',
-  province: '',
-  fatherName: '',
-  motherName: '',
-  guardianName: '',
-  guardianRelationship: '',
-  guardianContact: '',
-  comment: ''
-})
+  gradeLevel: "",
+  curriculum: "",
+  track: "",
+  lrn: "",
+  fullName: "",
+  sex: "",
+  birthdate: "",
+  age: "",
+  religiousAffiliation: "",
+  street: "",
+  barangay: "",
+  city: "",
+  province: "",
+  fatherName: "",
+  motherName: "",
+  guardianName: "",
+  guardianRelationship: "",
+  guardianContact: "",
+  comment: "",
+});
 
-const emit = defineEmits(['close'])
-const showModal = ref(true)
+// Load data from props.student
+watch(
+  () => props.student,
+  (student) => {
+    if (student) {
+      form.gradeLevel = student.Grade_Level ? `Grade ${student.Grade_Level}` : "";
+      form.curriculum =
+        student.Curriculum === "JHS"
+          ? "Junior High School"
+          : student.Curriculum === "SHS"
+          ? "Senior High School"
+          : "";
+      form.track = student.Track || "";
+      form.lrn = student.LRN || "";
+      form.fullName = `${student.FirstName || ""} ${student.MiddleName || ""} ${student.LastName || ""} ${student.Suffix || ""}`.replace(/\s+/g, " ").trim();
+      form.sex = student.Sex === "M" ? "Male" : student.Sex === "F" ? "Female" : "";
+      form.birthdate = student.BirthDate || "";
+      form.age = student.Age || "";
+      form.religiousAffiliation = student.Religion || "";
+      form.street = student.HouseNo || "";
+      form.barangay = student.Barangay || "";
+      form.city = student.Municipality || "";
+      form.province = student.Province || "";
+      form.fatherName = student.FatherName || "";
+      form.motherName = student.MotherName || "";
+      form.guardianName = student.Guardian || "";
+      form.guardianRelationship = student.Relationship || "";
+      form.guardianContact = student.ContactNumber || "";
+      form.comment = student.comments || "";
+    }
+  },
+  { immediate: true }
+);
 
+// Actions
 function rejectAlert() {
-  if (form.comment.trim() === '') {
+  if (form.comment.trim() === "") {
     Swal.fire({
-      icon: 'warning',
-      title: 'Comment Required',
-      text: 'Please provide a comment before rejecting.',
-      confirmButtonText: 'OK',
-      confirmButtonColor: '#D30000'
+      icon: "warning",
+      title: "Comment Required",
+      text: "Please provide a comment before rejecting.",
     });
     return;
   }
-
   Swal.fire({
-    title: 'Are you sure?',
-    text: 'Do you want to reject this with your comment?',
-    icon: 'warning',
+    title: "Are you sure you want to reject this student?",
+    icon: "warning",
     showCancelButton: true,
-    confirmButtonColor: '#D30000',
-    cancelButtonColor: '#6c757d',
-    confirmButtonText: 'Yes, Reject',
-    cancelButtonText: 'Cancel'
-  }).then(result => {
+    confirmButtonText: "Yes, reject",
+  }).then((result) => {
     if (result.isConfirmed) {
-      showModal.value = false;
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Rejected',
-        text: 'The item has been rejected successfully.',
-        showConfirmButton: false,
-        timer: 1500
-      });
+      Swal.fire("Rejected!", "The student has been rejected.", "success");
+      closeModal();
     }
   });
 }
 
-function closeModal() {
-  showModal.value = false;
-}
-
-const submitForm = async () => {
-  const result = await Swal.fire({
-    title: 'Are you sure?',
-    text: 'Do you want to accept this?',
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonColor: '#28a745',
-    cancelButtonColor: '#6c757d',
-    confirmButtonText: 'Yes, Accept',
-    cancelButtonText: 'Cancel'
+function submitForm() {
+  Swal.fire({
+    icon: "success",
+    title: "Accepted",
+    text: "Student registration accepted.",
   });
-
-  if (result.isConfirmed) {
-    Swal.fire({
-      icon: 'success',
-      title: 'Accepted',
-      text: 'The item has been accepted.',
-      timer: 1500,
-      showConfirmButton: false
-    });
-    showModal.value = false;
-    emit('close');
-    console.log('Accepted with comment:', form.comment);
-  }
+  closeModal();
 }
 
+function closeModal() {
+  emit("close");
+}
 
 function emitClose() {
-  emit('close')
+  emit("close");
 }
-
 </script>
 
-  
-  <style scoped>
+
+
+<style scoped>
   .modal-overlay {
     position: fixed;
     top: 0;
