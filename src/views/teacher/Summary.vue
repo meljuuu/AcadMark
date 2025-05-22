@@ -1,4 +1,5 @@
 <template>
+<<<<<<< HEAD
   <div class="flex justify-between m-5">
     <div class="flex justify-between w-90">
       <Dropdown :showSort="true" v-model="selectedSort" />
@@ -12,6 +13,62 @@
       >
         Generate Report
       </button>
+=======
+    <div class="flex justify-between m-5">
+        <div class="flex justify-between w-90">
+            <Dropdown :showSort="true" v-model="selectedSort" />
+        </div>
+
+        <div class="flex justify-between gap-5">
+            <div>
+                <Searchbar v-model="searchQuery" />
+            </div>
+            <button @click="generateCSV"
+                class="bg-[#30612E] text-white px-5 py-1 rounded-md hover:bg-[#cecece] transition-colors cursor-pointer duration-200">
+                <p class="w-full">Generate Report</p>
+            </button>
+        </div>
+    </div>
+
+    <div class="p-5 rounded-[5px]">
+        <div class="relative">
+            <table class="w-full border-collapse border-none rounded-[5px]">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th v-for="header in headers" :key="header"
+                            class="px-4 py-2 text-[#464F60] text-[16px] font-semibold text-center">
+                            {{ header }}
+                        </th>
+                    </tr>
+                </thead>
+            </table>
+            <div class="max-h-[600px] overflow-y-auto">
+                <table class="w-full border-collapse border-none rounded-[5px]">
+                    <tbody class="text-center font-medium">
+                        <tr v-if="filteredStudents.length === 0">
+                            <td colspan="9" class="px-4 py-2">No students available.</td>
+                        </tr>
+                        <tr v-for="student in filteredStudents" :key="student.lrn">
+                            <td class="px-4 py-2">{{ student.lrn }}</td>
+                            <td class="px-4 py-2">{{ student.lastName + ", " + student.firstName + " " +
+                                student.middleName }}
+                            </td>
+                            <td class="px-4 py-2">{{ student.sex }}</td>
+                            <td class="px-4 py-2">{{ getGradeForQuarter(student, "first") }}</td>
+                            <td class="px-4 py-2">{{ getGradeForQuarter(student, "second") }}</td>
+                            <td class="px-4 py-2">{{ getGradeForQuarter(student, "third") }}</td>
+                            <td class="px-4 py-2">{{ getGradeForQuarter(student, "fourth") }}</td>
+                            <td class="px-4 py-2">{{ getFinalGrade(student) }}</td>
+                            <td :class="getRemarks(student) === 'Passed' ? 'text-[#23AD00]' : 'text-[#FF0000]'"
+                                class="px-4 py-2 font-bold">
+                                {{ getRemarks(student) }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+>>>>>>> c596329 (Teacher Side Revisions - sweet alert modals / synced sidebar / total students in dashboard / grading validationand working status (marked, unmarked, show all) / Using "-" instead of "no grade" / Scrollable table instead of pagination)
     </div>
   </div>
 
@@ -69,9 +126,16 @@
 </template>
 
 <script setup>
+<<<<<<< HEAD
   import { ref, onMounted, computed, watch } from 'vue';
   import Dropdown from '@/components/dropdown.vue';
   import Searchbar from '@/components/searchbar.vue';
+=======
+import { ref, onMounted, computed } from 'vue';
+import Dropdown from '@/components/dropdown.vue';
+import Searchbar from '@/components/searchbar.vue';
+import Swal from 'sweetalert2';
+>>>>>>> c596329 (Teacher Side Revisions - sweet alert modals / synced sidebar / total students in dashboard / grading validationand working status (marked, unmarked, show all) / Using "-" instead of "no grade" / Scrollable table instead of pagination)
 
   const props = defineProps({
     subject_id: {
@@ -79,6 +143,7 @@
       required: true,
     },
     subjectName: {
+<<<<<<< HEAD
       type: String,
       required: true,
     },
@@ -105,6 +170,16 @@
     'Final Grade',
     'Remarks',
   ]);
+=======
+        type: String,
+        required: true,
+    }
+});
+
+const headers = ref([
+    'LRN', 'Name', 'Gender', '1st Quarter', '2nd Quarter', '3rd Quarter', '4th Quarter', 'Final Grade', 'Remarks'
+]);
+>>>>>>> c596329 (Teacher Side Revisions - sweet alert modals / synced sidebar / total students in dashboard / grading validationand working status (marked, unmarked, show all) / Using "-" instead of "no grade" / Scrollable table instead of pagination)
 
   const students = ref([]);
   const selectedSort = ref('default');
@@ -112,6 +187,7 @@
 
   const fetchStudents = () => {
     try {
+<<<<<<< HEAD
       const key = `submittedGrade_${props.subject_id}`;
       const storedData = JSON.parse(localStorage.getItem(key)) || [];
       students.value = storedData;
@@ -121,11 +197,19 @@
       students.value = [];
       emit('update:currentPage', 1);
       emit('update:totalItems', 0);
+=======
+        const key = `submittedGrade_${props.subject_id}`;
+        const storedData = JSON.parse(localStorage.getItem(key)) || [];
+        students.value = storedData;
+    } catch (error) {
+        students.value = [];
+>>>>>>> c596329 (Teacher Side Revisions - sweet alert modals / synced sidebar / total students in dashboard / grading validationand working status (marked, unmarked, show all) / Using "-" instead of "no grade" / Scrollable table instead of pagination)
     }
   };
 
   const getGradeForQuarter = (student, quarter) => {
     const grade = student.grades?.[quarter];
+<<<<<<< HEAD
     if (
       !grade ||
       grade === null ||
@@ -135,6 +219,10 @@
       grade === 'No grade'
     ) {
       return 'No grade';
+=======
+    if (!grade || grade === null || grade === undefined || grade === '' || grade === '-' || grade === 'No grade') {
+        return '-';
+>>>>>>> c596329 (Teacher Side Revisions - sweet alert modals / synced sidebar / total students in dashboard / grading validationand working status (marked, unmarked, show all) / Using "-" instead of "no grade" / Scrollable table instead of pagination)
     }
     return grade;
   };
@@ -146,22 +234,32 @@
     let hasAnyValidGrade = false;
 
     for (let quarter of grades) {
+<<<<<<< HEAD
       const grade = getGradeForQuarter(student, quarter);
       if (grade !== 'No grade') {
         hasAnyValidGrade = true;
         total += parseFloat(grade);
         gradeCount++;
       }
+=======
+        const grade = getGradeForQuarter(student, quarter);
+        if (grade !== '-') {
+            hasAnyValidGrade = true;
+            total += parseFloat(grade);
+            gradeCount++;
+        }
+>>>>>>> c596329 (Teacher Side Revisions - sweet alert modals / synced sidebar / total students in dashboard / grading validationand working status (marked, unmarked, show all) / Using "-" instead of "no grade" / Scrollable table instead of pagination)
     }
 
-    if (!hasAnyValidGrade) return 'No grade';
-    if (gradeCount < 4) return 'INC';
+    if (!hasAnyValidGrade) return '-';
+    if (gradeCount < 4) return '-';
 
     return (total / gradeCount).toFixed(2);
   };
 
   const getDescriptor = (student) => {
     const finalGrade = getFinalGrade(student);
+<<<<<<< HEAD
 
     if (finalGrade === 'No grade' || finalGrade === 'INC') {
       return 'Incomplete';
@@ -203,6 +301,16 @@
 
   const gradeToNumeric = (grade) => {
     if (grade === 'No grade') return -1;
+=======
+    if (finalGrade === '-' || finalGrade === 'INC' || parseFloat(finalGrade) <= 75) {
+        return 'Failed';
+    }
+    return 'Passed';
+};
+
+const gradeToNumeric = (grade) => {
+    if (grade === '-') return -1;
+>>>>>>> c596329 (Teacher Side Revisions - sweet alert modals / synced sidebar / total students in dashboard / grading validationand working status (marked, unmarked, show all) / Using "-" instead of "no grade" / Scrollable table instead of pagination)
     if (grade === 'INC') return 0;
     return parseFloat(grade);
   };
@@ -247,6 +355,7 @@
     return sortedStudents;
   });
 
+<<<<<<< HEAD
   const totalPages = computed(() => {
     if (filteredStudents.value.length === 0) {
       return 0;
@@ -280,6 +389,9 @@
   );
 
   const generateCSV = () => {
+=======
+const generateCSV = () => {
+>>>>>>> c596329 (Teacher Side Revisions - sweet alert modals / synced sidebar / total students in dashboard / grading validationand working status (marked, unmarked, show all) / Using "-" instead of "no grade" / Scrollable table instead of pagination)
     const date = new Date().toLocaleDateString().replace(/\//g, '-');
 
     const csvContent = [
@@ -315,6 +427,7 @@
     document.body.removeChild(link);
   };
 
+<<<<<<< HEAD
   onMounted(() => {
     fetchStudents();
     if (students.value.length === 0) {
@@ -325,3 +438,19 @@
     }
   });
 </script>
+=======
+const showAlertModal = (message, type = 'error', title = 'Error') => {
+    Swal.fire({
+        title: title,
+        text: message,
+        icon: type,
+        confirmButtonColor: type === 'error' ? '#dc2626' : '#16a34a',
+        confirmButtonText: 'OK'
+    });
+};
+
+onMounted(() => {
+    fetchStudents();
+});
+</script>
+>>>>>>> c596329 (Teacher Side Revisions - sweet alert modals / synced sidebar / total students in dashboard / grading validationand working status (marked, unmarked, show all) / Using "-" instead of "no grade" / Scrollable table instead of pagination)

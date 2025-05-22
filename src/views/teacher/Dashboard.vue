@@ -1,8 +1,16 @@
 <template>
+<<<<<<< HEAD
   <div
     class="flex flex-col gap-10 py-5 px-5 overflow-x-hidden ssm:w-[75vw] sm:w-[80vw] md:w-[84vw] max-w-[84vw]"
   >
     <h1 class="title">Dashboard</h1>
+=======
+  <div class="flex flex-col gap-10 py-5 px-5 overflow-x-hidden ssm:w-[75vw] sm:w-[80vw] md:w-[84vw] max-w-[84vw]">
+    <div class="flex justify-between items-center">
+      <h1 class="title">Dashboard</h1>
+      <p class="title">Total Students: {{ totalStudents }}</p>
+    </div>
+>>>>>>> c596329 (Teacher Side Revisions - sweet alert modals / synced sidebar / total students in dashboard / grading validationand working status (marked, unmarked, show all) / Using "-" instead of "no grade" / Scrollable table instead of pagination)
 
     <!-- Advisory Class Section -->
     <div
@@ -319,10 +327,86 @@
     getRecentGrades,
   } from '@/service/dashboardService';
 
+<<<<<<< HEAD
   const advisoryStats = ref({
     totalStudents: 0,
     maleCount: 0,
     femaleCount: 0,
+=======
+const totalStudents = computed(() => {
+  const advisoryCount = advisoryStats.value.total;
+  const subjectCount = subjectClasses.value.reduce((sum, cls) => sum + cls.count, 0);
+  return advisoryCount + subjectCount;
+});
+
+const advisoryStats = computed(() => {
+  const advisoryClass = classData.find(cls => cls.classType === 'Advisory');
+  if (!advisoryClass) return { total: 0, male: 0, female: 0 };
+
+  const advisorySubject = subjectData.find(sub => sub.subject_id === advisoryClass.subject_id);
+  if (!advisorySubject) return { total: 0, male: 0, female: 0 };
+
+  const advisoryStudents = studentData.filter(student =>
+    advisorySubject.student_id.includes(student.student_id)
+  );
+
+  const maleCount = advisoryStudents.filter(student => student.sex === 'Male').length;
+  const femaleCount = advisoryStudents.filter(student => student.sex === 'Female').length;
+
+  return {
+    total: advisoryStudents.length,
+    male: maleCount,
+    female: femaleCount
+  };
+});
+
+const subjectClasses = computed(() => {
+  const subjectClasses = classData.filter(cls => cls.classType === 'Subject');
+
+  return subjectClasses.map(cls => {
+    const subject = subjectData.find(sub => sub.subject_id === cls.subject_id);
+    const studentCount = subject ? subject.student_id.length : 0;
+
+    return {
+      count: studentCount,
+      name: cls.className,
+      subject: subject ? subject.subjectName : 'Unknown Subject'
+    };
+  });
+});
+
+const gradeChartData = computed(() => {
+  const classNames = [...new Set(classData.map(cls => cls.className))];
+
+  const gradeRanges = {
+    '90-100': Array(classNames.length).fill(0),
+    '85-89': Array(classNames.length).fill(0),
+    '80-84': Array(classNames.length).fill(0),
+    '75-79': Array(classNames.length).fill(0),
+    'Below 75': Array(classNames.length).fill(0)
+  };
+
+  const recentGrades = JSON.parse(localStorage.getItem('recentGrades') || '[]');
+
+  recentGrades.forEach(grade => {
+    const className = grade.className;
+    const gradeValue = parseFloat(grade.grade);
+    const classIndex = classNames.indexOf(className);
+
+    if (classIndex !== -1) {
+      if (gradeValue >= 90) {
+        gradeRanges['90-100'][classIndex]++;
+      } else if (gradeValue >= 85) {
+        gradeRanges['85-89'][classIndex]++;
+      } else if (gradeValue >= 80) {
+        gradeRanges['80-84'][classIndex]++;
+      } else if (gradeValue >= 75) {
+        gradeRanges['75-79'][classIndex]++;
+      } else {
+        gradeRanges['Below 75'][classIndex]++;
+      }
+    }
+>>>>>>> c596329 (Teacher Side Revisions - sweet alert modals / synced sidebar / total students in dashboard / grading validationand working status (marked, unmarked, show all) / Using "-" instead of "no grade" / Scrollable table instead of pagination)
   });
 
   const subjectClasses = ref([]);

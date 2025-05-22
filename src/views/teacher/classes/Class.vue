@@ -43,6 +43,7 @@
           </div>
         </div>
 
+<<<<<<< HEAD
         <div
           :class="{
             'text-[#3E6FA2]': classType?.toLowerCase() === 'advisory',
@@ -53,6 +54,21 @@
           <p class="font-bold text-[150px]">
             {{ parseInt(gradeLevel) <= 10 ? (subjectName + ' ' + gradeLevel) : (trackStand + ' ' + gradeLevel) }}
           </p>
+=======
+        <div v-if="(activeComponent === 'Submitted') && totalPages > 0"
+            class="flex justify-center items-center gap-5 py-5">
+            <img src="/assets/img/classes/arrow.png" alt="arrow" class="w-4 h-4 rotate-180 cursor-pointer"
+                @click="prevPage" :class="{ 'opacity-50 cursor-not-allowed': currentPage === 1 }">
+            <div class="flex gap-5 items-center justify-center">
+                <div v-for="page in totalPages" :key="page" class="text-lg cursor-pointer"
+                    :class="{ 'bg-[#2C2C2C] w-8 h-8 rounded-md text-white flex items-center justify-center': currentPage === page }"
+                    @click="currentPage = page">
+                    <p>{{ page }}</p>
+                </div>
+            </div>
+            <img src="/assets/img/classes/arrow.png" alt="arrow" class="w-4 h-4 cursor-pointer" @click="nextPage"
+                :class="{ 'opacity-50 cursor-not-allowed': currentPage === totalPages }">
+>>>>>>> c596329 (Teacher Side Revisions - sweet alert modals / synced sidebar / total students in dashboard / grading validationand working status (marked, unmarked, show all) / Using "-" instead of "no grade" / Scrollable table instead of pagination)
         </div>
       </div>
 
