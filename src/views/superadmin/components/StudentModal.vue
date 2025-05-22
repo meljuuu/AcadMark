@@ -134,9 +134,11 @@
   </transition>
 </template>
 
+
 <script setup>
 import { reactive, watch } from "vue";
 import Swal from "sweetalert2";
+import { acceptStudent, declineStudent } from "@/service/superadminService";
 
 // Props
 const props = defineProps({
@@ -149,8 +151,7 @@ const props = defineProps({
     required: true,
   },
 });
-
-const emit = defineEmits(["close"]);
+const emit = defineEmits(["close", "refresh"]);
 
 // Form state
 const form = reactive({
@@ -175,18 +176,18 @@ const form = reactive({
   comment: "",
 });
 
+// Local reusable refresh function
+function refresh() {
+  emit("refresh");
+}
+
 // Load data from props.student
 watch(
   () => props.student,
   (student) => {
     if (student) {
       form.gradeLevel = student.Grade_Level ? `Grade ${student.Grade_Level}` : "";
-      form.curriculum =
-        student.Curriculum === "JHS"
-          ? "Junior High School"
-          : student.Curriculum === "SHS"
-          ? "Senior High School"
-          : "";
+      form.curriculum = student.Curriculum === "JHS" ? "Junior High School" : student.Curriculum === "SHS" ? "Senior High School" : "";
       form.track = student.Track || "";
       form.lrn = student.LRN || "";
       form.fullName = `${student.FirstName || ""} ${student.MiddleName || ""} ${student.LastName || ""} ${student.Suffix || ""}`.replace(/\s+/g, " ").trim();
@@ -209,8 +210,29 @@ watch(
   { immediate: true }
 );
 
-// Actions
-function rejectAlert() {
+// Accept Student
+async function submitForm() {
+  try {
+    await acceptStudent(props.student.Student_ID);
+    Swal.fire({
+      icon: "success",
+      title: "Accepted",
+      text: "Student registration accepted.",
+    }).then(() => {
+      window.location.reload(); // 🔁 Reload after confirmation
+    });
+  } catch (error) {
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Failed to accept student.",
+    });
+  }
+}
+
+
+// Reject Student
+async function rejectAlert() {
   if (form.comment.trim() === "") {
     Swal.fire({
       icon: "warning",
@@ -219,27 +241,28 @@ function rejectAlert() {
     });
     return;
   }
-  Swal.fire({
+
+  const result = await Swal.fire({
     title: "Are you sure you want to reject this student?",
     icon: "warning",
     showCancelButton: true,
     confirmButtonText: "Yes, reject",
-  }).then((result) => {
-    if (result.isConfirmed) {
-      Swal.fire("Rejected!", "The student has been rejected.", "success");
-      closeModal();
-    }
   });
+
+  if (result.isConfirmed) {
+    try {
+      // ✅ Pass the comment as second argument
+      await declineStudent(props.student.Student_ID, form.comment);
+      Swal.fire("Rejected!", "The student has been rejected.", "success").then(() => {
+        window.location.reload(); // 🔁 Reload after confirmation
+      });
+    } catch (error) {
+      Swal.fire("Error", "Failed to reject student.", "error");
+    }
+  }
 }
 
-function submitForm() {
-  Swal.fire({
-    icon: "success",
-    title: "Accepted",
-    text: "Student registration accepted.",
-  });
-  closeModal();
-}
+
 
 function closeModal() {
   emit("close");
@@ -249,7 +272,6 @@ function emitClose() {
   emit("close");
 }
 </script>
-
 
 
 <style scoped>

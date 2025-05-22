@@ -42,3 +42,31 @@ export const getStudentById = async (id) => {
   }
 };
 
+// Accept Student
+export const acceptStudent = async (id) => {
+  try {
+    const response = await API.put(`/superadmin/student/${id}/accept`);
+    return response.data;
+  } catch (error) {
+    console.error("Error accepting student:", error);
+    throw error.response ? error.response.data : error;
+  }
+};
+
+// Decline Student
+export const declineStudent = async (id, comment) => {
+  try {
+    const response = await API.put(`/superadmin/student/${id}/decline`, {
+      comment: comment, // ✅ Send the comment as request payload
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error declining student:", error);
+    throw error.response ? error.response.data : error;
+  }
+};
+
+
+
+
+

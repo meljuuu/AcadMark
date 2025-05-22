@@ -3,158 +3,94 @@
     <h1 class="text-5xl font-bold">Student</h1>
 
     <div class="content mt-4">
+      <!-- Filter Section -->
       <div class="top-head">
         <div class="filtering-section">
           <!-- Status -->
-          <select
-            v-if="showStatus"
-            v-model="selectedStatus"
-            class="filter-dropdown"
-            @change="$emit('update:selectedStatus', selectedStatus)"
-          >
+          <select v-if="showStatus" v-model="selectedStatus" class="filter-dropdown"
+            @change="$emit('update:selectedStatus', selectedStatus)">
             <option value="">Status (All)</option>
-            <option v-for="status in statuses" :key="status" :value="status">
-              {{ status }}
-            </option>
+            <option v-for="status in statuses" :key="status" :value="status">{{ status }}</option>
           </select>
 
           <!-- Grade -->
-          <select
-            v-if="showGrade"
-            v-model="selectedGrade"
-            class="filter-dropdown"
-            @change="$emit('update:selectedGrade', selectedGrade)"
-          >
+          <select v-if="showGrade" v-model="selectedGrade" class="filter-dropdown"
+            @change="$emit('update:selectedGrade', selectedGrade)">
             <option value="">Grade Level (All)</option>
-            <option v-for="grade in grades" :key="grade" :value="grade">
-              Grade {{ grade }}
-            </option>
+            <option v-for="grade in grades" :key="grade" :value="grade">Grade {{ grade }}</option>
           </select>
 
           <!-- Curriculum -->
-          <select
-            v-if="showCurriculum"
-            v-model="selectedCurriculum"
-            class="filter-dropdown"
-            @change="$emit('update:selectedCurriculum', selectedCurriculum)"
-          >
+          <select v-if="showCurriculum" v-model="selectedCurriculum" class="filter-dropdown"
+            @change="$emit('update:selectedCurriculum', selectedCurriculum)">
             <option value="">Curriculum (All)</option>
-            <option
-              v-for="curriculum in curriculums"
-              :key="curriculum"
-              :value="curriculum"
-            >
-              {{ curriculum }}
-            </option>
+            <option v-for="curriculum in curriculums" :key="curriculum" :value="curriculum">{{ curriculum }}</option>
           </select>
 
           <!-- Gender -->
-          <select
-            v-if="showGender"
-            v-model="selectedGender"
-            class="filter-dropdown"
-            @change="$emit('update:selectedGender', selectedGender)"
-          >
+          <select v-if="showGender" v-model="selectedGender" class="filter-dropdown"
+            @change="$emit('update:selectedGender', selectedGender)">
             <option value="">Gender (All)</option>
-            <option v-for="gender in genders" :key="gender.value" :value="gender.value">
-              {{ gender.label }}
-            </option>
+            <option v-for="gender in genders" :key="gender.value" :value="gender.value">{{ gender.label }}</option>
           </select>
 
           <!-- Track -->
-          <select
-            v-if="showTrack"
-            v-model="selectedTrack"
-            class="filter-dropdown"
-            @change="$emit('update:selectedTrack', selectedTrack)"
-          >
+          <select v-if="showTrack" v-model="selectedTrack" class="filter-dropdown"
+            @change="$emit('update:selectedTrack', selectedTrack)">
             <option value="">Track (All)</option>
-            <option v-for="track in tracks" :key="track" :value="track">
-              {{ track }}
-            </option>
+            <option v-for="track in tracks" :key="track" :value="track">{{ track }}</option>
           </select>
         </div>
 
+        <!-- Search -->
         <div class="search-bar p-4">
           <div class="relative w-full max-w-md">
-            <input
-              v-model="searchQuery"
-              type="text"
-              placeholder="Search by name..."
-              class="border border-[#295f98] rounded pl-10 pr-4 py-3 w-full"
-            />
-            <i
-              class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-            ></i>
+            <input v-model="searchQuery" type="text" placeholder="Search by name..."
+              class="border border-[#295f98] rounded pl-10 pr-4 py-3 w-full" />
+            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
           </div>
         </div>
       </div>
 
+      <!-- Table -->
       <div class="table-container mt-7">
         <table>
           <thead>
             <tr>
-              <th class="border-b border-gray-300">
-                <input type="checkbox" v-model="selectAll" @change="toggleSelectAll" />
-              </th>
-              <th class="border-b border-gray-300">Grade Level</th>
-              <th class="border-b border-gray-300">LRN</th>
-              <th class="border-b border-gray-300">Name</th>
-              <th class="border-b border-gray-300">Curriculum</th>
-              <th class="border-b border-gray-300">Track</th>
-              <th class="border-b border-gray-300">Gender</th>
-              <th class="border-b border-gray-300">Birthdate</th>
-              <th class="border-b border-gray-300">Age</th>
-              <th class="border-b border-gray-300">Status</th>
+              <th><input type="checkbox" v-model="selectAll" @change="toggleSelectAll" /></th>
+              <th>Grade Level</th>
+              <th>LRN</th>
+              <th>Name</th>
+              <th>Curriculum</th>
+              <th>Track</th>
+              <th>Gender</th>
+              <th>Birthdate</th>
+              <th>Age</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
-            <tr
-              v-for="student in paginatedStudents"
-              :key="student.lrn"
-              @click="openModal(student)"
-              class="cursor-pointer hover:bg-gray-100"
-            >
-              <td class="px-6 py-4 border-b border-gray-300">
-                <input
-                  type="checkbox"
-                  v-model="selectedStudents"
-                  :value="student.lrn"
-                  @click.stop
-                />
-              </td>
-              <td class="px-6 py-4 border-b border-gray-300">{{ student.grade }}</td>
-              <td class="px-6 py-4 border-b border-gray-300">{{ student.lrn }}</td>
-              <td class="px-6 py-4 border-b border-gray-300">{{ student.name }}</td>
-              <td class="px-6 py-4 border-b border-gray-300">{{ student.curriculum }}</td>
-              <td class="px-6 py-4 border-b border-gray-300">{{ student.track }}</td>
-              <td class="px-6 py-4 border-b border-gray-300">{{ student.gender }}</td>
-              <td class="px-6 py-4 border-b border-gray-300">{{ student.birthdate }}</td>
-              <td class="px-6 py-4 border-b border-gray-300">{{ student.age }}</td>
-              <td class="px-6 py-4 border-b border-gray-300">
-                <span :class="statusClass(student.status)">{{ student.status }}</span>
-              </td>
+            <tr v-for="student in paginatedStudents" :key="student.lrn"
+              @click="openModal(student)" class="cursor-pointer hover:bg-gray-100">
+              <td><input type="checkbox" v-model="selectedStudents" :value="student.Student_ID" @click.stop /></td>
+              <td>{{ student.grade }}</td>
+              <td>{{ student.lrn }}</td>
+              <td>{{ student.name }}</td>
+              <td>{{ student.curriculum }}</td>
+              <td>{{ student.track }}</td>
+              <td>{{ student.gender }}</td>
+              <td>{{ student.birthdate }}</td>
+              <td>{{ student.age }}</td>
+              <td><span :class="statusClass(student.status)">{{ student.status }}</span></td>
             </tr>
           </tbody>
         </table>
 
-        <!-- Modal -->
-        <StudentModal
-          v-if="isModalOpen"
-          :student="selectedStudent"
-          :showModal="isModalOpen"
-          @close="closeModal"
-        />
-
-
-
-
-
-
-
-
+        <StudentModal v-if="isModalOpen" :student="selectedStudent" :showModal="isModalOpen" @close="closeModal" />
+        <RejectModal v-if="isRejectModalOpen" :studentIds="selectedStudents" @close="isRejectModalOpen = false" @submit="handleReject" />
       </div>
 
+      <!-- Accept/Reject Buttons -->
       <div class="button">
         <button class="red" @click="reject">Reject</button>
         <button class="green" @click="acceptAlert">Accept</button>
@@ -164,35 +100,43 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import StudentModal from "./components/StudentModal.vue";
+import RejectModal from "./components/RejectModal.vue";
 import Swal from "sweetalert2";
-import { getAllStudentsData } from "@/service/superadminService";
-import { getStudentById } from "@/service/superadminService"
+import {
+  getAllStudentsData,
+  getStudentById,
+  acceptStudent,
+  declineStudent,
+} from "@/service/superadminService";
 
+// State
 const students = ref([]);
-const isModalOpen = ref(false);
 const selectedStudent = ref(null);
+const isModalOpen = ref(false);
+const isRejectModalOpen = ref(false);
+const selectedStudents = ref([]);
+const selectAll = ref(false);
 
-// Modal controls
+// Modal logic
 const openModal = async (student) => {
   try {
-    const fullStudent = await getStudentById(student.Student_ID); // or student.LRN if your endpoint uses that
+    const fullStudent = await getStudentById(student.Student_ID);
     selectedStudent.value = fullStudent;
     isModalOpen.value = true;
   } catch (error) {
-    console.error("Failed to open student modal:", error);
+    console.error("Error fetching student:", error);
   }
 };
-
 
 const closeModal = () => {
   isModalOpen.value = false;
   selectedStudent.value = null;
 };
 
-// Fetch students on mount
-onMounted(async () => {
+// Refresh students
+const refreshStudents = async () => {
   try {
     const response = await getAllStudentsData();
     students.value = response.data.map((student) => ({
@@ -210,17 +154,12 @@ onMounted(async () => {
   } catch (error) {
     console.error("Failed to load students:", error);
   }
-});
+};
 
-// Filter visibility toggles
-const showStatus = ref(true);
-const showGrade = ref(true);
-const showCurriculum = ref(true);
-const showGender = ref(true);
-const showTrack = ref(true);
+onMounted(refreshStudents);
 
-// Dropdown filter values
-const statuses = ["Pending", "Accepted", "Rejected"];
+// Filtering
+const statuses = ["Pending", "Accepted", "Declined"];
 const grades = ["7", "8", "9", "10"];
 const curriculums = ["JHS", "SHS"];
 const genders = [
@@ -228,7 +167,6 @@ const genders = [
   { label: "Female", value: "F" },
 ];
 const tracks = ["STEM", "ABM", "TVL", "HUMSS"];
-
 const selectedStatus = ref("");
 const selectedGrade = ref("");
 const selectedCurriculum = ref("");
@@ -236,25 +174,20 @@ const selectedGender = ref("");
 const selectedTrack = ref("");
 const searchQuery = ref("");
 
-// Filtering logic
-const filteredStudents = computed(() => {
-  return students.value.filter((student) => {
-    const matchesSearch = student.name
-      .toLowerCase()
-      .includes(searchQuery.value.toLowerCase());
-    const matchesStatus =
-      selectedStatus.value === "" || student.status === selectedStatus.value;
-    const matchesGrade =
-      selectedGrade.value === "" ||
-      parseInt(student.grade) === parseInt(selectedGrade.value);
-    const matchesCurriculum =
-      selectedCurriculum.value === "" ||
-      student.curriculum === selectedCurriculum.value;
-    const matchesGender =
-      selectedGender.value === "" || student.gender === selectedGender.value;
-    const matchesTrack =
-      selectedTrack.value === "" || student.track === selectedTrack.value;
+const showStatus = ref(true);
+const showGrade = ref(true);
+const showCurriculum = ref(true);
+const showGender = ref(true);
+const showTrack = ref(true);
 
+const filteredStudents = computed(() =>
+  students.value.filter((student) => {
+    const matchesSearch = student.name.toLowerCase().includes(searchQuery.value.toLowerCase());
+    const matchesStatus = !selectedStatus.value || student.status === selectedStatus.value;
+    const matchesGrade = !selectedGrade.value || parseInt(student.grade) === parseInt(selectedGrade.value);
+    const matchesCurriculum = !selectedCurriculum.value || student.curriculum === selectedCurriculum.value;
+    const matchesGender = !selectedGender.value || student.gender === selectedGender.value;
+    const matchesTrack = !selectedTrack.value || student.track === selectedTrack.value;
     return (
       matchesSearch &&
       matchesStatus &&
@@ -263,70 +196,68 @@ const filteredStudents = computed(() => {
       matchesGender &&
       matchesTrack
     );
-  });
-});
+  })
+);
 
-// Pagination placeholder (can expand later)
 const paginatedStudents = computed(() => filteredStudents.value);
 
-// Checkbox selection logic
-const selectedStudents = ref([]);
-const selectAll = ref(false);
-
+// Checkbox logic
 const toggleSelectAll = () => {
   if (selectAll.value) {
-    selectedStudents.value = students.value.map((student) => student.lrn);
+    selectedStudents.value = students.value.map((s) => s.Student_ID);
   } else {
     selectedStudents.value = [];
   }
 };
 
-watch(selectedStudents, (newVal) => {
-  selectAll.value = newVal.length === students.value.length;
+watch(selectedStudents, (val) => {
+  selectAll.value = val.length === students.value.length;
 });
 
-// Status class helper
+// Status classes
 const statusClass = (status) => {
   switch (status.toLowerCase()) {
-    case "accepted":
-      return "text-green-600 font-semibold";
-    case "pending":
-      return "text-yellow-600 font-semibold";
-    case "rejected":
-      return "text-red-600 font-semibold";
-    default:
-      return "";
+    case "accepted": return "text-green-600 font-semibold";
+    case "pending": return "text-yellow-600 font-semibold";
+    case "declined": return "text-red-600 font-semibold";
+    default: return "";
   }
 };
 
-// Actions
-const reject = async () => {
-  const result = await Swal.fire({
-    title: "Are you sure?",
-    text: "Do you really want to reject this?",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#D30000",
-    cancelButtonColor: "#6c757d",
-    confirmButtonText: "Yes, Reject",
-    cancelButtonText: "Cancel",
-  });
+// Reject logic
+const reject = () => {
+  if (selectedStudents.value.length === 0) {
+    Swal.fire("No Students Selected", "Please select students to reject.", "warning");
+    return;
+  }
+  isRejectModalOpen.value = true;
+};
 
-  if (result.isConfirmed) {
-    Swal.fire({
-      icon: "success",
-      title: "Rejected",
-      text: "Student rejected successfully!",
-      timer: 1500,
-      showConfirmButton: false,
-    });
+const handleReject = async ({ comment }) => {
+  try {
+    for (const id of selectedStudents.value) {
+      await declineStudent(id, comment); // backend should expect { comment }
+    }
+    await refreshStudents();
+    selectedStudents.value = [];
+    Swal.fire("Rejected!", "Selected students have been rejected.", "success");
+  } catch (err) {
+    Swal.fire("Error", "Failed to reject students.", "error");
+  } finally {
+    isRejectModalOpen.value = false;
   }
 };
 
+// Accept logic
 const acceptAlert = async () => {
-  const result = await Swal.fire({
+  if (selectedStudents.value.length === 0) {
+    Swal.fire("No Students Selected", "Please select students to accept.", "warning");
+    return;
+  }
+
+  const confirm = await Swal.fire({
     title: "Are you sure?",
-    text: "Do you want to accept this student?",
+    text: `Accept ${selectedStudents.value.length} student(s)?`,
     icon: "question",
     showCancelButton: true,
     confirmButtonColor: "#007bff",
@@ -335,17 +266,22 @@ const acceptAlert = async () => {
     cancelButtonText: "Cancel",
   });
 
-  if (result.isConfirmed) {
-    Swal.fire({
-      icon: "success",
-      title: "Accepted",
-      text: "Student accepted successfully!",
-      timer: 1500,
-      showConfirmButton: false,
-    });
+  if (confirm.isConfirmed) {
+    try {
+      for (const id of selectedStudents.value) {
+        await acceptStudent(id);
+      }
+      await refreshStudents();
+      selectedStudents.value = [];
+      Swal.fire("Accepted!", "Selected students have been accepted.", "success");
+    } catch (err) {
+      Swal.fire("Error", "Failed to accept students.", "error");
+    }
   }
 };
 </script>
+
+
 
 
 
