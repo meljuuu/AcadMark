@@ -242,7 +242,7 @@
 
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue'; // <-- make sure to import watch
 import Swal from 'sweetalert2';
 import axios from 'axios';
 
@@ -326,13 +326,14 @@ const handleSubmit = async () => {
     return;
   }
 
-  watch(selectedAccession, (val) => {
+watch(selectedAccession, (val) => {
   if (val !== 'Teacher') {
     subject1.value = '';
     subject2.value = '';
     showSubject2.value = false;
   }
 });
+
 
   const result = await Swal.fire({
     title: 'Are you sure?',
