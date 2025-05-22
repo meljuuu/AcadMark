@@ -202,9 +202,7 @@
                         <div class="flex items-end ml-auto">
                             <button
                                 class="bg-[#295F98] text-white text-base font-normal border-none rounded-[6px] px-[25px] py-[10px] cursor-pointer transition-colors duration-200 hover:bg-[#1d4066]"
-                                @click="openAddTeacherModal">
-                                {{ isEditing ? 'Edit Class Teacher' : 'Add Class Teacher' }}                            
-                            </button>
+                                @click="openAddTeacherModal">Add Teacher</button>
                         </div>
                     </div>
                     <div class="min-h-[200px] bg-[#f9f9f9] rounded-[8px] mt-8">
@@ -457,7 +455,6 @@ export default {
     components: { Dropdown },
     data() {
         return {
-            hasFacultyBeenAdded: false,
             subjectTeachers: [{ subject: '', teacher: '' }],
             activeTab: 'add',
             showBlank: false,
@@ -509,30 +506,17 @@ export default {
         };
     },
     watch: {
-            selectedClassSection(newClass) {
-        if (newClass) {
-            this.form.class_id = newClass.Class_ID;
-            this.form.class_name = newClass.Section;
-            this.form.sy_id = newClass.SY_ID;
-
-            const foundClass = this.superClasses.find(c =>
-                c.grade === this.enteredGrade &&
-                c.curriculum === this.enteredCurriculum &&
-                c.section === newClass.Section
-            );
-
-            if (foundClass && foundClass.adviser !== 'Not assigned') {
-                this.hasFacultyBeenAdded = true;
+        selectedClassSection(newClass) {
+            if (newClass) {
+                this.form.class_id = newClass.Class_ID;
+                this.form.class_name = newClass.Section;
+                this.form.sy_id = newClass.SY_ID;
             } else {
-                this.hasFacultyBeenAdded = false;
+                this.form.class_id = '';
+                this.form.class_name = '';
+                this.form.sy_id = '';
             }
-        } else {
-            this.form.class_id = '';
-            this.form.class_name = '';
-            this.form.sy_id = '';
-            this.hasFacultyBeenAdded = false;
-        }
-    },
+        },
         selectedRows(newLRNs) {
             const allRows = this.dummyTableData[this.enteredIdx] || [];
 
@@ -555,10 +539,6 @@ export default {
         this.getClassesExcludingIncomplete();
     },
     methods: {
-        checkIfClassHasFaculty(classId) {
-            const teacherSubject = this.teachersSubjects.find(item => item.class_id === classId);
-            return !!teacherSubject;
-        },
         setTab(tab) {
             this.activeTab = tab;
         },
@@ -632,6 +612,7 @@ export default {
         submitFacultyAssignments() {
             const teacherSubjectIds = [];
 
+            // STEP 1: Adviser teacher_subject_id
             const adviserId = this.selectedAdviser; // adviser ID
             const adviserSubject = this.subjectOptions.find(s => s.name === this.selectedSubject);
             const adviserSubjectId = adviserSubject ? adviserSubject.id : '';
@@ -647,6 +628,7 @@ export default {
                 console.error('Adviser ID or Subject ID is missing');
             }
 
+            // STEP 2: Other subject teachers
             for (const entry of this.subjectTeachers) {
                 const teacherId = this.adviserIdByName(entry.teacher);
                 const subjectId = this.subjectIdByName(entry.subject);
@@ -666,16 +648,12 @@ export default {
             }
 
             // Save locally in parent form state
-            const classKey = `${this.enteredGrade}-${this.selectedClassSection.Section}`;
+            this.form.teacher_subject_ids = teacherSubjectIds;
+            this.form.adviser_id = adviserId;   // <--- Save adviserId here
 
-            this.facultyPerClass[classKey] = {
-            teacher_subject_ids: teacherSubjectIds,
-            adviser_id: adviserId
-            };
+            console.log('Saved locally in form:', this.form);
 
-            this.showAddTeacherModal = false;
-
-
+            // Close the modal
             this.showAddTeacherModal = false;
         },
         async fetchStudentCounts() {
@@ -836,46 +814,9 @@ export default {
             this.showGrade7Detail = false;
             this.showBlank = false;
         },
-openAddTeacherModal() {
-  const classKey = `${this.enteredGrade}-${this.selectedClassSection.Section}`;
-  const data = this.facultyPerClass[classKey];
-
-  if (data) {
-    // Pre-fill form for editing
-    this.selectedAdviser = data.adviser_id;
-
-    const adviserSubjectId = this.getSubjectIdFromTeacherSubjectId(data.teacher_subject_ids[0]);
-    this.selectedSubject = this.subjectOptions.find(s => s.id === adviserSubjectId)?.name || '';
-
-    this.subjectTeachers = data.teacher_subject_ids.slice(1).map(id => {
-      const subjectId = this.getSubjectIdFromTeacherSubjectId(id);
-      const teacherId = this.getTeacherIdFromTeacherSubjectId(id);
-
-      return {
-        subject: this.subjectOptions.find(s => s.id === subjectId)?.name || '',
-        teacher: this.getTeacherNameById(teacherId)
-      };
-    });
-  } else {
-    // Fresh form for new entry
-    this.selectedAdviser = '';
-    this.selectedSubject = '';
-    this.subjectTeachers = [{ subject: '', teacher: '' }];
-  }
-
-  this.showAddTeacherModal = true;
-},
-
-
-    closeAddTeacherModal() {
-        this.showAddTeacherModal = false;
-    },
-
-    // Optional: Also update adviserEmployeeNo if needed
-    logSelectedAdviserId() {
-        const adviser = this.advisers.find(a => a.id === this.selectedAdviser);
-        this.selectedAdviserEmployeeNo = adviser ? adviser.employee_id : '';
-    },  
+        openAddTeacherModal() {
+            this.showAddTeacherModal = true;
+        },
         closeAddTeacherModal() {
             this.showAddTeacherModal = false;
             this.selectedAdviser = '';
@@ -907,10 +848,6 @@ openAddTeacherModal() {
     },
 
     computed: {
-          isEditing() {
-    const classKey = `${this.enteredGrade}-${this.selectedClassSection.Section}`;
-    return !!this.facultyPerClass[classKey];
-  },
         filteredTableData() {
             let filteredData = this.dummyTableData[this.enteredIdx] || [];
 

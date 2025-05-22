@@ -1,7 +1,7 @@
 <template>
     <div class="w-full">
         <div class="flex items-center space-x-6 mb-7">
-            <h1 class="text-5xl font-bold">Lesson Plan</h1>
+            <h1 class="text-5xl font-bold">Lesson Plan Review</h1>
         </div>
         <div class="flex justify-between gap-4 w-full mb-6">
             <div v-for="(card, index) in cards" :key="index" class="bg-white rounded-lg shadow-lg border border-gray-200 p-6 w-1/4 flex items-center space-x-4">
@@ -219,7 +219,7 @@ export default {
           category: "Social Studies",
           grade: "Grade 5",
           date: "2025-05-17",
-          status: "Revise"
+          status: "Review"
         },
         {
           id: 4,
@@ -246,7 +246,7 @@ export default {
           category: "English",
           grade: "Grade 4",
           date: "2025-05-18",
-          status: "Revise"
+          status: "Review"
         },
         {
           id: 7,
@@ -273,7 +273,7 @@ export default {
           category: "Math",
           grade: "Grade 5",
           date: "2025-05-21",
-          status: "Revise"
+          status: "Review"
         },
         {
           id: 10,
@@ -300,7 +300,7 @@ export default {
           category: "Science",
           grade: "Grade 5",
           date: "2025-05-24",
-          status: "Revise"
+          status: "Review"
         }
       ]
 
