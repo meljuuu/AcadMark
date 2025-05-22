@@ -48,8 +48,6 @@ export async function getStudentGenderDistribution() {
   }
 }
 
-<<<<<<< HEAD
-=======
 export const getAcceptedClassesCount = async () => {
   try {
     const response = await API.get('/dashboard/accepted-classes/count');
@@ -73,5 +71,4 @@ export const getLatestStudents = async () => {
 
 
 
->>>>>>> 6a1aed99218458433a9e7f459e22217b9ff4b96d
 

@@ -78,12 +78,8 @@
           </div>
         </div>
 
-<<<<<<< HEAD
         
         <div class="flex gap-4 mb-4" v-if="selectedAccession === 'Teacher'">
-=======
-        <div class="flex gap-4 mb-4">
->>>>>>> 6a1aed99218458433a9e7f459e22217b9ff4b96d
           <div class="floating-label flex-1" :class="{ filled: subject1 }">
            <select v-model="subject1" class="input" required>
             <option value="" disabled selected hidden>Select Subject 1</option>
@@ -313,7 +309,6 @@ const toggleSubject2 = () => {
 
 // Handle form submission
 const handleSubmit = async () => {
-<<<<<<< HEAD
   
   if (selectedAccession.value === 'Teacher' && !subject1.value) {
   Swal.fire({
@@ -323,8 +318,6 @@ const handleSubmit = async () => {
   });
   return;
 }
-=======
->>>>>>> 6a1aed99218458433a9e7f459e22217b9ff4b96d
   if (password.value && password.value !== confirmPassword.value) {
     Swal.fire({
       icon: 'error',

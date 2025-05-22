@@ -242,14 +242,6 @@
     Legend,
   } from 'chart.js';
 
-<<<<<<< HEAD
-  import {
-    getStudentCount,
-    getTeacherCount,
-    getStudentGradeDistribution,
-    getStudentGenderDistribution,
-  } from '@/service/adminDashboardService';
-=======
 import {
   getStudentCount,
   getTeacherCount,
@@ -258,7 +250,6 @@ import {
   getAcceptedClassesCount,
   getLatestStudents,
 } from '@/service/adminDashboardService';
->>>>>>> 6a1aed99218458433a9e7f459e22217b9ff4b96d
 
   Chart.register(
     BarElement,
@@ -269,59 +260,6 @@ import {
     Legend
   );
 
-<<<<<<< HEAD
-  export default {
-    name: 'Dashboard',
-    data() {
-      return {
-        _gradeChartInstance: null,
-        _genderChartInstance: null,
-        _submissionStatusChartInstance: null,
-        stats: {
-          students: 0,
-          teachers: 0,
-        },
-        studentGrades: {},
-        genderData: {}, // <-- NEW: Store gender distribution
-        selectedGrade: '',
-        selectedTrack: '',
-        recentStudents: [],
-        classes: [],
-      };
-    },
-    computed: {
-      uniqueStudents() {
-        const seen = new Set();
-        return this.recentStudents.filter((student) => {
-          if (seen.has(student.lrn)) return false;
-          seen.add(student.lrn);
-          return true;
-        });
-      },
-      gradeOptions() {
-        return [
-          ...new Set(this.uniqueStudents.map((s) => s.gradeLevel)),
-        ].sort();
-      },
-      trackOptions() {
-        return [...new Set(this.uniqueStudents.map((s) => s.track))].sort();
-      },
-      filteredStudents() {
-        return this.uniqueStudents.filter((student) => {
-          const matchesGrade =
-            this.selectedGrade === '' ||
-            student.gradeLevel === this.selectedGrade;
-          const matchesTrack =
-            this.selectedTrack === '' || student.track === this.selectedTrack;
-          return matchesGrade && matchesTrack;
-        });
-      },
-    },
-    async mounted() {
-      await this.fetchStats();
-      await this.fetchStudentGradeDistribution();
-      await this.fetchGenderDistribution(); // <-- NEW
-=======
 export default {
   name: 'Dashboard',
   data() {
@@ -369,7 +307,6 @@ export default {
       await this.fetchStudentGradeDistribution();
       await this.fetchGenderDistribution(); 
       await this.fetchLatestStudents(); 
->>>>>>> 6a1aed99218458433a9e7f459e22217b9ff4b96d
     },
     methods: {
       async fetchStats() {
@@ -380,13 +317,6 @@ export default {
           const teacherCount = await getTeacherCount();
           this.stats.teachers = teacherCount;
 
-<<<<<<< HEAD
-          console.log('Students:', studentCount, 'Teachers:', teacherCount);
-        } catch (error) {
-          console.error('Failed to fetch stats:', error);
-        }
-      },
-=======
         const acceptedClassesCount = await getAcceptedClassesCount();
         this.stats.classes = acceptedClassesCount;
 
@@ -395,7 +325,6 @@ export default {
         console.error("Failed to fetch stats:", error);
       }
     },
->>>>>>> 6a1aed99218458433a9e7f459e22217b9ff4b96d
 
       async fetchStudentGradeDistribution() {
         try {
@@ -419,8 +348,6 @@ export default {
         }
       },
 
-<<<<<<< HEAD
-=======
       async fetchLatestStudents() {
         try {
           const latestStudentsData = await getLatestStudents();
@@ -446,7 +373,6 @@ export default {
         }
       },
 
->>>>>>> 6a1aed99218458433a9e7f459e22217b9ff4b96d
       renderGenderChart() {
         const ctx = document.getElementById('genderChart')?.getContext('2d');
         if (!ctx) return;
