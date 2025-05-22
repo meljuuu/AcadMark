@@ -455,6 +455,9 @@ import { getAllTeacherSubjects, getClassesExcludingIncomplete } from '@/service/
 import { getAllClasses } from '@/service/adminClassService';
 import { createClass } from '@/service/adminClassService';
 import Swal from 'sweetalert2';
+import { useToast } from 'vue-toastification'
+
+const toast = useToast()
 
 export default {
     name: 'Dasboard',
@@ -687,17 +690,17 @@ export default {
                 if (result.isConfirmed) {
                     // Save locally in parent form state
                     this.form.teacher_subject_ids = teacherSubjectIds;
-                    this.form.adviser_id = adviserId;   // <--- Save adviserId here
+                    this.form.adviser_id = adviserId;
 
                     console.log('Saved locally in form:', this.form);
 
-                    // Close the modal
                     this.showAddTeacherModal = false;
 
-                    Swal.fire('Saved!', 'Faculty assignments have been saved.', 'success');
+                    toast.success('Faculty assignments saved successfully!');
                 }
             });
         },
+
         
         async fetchStudentCounts() {
             try {
