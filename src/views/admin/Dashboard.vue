@@ -1,15 +1,16 @@
 <template>
-    <div>
-        <h1 class="text-5xl font-bold">This is the Dashboard Admin</h1>
-    </div>
+  <div>
+    <h1 class="text-5xl font-bold">This is the Dashboard Admin</h1>
+  </div>
 </template>
 
 <script>
-export default {
+  export default {
     name: 'Dasboard',
-    data() {``
-        return {};
+    data() {
+      ``;
+      return {};
     },
     methods: {},
-};
+  };
 </script>

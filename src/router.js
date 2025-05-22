@@ -52,7 +52,7 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
-    path: '/class/:trackStand/:className/:subjectName/:gradeLevel/:subject_id/:classType',
+    path: '/class/:class_id/:trackStand/:className/:subjectName/:gradeLevel/:subject_id/:classType',
     name: 'class',
     component: Class,
     props: true,
