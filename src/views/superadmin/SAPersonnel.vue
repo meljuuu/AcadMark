@@ -38,69 +38,40 @@
           />
         </div>
 
-        <EditFacultyModal
-          v-if="editData"
-          v-model="showEditModal"
-          @submit="handleFacultyEdit"
+        <EditFacultyModal 
+          v-if="showEditModal"
+          :modelValue="showEditModal"
+          :facultyData="editData"
+          :subjects="subjects"
+          formMode="edit"
+          @update:modelValue="showEditModal = false"
+          @updated="handleFacultyEdit"
         />
 
         <div class="overflow-x-auto flex-1 overflow-y-auto" style="min-height: 0;">
           <table class="w-full table-auto border-collapse">
-            <thead>
-              <tr class="bg-gray-100">
-                <th class="px-6 py-3 text-left font-medium text-gray-700 border-b border-gray-300">
-                  Employee No.
-                </th>
-                <th class="px-6 py-3 text-left font-medium text-gray-700 border-b border-gray-300" >
-                  Name
-                </th>
-                <th class="px-6 py-3 text-left font-medium text-gray-700 border-b border-gray-300">     
-                  Qualification
-                </th>
-                <th class="px-6 py-3 text-left font-medium text-gray-700 border-b border-gray-300">
-                  Access
-                </th>
-                <th class="px-6 py-3 text-left font-medium text-gray-700 border-b border-gray-300">
-                  Email
-                </th>
-                <th class="px-6 py-3 text-left font-medium text-gray-700 border-b border-gray-300">
-                  Action
-                </th>
-              </tr>
+             <thead>
+                <tr class="bg-gray-100">
+                  <th class="px-6 py-3 text-left font-medium text-gray-700 border-b border-gray-300">Employee No.</th>
+                  <th class="px-6 py-3 text-left font-medium text-gray-700 border-b border-gray-300">Name</th>
+                  <th class="px-6 py-3 text-left font-medium text-gray-700 border-b border-gray-300">Qualification</th>
+                  <th class="px-6 py-3 text-left font-medium text-gray-700 border-b border-gray-300">Access</th>
+                  <th class="px-6 py-3 text-left font-medium text-gray-700 border-b border-gray-300">Email</th>
+                  <th class="px-6 py-3 text-left font-medium text-gray-700 border-b border-gray-300">Action</th>
+                </tr>
             </thead>
-            <tbody>
-              <tr
-                v-for="(employee, index) in paginatedEmployees"
-                :key="index"
-                class="hover:bg-gray-50"
-              >
-                <td class="px-6 py-4 border-b border-gray-300">
-                  {{ employee.empNo }}
-                </td>
-                <td class="px-6 py-4 border-b border-gray-300">
-                  {{ employee.name }}
-                </td>
-                <td class="px-6 py-4 border-b border-gray-300">
-                  {{ employee.qualification }}
-                </td>
-                <td class="px-6 py-4 border-b border-gray-300">
-                  {{ employee.access }}
-                </td>
-                <td class="px-6 py-4 border-b border-gray-300">
-                  {{ employee.email }}
-                </td>
+             <tbody>
+              <tr v-for="(employee, index) in paginatedEmployees" :key="index" class="hover:bg-gray-50">
+                <td class="px-6 py-4 border-b border-gray-300">{{ employee.empNo }}</td>
+                <td class="px-6 py-4 border-b border-gray-300">{{ employee.name }}</td>
+                <td class="px-6 py-4 border-b border-gray-300">{{ employee.qualification }}</td>
+                <td class="px-6 py-4 border-b border-gray-300">{{ employee.access }}</td>
+                <td class="px-6 py-4 border-b border-gray-300">{{ employee.email }}</td>
                 <td class="px-6 py-4 border-b border-gray-300 space-x-2">
-                  <button
-                    class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 cursor-pointer"
-                    @click="openEditModal(employee)"
-                  >
+                  <button @click="openEditModal(employee)" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 cursor-pointer">
                     <i class="fas fa-edit"></i>
                   </button>
-
-                  <button
-                    class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 cursor-pointer"
-                    @click="confirmDelete(employee)"
-                  >
+                  <button @click="confirmDelete(employee)" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 cursor-pointer">
                     <i class="fas fa-trash-alt"></i>
                   </button>
                 </td>
@@ -148,16 +119,16 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
 import Swal from 'sweetalert2';
 import AddFacultyModal from './components/AddFacultyModal.vue';
 import EditFacultyModal from './components/EditFacultyModal.vue';
 
-
 export default {
   components: {
-  AddFacultyModal,
-  EditFacultyModal,
+    AddFacultyModal,
+    EditFacultyModal,
   },
   data() {
     return {
@@ -168,62 +139,125 @@ export default {
       perPage: 10,
       selectedAccess: '',
       searchQuery: '',
-      employees: [
-        { empNo: 'EMP001', name: 'John Doe', qualification: 'BSEd - English', access: 'Teacher', email: 'john@example.com' },
-        { empNo: 'EMP002', name: 'Jane Smith', qualification: 'BSEd - Math', access: 'Admin', email: 'jane@example.com' },
-        { empNo: 'EMP003', name: 'Alice Johnson', qualification: 'BSEd - Science', access: 'Teacher', email: 'alice@example.com' },
-        { empNo: 'EMP004', name: 'Mark Lee', qualification: 'BSEd - Filipino', access: 'Teacher', email: 'mark@example.com' },
-        { empNo: 'EMP005', name: 'Ella Cruz', qualification: 'BSEd - English', access: 'Admin', email: 'ella@example.com' },
-        { empNo: 'EMP006', name: 'Chris Evans', qualification: 'BSEd - Math', access: 'Teacher', email: 'chris@example.com' },
-        { empNo: 'EMP007', name: 'Marie Gomez', qualification: 'BSEd - Science', access: 'Teacher', email: 'marie@example.com' },
-        { empNo: 'EMP008', name: 'Nathan Reyes', qualification: 'BSEd - Filipino', access: 'Admin', email: 'nathan@example.com' },
-        { empNo: 'EMP009', name: 'Sophia Tan', qualification: 'BSEd - English', access: 'Teacher', email: 'sophia@example.com' },
-        { empNo: 'EMP010', name: 'Leo Cruz', qualification: 'BSEd - Math', access: 'Teacher', email: 'leo@example.com' },
-        { empNo: 'EMP011', name: 'Angela Torres', qualification: 'BSEd - Science', access: 'Teacher', email: 'angela@example.com' },
-        { empNo: 'EMP012', name: 'Victor Santos', qualification: 'BSEd - Filipino', access: 'Admin', email: 'victor@example.com' },
-        { empNo: 'EMP013', name: 'Bea Lim', qualification: 'BSEd - English', access: 'Teacher', email: 'bea@example.com' },
-        { empNo: 'EMP014', name: 'Joshua Dela Cruz', qualification: 'BSEd - Math', access: 'Teacher', email: 'joshua@example.com' },
-        { empNo: 'EMP015', name: 'Rica Ramirez', qualification: 'BSEd - Science', access: 'Admin', email: 'rica@example.com' },
-        { empNo: 'EMP016', name: 'Kevin Chua', qualification: 'BSEd - Filipino', access: 'Teacher', email: 'kevin@example.com' },
-        { empNo: 'EMP017', name: 'Mika Santos', qualification: 'BSEd - English', access: 'Teacher', email: 'mika@example.com' },
-        { empNo: 'EMP018', name: 'Daniel Gomez', qualification: 'BSEd - Math', access: 'Admin', email: 'daniel@example.com' },
-        { empNo: 'EMP019', name: 'Hannah Uy', qualification: 'BSEd - Science', access: 'Teacher', email: 'hannah@example.com' },
-        { empNo: 'EMP020', name: 'Ivan De Leon', qualification: 'BSEd - Filipino', access: 'Teacher', email: 'ivan@example.com' },
-      ],
+      employees: [], // Now fetched dynamically
+      subjects: [],
     };
   },
+  mounted() {
+    this.fetchEmployees(); // fetch on load
+    this.fetchSubjects();
+  },
+  
   methods: {
+     async fetchSubjects() {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://127.0.0.1:8000/api/subject/getSubjects', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      this.subjects = Array.isArray(response.data) ? response.data : response.data.data || [];
+    } catch (error) {
+      console.error('Failed to fetch subjects:', error);
+      Swal.fire('Error', 'Could not load subjects.', 'error');
+    }
+  },
+ async fetchEmployees() {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await axios.get('http://127.0.0.1:8000/api/teacher/getAll', {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    // Adjust for new API structure
+    const teacherList = Array.isArray(response.data.teachers)
+      ? response.data.teachers
+      : [];
+
+    this.employees = teacherList.map(item => {
+      const t = item.teacher;
+      return {
+        empNo: t.EmployeeNo,
+        name: `${t.FirstName} ${t.LastName}`,
+        qualification: t.Educational_Attainment || '',
+        access: t.Position,
+        email: t.Email,
+        original: {
+          ...t,
+          Subject_IDs: item.Subject_IDs, // include subject IDs for modal
+          subjects: item.subjects,       // include subject objects if needed
+          id: t.id || t.Teacher_ID
+        }
+      };
+    });
+  } catch (error) {
+    console.error('Failed to fetch employees:', error);
+    Swal.fire('Error', 'Could not load employee data.', 'error');
+  }
+},
+
+  
     handleFacultySubmit(name) {
       console.log('Faculty submitted:', name);
     },
-    openEditModal(employee) {
-      this.editData = { ...employee };
-      this.showEditModal = true;
-    },
+    async openEditModal(employee) {
+      if (!this.subjects.length) {
+        await this.fetchSubjects();
+      }
+        this.editData = employee.original ? { ...employee.original } : { ...employee };
+        this.showEditModal = true;
+      },
     handleFacultyEdit(updatedData) {
       console.log('Faculty updated:', updatedData);
-      const index = this.employees.findIndex(emp => emp.empNo === updatedData.empNo);
+      // Find by EmployeeNo, since updatedData does not have empNo
+      const index = this.employees.findIndex(emp => emp.empNo === updatedData.EmployeeNo);
       if (index !== -1) {
-        this.employees[index] = { ...updatedData };
+        // Update the mapped fields and original
+        this.employees[index] = {
+          ...this.employees[index],
+          name: `${updatedData.FirstName} ${updatedData.LastName}`,
+          qualification: updatedData.Educational_Attainment || '',
+          access: updatedData.Position,
+          email: updatedData.Email,
+          original: { ...updatedData, id: updatedData.id || updatedData.Teacher_ID }
+        };
       }
-      this.showEditModal = false;
+      this.showEditModal = false; // Close the modal
     },
     confirmDelete(employee) {
-      Swal.fire({
-        title: 'Are you sure?',
-        text: `Delete employee ${employee.name}? This action cannot be undone.`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, delete it!',
-      }).then((result) => {
-        if (result.isConfirmed) {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: `Delete employee ${employee.name}? This action cannot be undone.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const teacherId = employee.original?.id || employee.original?.Teacher_ID || employee.original?.id;
+          const token = localStorage.getItem('token');
+          await axios.delete(`http://127.0.0.1:8000/api/teachers/delete/${teacherId}`, {
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          });
           this.employees = this.employees.filter(emp => emp.empNo !== employee.empNo);
           Swal.fire('Deleted!', 'Employee has been deleted.', 'success');
+        } catch (error) {
+          Swal.fire('Error', 'Failed to delete employee.', 'error');
         }
-      });
-    },
+      }
+    });
+  },
   },
   computed: {
     totalPages() {

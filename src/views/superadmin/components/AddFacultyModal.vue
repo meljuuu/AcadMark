@@ -81,35 +81,25 @@
         <div class="flex gap-4 mb-4">
           <div class="floating-label flex-1" :class="{ filled: subject1 }">
             <select v-model="subject1" class="input" required>
-              <option value="" disabled selected hidden></option>
-              <option value="english">English</option>
-              <option value="science">Science</option>
-              <option value="filipino">Filipino</option>
-              <option value="AP">AP</option>
-              <option value="math">Math</option>
-              <option value="MAPEH">MAPEH</option>
-              <option value="computer education">Computer Education</option>
-              <option value="ESP">ESP</option>
+              <option value="" disabled selected hidden>Select Subject 1</option>
+            <option v-for="subject in subjects" :key="subject.Subject_ID" :value="subject.Subject_ID">
+              {{ subject.SubjectName }}
+            </option>
             </select>
             <label>{{ subject1 ? capitalize(subject1) : 'Subject 1' }}</label>
             <span class="custom-arrow"></span>
           </div>
 
-          <div v-if="showSubject2" class="floating-label flex-1" :class="{ filled: subject2 }">
-            <select v-model="subject2" class="input">
-              <option value="" disabled selected hidden></option>
-              <option value="english">English</option>
-              <option value="science">Science</option>
-              <option value="filipino">Filipino</option>
-              <option value="AP">AP</option>
-              <option value="math">Math</option>
-              <option value="MAPEH">MAPEH</option>
-              <option value="computer education">Computer Education</option>
-              <option value="ESP">ESP</option>
-            </select>
-            <label>{{ subject2 ? capitalize(subject2) : 'Subject 2' }}</label>
-            <span class="custom-arrow"></span>
-          </div>
+         <div v-if="showSubject2" class="floating-label flex-1" :class="{ filled: subject2 }">
+          <select v-model="subject2" class="input">
+            <option value="" disabled selected hidden>Select Subject 2</option>
+            <option v-for="subject in subjects" :key="subject.Subject_ID" :value="subject.Subject_ID">
+              {{ subject.SubjectName }}
+            </option>
+          </select>
+          <label>{{ subject2 ? capitalize(subject2) : 'Subject 2' }}</label>
+          <span class="custom-arrow"></span>
+        </div>
 
           <button
             type="button"
@@ -120,6 +110,52 @@
             {{ showSubject2 ? '-' : '+' }}
           </button>
         </div>
+
+              <!-- Additional Information Section -->
+      <h1 class="font-semibold text-[#295f98]">Additional Info</h1>
+      <div class="flex gap-4 mb-6">
+        <div class="floating-label flex-1" :class="{ filled: birthDate }">
+          <input
+            v-model="birthDate"
+            type="date"
+            placeholder=" "
+            class="input"
+          />
+          <label>Birth Date</label>
+        </div>
+
+        <div class="floating-label flex-1" :class="{ filled: sex }">
+          <select v-model="sex" class="input">
+            <option value="" disabled selected hidden></option>
+            <option value="M">Male</option>
+            <option value="F">Female</option>
+          </select>
+          <label>Sex</label>
+          <span class="custom-arrow"></span>
+        </div>
+      </div>
+
+      <div class="flex gap-4 mb-6">
+        <div class="floating-label flex-1" :class="{ filled: contactNumber }">
+          <input
+            v-model="contactNumber"
+            type="text"
+            placeholder=" "
+            class="input"
+          />
+          <label>Contact Number</label>
+        </div>
+
+        <div class="floating-label flex-1" :class="{ filled: address }">
+          <input
+            v-model="address"
+            type="text"
+            placeholder=" "
+            class="input"
+          />
+          <label>Address</label>
+        </div>
+      </div>
 
         <!-- Account Setup Section -->
         <h1 class="font-semibold text-[#295f98]">Account Setup</h1>
@@ -155,63 +191,32 @@
             <label>Confirm Password</label>
           </div>
         </div>
-
-        <!-- Accession Section -->
+   <!-- Accession Section -->
         <h2 class="text-xl text-[#295f98] font-semibold mb-6">Accession</h2>
         <div class="flex gap-6 items-center">
           <label class="flex flex-col items-center gap-1 cursor-pointer select-none">
             <span class="font-semibold text-[#295f98] mb-4">Teacher</span>
-            <input type="radio" value="teacher" v-model="selectedAccession" class="hidden" />
-            <div
-              :class="[
-                'w-18 h-6 rounded-full flex items-center transition-colors duration-300',
-                selectedAccession === 'teacher' ? 'bg-blue-600' : 'bg-gray-300',
-              ]"
-            >
-              <div
-                :class="[
-                  'w-5 h-5 bg-white rounded-full shadow transform transition-transform duration-300',
-                  selectedAccession === 'teacher' ? 'translate-x-12' : 'translate-x-1',
-                ]"
-              ></div>
+            <input type="radio" value="Teacher" v-model="selectedAccession" class="hidden" />
+            <div :class="[ 'w-18 h-6 rounded-full flex items-center transition-colors duration-300', selectedAccession === 'Teacher' ? 'bg-blue-600' : 'bg-gray-300' ]">
+              <div :class="[ 'w-5 h-5 bg-white rounded-full shadow transform transition-transform duration-300', selectedAccession === 'Teacher' ? 'translate-x-12' : 'translate-x-1' ]"></div>
             </div>
           </label>
 
-          <label class="flex flex-col items-center gap-1 cursor-pointer select-none">
-            <span class="font-semibold text-[#295f98] mb-4">Admin</span>
-            <input type="radio" value="admin" v-model="selectedAccession" class="hidden" />
-            <div
-              :class="[
-                'w-18 h-6 rounded-full flex items-center transition-colors duration-300',
-                selectedAccession === 'admin' ? 'bg-blue-600' : 'bg-gray-300',
-              ]"
-            >
-              <div
-                :class="[
-                  'w-5 h-5 bg-white rounded-full shadow transform transition-transform duration-300',
-                  selectedAccession === 'admin' ? 'translate-x-12' : 'translate-x-1',
-                ]"
-              ></div>
-            </div>
-          </label>
+        <label class="flex flex-col items-center gap-1 cursor-pointer select-none">
+          <span class="font-semibold text-[#295f98] mb-4">Admin</span>
+          <input type="radio" value="Admin" v-model="selectedAccession" class="hidden" />
+          <div :class="[ 'w-18 h-6 rounded-full flex items-center transition-colors duration-300', selectedAccession === 'Admin' ? 'bg-blue-600' : 'bg-gray-300' ]">
+            <div :class="[ 'w-5 h-5 bg-white rounded-full shadow transform transition-transform duration-300', selectedAccession === 'Admin' ? 'translate-x-12' : 'translate-x-1' ]"></div>
+          </div>
+        </label>
 
-          <label class="flex flex-col items-center gap-1 cursor-pointer select-none">
-            <span class="font-semibold text-[#295f98] mb-4">Book-keeping</span>
-            <input type="radio" value="bookkeeping" v-model="selectedAccession" class="hidden" />
-            <div
-              :class="[
-                'w-18 h-6 rounded-full flex items-center transition-colors duration-300',
-                selectedAccession === 'bookkeeping' ? 'bg-blue-600' : 'bg-gray-300',
-              ]"
-            >
-              <div
-                :class="[
-                  'w-5 h-5 bg-white rounded-full shadow transform transition-transform duration-300',
-                  selectedAccession === 'bookkeeping' ? 'translate-x-12' : 'translate-x-1',
-                ]"
-              ></div>
-            </div>
-          </label>
+        <label class="flex flex-col items-center gap-1 cursor-pointer select-none">
+          <span class="font-semibold text-[#295f98] mb-4">Book-keeping</span>
+          <input type="radio" value="Book-keeping" v-model="selectedAccession" class="hidden" />
+          <div :class="[ 'w-18 h-6 rounded-full flex items-center transition-colors duration-300', selectedAccession === 'Book-keeping' ? 'bg-blue-600' : 'bg-gray-300' ]">
+            <div :class="[ 'w-5 h-5 bg-white rounded-full shadow transform transition-transform duration-300', selectedAccession === 'Book-keeping' ? 'translate-x-12' : 'translate-x-1' ]"></div>
+          </div>
+        </label>
         </div>
 
         <!-- Buttons -->
@@ -235,9 +240,11 @@
   </div>
 </template>
 
+
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import Swal from 'sweetalert2';
+import axios from 'axios';
 
 const props = defineProps({
   modelValue: Boolean,
@@ -250,6 +257,8 @@ const firstName = ref('');
 const middleName = ref('');
 const lastName = ref('');
 const suffix = ref('');
+
+const subjects = ref([]);
 
 const employeeNumber = ref('');
 const educationalAttainment = ref('');
@@ -264,7 +273,13 @@ const confirmPassword = ref('');
 
 const selectedAccession = ref('');
 
+const birthDate = ref('');
+const sex = ref('');
+const contactNumber = ref('');
+const address = ref('');
+
 const showSubject2 = ref(false);
+
 
 const toggleSubject2 = () => {
   showSubject2.value = !showSubject2.value;
@@ -282,16 +297,16 @@ const allRequiredFieldsFilled = () => {
     firstName.value.trim() !== '' &&
     lastName.value.trim() !== '' &&
     employeeNumber.value.trim() !== '' &&
-    subject1.value.trim() !== '' &&
+    subject1.value != null && subject1.value !== '' &&
     email.value.trim() !== '' &&
     password.value.trim() !== '' &&
     confirmPassword.value.trim() !== '' &&
-    selectedAccession.value.trim() !== ''
+    selectedAccession.value != null && selectedAccession.value !== ''
   );
 };
 
+
 const handleSubmit = async () => {
-  // Validate required fields
   if (!allRequiredFieldsFilled()) {
     Swal.fire({
       icon: 'error',
@@ -301,7 +316,6 @@ const handleSubmit = async () => {
     return;
   }
 
-  // Validate password match
   if (password.value !== confirmPassword.value) {
     Swal.fire({
       icon: 'error',
@@ -311,7 +325,8 @@ const handleSubmit = async () => {
     return;
   }
 
-  // Confirm submission
+  
+
   const result = await Swal.fire({
     title: 'Are you sure?',
     text: 'Do you want to save this faculty member?',
@@ -322,55 +337,93 @@ const handleSubmit = async () => {
   });
 
   if (result.isConfirmed) {
-    const formData = {
-      firstName: firstName.value,
-      middleName: middleName.value,
-      lastName: lastName.value,
-      suffix: suffix.value,
-      employeeNumber: employeeNumber.value,
-      educationalAttainment: educationalAttainment.value,
-      teachingPosition: teachingPosition.value,
-      subjects: getSelectedSubjects(),
-      email: email.value,
-      password: password.value,
-      confirmPassword: confirmPassword.value,
-      accession: selectedAccession.value,
+      const formData = {
+      Email: email.value,
+      Password: password.value,
+      ConfirmPassword: confirmPassword.value, // optional, if your API checks it
+      EmployeeNo: employeeNumber.value,
+      Educational_Attainment: educationalAttainment.value,
+      Teaching_Position: teachingPosition.value,
+      FirstName: firstName.value,
+      LastName: lastName.value,
+      MiddleName: middleName.value,
+      Suffix: suffix.value,
+      BirthDate: birthDate.value,
+      Sex: sex.value,
+      Position: selectedAccession.value,  // Ensure selectedAccession is included
+      ContactNumber: contactNumber.value,
+      Address: address.value,
+      Subject_IDs: getSelectedSubjects(), // returns [1] or [1, 2]
     };
+    try {
+      const token = localStorage.getItem('token');
 
-    emit('submit', formData);
+      await fetch('http://127.0.0.1:8000/api/teacher/create-teacher', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
 
-    // Reset form
-    firstName.value = '';
-    middleName.value = '';
-    lastName.value = '';
-    suffix.value = '';
-    employeeNumber.value = '';
-    educationalAttainment.value = '';
-    teachingPosition.value = '';
-    subject1.value = '';
-    subject2.value = '';
-    email.value = '';
-    password.value = '';
-    confirmPassword.value = '';
-    selectedAccession.value = '';
-    showSubject2.value = false;
+      emit('submit', formData);
 
-    emit('update:modelValue', false);
+      // Reset form
+      firstName.value = '';
+      middleName.value = '';
+      lastName.value = '';
+      suffix.value = '';
+      employeeNumber.value = '';
+      educationalAttainment.value = '';
+      teachingPosition.value = '';
+      subject1.value = '';
+      subject2.value = '';
+      email.value = '';
+      password.value = '';
+      confirmPassword.value = '';
+      selectedAccession.value = '';
+      showSubject2.value = false;
+      birthDate.value = '';
+      sex.value = '';
+      contactNumber.value = '';
+      address.value = '';
 
-    Swal.fire({
-      icon: 'success',
-      title: 'Saved!',
-      text: 'Faculty member has been saved successfully.',
-      timer: 1500,
-      showConfirmButton: false,
-    });
+      emit('update:modelValue', false);
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Saved!',
+        text: 'Faculty member has been saved successfully.',
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while saving the faculty member.',
+      });
+      console.error(error);
+    }
   }
 };
 
 const capitalize = (str) => {
-  if (!str) return '';
+  if (!str || typeof str !== 'string') return '';  // Ensure it's a string
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
+
+onMounted(async () => {
+  try {
+    const response = await axios.get('http://127.0.0.1:8000/api/subject/getSubjects');
+    subjects.value = response.data;
+  } catch (error) {
+    console.error('Error fetching subjects:', error);
+  }
+});
 </script>
 
 
