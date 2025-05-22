@@ -242,12 +242,14 @@
     Legend,
   } from 'chart.js';
 
-  import {
-    getStudentCount,
-    getTeacherCount,
-    getStudentGradeDistribution,
-    getStudentGenderDistribution,
-  } from '@/service/adminDashboardService';
+import {
+  getStudentCount,
+  getTeacherCount,
+  getStudentGradeDistribution,
+  getStudentGenderDistribution,
+  getAcceptedClassesCount,
+  getLatestStudents,
+} from '@/service/adminDashboardService';
 
   Chart.register(
     BarElement,
@@ -258,57 +260,53 @@
     Legend
   );
 
-  export default {
-    name: 'Dashboard',
-    data() {
-      return {
-        _gradeChartInstance: null,
-        _genderChartInstance: null,
-        _submissionStatusChartInstance: null,
-        stats: {
-          students: 0,
-          teachers: 0,
-        },
-        studentGrades: {},
-        genderData: {}, // <-- NEW: Store gender distribution
-        selectedGrade: '',
-        selectedTrack: '',
-        recentStudents: [],
-        classes: [],
-      };
+export default {
+  name: 'Dashboard',
+  data() {
+    return {
+      _gradeChartInstance: null,
+      _genderChartInstance: null,
+      _submissionStatusChartInstance: null,
+      stats: {
+        students: 0,
+        teachers: 0,
+        classes: 0,
+      },
+      recentStudents: [],
+      studentGrades: {},
+      genderData: {}, 
+      selectedGrade: '',
+      selectedTrack: '',
+      recentStudents: [],
+      classes: [],
+      gradeOptions: ['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'],
+      trackOptions: ['HUMSS', 'TVL', 'SPJ', 'SPA', 'BEP'],
+    };
+  },
+  computed: {
+    uniqueStudents() {
+      const seen = new Set();
+      return this.recentStudents.filter((student) => {
+        if (seen.has(student.lrn)) return false;
+        seen.add(student.lrn);
+        return true;
+      });
     },
-    computed: {
-      uniqueStudents() {
-        const seen = new Set();
-        return this.recentStudents.filter((student) => {
-          if (seen.has(student.lrn)) return false;
-          seen.add(student.lrn);
-          return true;
-        });
-      },
-      gradeOptions() {
-        return [
-          ...new Set(this.uniqueStudents.map((s) => s.gradeLevel)),
-        ].sort();
-      },
-      trackOptions() {
-        return [...new Set(this.uniqueStudents.map((s) => s.track))].sort();
-      },
-      filteredStudents() {
-        return this.uniqueStudents.filter((student) => {
-          const matchesGrade =
-            this.selectedGrade === '' ||
-            student.gradeLevel === this.selectedGrade;
-          const matchesTrack =
-            this.selectedTrack === '' || student.track === this.selectedTrack;
-          return matchesGrade && matchesTrack;
-        });
-      },
-    },
+    filteredStudents() {
+    return this.recentStudents.filter((student) => {
+      const matchGrade =
+        !this.selectedGrade || student.gradeLevel === this.selectedGrade;
+      const matchTrack =
+        !this.selectedTrack || student.track === this.selectedTrack;
+      return matchGrade && matchTrack;
+    });
+  },
+},
     async mounted() {
       await this.fetchStats();
       await this.fetchStudentGradeDistribution();
-      await this.fetchGenderDistribution(); // <-- NEW
+      await this.fetchGenderDistribution(); 
+      await this.fetchLatestStudents(); 
     },
     methods: {
       async fetchStats() {
@@ -319,11 +317,14 @@
           const teacherCount = await getTeacherCount();
           this.stats.teachers = teacherCount;
 
-          console.log('Students:', studentCount, 'Teachers:', teacherCount);
-        } catch (error) {
-          console.error('Failed to fetch stats:', error);
-        }
-      },
+        const acceptedClassesCount = await getAcceptedClassesCount();
+        this.stats.classes = acceptedClassesCount;
+
+        console.log('Students:', studentCount, 'Teachers:', teacherCount, "Classes: ", acceptedClassesCount);
+      } catch (error) {
+        console.error("Failed to fetch stats:", error);
+      }
+    },
 
       async fetchStudentGradeDistribution() {
         try {
@@ -344,6 +345,31 @@
           this.renderGenderChart();
         } catch (error) {
           console.error('Failed to fetch gender distribution:', error);
+        }
+      },
+
+      async fetchLatestStudents() {
+        try {
+          const latestStudentsData = await getLatestStudents();
+
+          this.recentStudents = latestStudentsData.map(student => {
+            const fullName = `${student.FirstName} ${student.MiddleName || ''} ${student.LastName}`.trim();
+
+            return {
+              lrn: student.LRN,
+              fullName,
+              gender: student.Sex === 'M' ? 'Male' : 'Female',
+              age: student.Age,
+              gradeLevel: `Grade ${student.Grade_Level}`,
+              curriculum: student.Curriculum,
+              track: student.Track,
+              dateAdded: new Date(student.created_at).toLocaleDateString()
+            };
+          });
+
+          console.log('Mapped recent students:', this.recentStudents);
+        } catch (error) {
+          console.error('Failed to fetch latest students:', error);
         }
       },
 
