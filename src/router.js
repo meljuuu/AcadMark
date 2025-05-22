@@ -22,6 +22,8 @@ import SAPersonnel from './views/superadmin/SAPersonnel.vue';
 import SAGrades from './views/superadmin/SAGrades.vue';
 import SAStudents from './views/superadmin/SAStudents.vue';
 import SAClasses from './views/superadmin/SAClasses.vue';
+import SALessonplan from './views/superadmin/SALessonplan.vue';
+import SASettings from './views/superadmin/SASettings.vue';
 
 // Inside the superadmin card
 import insideCard from './views/superadmin/components/insideCard.vue';
@@ -131,6 +133,18 @@ const routes = [
     meta: { requiresAuth: true, requiresSuperAdmin: true },
   },
   {
+    path: '/superadmin/lessonplan',
+    name: 'superadmin-lessonplan',
+    component: SALessonplan,
+    meta: { requiresAuth: true, requiresSuperAdmin: true },
+  },
+  {
+    path: '/superadmin/settings',
+    name: 'superadmin-settings',
+    component: SASettings,
+    meta: { requiresAuth: true, requiresSuperAdmin: true },
+  },
+  {
     path:'/superadmin/insideCard',
     name: 'insideCard',
     component: insideCard,
@@ -173,10 +187,10 @@ router.beforeEach((to, from, next) => {
     } else if (to.matched.some(record => record.meta.requiresAdmin) && !isAdmin) {
       next('/dashboard'); // block access to admin routes
     } else {
-      next(); // allowed
+      next(); 
     }
   } else {
-    next(); // public routes
+    next();
   }
 });
 

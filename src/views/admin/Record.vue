@@ -4,8 +4,6 @@
             <div class="flex justify-between">
                 <div class="flex flex-wrap gap-5">
                     <Dropdown :showGrade="true" v-model="selectedGrade" />
-                    <Dropdown :showCurriculum="true" v-model="selectedCurriculum" />
-                    <Dropdown :showSex="true" v-model="selectedSex" />
                     <Dropdown :showAcademicTrack="true" v-model="selectedAcademicTrack" />
                 </div>
 
@@ -60,8 +58,6 @@ import Searchbar from '@/components/searchbar.vue';
 import { getAllAcceptedStudents } from '@/service/studentService'
 
 const selectedGrade = ref('');
-const selectedCurriculum = ref('');
-const selectedSex = ref('');
 const selectedAcademicTrack = ref('');
 const searchQuery = ref('');
 
@@ -87,21 +83,20 @@ onMounted(async () => {
 });
 
 const filteredStudents = computed(() => {
-    let filtered = students.value.filter(student => {
-        const matchesGrade = !selectedGrade.value || student.gradeLevel === selectedGrade.value;
-        const matchesCurriculum = !selectedCurriculum.value || student.curriculum === selectedCurriculum.value;
-        const matchesSex = !selectedSex.value || student.sex === selectedSex.value;
-        const matchesTrack = !selectedAcademicTrack.value || student.track === selectedAcademicTrack.value;
+  let filtered = students.value.filter(student => {
+    const matchesGrade = !selectedGrade.value || student.gradeLevel === selectedGrade.value;
+    const matchesTrack = !selectedAcademicTrack.value || student.track === selectedAcademicTrack.value;
 
-        return matchesGrade && matchesCurriculum && matchesSex && matchesTrack;
-    });
+    return matchesGrade && matchesTrack;
+  });
 
-    if (searchQuery.value) {
-        filtered = filtered.filter(student =>
-            student.fullName.toLowerCase().includes(searchQuery.value.toLowerCase())
-        );
-    }
+  if (searchQuery.value) {
+    filtered = filtered.filter(student =>
+      student.fullName.toLowerCase().includes(searchQuery.value.toLowerCase())
+    );
+  }
 
-    return filtered;
+  return filtered;
 });
+
 </script>
