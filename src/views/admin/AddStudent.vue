@@ -204,11 +204,16 @@
                                         <td class="p-2">{{ student.age }}</td>
                                         <td class="p-2">
                                             <span
-                                                class="px-4 py-2 rounded text-white inline-block w-[135px] font-light text-center"
-                                                :class="student.status === 'Accepted' ? 'bg-green-500' : 'bg-orange-500'">
+                                                class="px-4 py-2 rounded inline-block w-[135px] font-semibold text-center"
+                                                :class="{
+                                                    'bg-green-100 text-green-800': student.status === 'Accepted',
+                                                    'bg-orange-100 text-orange-800': student.status === 'Pending',
+                                                    'bg-red-100 text-red-800': student.status === 'Declined',
+                                                }">
                                                 {{ student.status }}
                                             </span>
                                         </td>
+
                                     </tr>
                                 </tbody>
                             </table>
@@ -267,9 +272,8 @@
                     <div class="flex flex-col gap-2">
                         <label class="text-blue font-semibold text-2xl" for="comment">COMMENT</label>
                         <textarea v-model="comment" rows="10" class="border-1 rounded-lg p-2"
-                            placeholder="Superadmin comment here..." disabled="true"></textarea>
+                            placeholder="Superadmin comment here..." disabled></textarea>
                     </div>
-
                     <!-- Modal Action Buttons -->
                     <div class="flex justify-end gap-2 mt-5">
                         <button type="button" @click="closeModal"
@@ -295,8 +299,9 @@
 import { ref, reactive, computed, onMounted, watch } from 'vue'
 import Dropdown from '@/components/dropdown.vue'
 import Searchbar from '@/components/searchbar.vue'
-import { getAllStudents, createStudent, bulkRegisterStudents } from '@/service/studentService'
+import { getStudentsNoClass, createStudent, bulkRegisterStudents, editStudent } from '@/service/studentService'
 import { useToast } from 'vue-toastification'
+import Swal from 'sweetalert2'
 
 function calculateAge(birthdate) {
   if (!birthdate) return ''
@@ -321,10 +326,12 @@ const toast = useToast()
 
 onMounted(async () => {
   try {
-    const response = await getAllStudents();  // or axios call
+      const response = await getStudentsNoClass();  // or axios call
 
     // Access the array inside response.students
     const data = response.students;
+
+    console.log("STUDENT DATA:", data)
 
     students.value = data.map(s => ({
       gradeLevel: s.Grade_Level,
@@ -337,6 +344,7 @@ onMounted(async () => {
       age: s.Age,
       status: s.Status || 'Pending',
       original: s,
+      updated_at: s.updated_at,
     }));
 
   } catch (error) {
@@ -426,36 +434,61 @@ watch(() => formData.BirthDate, (newDate) => {
 
 async function handleAddStudentSubmit() {
     try {
+        const result = await Swal.fire({
+            title: 'Add New Student?',
+            text: "Are you sure you want to submit this student’s record?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, add student',
+            cancelButtonText: 'Cancel'
+        })
+
+        if (!result.isConfirmed) return;
+
         const dataToSend = JSON.parse(JSON.stringify(formData))
 
-        // Convert Sex to 'M' or 'F'
+        // Normalize Sex
         if (dataToSend.Sex === 'Male') dataToSend.Sex = 'M'
         else if (dataToSend.Sex === 'Female') dataToSend.Sex = 'F'
 
-        // Convert Curriculum to 'JHS' or 'SHS'
+        // Normalize Curriculum
         if (dataToSend.Curriculum === 'Junior High School') dataToSend.Curriculum = 'JHS'
         else if (dataToSend.Curriculum === 'Senior High School') dataToSend.Curriculum = 'SHS'
 
-        // Remove 'Grade ' from Grade_Level (e.g., "Grade 12" => "12")
+        // Clean Grade Level
         if (dataToSend.Grade_Level?.startsWith('Grade ')) {
             dataToSend.Grade_Level = dataToSend.Grade_Level.replace('Grade ', '')
         }
 
         console.log("DATA TO SEND:", dataToSend)
 
-        // Send to backend
-        const response = await createStudent(dataToSend)
+        await createStudent(dataToSend)
 
-        students.value.push({ ...response.data })
+        await getStudentsNoClass() 
 
         // Reset form
         Object.keys(formData).forEach(key => (formData[key] = ''))
-        toast.success('Student added successfully!')
+
+        await Swal.fire({
+            title: 'Success!',
+            text: 'Student added successfully.',
+            icon: 'success',
+            confirmButtonText: 'OK'
+        })
     } catch (error) {
         console.error('Error adding student:', error)
-        toast.error('Failed to add student. Please try again.')
+
+        await Swal.fire({
+            title: 'Failed!',
+            text: 'Failed to add student. Please try again.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        })
     }
 }
+
 
 
 
@@ -521,16 +554,39 @@ const selectedAcademicTrack = ref('')
 const searchQuery = ref('')
 
 const filteredStudents = computed(() => {
-    if (!searchQuery.value) return students.value
-    return students.value.filter(student =>
-        student.fullName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        student.lrn?.toString().includes(searchQuery.value)
-    )
-})
+    let filtered = students.value;
+
+    if (searchQuery.value) {
+        filtered = filtered.filter(student =>
+            student.fullName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+            student.lrn?.toString().includes(searchQuery.value)
+        );
+    }
+
+    console.log('updated_at dates:', filtered.map(s => s.updated_at));
+
+    return filtered.slice().sort((a, b) => {
+        const dateA = new Date(a.updated_at);
+        const dateB = new Date(b.updated_at);
+
+        // Check if dates are valid
+        const validA = !isNaN(dateA);
+        const validB = !isNaN(dateB);
+
+        if (validA && validB) {
+            return dateB - dateA; // descending
+        }
+        if (validA) return -1; // put a with valid date before b
+        if (validB) return 1;  // put b with valid date before a
+        return 0; // both invalid, keep original order
+    });
+});
+
 
 // ===================== MODAL FOR VIEWING/EDITING STUDENT =====================
 const showModal = ref(false)
 const selectedStudent = ref(null)
+const originalFormData = ref({});
 
 // Create reactive modalFormData with initial keys from addStudentFields
 const modalFormData = reactive(Object.fromEntries(addStudentFields.map(f => [f.name, ''])))
@@ -541,42 +597,40 @@ const comment = ref('')
 function openModal(student) {
     showModal.value = true;
     isEditing.value = false;
+    selectedStudent.value = student;
 
     const original = student.original;
+    comment.value = original.comments || '';
 
-    // Reset modalFormData before filling
+    console.log("DADWADAW:", original)
     for (const key in modalFormData) {
         modalFormData[key] = original[key] ?? '';
     }
 
-    // === Map backend values to display-friendly values ===
+    originalFormData.value = { ...modalFormData };
+
     if (original.Sex === 'M') modalFormData.Sex = 'Male';
     else if (original.Sex === 'F') modalFormData.Sex = 'Female';
 
-    if (original.Curriculum === 'JHS') {
-        modalFormData.Curriculum = 'Junior High School';
-    } else if (original.Curriculum === 'SHS') {
-        modalFormData.Curriculum = 'Senior High School';
-    }
+    if (original.Curriculum === 'JHS') modalFormData.Curriculum = 'Junior High School';
+    else if (original.Curriculum === 'SHS') modalFormData.Curriculum = 'Senior High School';
 
-    // Convert "7" ➝ "Grade 7"
     if (original.Grade_Level) {
         modalFormData.Grade_Level = `Grade ${original.Grade_Level}`;
     }
 
-    // === Set curriculum options ===
     const curriculumField = addStudentFields.find(f => f.name === 'Curriculum');
     if (curriculumField) {
         curriculumField.options = ['Junior High School', 'Senior High School'];
     }
 
-    // === Set track options ===
     const curriculum = modalFormData.Curriculum;
     const trackField = addStudentFields.find(f => f.name === 'Track');
     if (trackField) {
         trackField.options = trackOptions[curriculum] || [];
     }
 }
+
 
 
 // ✅ Called when user cancels/close modal
@@ -598,25 +652,78 @@ function startEditing() {
 }
 
 // ✅ Handles updating student data
-function handleUpdateStudent() {
-    if (!selectedStudent.value) return
+async function handleUpdateStudent() {
+    if (!selectedStudent.value) return;
 
-    // Locate the student by LRN and update in the source list
-    const index = students.value.findIndex(s => s.lrn === modalFormData.lrn)
+    try {
+        const confirmResult = await Swal.fire({
+            title: 'Update Student Record?',
+            text: "Are you sure you want to save changes to this student’s record?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, update',
+            cancelButtonText: 'Cancel'
+        });
 
-    if (index !== -1) {
-        students.value[index] = {
-            ...students.value[index],
-            ...modalFormData,
-            comment: comment.value
+        if (!confirmResult.isConfirmed) return;
+
+        const studentId = selectedStudent.value.original.Student_ID;
+        const updatedData = { ...modalFormData };
+
+        // Normalize values
+        if (updatedData.Sex === 'Male') updatedData.Sex = 'M';
+        else if (updatedData.Sex === 'Female') updatedData.Sex = 'F';
+
+        if (updatedData.Curriculum === 'Junior High School') updatedData.Curriculum = 'JHS';
+        else if (updatedData.Curriculum === 'Senior High School') updatedData.Curriculum = 'SHS';
+
+        if (updatedData.Grade_Level?.startsWith('Grade ')) {
+            updatedData.Grade_Level = updatedData.Grade_Level.replace('Grade ', '');
         }
-        alert('Student record updated successfully!')
-    } else {
-        alert('Error: Student record not found!')
-    }
 
-    isEditing.value = false
-    closeModal()
+        ['MiddleName', 'Suffix', 'Religion'].forEach(field => {
+            if (!updatedData[field] || updatedData[field] === '') {
+                updatedData[field] = null;
+            }
+        });
+
+        updatedData.comments = comment.value;
+
+        console.log('FINAL DATA TO UPDATE:', updatedData);
+
+        // API call
+        const response = await editStudent(studentId, updatedData);
+        await getStudentsNoClass();
+        await Swal.fire({
+            title: 'Updated!',
+            text: 'Student record updated successfully.',
+            icon: 'success',
+            confirmButtonText: 'OK'
+        });
+
+  
+        // Close modal and reset state
+        isEditing.value = false;
+        closeModal();
+
+        window.location.reload();
+
+
+    } catch (error) {
+        console.error('Error updating student:', error);
+
+        await Swal.fire({
+            title: 'Update Failed',
+            text: 'Failed to update student record. Please try again.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    }
 }
+
+
+
 
 </script>

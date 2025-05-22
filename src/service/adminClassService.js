@@ -38,3 +38,17 @@ export const addStudentsToClass = async (payload) => {
         throw error.response?.data || error;
     }
 };
+
+export const removeStudentToClass = async (payload) => {
+    try {
+        const response = await API.post('/admin/remove-student-to-class', {
+            student_ids: payload.student_ids,
+            class_id: payload.class_id
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error('Error removing students from class:', error.response?.data || error);
+        throw error.response?.data || error;
+    }
+};

@@ -200,9 +200,12 @@
                             </select>
                         </div>
                         <div class="flex items-end ml-auto">
-                            <button
-                                class="bg-[#295F98] text-white text-base font-normal border-none rounded-[6px] px-[25px] py-[10px] cursor-pointer transition-colors duration-200 hover:bg-[#1d4066]"
-                                @click="openAddTeacherModal">Add Teacher</button>
+                            <button @click="openAddTeacherModal" :class="[
+                                'text-white text-base font-normal border-none rounded-[6px] px-[25px] py-[10px] cursor-pointer transition-colors duration-200',
+                                form.teacher_subject_ids.length === 0 ? 'bg-[#295F98] hover:bg-[#1d4066]' : 'bg-green-600 hover:bg-green-700'
+                            ]">
+                                {{ teacherButtonLabel }}
+                            </button>
                         </div>
                     </div>
                     <div class="min-h-[200px] bg-[#f9f9f9] rounded-[8px] mt-8">
@@ -224,7 +227,8 @@
                                         class="flex items-center p-[6px_8px] border-b border-[#f0f0f0] text-sm text-[#222] gap-10 hover:bg-[#e0e0e0]">
                                         <span class="ml-[5px] w-[90px] font-medium">{{ row.lrn }}</span>
                                         <span class="flex-1 -ml-[5px] font-medium">{{ row.name }}</span>
-                                        <img src="/assets/img/admin/arrow.svg" alt="right-arrow" class="w-5 h-5">
+                                        <img src="/assets/img/admin/arrow.svg" alt="right-arrow"
+                                            class="w-5 h-5 cursor-pointer" @click="removeSelectedRow(row.lrn)" />
                                     </div>
                                 </div>
                                 <button @click="logForm"
@@ -337,7 +341,7 @@
                     <select v-model="selectedAdviser" @change="logSelectedAdviserId"
                         class="min-w-[240px] h-[48px] px-[12px] border border-[#E3E9EC] rounded-[6px] bg-white text-[1rem] text-[#242424] font-medium">
                         <option disabled value="">Select Adviser</option>
-                        <option v-for="adviser in advisers" :key="adviser.id" :value="adviser.id">
+                        <option v-for="adviser in filteredAdvisersBySubject" :key="adviser.id" :value="adviser.id">
                             {{ adviser.name }}
                         </option>
                     </select>
@@ -368,7 +372,8 @@
                         class="min-w-[240px] h-[48px] px-[12px] border border-[#E3E9EC] rounded-[6px] bg-white text-[1rem] text-[#242424] font-medium"
                         v-model="teacherEntry.teacher">
                         <option value="" disabled>Teacher Name</option>
-                        <option v-for="teacher in teacherOptions" :key="teacher.id" :value="teacher.name">
+                        <option v-for="teacher in filteredTeachersBySubject(teacherEntry.subject)" :key="teacher.id"
+                            :value="teacher.name">
                             {{ teacher.name }}
                         </option>
                     </select>
@@ -449,6 +454,7 @@ import { getAllAcceptedStudents } from '@/service/studentService';
 import { getAllTeacherSubjects, getClassesExcludingIncomplete } from '@/service/teacherSubjectsService';
 import { getAllClasses } from '@/service/adminClassService';
 import { createClass } from '@/service/adminClassService';
+import Swal from 'sweetalert2';
 
 export default {
     name: 'Dasboard',
@@ -512,11 +518,15 @@ export default {
                 this.form.class_name = newClass.Section;
                 this.form.sy_id = newClass.SY_ID;
             } else {
-                this.form.class_id = '';
-                this.form.class_name = '';
-                this.form.sy_id = '';
-            }
-        },
+                
+         
+            this.form.class_id = '';
+            this.form.class_name = '';
+            this.form.sy_id = '';
+            this.hasFacultyBeenAdded = false;
+        }
+        
+    },
         selectedRows(newLRNs) {
             const allRows = this.dummyTableData[this.enteredIdx] || [];
 
@@ -548,11 +558,27 @@ export default {
             try {
                 const response = await createClass(this.form);
                 console.log('Class created successfully:', response);
-                toast.success(response);
-                // this.$swal.fire('Success', response.message, 'success');
+
+                // Show success alert
+                await Swal.fire({
+                    title: 'Success',
+                    text: response.message || 'Class created successfully.',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+
+                window.location.reload();
+
             } catch (error) {
                 console.error('Failed to create class:', error);
-                // this.$swal.fire('Error', 'Failed to create class.', 'error');
+
+                // Show error alert
+                await Swal.fire({
+                    title: 'Error',
+                    text: error.response?.data?.message || 'Failed to create class.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
             }
         },
         logSelectedAdviserId() {
@@ -647,15 +673,32 @@ export default {
                 }
             }
 
-            // Save locally in parent form state
-            this.form.teacher_subject_ids = teacherSubjectIds;
-            this.form.adviser_id = adviserId;   // <--- Save adviserId here
+            // Confirmation alert
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you want to save these faculty assignments?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, save it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Save locally in parent form state
+                    this.form.teacher_subject_ids = teacherSubjectIds;
+                    this.form.adviser_id = adviserId;   // <--- Save adviserId here
 
-            console.log('Saved locally in form:', this.form);
+                    console.log('Saved locally in form:', this.form);
 
-            // Close the modal
-            this.showAddTeacherModal = false;
+                    // Close the modal
+                    this.showAddTeacherModal = false;
+
+                    Swal.fire('Saved!', 'Faculty assignments have been saved.', 'success');
+                }
+            });
         },
+        
         async fetchStudentCounts() {
             try {
                 const response = await getAllAcceptedStudents();
@@ -770,6 +813,7 @@ export default {
             try {
                 const data = await getClassesExcludingIncomplete(); // API call
 
+                console.log("DATAS", data)
                 this.superClasses = data.map(c => {
                     const firstStudentClass = c.student_classes[0]; // First entry for adviser data
                     const adviser = firstStudentClass?.adviser
@@ -843,6 +887,9 @@ export default {
                 this.showBlank = true;
                 this.showGrade7Detail = false;
             }
+        },
+        removeSelectedRow(lrn) {
+            this.selectedRows = this.selectedRows.filter(selectedLrn => selectedLrn !== lrn);
         },
         
     },
@@ -932,6 +979,55 @@ export default {
         },
         selectedClass() {
             return this.selectedClassSection || null;
+        },
+        filteredAdvisersBySubject() {
+            if (!this.selectedSubject) return this.advisers;
+
+            const subjectObj = this.subjectOptions.find(s => s.name === this.selectedSubject);
+            if (!subjectObj) return [];
+
+            // Filter teachersSubjects for selected subject
+            const filtered = this.teachersSubjects.filter(
+                item => item.subject?.Subject_ID === subjectObj.id
+            );
+
+            // Map unique advisers
+            const unique = new Map();
+            filtered.forEach(item => {
+                if (item.teacher && !unique.has(item.teacher_id)) {
+                    const fullName = `${item.teacher.FirstName} ${item.teacher.LastName}`;
+                    unique.set(item.teacher_id, { id: item.teacher_id, name: fullName });
+                }
+            });
+
+            return Array.from(unique.values());
+        },
+
+        // This returns a function to filter teachers for each subject teacher entry
+        filteredTeachersBySubject() {
+            return (subjectName) => {
+                if (!subjectName) return this.teacherOptions;
+
+                const subjectObj = this.subjectOptions.find(s => s.name === subjectName);
+                if (!subjectObj) return [];
+
+                const filtered = this.teachersSubjects.filter(
+                    item => item.subject?.Subject_ID === subjectObj.id
+                );
+
+                const unique = new Map();
+                filtered.forEach(item => {
+                    if (item.teacher && !unique.has(item.teacher_id)) {
+                        const fullName = `${item.teacher.FirstName} ${item.teacher.LastName}`;
+                        unique.set(item.teacher_id, { id: item.teacher_id, name: fullName });
+                    }
+                });
+
+                return Array.from(unique.values());
+            }
+        },
+        teacherButtonLabel() {
+            return this.form.teacher_subject_ids.length === 0 ? 'Add Teacher' : 'Edit Teacher';
         }
      
 

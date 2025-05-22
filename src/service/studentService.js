@@ -57,3 +57,21 @@ export const getAllAcceptedStudents = async () => {
         throw error.response ? error.response.data : error;
     }
 };
+
+export const getStudentsNoClass = async () => {
+    try {
+        const response = await API.get("/student/get-students-no-class");
+        return response.data;
+    } catch (error) {
+        throw error.response ? error.response.data : error;
+    }
+};
+
+export const editStudent = async (id, updatedData) => {
+    try {
+        const response = await API.put(`/students/update/${id}`, updatedData);
+        return response.data;
+    } catch (error) {
+        throw error.response ? error.response.data : error;
+    }
+};

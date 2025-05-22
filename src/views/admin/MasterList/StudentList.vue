@@ -246,7 +246,7 @@
                     <tbody>
                         <tr v-for="student in filteredEditModalStudents" :key="student.lrn">
                             <td>
-                                <input type="checkbox" v-model="editModalSelectedStudents" :value="student.lrn">
+                                <input type="checkbox" v-model="editModalSelectedStudents" :value="student.id">
                             </td>
                             <td class="px-4 py-3  text-center text-base font-medium">{{ student.lrn }}</td>
                             <td class="px-4 py-3  text-center text-base font-medium">{{ student.fullName }}</td>
@@ -263,7 +263,7 @@
                 <button class="px-6 py-2 rounded bg-gray-300 hover:bg-gray-400 text-gray-800"
                     @click="showEditModal = false">Cancel</button>
                 <button class="px-6 py-2 rounded bg-green hover:bg-green-700 text-white cursor-pointer"
-                    @click="handleUpdateClass">Update Class</button>
+                    @click="handleUpdateClass(selectedCard)">Update Class</button>
             </div>
         </div>
     </div>
@@ -273,7 +273,7 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import * as XLSX from 'xlsx';
 import { getAllAcceptedStudents } from '@/service/studentService';
-import { addStudentsToClass } from '@/service/adminClassService';
+import { addStudentsToClass, removeStudentToClass } from '@/service/adminClassService';
 
 const props = defineProps({
     selectedCard: {
@@ -589,14 +589,44 @@ const filteredEditModalStudents = computed(() => {
 
 function toggleEditModalSelectAll() {
     if (editModalSelectAll.value) {
-        editModalSelectedStudents.value = filteredEditModalStudents.value.map(s => s.lrn);
+        // Use student.id instead of lrn
+        editModalSelectedStudents.value = filteredEditModalStudents.value.map(s => s.id);
     } else {
         editModalSelectedStudents.value = [];
     }
 }
 
-function handleUpdateClass() {
-    students.value = students.value.filter(s => editModalSelectedStudents.value.includes(s.lrn));
+async function handleUpdateClass(selectedCard) {
+    const removedStudentIds = students.value
+        .filter(s => !editModalSelectedStudents.value.includes(s.id))
+        .map(s => s.id);
+
+    if (!selectedCard?.Class_ID) {
+        alert('Missing class ID. Please select a valid class.');
+        return;
+    }
+
+    if (removedStudentIds.length > 0) {
+        const payload = {
+            student_ids: removedStudentIds,
+            class_id: selectedCard.Class_ID
+        };
+
+        console.log('📦 Sending removal payload:', payload);
+
+        try {
+            const response = await removeStudentToClass(payload);
+            console.log('✅ Removed students response:', response);
+        } catch (error) {
+            console.error('❌ Error removing students:', error);
+            alert('Failed to remove students from the class.');
+        }
+    }
+
+    // Keep only selected students
+    students.value = students.value.filter(s => editModalSelectedStudents.value.includes(s.id));
+
+    // Reset modal state
     showEditModal.value = false;
     editModalSelectedStudents.value = [];
     editModalSelectAll.value = false;
@@ -604,7 +634,8 @@ function handleUpdateClass() {
 
 function openEditModal() {
     showEditModal.value = true;
-    editModalSelectedStudents.value = students.value.map(s => s.lrn);
+    // Again, use id
+    editModalSelectedStudents.value = students.value.map(s => s.id);
     editModalSelectAll.value = true;
 }
 </script>
