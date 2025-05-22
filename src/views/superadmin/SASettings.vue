@@ -3,22 +3,17 @@
     <h1 class="text-5xl font-bold mb-6">Settings</h1>
 
     <div class="mx-auto bg-white p-8 rounded-2xl w-full w-full mb-6">
+
+       <div class="flex justify-between p-8 rounded-xl mb-6" style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
+            <div v-for="tab in tabs" :key="tab" class="w-[48%] cursor-pointer"
+                :class="activeTab === tab ? 'border-blue border-b-2' : ''" @click="activeTab = tab">
+                <p class="text-center pb-2 font-semibold text-lg" :class="activeTab === tab.value ? 'text-blue' : ''">
+                    {{ tab }}
+                </p>
+            </div>
+        </div>
       
-      <div class="flex justify-center gap-6 mb-6 border-b-2 border-gray-200">
-        <button
-            v-for="tab in tabs"
-            :key="tab"
-            @click="activeTab = tab"
-            :class="[
-            'px-10 py-3 text-2xl font-semibold transition cursor-pointer border-b-4',
-            activeTab === tab
-                ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-gray-700 hover:text-blue-600'
-            ]"
-        >
-            {{ tab }}
-        </button>
-      </div>
+
 
 
       <div class="text-xl text-center">
@@ -62,11 +57,11 @@
                             <label>Grade Level</label>
                         </div>
                     </div>
-                    <div class="flex justify-end">
+                    <div class="button">
                         <button 
-                        type="button"
-                        @click="confirmAddSubject"
-                        class="bg-green-800 text-white px-4 py-2 rounded-md hover:bg-green-900 transition-colors duration-200 cursor-pointer">
+                          type="button"
+                          @click="confirmAddSubject"
+                          class="green">
                             Add Subject
                         </button>
                     </div>
@@ -168,37 +163,9 @@
             </div>
         </div>
 
-
         <div v-else-if="activeTab === 'Section'">
           <div class="mx-auto bg-white shadow-lg p-8 rounded-2xl w-full w-full mb-6 border border-gray-200">
                 <form>
-                    <div class="grid grid-cols-3 gap-4 mb-4">
-                        <div class="floating-label mb-4">
-                            <input
-                                type="text"
-                                class="input"
-                                placeholder=" "
-                            />
-                            <label>School Year</label>
-                        </div>
-                        <div class="floating-label mb-4">
-                            <input
-                                type="text"
-                                class="input"
-                                placeholder=" "
-                            />
-                            <label>Start Date</label>
-                        </div>
-                        <div class="floating-label mb-4">
-                            <input
-                                type="text"
-                                class="input"
-                                placeholder=" "
-                            />
-                            <label>End Date</label>
-                        </div>
-                    </div>
-
                     <div class="grid grid-cols-4 gap-4 mb-8">
                       <div class="floating-label">
                         <select class="input" v-model="selectedHighSchool" required>
@@ -229,64 +196,47 @@
                       </select>
                       <label>{{ curriculumOrTrackLabel }}</label>
                     </div>
+                    <div class="floating-label">
+                        <select class="input">
+                          <option value=""></option>
+                          <option v-for="schoolyear in syName" :key="schoolyear" :value="schoolyear">
+                            {{ schoolyear }}
+                          </option>
+                        </select>
+                        <label>School Year</label>
+                    </div>
                   </div>
 
-                  <div class="space-y-2">
-                      <div class="flex items-end gap-2">
+                  <div class="grid grid-cols-2 gap-4 mb-4">
                         <div class="floating-label mb-4">
-                          <input
-                            v-model="newSection"
-                            type="text"
-                            class="input"
-                            placeholder=" "
-                          />
-                          <label>Section</label>
+                            <input
+                                type="text"
+                                class="input"
+                                placeholder=" "
+                            />
+                            <label>Classname</label>
                         </div>
-                        <button
-                          @click="addSection"
-                          type="button"
-                          class="bg-blue-500 text-white px-3 py-1 rounded h-9 cursor-pointer"
-                          title="Add Section"
-                        >
-                          +
-                        </button>
-                      </div>
-
-                      <div
-                        v-for="(section, index) in sections"
-                        :key="index"
-                        class="flex items-end gap-2"
-                      >
-                        <div class="floating-label mb-4">
-                          <input
-                            v-model="section.value"
-                            type="text"
-                            class="input"
-                            placeholder=" "
-                            disabled
-                          />
-                          <label>Section</label>
-                        </div>
-
-                        <button
-                          @click="removeSection(index)"
-                          class="bg-red-500 text-white px-3 py-1 rounded h-9 cursor-pointer"
-                          title="Remove Section"
-                        >
-                          ×
-                        </button>
-                      </div>
+                        <!-- <div class="floating-label mb-4">
+                            <input
+                                type="text"
+                                class="input"
+                                placeholder=" "
+                            />
+                            <label>Subject Code</label>
+                        </div> -->
                     </div>
-                   <div class="flex justify-end">
+
+                  
+                   <div class="button">
                         <button 
                           type="button"
                           @click="confirmAddSection"
-                          class="bg-green-800 text-white px-4 py-2 rounded-md hover:bg-green-900 transition-colors duration-200 cursor-pointer">
+                          class="green">
                             Add Section
                         </button>
                     </div>
                 </form>
-            </div>
+          </div>
 
             <div class="mx-auto bg-white shadow-lg p-8 rounded-2xl w-full border border-gray-200 h-[940px] flex flex-col">
                 <div class="mb-4 flex items-center justify-between gap-4">
@@ -324,7 +274,6 @@
                   <table class="min-w-full divide-y divide-gray-200 text-left">
                     <thead class="bg-gray-100 text-gray-700 text-sm uppercase">
                       <tr>
-                        <th class="px-6 py-3">Academic Duration</th>
                         <th class="px-6 py-3">High School Education</th>
                         <th class="px-6 py-3">Grade Level</th>
                         <th class="px-6 py-3">Curriculum/ Track</th>
@@ -333,12 +282,11 @@
                       </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
-                      <tr v-for="(record, index) in paginatedRecords" :key="index">
-                        <td class="px-6 py-4 whitespace-nowrap text-lg"> {{ record.schoolYear }} ({{ record.startDate }} - {{ record.endDate }})</td>
-                        <td class="px-6 py-4 text-lg">{{ record.highSchool }}</td>
-                        <td class="px-6 py-4 text-lg">{{ record.gradeLevel }}</td>
-                        <td class="px-6 py-4 text-lg">{{ record.curriculumTrack }}</td>
-                        <td class="px-6 py-4 text-lg">{{ record.section }}</td>
+                      <tr v-for="(section, index) in paginatedSections" :key="index">
+                        <td class="px-6 py-4 text-lg">{{ section.highSchool }}</td>
+                        <td class="px-6 py-4 text-lg">{{ section.gradeLevel }}</td>
+                        <td class="px-6 py-4 text-lg">{{ section.curriculumTrack }}</td>
+                        <td class="px-6 py-4 text-lg">{{ section.section }}</td>
                         <td class="px-6 py-4 flex space-x-2 text-lg">
                           <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 cursor-pointer"
                             @click="confirmDeleteRecord">
@@ -360,7 +308,7 @@
                   </button>
 
                   <button
-                    v-for="page in recordsPageNumbers"
+                    v-for="page in sectionPageNumbers"
                     :key="page"
                     class="py-1 text-lg border border-[#295F98] rounded w-10 text-center"
                     :class="{
@@ -377,14 +325,132 @@
 
                   <button
                     class="px-3 text-lg border border-[#295F98] text-[#295F98] py-1 rounded w-28 disabled:opacity-50 whitespace-nowrap flex items-center justify-center gap-1 cursor-pointer"
-                    :disabled="currentRecordsPage === totalRecordsPages"
+                    :disabled="currentRecordsPage === totalSectionPages"
                     @click="currentRecordsPage++"
                   >
                     Next <span>→</span>
                   </button>
                 </div>
               </div>
+        </div>
+
+        <div v-else-if="activeTab === 'School Year'">
+          <div class="mx-auto bg-white shadow-lg p-8 rounded-2xl w-full w-full mb-6 border border-gray-200">
+                <form>
+                    <div class="grid grid-cols-4 gap-4 mb-4">
+                        <div class="floating-label mb-4">
+                            <input
+                                type="text"
+                                class="input"
+                                placeholder=" "
+                            />
+                            <label>School Year</label>
+                        </div>
+                        <div class="floating-label mb-4">
+                            <input
+                                type="text"
+                                class="input"
+                                placeholder=" "
+                            />
+                            <label>Start Date</label>
+                        </div>
+                        <div class="floating-label mb-4">
+                            <input
+                                type="text"
+                                class="input"
+                                placeholder=" "
+                            />
+                            <label>End Date</label>
+                        </div>
+                        <div class="floating-label mb-4">
+                            <input
+                                type="text"
+                                class="input"
+                                placeholder=" "
+                            />
+                            <label>S.Y Name</label>
+                        </div>
+                    </div>
+
+                   <div class="button">
+                        <button 
+                          type="button"
+                          @click="confirmAddSchoolYear"
+                          class="green">
+                            Add S.Y
+                        </button>
+                    </div>
+                </form>
             </div>
+            <div class="mx-auto bg-white shadow-lg p-8 rounded-2xl w-full border border-gray-200 h-[940px] flex flex-col">
+                <div class="mb-4 flex justify-end">
+                  <div class="relative">
+                    <input
+                      v-model="searchSchoolYearQuery"
+                      type="text"
+                      placeholder="Search..."
+                      class="border border-[#295f98] rounded px-10 py-2 text-lg"
+                    />
+                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                  </div>
+                </div>
+
+
+                <!-- Scrollable Table Section -->
+                <div class="overflow-y-auto flex-grow">
+                  <table class="min-w-full divide-y divide-gray-200 text-left">
+                    <thead class="bg-gray-100 text-gray-700 text-sm uppercase">
+                      <tr>
+                        <th class="px-6 py-3">School Year</th>
+                        <th class="px-6 py-3">Start Date</th>
+                        <th class="px-6 py-3">End Date</th>
+                        <th class="px-6 py-3">S.Y Name</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                      <tr v-for="(item, index) in paginatedSchoolYears" :key="index">
+                        <td class="px-6 py-4 whitespace-nowrap text-lg">{{ item.sy }}</td>
+                        <td class="px-6 py-4 text-lg">{{ item.startDate }}</td>
+                        <td class="px-6 py-4 text-lg">{{ item.endDate }}</td>
+                        <td class="px-6 py-4 text-lg">{{ item.syName }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+
+            <div class="flex justify-center items-center mt-4 space-x-1 pt-4 border-t border-gray-300">
+              <button
+                class="px-3 text-lg border border-[#295F98] text-[#295F98] py-1 rounded w-28 disabled:opacity-50 whitespace-nowrap flex items-center justify-center gap-1 cursor-pointer"
+                :disabled="currentSchoolYearPage === 1"
+                @click="currentSchoolYearPage--"
+              >
+                <span>←</span> Previous
+              </button>
+
+              <button
+                v-for="page in totalSchoolYearPages"
+                :key="page"
+                class="py-1 text-lg border border-[#295F98] rounded w-10 text-center"
+                :class="{
+                  'bg-[#295F98] text-white': page === currentSchoolYearPage,
+                  'text-gray-600': page !== currentSchoolYearPage,
+                }"
+                @click="currentSchoolYearPage = page"
+              >
+                {{ page }}
+              </button>
+
+              <button
+                class="px-3 text-lg border border-[#295F98] text-[#295F98] py-1 rounded w-28 disabled:opacity-50 whitespace-nowrap flex items-center justify-center gap-1 cursor-pointer"
+                :disabled="currentSchoolYearPage === totalSchoolYearPages"
+                @click="currentSchoolYearPage++"
+              >
+                Next <span>→</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -394,14 +460,15 @@
 import { ref, computed, watch } from 'vue'
 import Swal from 'sweetalert2';
 
-const tabs = ['Subjects', 'Section']
+const tabs = ['Subjects', 'Section', 'School Year']
 const activeTab = ref('Subjects')
 
 const highSchool = ["Junior High School", "Senior High School"]
 const juniorGrades = ["Grade 7", "Grade 8", "Grade 9", "Grade 10"]
 const seniorGrades = ["Grade 11", "Grade 12"]
-const juniorCurriculum = ["SPA", "SPJ", "BEC", "SHS"]
+const juniorCurriculum = ["SPA", "SPJ", "BEC"]
 const seniorTrack = ["TVL", "HUMMS", "TVL-IEM"]
+const syName = ["S.Y 2022 - 2023", "S.Y 2023 - 2024", "S.Y 2024 - 2025"]
 
 const searchQuery = ref('')
 const selectedId = ref('')
@@ -459,110 +526,76 @@ const removeSection = (index) => {
   sections.value.splice(index, 1);
 };
 
-const academicRecords = ref([
+const sectionRecords = ref([
   {
-    schoolYear: 'SY 2021-2022',
-    startDate: 'Jun 2021',
-    endDate: 'Mar 2022',
     highSchool: 'Junior High School',
     gradeLevel: 'Grade 10',
     curriculumTrack: 'SPJ',
     section: '10-Diamond',
   },
   {
-    schoolYear: 'SY 2022-2023',
-    startDate: 'Jun 2022',
-    endDate: 'Mar 2023',
     highSchool: 'Senior High School',
     gradeLevel: 'Grade 11',
     curriculumTrack: 'TVL',
     section: '11-STEM A',
   },
   {
-    schoolYear: 'SY 2023-2024',
-    startDate: 'Jun 2023',
-    endDate: 'Mar 2024',
     highSchool: 'Senior High School',
     gradeLevel: 'Grade 12',
     curriculumTrack: 'HUMMS',
     section: '12-STEM B',
   },
   {
-    schoolYear: 'SY 2015-2016',
-    startDate: 'Jun 2015',
-    endDate: 'Mar 2016',
     highSchool: 'Junior High School',
     gradeLevel: 'Grade 7',
     curriculumTrack: 'BEC',
     section: '7-Topaz',
   },
   {
-    schoolYear: 'SY 2016-2017',
-    startDate: 'Jun 2016',
-    endDate: 'Mar 2017',
     highSchool: 'Junior High School',
     gradeLevel: 'Grade 8',
     curriculumTrack: 'SPA',
     section: '8-Emerald',
   },
   {
-    schoolYear: 'SY 2017-2018',
-    startDate: 'Jun 2017',
-    endDate: 'Mar 2018',
     highSchool: 'Junior High School',
     gradeLevel: 'Grade 9',
     curriculumTrack: 'SHS',
     section: '9-Ruby',
   },
   {
-    schoolYear: 'SY 2018-2019',
-    startDate: 'Jun 2018',
-    endDate: 'Mar 2019',
+ 
     highSchool: 'Junior High School',
     gradeLevel: 'Grade 10',
     curriculumTrack: 'SPJ',
     section: '10-Amethyst',
   },
   {
-    schoolYear: 'SY 2019-2020',
-    startDate: 'Jun 2019',
-    endDate: 'Mar 2020',
+
     highSchool: 'Senior High School',
     gradeLevel: 'Grade 11',
     curriculumTrack: 'TVL-IEM',
     section: '11-TVL B',
   },
   {
-    schoolYear: 'SY 2020-2021',
-    startDate: 'Jun 2020',
-    endDate: 'Mar 2021',
     highSchool: 'Senior High School',
     gradeLevel: 'Grade 12',
     curriculumTrack: 'TVL',
     section: '12-TVL A',
   },
   {
-    schoolYear: 'SY 2014-2015',
-    startDate: 'Jun 2014',
-    endDate: 'Mar 2015',
     highSchool: 'Junior High School',
     gradeLevel: 'Grade 8',
     curriculumTrack: 'BEC',
     section: '8-Garnet',
   },
   {
-    schoolYear: 'SY 2013-2014',
-    startDate: 'Jun 2013',
-    endDate: 'Mar 2014',
     highSchool: 'Junior High School',
     gradeLevel: 'Grade 7',
     curriculumTrack: 'SPA',
     section: '7-Pearl',
   },
   {
-    schoolYear: 'SY 2024-2025',
-    startDate: 'Jun 2024',
-    endDate: 'Mar 2025',
     highSchool: 'Senior High School',
     gradeLevel: 'Grade 12',
     curriculumTrack: 'TVL-IEM',
@@ -570,220 +603,287 @@ const academicRecords = ref([
   }
 ])
 
+const schoolYear = ref([
+  {
+    sy: '2022-2023',
+    startDate: '2022-08-01',
+    endDate: '2023-06-15',
+    syName: 'Academic Year 2022-2023'
+  },
+  {
+      sy: '2023-2024',
+      startDate: '2023-08-01',
+      endDate: '2024-06-15',
+      syName: 'Academic Year 2023-2024'
+    },
+    {
+      sy: '2024-2025',
+      startDate: '2024-08-01',
+      endDate: '2025-06-15',
+      syName: 'Academic Year 2024-2025'
+    }
+  ])
 
-const subjects = ref([
-  { id: '101', code: 'ENG101', name: 'English Language', grade: 'Grade 7' },
-  { id: '102', code: 'MATH101', name: 'Basic Math', grade: 'Grade 8' },
-  { id: '103', code: 'SCI101', name: 'General Science', grade: 'Grade 7' },
-  { id: '104', code: 'HIST101', name: 'World History', grade: 'Grade 8' },
-  { id: '105', code: 'GEO101', name: 'Geography', grade: 'Grade 9' },
-  { id: '106', code: 'BIO101', name: 'Biology', grade: 'Grade 10' },
-  { id: '107', code: 'CHEM101', name: 'Chemistry', grade: 'Grade 11' },
-  { id: '108', code: 'PHY101', name: 'Physics', grade: 'Grade 12' },
-  { id: '109', code: 'COMP101', name: 'Computer Science', grade: 'Grade 9' },
-  { id: '110', code: 'ART101', name: 'Art and Design', grade: 'Grade 7' },
-  { id: '111', code: 'MUSIC101', name: 'Music', grade: 'Grade 10' },
-  { id: '112', code: 'PE101', name: 'Physical Education', grade: 'Grade 8' },
-  { id: '113', code: 'ENG102', name: 'English Literature', grade: 'Grade 11' }
-])
 
-const uniqueIds = computed(() => [...new Set(subjects.value.map(subject => subject.id))])
-const uniqueCodes = computed(() => [...new Set(subjects.value.map(subject => subject.code))])
-const uniqueGrades = computed(() => [...new Set(subjects.value.map(subject => subject.grade))])
+  const subjects = ref([
+    { id: '101', code: 'ENG101', name: 'English Language', grade: 'Grade 7' },
+    { id: '102', code: 'MATH101', name: 'Basic Math', grade: 'Grade 8' },
+    { id: '103', code: 'SCI101', name: 'General Science', grade: 'Grade 7' },
+    { id: '104', code: 'HIST101', name: 'World History', grade: 'Grade 8' },
+    { id: '105', code: 'GEO101', name: 'Geography', grade: 'Grade 9' },
+    { id: '106', code: 'BIO101', name: 'Biology', grade: 'Grade 10' },
+    { id: '107', code: 'CHEM101', name: 'Chemistry', grade: 'Grade 11' },
+    { id: '108', code: 'PHY101', name: 'Physics', grade: 'Grade 12' },
+    { id: '109', code: 'COMP101', name: 'Computer Science', grade: 'Grade 9' },
+    { id: '110', code: 'ART101', name: 'Art and Design', grade: 'Grade 7' },
+    { id: '111', code: 'MUSIC101', name: 'Music', grade: 'Grade 10' },
+    { id: '112', code: 'PE101', name: 'Physical Education', grade: 'Grade 8' },
+    { id: '113', code: 'ENG102', name: 'English Literature', grade: 'Grade 11' }
+  ])
 
-const filteredSubjects = computed(() => {
-  const query = searchQuery.value.toLowerCase()
+  const uniqueIds = computed(() => [...new Set(subjects.value.map(subject => subject.id))])
+  const uniqueCodes = computed(() => [...new Set(subjects.value.map(subject => subject.code))])
+  const uniqueGrades = computed(() => [...new Set(subjects.value.map(subject => subject.grade))])
 
-  return subjects.value.filter(subject => {
-    const matchesSearch =
-      subject.name.toLowerCase().includes(query) ||
-      subject.id.toString().toLowerCase().includes(query) ||
-      subject.code.toLowerCase().includes(query) ||
-      subject.grade.toLowerCase().includes(query)
+  const filteredSubjects = computed(() => {
+    const query = searchQuery.value.toLowerCase()
 
-    const matchesId = !selectedId.value || subject.id === selectedId.value
-    const matchesCode = !selectedCode.value || subject.code === selectedCode.value
-    const matchesGrade = !selectedGrade.value || subject.grade === selectedGrade.value
+    return subjects.value.filter(subject => {
+      const matchesSearch =
+        subject.name.toLowerCase().includes(query) ||
+        subject.id.toString().toLowerCase().includes(query) ||
+        subject.code.toLowerCase().includes(query) ||
+        subject.grade.toLowerCase().includes(query)
 
-    return matchesSearch && matchesId && matchesCode && matchesGrade
+      const matchesId = !selectedId.value || subject.id === selectedId.value
+      const matchesCode = !selectedCode.value || subject.code === selectedCode.value
+      const matchesGrade = !selectedGrade.value || subject.grade === selectedGrade.value
+
+      return matchesSearch && matchesId && matchesCode && matchesGrade
+    })
   })
-})
 
-const currentPage = ref(1)
-const itemsPerPage = 10
+  const currentPage = ref(1)
+  const itemsPerPage = 10
 
-const totalPages = computed(() =>
-  Math.ceil(filteredSubjects.value.length / itemsPerPage)
-)
+  const totalPages = computed(() =>
+    Math.ceil(filteredSubjects.value.length / itemsPerPage)
+  )
 
-const paginatedSubjects = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage
-  return filteredSubjects.value.slice(start, start + itemsPerPage)
-})
-
-const pageNumbers = computed(() => {
-  const pages = []
-  for (let i = 1; i <= totalPages.value; i++) {
-    pages.push(i)
-  }
-  return pages
-})
-
-
-const uniqueRecordsHighSchools = computed(() =>
-  [...new Set(academicRecords.value.map(record => record.highSchool))])
-
-const uniqueRecordsGradeLevels = computed(() =>
-  [...new Set(academicRecords.value.map(record => record.gradeLevel))])
-
-const uniqueRecordsTracks = computed(() =>
-  [...new Set(academicRecords.value.map(record => record.curriculumTrack))])
-
-const currentRecordsPage = ref(1)
-const recordsPerPage = 10
-
-const filteredRecordsList = computed(() => {
-  const query = searchRecordsQuery.value.toLowerCase()
-
-  return academicRecords.value.filter(record => {
-    const matchesSearch =
-      record.schoolYear.toLowerCase().includes(query) ||
-      record.highSchool.toLowerCase().includes(query) ||
-      record.gradeLevel.toLowerCase().includes(query) ||
-      record.curriculumTrack.toLowerCase().includes(query) ||
-      record.section.toLowerCase().includes(query)
-
-    const matchesHighSchool = !selectedRecordsHighSchool.value || record.highSchool === selectedRecordsHighSchool.value
-    const matchesGrade = !selectedRecordsGradeLevel.value || record.gradeLevel === selectedRecordsGradeLevel.value
-    const matchesTrack = !selectedRecordsTrack.value || record.curriculumTrack === selectedRecordsTrack.value
-
-    return matchesSearch && matchesHighSchool && matchesGrade && matchesTrack
+  const paginatedSubjects = computed(() => {
+    const start = (currentPage.value - 1) * itemsPerPage
+    return filteredSubjects.value.slice(start, start + itemsPerPage)
   })
-})
 
-const totalRecordsPages = computed(() =>
-  Math.ceil(filteredRecordsList.value.length / recordsPerPage)
-)
+  const pageNumbers = computed(() => {
+    const pages = []
+    for (let i = 1; i <= totalPages.value; i++) {
+      pages.push(i)
+    }
+    return pages
+  })
 
-const paginatedRecords = computed(() => {
-  const start = (currentRecordsPage.value - 1) * recordsPerPage
-  return filteredRecordsList.value.slice(start, start + recordsPerPage)
-})
 
-const recordsPageNumbers = computed(() => {
-  const pages = []
-  for (let i = 1; i <= totalRecordsPages.value; i++) {
-    pages.push(i)
-  }
-  return pages
-})
+  const uniqueRecordsHighSchools = computed(() =>
+    [...new Set(sectionRecords.value.map(record => record.highSchool))])
 
-const confirmAddSection = async () => {
-  const result = await Swal.fire({
-    title: 'Add Section',
-    text: 'Are you sure you want to add a new section?',
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#6c757d',
-    confirmButtonText: 'Yes, Add',
-    cancelButtonText: 'Cancel'
-  });
+  const uniqueRecordsGradeLevels = computed(() =>
+    [...new Set(sectionRecords.value.map(record => record.gradeLevel))])
 
-  if (result.isConfirmed) {
-    // Call your actual logic here
-    addSection();
+  const uniqueRecordsTracks = computed(() =>
+    [...new Set(sectionRecords.value.map(record => record.curriculumTrack))])
 
-    await Swal.fire({
-      icon: 'success',
-      title: 'Added',
-      text: 'The section has been added successfully.',
-      timer: 1500,
-      showConfirmButton: false
+  const currentRecordsPage = ref(1)
+  const recordsPerPage = 10
+
+  const filteredSection = computed(() => {
+    const query = searchRecordsQuery.value.toLowerCase()
+
+    return sectionRecords.value.filter(record => {
+      const matchesSearch =
+        record.highSchool.toLowerCase().includes(query) ||
+        record.gradeLevel.toLowerCase().includes(query) ||
+        record.curriculumTrack.toLowerCase().includes(query) ||
+        record.section.toLowerCase().includes(query)
+
+      const matchesHighSchool = !selectedRecordsHighSchool.value || record.highSchool === selectedRecordsHighSchool.value
+      const matchesGrade = !selectedRecordsGradeLevel.value || record.gradeLevel === selectedRecordsGradeLevel.value
+      const matchesTrack = !selectedRecordsTrack.value || record.curriculumTrack === selectedRecordsTrack.value
+
+      return matchesSearch && matchesHighSchool && matchesGrade && matchesTrack
+    })
+  })
+
+  const totalSectionPages = computed(() =>
+    Math.ceil(filteredSection.value.length / recordsPerPage)
+  )
+
+  const paginatedSections = computed(() => {
+    const start = (currentRecordsPage.value - 1) * recordsPerPage
+    return filteredSection.value.slice(start, start + recordsPerPage)
+  })
+
+  const sectionPageNumbers = computed(() => {
+    const pages = []
+    for (let i = 1; i <= totalSectionPages.value; i++) {
+      pages.push(i)
+    }
+    return pages
+  })
+
+const searchSchoolYearQuery = ref('');
+const currentSchoolYearPage = ref(1);
+const schoolYearItemsPerPage = 10;
+
+const filteredSchoolYears = computed(() => {
+  const query = searchSchoolYearQuery.value.toLowerCase();
+  return schoolYear.value.filter((year) =>
+    year.sy.toLowerCase().includes(query) ||
+    year.syName.toLowerCase().includes(query)
+  );
+});
+
+const paginatedSchoolYears = computed(() => {
+  const start = (currentSchoolYearPage.value - 1) * schoolYearItemsPerPage;
+  return filteredSchoolYears.value.slice(start, start + schoolYearItemsPerPage);
+});
+
+const totalSchoolYearPages = computed(() =>
+  Math.ceil(filteredSchoolYears.value.length / schoolYearItemsPerPage)
+);
+
+  const confirmAddSection = async () => {
+    const result = await Swal.fire({
+      title: 'Add Section',
+      text: 'Are you sure you want to add a new section?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, Add',
+      cancelButtonText: 'Cancel'
     });
-  }
-};
 
-const confirmAddSubject = async () => {
-  const result = await Swal.fire({
-    title: 'Add Subject',
-    text: 'Are you sure you want to add a new subject?',
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#6c757d',
-    confirmButtonText: 'Yes, Add',
-    cancelButtonText: 'Cancel'
-  });
+    if (result.isConfirmed) {
+      // Call your actual logic here
+      addSection();
 
-  if (result.isConfirmed) {
-    // Call your actual logic here
-    addSection();
+      await Swal.fire({
+        icon: 'success',
+        title: 'Added',
+        text: 'The section has been added successfully.',
+        timer: 1500,
+        showConfirmButton: false
+      });
+    }
+  };
 
-    await Swal.fire({
-      icon: 'success',
-      title: 'Added',
-      text: 'The subject has been added successfully.',
-      timer: 1500,
-      showConfirmButton: false
+  const confirmAddSubject = async () => {
+    const result = await Swal.fire({
+      title: 'Add Subject',
+      text: 'Are you sure you want to add a new subject?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, Add',
+      cancelButtonText: 'Cancel'
     });
-  }
-};
 
+    if (result.isConfirmed) {
+      // Call your actual logic here
+      addSection();
 
+      await Swal.fire({
+        icon: 'success',
+        title: 'Added',
+        text: 'The subject has been added successfully.',
+        timer: 1500,
+        showConfirmButton: false
+      });
+    }
+  };
 
-
-const confirmDeleteSubject = async () => {
-  const result = await Swal.fire({
-    title: 'Are you sure?',
-    text: 'Do you really want to delete this subject?',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#D30000',
-    cancelButtonColor: '#6c757d',
-    confirmButtonText: 'Yes, Reject',
-    cancelButtonText: 'Cancel'
-  });
-
-  if (result.isConfirmed) {
-    Swal.fire({
-      icon: 'success',
-      title: 'Deleted',
-      text: 'The subject has been deleted.',
-      timer: 1500,
-      showConfirmButton: false
+  const confirmAddSchoolYear = async () => {
+    const result = await Swal.fire({
+      title: 'Add School Year',
+      text: 'Are you sure you want to add a new school year?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, Add',
+      cancelButtonText: 'Cancel'
     });
-  }
-};
 
-const confirmDeleteRecord = async () => {
-  const result = await Swal.fire({
-    title: 'Are you sure?',
-    text: 'Do you really want to delete this record?',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#D30000',
-    cancelButtonColor: '#6c757d',
-    confirmButtonText: 'Yes, Delete',
-    cancelButtonText: 'Cancel'
-  });
+    if (result.isConfirmed) {
+      // Call your actual logic here
+      addSection();
 
-  if (result.isConfirmed) {
-    Swal.fire({
-      icon: 'success',
-      title: 'Deleted',
-      text: 'The record has been deleted.',
-      timer: 1500,
-      showConfirmButton: false
+      await Swal.fire({
+        icon: 'success',
+        title: 'Added',
+        text: 'The school year has been added successfully.',
+        timer: 1500,
+        showConfirmButton: false
+      });
+    }
+  };
+
+
+
+
+  const confirmDeleteSubject = async () => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'Do you really want to delete this subject?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#D30000',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, Reject',
+      cancelButtonText: 'Cancel'
     });
-  }
-};
 
-watch([searchQuery, selectedId, selectedCode, selectedGrade, 
-searchRecordsQuery, selectedRecordsHighSchool, selectedRecordsGradeLevel, selectedRecordsTrack], () => {
-  currentPage.value = 1
-})
-</script>
+    if (result.isConfirmed) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Deleted',
+        text: 'The subject has been deleted.',
+        timer: 1500,
+        showConfirmButton: false
+      });
+    }
+  };
+
+  const confirmDeleteRecord = async () => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'Do you really want to delete this record?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#D30000',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, Delete',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (result.isConfirmed) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Deleted',
+        text: 'The record has been deleted.',
+        timer: 1500,
+        showConfirmButton: false
+      });
+    }
+  };
+
+  watch([searchQuery, selectedId, selectedCode, selectedGrade, 
+  searchRecordsQuery, selectedRecordsHighSchool, selectedRecordsGradeLevel, selectedRecordsTrack, searchSchoolYearQuery], () => {
+    currentPage.value = 1
+  })
+  </script>
 
 
 <style scoped>
@@ -855,6 +955,38 @@ searchRecordsQuery, selectedRecordsHighSchool, selectedRecordsGradeLevel, select
 
 .filter-dropdown:focus {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='18' height='18' fill='%23295f98'><path d='M7 14l5-5 5 5H7z'/></svg>");
+}
+
+
+.button {
+    width: 100%;
+    display: flex;
+    justify-content: end;
+    gap: 15px;
+}
+.red,
+.green {
+    padding: 5px 30px;
+    align-items: center;
+    color: #ffffff;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+.red {
+    background-color: #D30000;
+}
+.red:hover {
+  background-color: #D95353;
+}
+.green {
+    background-color: #0C5A48;
+}
+.red:hover {
+    background-color: #FF0000;
+}
+.green:hover {
+    background-color: #0C5A48;
 }
 </style>
 
