@@ -78,7 +78,11 @@
           </div>
         </div>
 
+<<<<<<< HEAD
         <div class="flex gap-4 mb-4" v-if="selectedAccession === 'Teacher'">
+=======
+        <div class="flex gap-4 mb-4">
+>>>>>>> 6a1aed99218458433a9e7f459e22217b9ff4b96d
           <div class="floating-label flex-1" :class="{ filled: subject1 }">
             <select v-model="subject1" class="input" required>
               <option value="" disabled selected hidden>Select Subject 1</option>
@@ -297,12 +301,20 @@ const allRequiredFieldsFilled = () => {
     firstName.value.trim() !== '' &&
     lastName.value.trim() !== '' &&
     employeeNumber.value.trim() !== '' &&
+<<<<<<< HEAD
     email.value.trim() !== '' &&
     password.value.trim() !== '' &&
     confirmPassword.value.trim() !== '' &&
     selectedAccession.value != null && selectedAccession.value !== '' &&
     // Only require subject1 if Teacher is selected
     (selectedAccession.value !== 'Teacher' || (subject1.value != null && subject1.value !== ''))
+=======
+    subject1.value != null && subject1.value !== '' &&
+    email.value.trim() !== '' &&
+    password.value.trim() !== '' &&
+    confirmPassword.value.trim() !== '' &&
+    selectedAccession.value != null && selectedAccession.value !== ''
+>>>>>>> 6a1aed99218458433a9e7f459e22217b9ff4b96d
   );
 };
 
@@ -326,6 +338,7 @@ const handleSubmit = async () => {
     return;
   }
 
+<<<<<<< HEAD
   watch(selectedAccession, (val) => {
   if (val !== 'Teacher') {
     subject1.value = '';
@@ -333,6 +346,9 @@ const handleSubmit = async () => {
     showSubject2.value = false;
   }
 });
+=======
+  
+>>>>>>> 6a1aed99218458433a9e7f459e22217b9ff4b96d
 
   const result = await Swal.fire({
     title: 'Are you sure?',

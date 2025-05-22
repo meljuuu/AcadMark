@@ -48,4 +48,30 @@ export async function getStudentGenderDistribution() {
   }
 }
 
+<<<<<<< HEAD
+=======
+export const getAcceptedClassesCount = async () => {
+  try {
+    const response = await API.get('/dashboard/accepted-classes/count');
+    return response.data.accepted_classes_count;
+  } catch (error) {
+    console.error("Failed to fetch accepted classes count:", error);
+    throw error;
+  }
+};
+
+export const getLatestStudents = async () => {
+  try {
+    const response = await API.get('/dashboard/students/latest');
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch latest students:", error);
+    throw error;
+  }
+};
+
+
+
+
+>>>>>>> 6a1aed99218458433a9e7f459e22217b9ff4b96d
 
