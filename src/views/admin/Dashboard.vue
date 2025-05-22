@@ -52,9 +52,11 @@
         <h2 class="text-2xl font-semibold text-left mb-8">
           Total Student per Grade
         </h2>
-        <div class="flex items-center justify-center gap-8">
+        <div class="flex flex-col md:flex-row items-center justify-center gap-8">
           <!-- Pie Chart -->
-          <canvas id="gradeChart" width="350" height="350"></canvas>
+          <div class="relative w-full md:w-1/2 h-[400px]">
+            <canvas id="gradeChart"></canvas>
+          </div>
 
           <!-- Custom Legend -->
           <ul id="gradeLegend" class="space-y-2 text-sm">
@@ -87,30 +89,20 @@
       </div>
     </div>
 
-    <div
-      class="bg-white rounded-lg border border-gray-300 shadow-md p-6 mt-6 h-[530px] flex flex-col mb-6"
-    >
-      <div
-        class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4"
-      >
+    <div class="bg-white rounded-lg border border-gray-300 shadow-md p-6 mt-6 h-[530px] flex flex-col mb-6">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
         <h2 class="text-2xl font-semibold text-left">
           Recently Added Students
         </h2>
         <div class="filters flex flex-wrap gap-4">
-          <select
-            v-model="selectedGrade"
-            class="filter-dropdown"
-          >
+          <select v-model="selectedGrade" class="filter-dropdown">
             <option value="">All Grades</option>
             <option v-for="grade in gradeOptions" :key="grade" :value="grade">
               {{ grade }}
             </option>
           </select>
 
-          <select
-            v-model="selectedTrack"
-            class="filter-dropdown"
-          >
+          <select v-model="selectedTrack" class="filter-dropdown">
             <option value="">All Tracks</option>
             <option v-for="track in trackOptions" :key="track" :value="track">
               {{ track }}
@@ -199,12 +191,8 @@
                 <td class="px-2 py-2">{{ item.adviser }}</td>
                 <td class="px-4 py-2">{{ item.students }}</td>
                 <td class="px-4 py-2">
-                  <span
-                    :class="
-                      item.status === 'Active' ? 'bg-green-800' : 'bg-red-600'
-                    "
-                    class="text-white px-1 py-1 rounded-sm text-[11px] w-[60px] h-[20px] inline-block text-center"
-                  >
+                  <span :class="item.status === 'Active' ? 'bg-green-800' : 'bg-red-600'
+                    " class="text-white px-1 py-1 rounded-sm text-[11px] w-[60px] h-[20px] inline-block text-center">
                     {{ item.status }}
                   </span>
                 </td>
@@ -215,13 +203,13 @@
       </div>
 
       <div class="flex-1 bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-          <h2 class="text-xl font-semibold text-gray-700 mb-4">
-            Total Submitted Students
-          </h2>
-          <p class="text-sm text-center text-gray-600 mb-4">Comparison between the Advisory Class and Subject Class</p>
-          <div class="flex justify-center items-center" style="width: 100%; height: 400px">
-            <canvas id="submissionStatusChart"></canvas>
-          </div>
+        <h2 class="text-xl font-semibold text-gray-700 mb-4">
+          Total Submitted Students
+        </h2>
+        <p class="text-sm text-center text-gray-600 mb-4">Comparison between the Advisory Class and Subject Class</p>
+        <div class="flex justify-center items-center" style="width: 100%; height: 400px">
+          <canvas id="submissionStatusChart"></canvas>
+        </div>
       </div>
 
     </div>
@@ -230,389 +218,242 @@
 </template>
 
 <script>
-  import {
-    Chart,
-    BarElement,
-    CategoryScale,
-    LinearScale,
-    ArcElement,
-    Tooltip,
-    Legend,
-  } from 'chart.js';
+import {
+  Chart,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  ArcElement,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 
-  Chart.register(
-    BarElement,
-    CategoryScale,
-    LinearScale,
-    ArcElement,
-    Tooltip,
-    Legend
-  );
+import {
+  getStudentCount,
+  getTeacherCount,
+  getStudentGradeDistribution,
+  getStudentGenderDistribution
+} from '@/service/adminDashboardService';
 
-  export default {
-    name: 'Dashboard',
-    data() {
-      return {
-        stats: {
-          students: 1200,
-          teachers: 85,
-          classes: 42,
+Chart.register(BarElement, CategoryScale, LinearScale, ArcElement, Tooltip, Legend);
+
+export default {
+  name: 'Dashboard',
+  data() {
+    return {
+      _gradeChartInstance: null,
+      _genderChartInstance: null,
+      _submissionStatusChartInstance: null,
+      stats: {
+        students: 0,
+        teachers: 0,
+      },
+      studentGrades: {},
+      genderData: {}, // <-- NEW: Store gender distribution
+      selectedGrade: '',
+      selectedTrack: '',
+      recentStudents: [],
+      classes: [],
+    };
+  },
+  computed: {
+    uniqueStudents() {
+      const seen = new Set();
+      return this.recentStudents.filter((student) => {
+        if (seen.has(student.lrn)) return false;
+        seen.add(student.lrn);
+        return true;
+      });
+    },
+    gradeOptions() {
+      return [...new Set(this.uniqueStudents.map((s) => s.gradeLevel))].sort();
+    },
+    trackOptions() {
+      return [...new Set(this.uniqueStudents.map((s) => s.track))].sort();
+    },
+    filteredStudents() {
+      return this.uniqueStudents.filter((student) => {
+        const matchesGrade = this.selectedGrade === '' || student.gradeLevel === this.selectedGrade;
+        const matchesTrack = this.selectedTrack === '' || student.track === this.selectedTrack;
+        return matchesGrade && matchesTrack;
+      });
+    },
+  },
+  async mounted() {
+    await this.fetchStats();
+    await this.fetchStudentGradeDistribution();
+    await this.fetchGenderDistribution(); // <-- NEW
+  },
+  methods: {
+    async fetchStats() {
+      try {
+        const studentCount = await getStudentCount();
+        this.stats.students = studentCount;
+
+        const teacherCount = await getTeacherCount();
+        this.stats.teachers = teacherCount;
+
+        console.log('Students:', studentCount, 'Teachers:', teacherCount);
+      } catch (error) {
+        console.error("Failed to fetch stats:", error);
+      }
+    },
+
+    async fetchStudentGradeDistribution() {
+      try {
+        const gradeDistributionData = await getStudentGradeDistribution();
+        this.studentGrades = gradeDistributionData;
+        console.log("Grade distribution data:", gradeDistributionData);
+        this.renderGradeChart();
+      } catch (error) {
+        console.error("Failed to fetch student grade distribution:", error);
+      }
+    },
+
+    async fetchGenderDistribution() {
+      try {
+        const genderDistributionData = await getStudentGenderDistribution();
+        this.genderData = genderDistributionData;
+        console.log("Gender distribution data:", genderDistributionData);
+        this.renderGenderChart();
+      } catch (error) {
+        console.error("Failed to fetch gender distribution:", error);
+      }
+    },
+
+    renderGenderChart() {
+      const ctx = document.getElementById('genderChart')?.getContext('2d');
+      if (!ctx) return;
+
+      if (this._genderChartInstance) {
+        this._genderChartInstance.destroy();
+      }
+
+      const data = [
+        this.genderData.JHS_M || 0,
+        this.genderData.JHS_F || 0,
+        this.genderData.SHS_M || 0,
+        this.genderData.SHS_F || 0,
+      ];
+
+      this._genderChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['JHS Male', 'JHS Female', 'SHS Male', 'SHS Female'],
+          datasets: [{
+            label: 'Number of Students',
+            data,
+            backgroundColor: ['#3b82f6', '#10b981', '#3b82f6', '#10b981'],
+            borderRadius: 6,
+          }],
         },
-        selectedGrade: '',
-        selectedTrack: '',
-        recentStudents: [
-          {
-            lrn: '100000000001',
-            fullName: 'Angela Reyes',
-            gender: 'Female',
-            age: 13,
-            gradeLevel: 'Grade 7',
-            curriculum: 'Junior High School',
-            track: 'Academic',
-            dateAdded: '2025-05-10',
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: true },
           },
-          {
-            lrn: '100000000002',
-            fullName: 'Bryan Gomez',
-            gender: 'Male',
-            age: 13,
-            gradeLevel: 'Grade 7',
-            curriculum: 'Junior High School',
-            track: 'Arts and Design',
-            dateAdded: '2025-05-10',
-          },
-          {
-            lrn: '100000000003',
-            fullName: 'Daniel Ramos',
-            gender: 'Male',
-            age: 14,
-            gradeLevel: 'Grade 8',
-            curriculum: 'Junior High School',
-            track: 'Academic',
-            dateAdded: '2025-05-11',
-          },
-          {
-            lrn: '100000000004',
-            fullName: 'Ella Cruz',
-            gender: 'Female',
-            age: 15,
-            gradeLevel: 'Grade 9',
-            curriculum: 'Junior High School',
-            track: 'Arts and Design',
-            dateAdded: '2025-05-12',
-          },
-          {
-            lrn: '100000000005',
-            fullName: 'Francis Lim',
-            gender: 'Male',
-            age: 15,
-            gradeLevel: 'Grade 9',
-            curriculum: 'Junior High School',
-            track: 'Sports',
-            dateAdded: '2025-05-12',
-          },
-          {
-            lrn: '100000000006',
-            fullName: 'Grace Navarro',
-            gender: 'Female',
-            age: 16,
-            gradeLevel: 'Grade 10',
-            curriculum: 'Junior High School',
-            track: 'Academic',
-            dateAdded: '2025-05-13',
-          },
-          {
-            lrn: '100000000007',
-            fullName: 'Isabel Tan',
-            gender: 'Female',
-            age: 17,
-            gradeLevel: 'Grade 11',
-            curriculum: 'Senior High School',
-            track: 'STEM',
-            dateAdded: '2025-05-14',
-          },
-          {
-            lrn: '10000000008',
-            fullName: 'Joshua Dela Peña',
-            gender: 'Male',
-            age: 17,
-            gradeLevel: 'Grade 11',
-            curriculum: 'Senior High School',
-            track: 'ABM',
-            dateAdded: '2025-05-14',
-          },
-          {
-            lrn: '10000000009',
-            fullName: 'Karla Villanueva',
-            gender: 'Female',
-            age: 18,
-            gradeLevel: 'Grade 12',
-            curriculum: 'Senior High School',
-            track: 'HUMSS',
-            dateAdded: '2025-05-15',
-          },
-          {
-            lrn: '10000000010',
-            fullName: 'Leo Fernandez',
-            gender: 'Male',
-            age: 18,
-            gradeLevel: 'Grade 12',
-            curriculum: 'Senior High School',
-            track: 'TVL',
-            dateAdded: '2025-05-15',
-          },
-        ],
-        classes: [
-          {
-            grade: 'Grade 11',
-            track: 'STEM',
-            section: 'A',
-            adviser: 'Mr. Cruz',
-            students: 35,
-            status: 'Active',
-          },
-          {
-            grade: 'Grade 12',
-            track: 'ABM',
-            section: 'B',
-            adviser: 'Ms. Dela Cruz',
-            students: 30,
-            status: 'Pending',
-          },
-          {
-            grade: 'Grade 10',
-            track: 'General',
-            section: 'C',
-            adviser: 'Sir Reyes',
-            students: 40,
-            status: 'Active',
-          },
-          {
-            grade: 'Grade 9',
-            track: 'Arts & Design',
-            section: 'D',
-            adviser: 'Mrs. Santos',
-            students: 28,
-            status: 'Pending',
-          },
-          {
-            grade: 'Grade 11',
-            track: 'HUMSS',
-            section: 'E',
-            adviser: 'Mr. Villanueva',
-            students: 33,
-            status: 'Active',
-          },
-          {
-            grade: 'Grade 12',
-            track: 'STEM',
-            section: 'F',
-            adviser: 'Ms. Navarro',
-            students: 31,
-            status: 'Active',
-          },
-          {
-            grade: 'Grade 10',
-            track: 'General',
-            section: 'G',
-            adviser: 'Sir Lopez',
-            students: 38,
-            status: 'Pending',
-          },
-          {
-            grade: 'Grade 9',
-            track: 'TVL',
-            section: 'H',
-            adviser: 'Ms. Garcia',
-            students: 25,
-            status: 'Active',
-          },
-          {
-            grade: 'Grade 12',
-            track: 'ABM',
-            section: 'I',
-            adviser: 'Mr. Aquino',
-            students: 29,
-            status: 'Pending',
-          },
-          {
-            grade: 'Grade 11',
-            track: 'STEM',
-            section: 'J',
-            adviser: 'Mrs. Lim',
-            students: 36,
-            status: 'Active',
-          },
-        ],
-      };
+          plugins: { legend: { display: false } },
+        },
+      });
     },
-    computed: {
-      uniqueStudents() {
-        const seen = new Set();
-        return this.recentStudents.filter((student) => {
-          if (seen.has(student.lrn)) return false;
-          seen.add(student.lrn);
-          return true;
-        });
-      },
-      gradeOptions() {
-        return [
-          ...new Set(this.uniqueStudents.map((s) => s.gradeLevel)),
-        ].sort();
-      },
-      trackOptions() {
-        return [...new Set(this.uniqueStudents.map((s) => s.track))].sort();
-      },
-      filteredStudents() {
-        return this.uniqueStudents.filter((student) => {
-          const matchesGrade =
-            this.selectedGrade === '' ||
-            student.gradeLevel === this.selectedGrade;
-          const matchesTrack =
-            this.selectedTrack === '' || student.track === this.selectedTrack;
-          return matchesGrade && matchesTrack;
-        });
-      },
-    },
-    mounted() {
-      this.renderGenderChart();
-      this.renderGradeChart();
-      this.renderSubmissionStatusChart();
 
-    },
-    methods: {
-      renderGenderChart() {
-        const ctx = document.getElementById('genderChart')?.getContext('2d');
-        if (!ctx) return;
+    renderGradeChart() {
+      console.log("Rendering grade chart with data:", this.studentGrades);
+      const ctx = document.getElementById('gradeChart')?.getContext('2d');
+      if (!ctx) {
+        console.warn('Canvas context not found');
+        return;
+      }
 
-        new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: ['JHS Male', 'JHS Female', 'SHS Male', 'SHS Female'],
-            datasets: [
-              {
-                label: 'Number of Students',
-                data: [150, 130, 170, 160],
-                backgroundColor: ['#3b82f6', '#10b981', '#3b82f6', '#10b981'],
-                borderRadius: 6,
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            scales: {
-              y: {
-                beginAtZero: true,
-              },
-            },
-            plugins: {
-              legend: {
-                display: false,
-              },
-            },
-          },
-        });
-      },
-      renderGradeChart() {
-        const ctx = document.getElementById('gradeChart')?.getContext('2d');
-        if (!ctx) return;
+      const gradeLabels = ['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'];
+      const backgroundColors = ['#3b82f6', '#10b981', '#facc15', '#f97316', '#ec4899', '#8b5cf6'];
+      const data = gradeLabels.map(label => this.studentGrades[label] || 0);
 
-        new Chart(ctx, {
-          type: 'pie',
-          data: {
-            labels: [
-              'Grade 7',
-              'Grade 8',
-              'Grade 9',
-              'Grade 10',
-              'Grade 11',
-              'Grade 12',
-            ],
-            datasets: [
-              {
-                data: [100, 150, 130, 120, 140, 160],
-                backgroundColor: [
-                  '#3b82f6',
-                  '#10b981',
-                  '#facc15',
-                  '#f97316',
-                  '#ec4899',
-                  '#8b5cf6',
-                ],
-                borderWidth: 1,
-              },
-            ],
+      console.log('Chart Data:', data);
+
+      if (this._gradeChartInstance) {
+        this._gradeChartInstance.destroy();
+      }
+
+      this._gradeChartInstance = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: gradeLabels,
+          datasets: [{
+            data,
+            backgroundColor: backgroundColors,
+            borderWidth: 1,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
           },
-          options: {
-            responsive: false,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                display: false,
-              },
-            },
-          },
-        });
-      },
-      renderSubmissionStatusChart() {
-        const ctx = document.getElementById('submissionStatusChart').getContext('2d');
-        new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: ['Approved', 'Pending', 'Declined'],
-            datasets: [
-              {
-                label: 'Male',
-                data: [15, 10, 5],
-                backgroundColor: 'rgba(255, 206, 86, 0.8)', // Yellow
-              },
-              {
-                label: 'Female',
-                data: [12, 8, 6],
-                backgroundColor: 'rgba(59, 130, 246, 0.8)', // Blue
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              y: {
-                beginAtZero: true,
-                ticks: {
-                  stepSize: 5,
-                },
-              },
-            },
-            plugins: {
-              legend: {
-                position: 'top',
-                labels: {
-                  usePointStyle: true,
-                  pointStyle: 'circle',
-                  font: {
-                    size: 14,
-                    family: 'Arial, sans-serif',
-                    weight: 'bold',
-                  },
-                },
-              },
-              tooltip: {
-                enabled: true,
-              },
-            },
-          },
-        });
-      },
+        },
+      });
     },
-  };
+
+    renderSubmissionStatusChart() {
+      const ctx = document.getElementById('submissionStatusChart')?.getContext('2d');
+      if (!ctx) return;
+
+      if (this._submissionStatusChartInstance) {
+        this._submissionStatusChartInstance.destroy();
+      }
+
+      this._submissionStatusChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Approved', 'Pending', 'Declined'],
+          datasets: [
+            {
+              label: 'Male',
+              data: [15, 10, 5], // static
+              backgroundColor: 'rgba(255, 206, 86, 0.8)',
+            },
+            {
+              label: 'Female',
+              data: [12, 8, 6], // static
+              backgroundColor: 'rgba(59, 130, 246, 0.8)',
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { stepSize: 5 },
+            },
+          },
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                usePointStyle: true,
+                pointStyle: 'circle',
+                font: { size: 14, family: 'Arial, sans-serif', weight: 'bold' },
+              },
+            },
+            tooltip: { enabled: true },
+          },
+        },
+      });
+    },
+  },
+};
 </script>
+
+
 
 <style scoped>
 .filters {
   display: flex;
   gap: 10px;
-} 
+}
 
 .filter-dropdown {
   padding: 10px 15px;
@@ -636,5 +477,4 @@
 .filter-dropdown:focus {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='18' height='18' fill='%23295f98'><path d='M7 14l5-5 5 5H7z'/></svg>");
 }
-
 </style>
