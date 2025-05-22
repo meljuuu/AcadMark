@@ -31,6 +31,7 @@ import { classService } from '@/service/classesService';
 const classes = ref([]);
 const loading = ref(true);
 const error = ref(null);
+const teacherId = ref(null);
 
 const fetchClasses = async () => {
   try {
@@ -50,6 +51,26 @@ const fetchClasses = async () => {
 };
 
 onMounted(() => {
+  console.log('Component mounted - Starting to fetch teacher ID');
+  
+  // Log the raw user data from localStorage
+  const userData = localStorage.getItem('user');
+  console.log('Raw user data from localStorage:', userData);
+  
+  // Parse and log the user object
+  const user = JSON.parse(userData);
+  console.log('Parsed user object:', user);
+  
+  teacherId.value = user?.teacher_ID;
+  console.log('Extracted teacher ID:', teacherId.value);
+  
+  if (!teacherId.value) {
+    console.error('Teacher ID not found in user object');
+    error.value = 'Teacher ID not found in localStorage';
+    return;
+  }
+  
+  console.log('Teacher ID found, proceeding to fetch classes');
   fetchClasses();
 });
 </script>

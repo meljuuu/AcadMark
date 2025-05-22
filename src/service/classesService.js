@@ -6,9 +6,18 @@ export const classService = {
     // Get all classes with their subjects
     async getClasses() {
         try {
+            const user = JSON.parse(localStorage.getItem('user'));
+            const teacherId = user?.teacher_ID;
+            
+            console.log('User from localStorage:', user);
+            console.log('Teacher ID being sent:', teacherId);
+            
             const response = await axios.get(`${API_URL}/classes`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                params: {
+                    teacher_id: teacherId
                 }
             });
             return response.data;
