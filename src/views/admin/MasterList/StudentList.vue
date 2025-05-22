@@ -274,7 +274,10 @@ import { ref, computed, watch, onMounted } from 'vue';
 import * as XLSX from 'xlsx';
 import { getAllAcceptedStudents } from '@/service/studentService';
 import { addStudentsToClass, removeStudentToClass } from '@/service/adminClassService';
+import Swal from 'sweetalert2'
+import { useToast } from 'vue-toastification'
 
+const toast = useToast()
 const props = defineProps({
     selectedCard: {
         type: Object,
@@ -449,6 +452,7 @@ function handleDownload() {
             student.address,
         ]),
     ];
+
     const ws = XLSX.utils.aoa_to_sheet(wsData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Students');
@@ -464,10 +468,26 @@ function handleDownload() {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
     }, 0);
+
+    // Show toast notification
+    toast.success('Student list downloaded successfully!')
 }
 
-function handleDeleteAll() {
-    students.value = [];
+async function handleDeleteAll() {
+    const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: 'This will delete all student records!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete all'
+    })
+
+    if (result.isConfirmed) {
+        students.value = []
+        toast.success('All student records deleted successfully!')
+    }
 }
 
 function toggleSelectAll() {
@@ -515,34 +535,40 @@ const handleAddStudents = async (selectedCard) => {
     console.log("selected IDS (ref):", modalSelectedStudents);
 
     if (!selectedCard?.Class_ID) {
-        alert('Missing class ID. Please select a valid class.');
+        Swal.fire('Missing Class ID', 'Please select a valid class.', 'warning');
         return;
     }
 
     const studentIdsToAdd = modalSelectedStudents.value.map(id => Number(id));
 
     console.log("Raw selected IDs:", modalSelectedStudents.value);
-
-    // Log each student ID individually
     console.log("Individual student IDs:");
     studentIdsToAdd.forEach((id, index) => {
         console.log(`Index ${index}: ID =`, id);
     });
 
     if (studentIdsToAdd.length === 0) {
-        alert('Please select at least one student.');
+        Swal.fire('No Students Selected', 'Please select at least one student.', 'info');
         return;
     }
+
+    const result = await Swal.fire({
+        title: 'Add Students?',
+        text: `You are about to add ${studentIdsToAdd.length} students to the class.`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, add them',
+        cancelButtonText: 'Cancel'
+    });
+
+    if (!result.isConfirmed) return;
 
     const payload = {
         student_ids: studentIdsToAdd,
         class_id: selectedCard.Class_ID,
     };
 
-    console.log('📦 Sending payload to API:', {
-        student_ids: studentIdsToAdd,
-        class_id: selectedCard.Class_ID,
-    });
+    console.log('📦 Sending payload to API:', payload);
 
     try {
         const response = await addStudentsToClass(payload);
@@ -558,10 +584,10 @@ const handleAddStudents = async (selectedCard) => {
         modalSelectedStudents.value = [];
         modalSelectAll.value = false;
 
-        alert('✅ Students successfully added to class!');
+        toast.success('✅ Students successfully added to class!');
     } catch (error) {
         console.error('❌ Failed to add students:', error);
-        alert('Failed to add students to the class.');
+        toast.error('Failed to add students to the class.');
     }
 };
 
@@ -602,11 +628,23 @@ async function handleUpdateClass(selectedCard) {
         .map(s => s.id);
 
     if (!selectedCard?.Class_ID) {
-        alert('Missing class ID. Please select a valid class.');
+        Swal.fire('Missing Class ID', 'Please select a valid class.', 'warning');
         return;
     }
 
+    // Show Swal only if there are students to remove
     if (removedStudentIds.length > 0) {
+        const result = await Swal.fire({
+            title: 'Remove Students?',
+            text: `You are about to remove ${removedStudentIds.length} students.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, remove them',
+            cancelButtonText: 'Cancel'
+        });
+
+        if (!result.isConfirmed) return;
+
         const payload = {
             student_ids: removedStudentIds,
             class_id: selectedCard.Class_ID
@@ -617,9 +655,11 @@ async function handleUpdateClass(selectedCard) {
         try {
             const response = await removeStudentToClass(payload);
             console.log('✅ Removed students response:', response);
+            toast.success('Students removed successfully!');
         } catch (error) {
             console.error('❌ Error removing students:', error);
-            alert('Failed to remove students from the class.');
+            toast.error('Failed to remove students from the class.');
+            return;
         }
     }
 
@@ -630,7 +670,10 @@ async function handleUpdateClass(selectedCard) {
     showEditModal.value = false;
     editModalSelectedStudents.value = [];
     editModalSelectAll.value = false;
+
+    toast.success('Class updated successfully!');
 }
+
 
 function openEditModal() {
     showEditModal.value = true;
