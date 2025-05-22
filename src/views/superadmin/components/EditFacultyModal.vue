@@ -78,7 +78,8 @@
           </div>
         </div>
 
-        <div class="flex gap-4 mb-4">
+        
+        <div class="flex gap-4 mb-4" v-if="selectedAccession === 'Teacher'">
           <div class="floating-label flex-1" :class="{ filled: subject1 }">
            <select v-model="subject1" class="input" required>
             <option value="" disabled selected hidden>Select Subject 1</option>
@@ -308,6 +309,15 @@ const toggleSubject2 = () => {
 
 // Handle form submission
 const handleSubmit = async () => {
+  
+  if (selectedAccession.value === 'Teacher' && !subject1.value) {
+  Swal.fire({
+    icon: 'error',
+    title: 'Validation Error',
+    text: 'At least one subject must be selected for Teacher.',
+  });
+  return;
+}
   if (password.value && password.value !== confirmPassword.value) {
     Swal.fire({
       icon: 'error',
