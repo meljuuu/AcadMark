@@ -310,8 +310,6 @@ function calculateAge(birthdate) {
   return age
 }
 
-
- 
 // ===================== TAB STATE =====================
 const tabs = [
     { label: 'Add Student', value: 'add' },
@@ -349,15 +347,15 @@ onMounted(async () => {
 // ===================== FORM FIELD DEFINITIONS =====================
 const addStudentFields = [
     // Row 1: Basic academic info
-    { name: 'Grade_Level', label: 'Grade Level', type: 'select', placeholder: 'Select Grade Level', options: ['7', '8', '9', '10', '11', '12'], required: true, row: 1 },
-    { name: 'Curriculum', label: 'Curriculum', type: 'select', placeholder: 'Select Curriculum', options: ['SHS', 'JHS'], required: true, row: 1 },
-    { name: 'Track', label: 'Track', type: 'select', placeholder: 'Select Track', options: ['HUMSS', 'TVL', 'SPJ', 'SPA', 'BEP'], required: true, row: 1 },
+    { name: 'Grade_Level', label: 'Grade Level', type: 'select', placeholder: 'Select Grade Level', options: ['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'], required: true, row: 1 },
+    { name: 'Curriculum', label: 'Curriculum', type: 'select', placeholder: 'Select Curriculum', options: [], required: true, row: 1 },
+    { name: 'Track', label: 'Track', type: 'select', placeholder: 'Select Track', options: [], required: true, row: 1 },
     { name: 'LRN', label: 'LRN', type: 'text', required: true, row: 1 },
     // Row 2: Personal info
     { name: 'LastName', label: 'Last Name', type: 'text', placeholder: 'Last Name', required: true, row: 2 },
     { name: 'FirstName', label: 'First Name', type: 'text', placeholder: 'First Name', required: true, row: 2 },
     { name: 'MiddleName', label: 'Middle Name', type: 'text', placeholder: 'Middle Name', row: 2 },
-    { name: 'Suffix', label: 'Suffix', type: 'select', options: ['Sr.', 'Jr.', 'II', 'III'], row: 2,  },
+    { name: 'Suffix', label: 'Suffix', type: 'select', options: ['Sr.', 'Jr.', 'II', 'III'], row: 2, },
     { name: 'Sex', label: 'Sex', type: 'select', placeholder: 'Select Sex', options: ['Male', 'Female'], required: true, row: 2, },
     { name: 'BirthDate', label: 'Birthdate', type: 'date', required: true, row: 2, class: 'relative grow-2' },
     { name: 'Age', label: 'Age', type: 'text', maxLength: 2, pattern: '\\d{1,2}', title: 'Age must be a two-digit number', required: true, row: 2, class: 'relative grow max-w-[100px]' },
@@ -375,6 +373,7 @@ const addStudentFields = [
     { name: 'Relationship', label: 'Relationship w/ Guardian', type: 'text', row: 4 },
     { name: 'ContactNumber', label: 'Guardian/Parent Contact No.', type: 'text', required: true, row: 4 }
 ]
+
 
 const groupedFields = computed(() => {
     const rows = []
@@ -422,7 +421,7 @@ watch(() => formData.Grade_Level, (newValue) => {
 })
 
 watch(() => formData.BirthDate, (newDate) => {
-  formData.Age = calculateAge(newDate)
+    formData.Age = calculateAge(newDate).toString()
 })
 
 async function handleAddStudentSubmit() {

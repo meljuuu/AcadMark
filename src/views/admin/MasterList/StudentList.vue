@@ -94,6 +94,7 @@
         </div>
     </div>
 
+    <!-- ADD STUDENT MODAL -->
     <div v-if="showAddModal" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
         <div class="bg-white rounded-lg shadow-lg p-8 w-[90vw] max-w-5xl relative">
             <div class="flex justify-between items-start gap-8">
@@ -165,7 +166,7 @@
                     <tbody>
                         <tr v-for="student in filteredModalStudents" :key="student.lrn">
                             <td>
-                                <input type="checkbox" v-model="modalSelectedStudents" :value="student.lrn">
+                                <input type="checkbox" v-model="modalSelectedStudents" :value="student.id">
                             </td>
                             <td class="px-4 py-3  text-center text-base font-medium">{{ student.lrn }}</td>
                             <td class="px-4 py-3  text-center text-base font-medium">{{ student.fullName }}</td>
@@ -182,7 +183,7 @@
                 <button class="px-6 py-2 rounded bg-gray-300 hover:bg-gray-400 text-gray-800"
                     @click="showAddModal = false">Cancel</button>
                 <button class="px-6 py-2 rounded bg-blue hover:bg-blue-700 text-white cursor-pointer"
-                    @click="handleAddStudents">Add Students</button>
+                    @click="handleAddStudents(selectedCard)">Add Students</button>
             </div>
         </div>
     </div>
@@ -252,7 +253,7 @@
                             <td class="px-4 py-3  text-center text-base font-medium">{{ student.gender }}</td>
                             <td class="px-4 py-3  text-center text-base font-medium">{{ student.birthdate }}</td>
                             <td class="px-4 py-3  text-center text-base font-medium">{{ calculateAge(student.birthdate)
-                            }}</td>
+                                }}</td>
                             <td class="px-4 py-3  text-center text-base font-medium">{{ student.address }}</td>
                         </tr>
                     </tbody>
@@ -269,8 +270,10 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import * as XLSX from 'xlsx';
+import { getAllAcceptedStudents } from '@/service/studentService';
+import { addStudentsToClass } from '@/service/adminClassService';
 
 const props = defineProps({
     selectedCard: {
@@ -279,7 +282,7 @@ const props = defineProps({
     },
 });
 
-const genderFilter = ref('Female');
+const genderFilter = ref('All');
 const sortOrder = ref('Latest');
 const searchTerm = ref('');
 const selectAll = ref(false);
@@ -287,80 +290,111 @@ const selectedStudents = ref([]);
 const showAddModal = ref(false);
 
 // Modal-specific filter/search/sort state
-const modalGenderFilter = ref('Female');
+const modalGenderFilter = ref('All');
 const modalSortOrder = ref('Latest');
 const modalSearchTerm = ref('');
 const modalSelectAll = ref(false);
 const modalSelectedStudents = ref([]);
 
 const showEditModal = ref(false);
-const editModalGenderFilter = ref('Female');
+const editModalGenderFilter = ref('All');
 const editModalSearchTerm = ref('');
 const editModalSelectAll = ref(false);
 const editModalSelectedStudents = ref([]);
 
-const randomNames = [
-    'Juan Dela Cruz',
-    'Maria Clara Santos',
-    'Jose Rizal',
-    'Andres Bonifacio',
-    'Gabriela Silang',
-    'Emilio Aguinaldo',
-    'Lapu-Lapu',
-    'Melchora Aquino',
-    'Apolinario Mabini',
-    'Gregoria de Jesus',
-];
-const randomAddresses = [
-    'Brgy. San Isidro, Quezon City',
-    'Brgy. Mabini, Batangas City',
-    'Brgy. Poblacion, Makati City',
-    'Brgy. Sto. Niño, Marikina City',
-    'Brgy. Balibago, Angeles City',
-    'Brgy. San Roque, Cebu City',
-    'Brgy. Bagumbayan, Taguig City',
-    'Brgy. Malinta, Valenzuela City',
-    'Brgy. San Antonio, Pasig City',
-    'Brgy. Tambo, Parañaque City',
-];
-const randomGenders = ['M', 'F'];
-const randomBirthdates = [
-    '2001-03-21',
-    '2002-07-15',
-    '2000-12-05',
-    '2003-01-10',
-    '2001-09-30',
-    '2002-04-18',
-    '2000-11-22',
-    '2003-06-09',
-    '2001-08-14',
-    '2002-02-27',
-];
+// Arrays prepared for dynamic population
+const students = ref([]); // Will hold main student list
+const possibleModalStudents = ref([]); // Will hold selectable students for modal
 
-function randomLRN(index) {
-    return '10693001' + (100 + index).toString();
+// ✅ Function to populate students
+function populateStudents(card) {
+    if (card && Array.isArray(card.student_classes)) {
+        students.value = card.student_classes
+            .filter(sc => sc.student)
+            .map(sc => {
+                const s = sc.student;
+                const fullName = `${s.FirstName} ${s.MiddleName || ''} ${s.LastName}`.trim();
+                return {
+                    Student_ID: s.Student_ID,   // Keep original key for clarity
+                    id: s.Student_ID,           // Add alias 'id' for convenience in Vue
+                    fullName,
+                    lrn: s.LRN,
+                    address: `${s.Barangay}, ${s.Municipality}, ${s.Province}`,
+                    gender: s.Sex,
+                    birthdate: s.BirthDate,
+                    ...s
+                };
+            });
+
+        console.log("✅ Students populated:", students.value);
+    } else {
+        console.warn("⚠️ No valid student_classes found in selectedCard");
+        students.value = [];
+    }
 }
 
-const students = ref(
-    Array.from({ length: 10 }, (_, i) => ({
-        lrn: randomLRN(i),
-        fullName: randomNames[i],
-        gender: randomGenders[i % 2],
-        birthdate: randomBirthdates[i],
-        address: randomAddresses[i],
-    }))
-);
 
+
+// ✅ Populate on mount
+onMounted(() => {
+    console.log('🔄 Mounted selectedCard:', props.selectedCard);
+    populateStudents(props.selectedCard);
+});
+
+onMounted(() => {
+    console.log('🔄 Mounted selectedCard:', props.selectedCard);
+    populatePossibleModalStudents(props.selectedCard);
+});
+
+const populatePossibleModalStudents = async (selectedCard) => {
+    if (!selectedCard || !selectedCard.Class_ID) return;
+
+    try {
+        const response = await getAllAcceptedStudents();
+        console.log('📥 Raw response from getAllAcceptedStudents:', response);
+
+        const allStudents = response.students || [];
+
+        possibleModalStudents.value = allStudents
+            .filter(student => {
+                return (
+                    student.Grade_Level === selectedCard.Grade_Level &&
+                    student.Curriculum === selectedCard.Curriculum &&
+                    student.Status === 'Accepted'
+                );
+            })
+            .map(s => ({
+                id: s.Student_ID,  // <-- add this alias!
+                fullName: `${s.FirstName} ${s.MiddleName || ''} ${s.LastName}`.trim(),
+                lrn: s.LRN,
+                gender: s.Sex,
+                birthdate: s.BirthDate,
+                address: `${s.Barangay}, ${s.Municipality}, ${s.Province}`,
+                ...s,
+            }));
+
+        console.log('🎯 Filtered possibleModalStudents:', possibleModalStudents.value);
+    } catch (error) {
+        console.error('❌ Error fetching accepted students:', error);
+    }
+};
+
+
+// ✅ Re-populate on prop change
+watch(() => props.selectedCard, (newCard) => {
+    console.log("🔁 selectedCard changed:", newCard);
+    populateStudents(newCard);
+});
+
+// ✅ Computed filtered students
 const filteredStudents = computed(() => {
     let result = [...students.value];
 
-    // Apply gender filter if not 'All'
     if (genderFilter.value !== 'All') {
         const genderCode = genderFilter.value === 'Female' ? 'F' : 'M';
         result = result.filter((student) => student.gender === genderCode);
     }
 
-    // Apply search filter if searchTerm exists
     if (searchTerm.value.trim()) {
         const term = searchTerm.value.toLowerCase();
         result = result.filter(
@@ -371,24 +405,18 @@ const filteredStudents = computed(() => {
         );
     }
 
-    // Apply sorting
-    if (sortOrder.value === 'Latest') {
-        // For demo, no actual sorting since all dates are the same
-        // In real app, would sort by date
-    } else {
+    if (sortOrder.value !== 'Latest') {
         result.reverse();
     }
 
     return result;
 });
 
+const emit = defineEmits(['goBack']);
+
 function goBack() {
-    // emits are handled differently in <script setup>
-    // use defineEmits
     emit('goBack');
 }
-
-const emit = defineEmits(['goBack']);
 
 function calculateAge(birthdate) {
     const today = new Date();
@@ -450,33 +478,14 @@ function toggleSelectAll() {
     }
 }
 
-const possibleModalStudents = ref(
-    Array.from({ length: 10 }, (_, i) => ({
-        lrn: '20093001' + (100 + i),
-        fullName: [
-            'Ana Lopez', 'Mark Reyes', 'Carmela Cruz', 'Ramon Santos', 'Liza Dizon',
-            'Paolo Mendoza', 'Jessa Lim', 'Miguel Torres', 'Katrina Ramos', 'Enrico David',
-        ][i],
-        gender: i % 2 === 0 ? 'F' : 'M',
-        birthdate: [
-            '2002-05-12', '2001-11-23', '2003-07-08', '2000-09-15', '2002-01-30',
-            '2001-03-19', '2003-12-02', '2000-06-25', '2002-10-10', '2001-08-05',
-        ][i],
-        address: [
-            'Brgy. San Juan, Manila', 'Brgy. Malate, Manila', 'Brgy. San Miguel, Bulacan',
-            'Brgy. San Pedro, Laguna', 'Brgy. San Nicolas, Ilocos Norte', 'Brgy. San Pablo, Batangas',
-            'Brgy. San Rafael, Pampanga', 'Brgy. San Mateo, Rizal', 'Brgy. San Isidro, Nueva Ecija',
-            'Brgy. San Antonio, Zambales',
-        ][i],
-    }))
-);
-
 const filteredModalStudents = computed(() => {
     let result = [...possibleModalStudents.value];
+
     if (modalGenderFilter.value !== 'All') {
         const genderCode = modalGenderFilter.value === 'Female' ? 'F' : 'M';
         result = result.filter((student) => student.gender === genderCode);
     }
+
     if (modalSearchTerm.value.trim()) {
         const term = modalSearchTerm.value.toLowerCase();
         result = result.filter(
@@ -486,42 +495,85 @@ const filteredModalStudents = computed(() => {
                 student.address.toLowerCase().includes(term)
         );
     }
-    if (modalSortOrder.value === 'Latest') {
-        // For demo, no actual sorting since all dates are the same
-    } else {
+
+    if (modalSortOrder.value !== 'Latest') {
         result.reverse();
     }
+
     return result;
 });
 
 function toggleModalSelectAll() {
     if (modalSelectAll.value) {
-        modalSelectedStudents.value = filteredModalStudents.value.map(s => s.lrn);
+        modalSelectedStudents.value = filteredModalStudents.value.map(s => s.id);
     } else {
         modalSelectedStudents.value = [];
     }
 }
 
-function handleAddStudents() {
-    // Add checked students to main list if not already present
-    const toAdd = possibleModalStudents.value.filter(s => modalSelectedStudents.value.includes(s.lrn));
-    for (const student of toAdd) {
-        if (!students.value.some(mainS => mainS.lrn === student.lrn)) {
-            students.value.push({ ...student });
-        }
+const handleAddStudents = async (selectedCard) => {
+    console.log("selected IDS (ref):", modalSelectedStudents);
+
+    if (!selectedCard?.Class_ID) {
+        alert('Missing class ID. Please select a valid class.');
+        return;
     }
-    showAddModal.value = false;
-    // Optionally clear selection
-    modalSelectedStudents.value = [];
-    modalSelectAll.value = false;
-}
+
+    const studentIdsToAdd = modalSelectedStudents.value.map(id => Number(id));
+
+    console.log("Raw selected IDs:", modalSelectedStudents.value);
+
+    // Log each student ID individually
+    console.log("Individual student IDs:");
+    studentIdsToAdd.forEach((id, index) => {
+        console.log(`Index ${index}: ID =`, id);
+    });
+
+    if (studentIdsToAdd.length === 0) {
+        alert('Please select at least one student.');
+        return;
+    }
+
+    const payload = {
+        student_ids: studentIdsToAdd,
+        class_id: selectedCard.Class_ID,
+    };
+
+    console.log('📦 Sending payload to API:', {
+        student_ids: studentIdsToAdd,
+        class_id: selectedCard.Class_ID,
+    });
+
+    try {
+        const response = await addStudentsToClass(payload);
+
+        const toAdd = possibleModalStudents.value.filter(s => studentIdsToAdd.includes(s.id));
+        for (const student of toAdd) {
+            if (!students.value.some(mainS => mainS.lrn === student.lrn)) {
+                students.value.push({ ...student });
+            }
+        }
+
+        showAddModal.value = false;
+        modalSelectedStudents.value = [];
+        modalSelectAll.value = false;
+
+        alert('✅ Students successfully added to class!');
+    } catch (error) {
+        console.error('❌ Failed to add students:', error);
+        alert('Failed to add students to the class.');
+    }
+};
+
 
 const filteredEditModalStudents = computed(() => {
     let result = [...students.value];
+
     if (editModalGenderFilter.value !== 'All') {
         const genderCode = editModalGenderFilter.value === 'Female' ? 'F' : 'M';
         result = result.filter((student) => student.gender === genderCode);
     }
+
     if (editModalSearchTerm.value.trim()) {
         const term = editModalSearchTerm.value.toLowerCase();
         result = result.filter(
@@ -531,6 +583,7 @@ const filteredEditModalStudents = computed(() => {
                 student.address.toLowerCase().includes(term)
         );
     }
+
     return result;
 });
 
@@ -543,21 +596,19 @@ function toggleEditModalSelectAll() {
 }
 
 function handleUpdateClass() {
-    // Only keep students that are checked
     students.value = students.value.filter(s => editModalSelectedStudents.value.includes(s.lrn));
     showEditModal.value = false;
-    // Optionally clear selection
     editModalSelectedStudents.value = [];
     editModalSelectAll.value = false;
 }
 
 function openEditModal() {
     showEditModal.value = true;
-    // Preselect all students in the edit modal
     editModalSelectedStudents.value = students.value.map(s => s.lrn);
     editModalSelectAll.value = true;
 }
 </script>
+
 
 <style scoped>
 .student-list-container {

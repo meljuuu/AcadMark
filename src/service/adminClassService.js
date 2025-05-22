@@ -24,3 +24,17 @@ export const createClass = async (formData) => {
         throw error;
     }
 };
+
+export const addStudentsToClass = async (payload) => {
+    try {
+        const response = await API.post('/admin/add-student-to-class', {
+            student_ids: payload.student_ids,
+            class_id: payload.class_id
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error('Error adding students to class:', error.response?.data || error);
+        throw error.response?.data || error;
+    }
+};

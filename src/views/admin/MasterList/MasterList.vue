@@ -36,15 +36,15 @@
                     class="rounded-xl shadow-lg border border-gray-300 overflow-hidden cursor-pointer transition-transform hover:scale-105"
                     @click="handleCardClick(card)">
                     <div class="bg-blue text-white py-3 px-4 text-center font-semibold">
-                        Junior High School
+                        {{ getSchoolLevel(card.Curriculum) }}
                     </div>
                     <div class="bg-white p-6 relative pb-20">
                         <div class="relative z-10 mt-[-17px]">
                             <h2 class="text-5xl font-bold text-blue mb-2">
-                                Grade {{ card.grade }}
+                                Grade {{ card.Grade_Level }}
                             </h2>
                             <p class="text-lg font-semibold text-blue">
-                                {{ card.track }} – {{ card.curriculum }}
+                                {{ card.Track }} – {{ card.Section }}
                             </p>
                         </div>
                         <div class="absolute top-0 right-0 w-full h-full overflow-hidden">
@@ -54,12 +54,14 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </template>
 
 <script>
 import StudentList from '@/views/admin/MasterList/StudentList.vue';
+import { getAcceptedClasses } from '@/service/teacherSubjectsService';
 
 export default {
     name: 'Masterlist',
@@ -72,42 +74,50 @@ export default {
             selectedGrade: '',
             selectedCurriculum: '',
             selectedTrack: '',
-            grades: [7, 8, 9, 10],
+            grades: ['7', '8', '9', '10'],
             curriculums: ['BEC', 'STEM', 'ABM'],
             tracks: ['Einstein', 'Rizal', 'Bonifacio'],
-            cards: [
-                { grade: 7, curriculum: 'BEC', track: 'Einstein' },
-                { grade: 8, curriculum: 'BEC', track: 'Einstein' },
-                { grade: 9, curriculum: 'BEC', track: 'Einstein' },
-                { grade: 7, curriculum: 'STEM', track: 'Rizal' },
-                { grade: 8, curriculum: 'STEM', track: 'Rizal' },
-                { grade: 9, curriculum: 'STEM', track: 'Rizal' },
-                { grade: 7, curriculum: 'ABM', track: 'Bonifacio' },
-                { grade: 8, curriculum: 'ABM', track: 'Bonifacio' },
-                { grade: 9, curriculum: 'ABM', track: 'Bonifacio' },
-            ],
+            cards: []
         };
     },
     computed: {
         filteredCards() {
             return this.cards.filter((card) => {
                 return (
-                    (!this.selectedGrade ||
-                        card.grade === parseInt(this.selectedGrade)) &&
-                    (!this.selectedCurriculum ||
-                        card.curriculum === this.selectedCurriculum) &&
-                    (!this.selectedTrack || card.track === this.selectedTrack)
+                    (!this.selectedGrade || card.Grade_Level === this.selectedGrade) &&
+                    (!this.selectedCurriculum || card.Curriculum === this.selectedCurriculum) &&
+                    (!this.selectedTrack || card.Track === this.selectedTrack)
                 );
             });
         },
     },
     methods: {
+        async fetchAcceptedClasses() {
+            console.log("CARDS begin")
+            try {
+                const classes = await getAcceptedClasses();
+                this.cards = classes;
+                console.log("CARDS", classes)
+            } catch (error) {
+                console.error('Error fetching accepted classes:', error);
+            }
+        },
         handleCardClick(card) {
             this.selectedCard = card;
+            console.log("SENT:", this.selectedCard)
         },
+        getSchoolLevel(curriculum) {
+            if (curriculum === 'JHS') return 'Junior High School';
+            if (curriculum === 'SHS') return 'Senior High School';
+            return curriculum;
+        }
+    },
+    mounted() {
+        this.fetchAcceptedClasses();
     },
 };
 </script>
+
 
 <style scoped>
 .masterlist-container {
