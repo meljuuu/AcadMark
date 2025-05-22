@@ -25,10 +25,7 @@
         <label for="academic-track" class="mr-2.5 p-1.5 text-[#858585]">Academic Track</label>
         <select v-model="selectedAcademicTrack" id="academic-track"
           class="text-base border-none bg-transparent p-1.5 font-bold text-center max-w-max focus:outline-none">
-          <option :value="''">All Tracks</option>
-          <option v-for="option in academicTrackOptions" :key="option" :value="option">
-            {{ option }}
-          </option>
+          <option v-for="option in academicTrackOptions" :key="option" :value="option">{{ option }}</option>
         </select>
       </div>
     </div>
@@ -38,10 +35,7 @@
         <label for="grade" class="mr-2.5 p-1.5 text-[#858585]">Grade</label>
         <select v-model="selectedGrade" id="grade"
           class="text-base border-none bg-transparent p-1.5 font-bold text-center max-w-max focus:outline-none">
-          <option :value="''">All Grades</option>
-          <option v-for="option in gradeOptions" :key="option.value" :value="option.value">
-            {{ option.label }}
-          </option>
+          <option v-for="option in gradeOptions" :key="option" :value="option">{{ option }}</option>
         </select>
       </div>
     </div>
@@ -105,15 +99,8 @@ const props = defineProps({
 const curriculumOptions = ['JHS', 'SHS'];
 const curriculumMapping = { 'JHS': 'Junior High School', 'SHS': 'Senior High School' };
 const yearOptions = ['2023', '2024', '2025'];
-const academicTrackOptions = ['TVL', 'SPA', 'BEP', 'SPJ', 'HUMSS'];
-const gradeOptions = [
-  { label: 'Grade 7', value: '7' },
-  { label: 'Grade 8', value: '8' },
-  { label: 'Grade 9', value: '9' },
-  { label: 'Grade 10', value: '10' },
-  { label: 'Grade 11', value: '11' },
-  { label: 'Grade 12', value: '12' },
-];
+const academicTrackOptions = ['TVL', 'Academic', 'Arts and Design', 'Sports', 'ABM', 'STEM', 'HUMMS'];
+const gradeOptions = ['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'];
 const subjectOptions = ['Mathematics', 'English', 'PE and Health', 'Chemistry', 'Physics', 'Physical Education', 'Business Mathematics', 'Music', 'Computer Science', 'Art History', 'Advanced Chemistry'];
 const quarterOptions = ['1st', '2nd', '3rd', '4th'];
 const sortOptions = ['Sort by A-Z', 'Sort by Z-A', 'Sort by Grade (Highest)', 'Sort by Grade (Lowest)'];

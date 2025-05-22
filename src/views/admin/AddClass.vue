@@ -121,16 +121,16 @@
                     <div class="max-h-[400px] overflow-y-auto w-full">
                         <table class="min-w-[900px] w-full border-collapse table-fixed">
                             <tbody>
-                                <tr v-for="(row, idx) in superClasses" :key="idx"
+                                <tr v-for="(row, idx) in filteredSubmittedRows" :key="idx"
                                     class="border-b border-[#e0e0e0] cursor-pointer" @click="openClassInfoModal(row)">
                                     <td class="text-[14px] text-center px-3 py-2 text-[#222]">{{ row.grade }}</td>
                                     <td class="text-[14px] text-center px-3 py-2 text-[#222]">{{ row.curriculum }}</td>
                                     <td class="text-[14px] text-center px-3 py-2 text-[#222]">{{ row.track }}</td>
                                     <td class="text-[14px] text-center px-3 py-2 text-[#222]">{{ row.section }}</td>
-                                    <td class="text-[14px] text-center px-3 py-2 text-[#222]">{{ row.adviser }}</td>
-                                    <td class="text-[14px] text-center px-3 py-2 text-[#222]">
-                                        {{ row.students }}
+                                    <td class="text-[#222] text-[14px] text-center px-3 py-2">
+                                        {{ row.adviser }}
                                     </td>
+                                    <td class="text-[14px] text-center px-3 py-2 text-[#222]">{{ row.students }}</td>
                                     <td class="text-[14px] text-center px-3 py-2 text-[#222]">{{ row.date }}</td>
                                     <td class="text-[14px] text-center px-3 py-2">
                                         <span :class="[
@@ -147,7 +147,6 @@
                         </table>
                     </div>
                 </div>
-
             </div>
         </template>
         <template v-else-if="showGrade7Detail">
@@ -178,25 +177,24 @@
                         </div>
                         <div class="min-w-[200px] relative flex flex-col justify-end">
                             <label
-                                class="absolute -top-2 left-4 bg-white text-[#292929] text-sm px-2 pointer-events-none font-medium">Section
-                                Name</label>
-                            <select v-model="selectedClassSection"
+                                class="absolute -top-2 left-4 bg-white text-[#292929] text-sm px-2 pointer-events-none font-medium">Track</label>
+                            <select v-model="selectedTrack"
                                 class="w-[180px] p-2 border border-[#E3E9EC] rounded-[6px] bg-white text-base text-[#242424] font-medium">
-                                <option disabled value="">Select Section</option>
-                                <option v-for="cls in filteredClassesByGrade" :key="cls.Class_ID" :value="cls">
-                                    {{ cls.Section }}
-                                </option>
+                                <option value="SPA">SPA</option>
+                                <option value="SPJ">SPJ</option>
+                                <option value="BEC">BEC</option>
                             </select>
                         </div>
-                        <div class="min-w-[200px] relative flex flex-col justify-end"
-                            v-if="selectedClass && selectedClass.Track">
+                        <div class="min-w-[200px] relative flex flex-col justify-end">
                             <label
-                                class="absolute -top-2 left-4 bg-white text-[#292929] text-sm px-2 pointer-events-none font-medium">
-                                Track
-                            </label>
-                            <select v-model="selectedTrack" disabled
+                                class="absolute -top-2 left-4 bg-white text-[#292929] text-sm px-2 pointer-events-none font-medium">Class
+                                Section</label>
+                            <select v-model="selectedClassSection"
                                 class="w-[180px] p-2 border border-[#E3E9EC] rounded-[6px] bg-white text-base text-[#242424] font-medium">
-                                <option :value="selectedClass.Track">{{ selectedClass.Track }}</option>
+                                <option value="Einstein">Einstein</option>
+                                <option value="Einstein2">Einstein</option>
+                                <option value="Einstein3">Einstein</option>
+                                <option value="Einstein4">Einstein</option>
                             </select>
                         </div>
                         <div class="flex items-end ml-auto">
@@ -220,17 +218,15 @@
                                 </div>
                                 <div
                                     class="flex flex-col overflow-y-auto max-h-[600px] mb-3 rounded-[4px] border border-[#e0e0e0] bg-[#fafbfc] p-1 cursor-pointer gap-5s">
-                                    <div v-for="row in leftSelectedStudents" :key="row.lrn"
+                                    <div v-for="row in filteredLeftTableData" :key="row.lrn"
                                         class="flex items-center p-[6px_8px] border-b border-[#f0f0f0] text-sm text-[#222] gap-10 hover:bg-[#e0e0e0]">
                                         <span class="ml-[5px] w-[90px] font-medium">{{ row.lrn }}</span>
                                         <span class="flex-1 -ml-[5px] font-medium">{{ row.name }}</span>
                                         <img src="/assets/img/admin/arrow.svg" alt="right-arrow" class="w-5 h-5">
                                     </div>
                                 </div>
-                                <button @click="logForm"
-                                    class="mt-2 w-[30%] bg-[#295F98] text-white border-none rounded-[6px] py-2 text-[15px] cursor-pointer transition-colors duration-200 hover:bg-[#1d4066] block ml-auto">
-                                    Submit
-                                </button>
+                                <button
+                                    class="mt-2 w-[30%] bg-[#295F98] text-white border-none rounded-[6px] py-2 text-[15px] cursor-pointer transition-colors duration-200 hover:bg-[#1d4066] block ml-auto">Submit</button>
                             </div>
                             <!-- Right Column -->
                             <div
@@ -317,27 +313,23 @@
             </div>
         </template>
     </div>
-
-    <!-- Teachers Modal  -->
     <div v-if="showAddTeacherModal" class="fixed inset-0 bg-black/20 z-[9999] flex items-center justify-center"
         @click.self="closeAddTeacherModal">
         <div
-            class="bg-white shadow-[0_4px_32px_0_rgba(0,0,0,0.18)] w-[850px] max-h-[90vh] p-[38px_38px_24px_38px] relative flex flex-col overflow-y-auto rounded">
+            class="bg-white shadow-[0_4px_32px_0_rgba(0,0,0,0.18)] w-[850px] h-[620px] p-[38px_38px_24px_38px] relative flex flex-col">
             <h2 class="text-[1.5rem] font-bold text-[#295F98] mb-7">Add Class Teacher</h2>
             <div class="mb-[22px]">
                 <div class="text-[#295F98] text-[1rem] font-semibold mb-2">Advisory Teacher</div>
                 <div class="flex mb-2 justify-between">
-                    <select v-model="selectedSubject" @change="logSelectedAdviserSubjectId"
-                        class="min-w-[220px] h-[48px] px-[12px] mb-2 border border-[#E3E9EC] rounded-[6px] bg-white text-[1rem] text-[#242424] font-medium">
-                        <option disabled value="">Select Subject</option>
-                        <option v-for="option in subjectOptions" :key="option.id" :value="option.name">
-                            {{ option.name }}
-                        </option>
-                    </select>
-                    <select v-model="selectedAdviser" @change="logSelectedAdviserId"
+                    <select v-model="selectedSubject"
                         class="min-w-[240px] h-[48px] px-[12px] border border-[#E3E9EC] rounded-[6px] bg-white text-[1rem] text-[#242424] font-medium">
-                        <option disabled value="">Select Adviser</option>
-                        <option v-for="adviser in advisers" :key="adviser.id" :value="adviser.id">
+                        <option v-for="option in subjectOptions" :key="option" :value="option">{{ option }}</option>
+                    </select>
+                    <select
+                        class="border border-[#E3E9EC] rounded-[6px] bg-white text-[1rem] text-[#242424] font-medium"
+                        v-model="selectedAdviser">
+                        <option value="" disabled selected>Adviser Name</option>
+                        <option v-for="adviser in advisers" :key="adviser.id" :value="adviser.name">
                             {{ adviser.name }}
                         </option>
                     </select>
@@ -347,69 +339,46 @@
                             ID</label>
                         <input
                             class="h-[48px] px-[12px] border border-[#E3E9EC] rounded-[6px] bg-white text-[1rem] text-[#242424] font-medium"
-                            placeholder="Auto Fill" :value="selectedAdviserEmployeeNo" readonly />
+                            placeholder="Auto Fill" :value="adviserIdByName(selectedAdviser)" readonly />
                     </div>
                 </div>
             </div>
             <div class="mb-[22px]">
                 <div class="text-[#295F98] text-[1rem] font-semibold mb-2">Subject Teacher</div>
-
-                <div v-for="(teacherEntry, index) in subjectTeachers" :key="index"
-                    class="flex gap-[22px] mb-2 items-start justify-between">
-                    <select v-model="teacherEntry.subject" @change="logTeacherSubjectId"
-                        class="min-w-[220px] h-[48px] px-[12px] mb-2 border border-[#E3E9EC] rounded-[6px] bg-white text-[1rem] text-[#242424] font-medium">
-                        <option disabled value="">Select Subject</option>
-                        <option v-for="option in subjectOptions" :key="option.id" :value="option.name">
-                            {{ option.name }}
-                        </option>
+                <div class="flex gap-[22px] mb-2 justify-between">
+                    <select v-model="selectedSubject2" class="min-w-[240px] h-[48px] ...">
+                        <option v-for="option in subjectOptions" :key="option" :value="option">{{ option }}</option>
                     </select>
-
                     <select
                         class="min-w-[240px] h-[48px] px-[12px] border border-[#E3E9EC] rounded-[6px] bg-white text-[1rem] text-[#242424] font-medium"
-                        v-model="teacherEntry.teacher">
-                        <option value="" disabled>Teacher Name</option>
-                        <option v-for="teacher in teacherOptions" :key="teacher.id" :value="teacher.name">
-                            {{ teacher.name }}
+                        v-model="selectedSubjectAdviser">
+                        <option value="" disabled selected>Adviser Name</option>
+                        <option v-for="adviser in advisers" :key="adviser.id + '-subject'" :value="adviser.name">
+                            {{ adviser.name }}
                         </option>
                     </select>
-
                     <div class="flex flex-col relative">
                         <label
-                            class="absolute bg-white text-[14px] mb-2 text-[#292929] font-medium mt-[-10px] mb-1 ml-[10px] px-[5px]">
-                            Employee ID
-                        </label>
+                            class="absolute bg-white text-[14px] text-[#292929] font-medium mt-[-10px] mb-1 ml-[10px] px-[5px]">Employee
+                            ID</label>
                         <input
-                            class="min-w-[220px] h-[48px] px-[12px] border border-[#E3E9EC] rounded-[6px] bg-white text-[1rem] text-[#242424] font-medium"
-                            placeholder="Auto Fill" :value="adviserIdByName(teacherEntry.teacher)" readonly />
+                            class="min-w-[240px] h-[48px] px-[12px] border border-[#E3E9EC] rounded-[6px] bg-white text-[1rem] text-[#242424] font-medium"
+                            placeholder="Auto Fill" :value="adviserIdByName(selectedSubjectAdviser)" readonly />
                     </div>
-
-                    <!-- Delete button (always visible) -->
-                    <button @click="removeSubjectTeacher(index)"
-                        class="text-white bg-red-600 hover:bg-red-700 px-3 h-[48px] rounded text-[1.5rem] font-bold">
-                        &minus;
-                    </button>
                 </div>
-
-                <!-- Add button -->
-                <button @click="addSubjectTeacher"
-                    class="w-full bg-[#295F98] text-white text-[2rem] border-none rounded px-0 py-1 mt-[18px] mb-[18px] cursor-pointer transition-colors duration-200 hover:bg-[#1d4066]">
-                    +
-                </button>
             </div>
+            <button
+                class="w-full bg-[#295F98] text-white text-[2rem] border-none rounded px-0 py-1 mt-[18px] mb-[18px] cursor-pointer transition-colors duration-200 hover:bg-[#1d4066]">+</button>
             <div class="flex justify-end gap-[18px] mt-[120px]">
                 <button
                     class="bg-[#BFC3C8] text-white text-[1rem] font-medium border-none rounded-[6px] px-8 py-[10px] cursor-pointer transition-colors duration-200 hover:bg-[#a0a4a8]"
                     @click="closeAddTeacherModal">Cancel</button>
                 <button
-                    class="bg-[#295F98] text-white text-[1rem] font-medium border-none rounded-[6px] px-8 py-[10px] cursor-pointer transition-colors duration-200 shadow-[0_2px_4px_0_rgba(41,95,152,0.08)] hover:bg-[#1d4066]"
-                    @click="submitFacultyAssignments">
-                    Add Faculty(s)
-                </button>
+                    class="bg-[#295F98] text-white text-[1rem] font-medium border-none rounded-[6px] px-8 py-[10px] cursor-pointer transition-colors duration-200 shadow-[0_2px_4px_0_rgba(41,95,152,0.08)] hover:bg-[#1d4066]">Add
+                    Faculty(s)</button>
             </div>
         </div>
     </div>
-
-    <!-- CLASSINFO MODAL -->
     <div v-if="showClassInfoModal" class="fixed inset-0 bg-black/20 z-[9999] flex items-center justify-center"
         @click.self="closeClassInfoModal">
         <div class="bg-white w-[750px] rounded-lg p-8 shadow-lg flex flex-col">
@@ -443,31 +412,26 @@
     </div>
 </template>
 
+
 <script>
 import Dropdown from '@/components/dropdown.vue';
-import { getAllAcceptedStudents } from '@/service/studentService';
-import { getAllTeacherSubjects, getClassesExcludingIncomplete } from '@/service/teacherSubjectsService';
-import { getAllClasses } from '@/service/adminClassService';
-import { createClass } from '@/service/adminClassService';
-
 export default {
     name: 'Dasboard',
     components: { Dropdown },
     data() {
         return {
-            subjectTeachers: [{ subject: '', teacher: '' }],
             activeTab: 'add',
             showBlank: false,
             showGrade7Detail: false,
             grades: [
-                { mainTitle: 'Grade 7', subTitle: 'Junior High School', studentCount: '' },
-                { mainTitle: 'Grade 8', subTitle: 'Junior High School', studentCount: '' },
-                { mainTitle: 'Grade 9', subTitle: 'Junior High School', studentCount: '' },
-                { mainTitle: 'Grade 10', subTitle: 'Junior High School', studentCount: '' },
-                { mainTitle: 'Grade 11', subTitle: 'Senior High School', studentCount: '' },
-                { mainTitle: 'Grade 12', subTitle: 'Senior High School', studentCount: '' },
+                { mainTitle: 'Grade 7', subTitle: 'Junior High School', studentCount: '100 Total Students' },
+                { mainTitle: 'Grade 8', subTitle: 'Junior High School', studentCount: '100 Total Students' },
+                { mainTitle: 'Grade 9', subTitle: 'Junior High School', studentCount: '100 Total Students' },
+                { mainTitle: 'Grade 10', subTitle: 'Junior High School', studentCount: '100 Total Students' },
+                { mainTitle: 'Grade 11', subTitle: 'Senior High School', studentCount: '100 Total Students' },
+                { mainTitle: 'Grade 12', subTitle: 'Senior High School', studentCount: '100 Total Students' },
             ],
-            selectedGradeLevel: '',
+            selectedGradeLevel: 'Grade 7',
             selectedTrack: '',
             selectedClassSection: '',
             enteredGrade: '',
@@ -478,333 +442,280 @@ export default {
             rightSort: '',
             rightSearch: '',
             showCheckboxes: false,
+            dummyTableData: [
+                [
+                    { lrn: '10693001001', name: 'Ava Thompson', gender: 'F', age: 21, track: 'SPA' },
+                    { lrn: '10693001002', name: 'Liam Johnson', gender: 'M', age: 20, track: 'SPA' },
+                    { lrn: '10693001003', name: 'Sophia Lee', gender: 'F', age: 21, track: 'SPA' },
+                    { lrn: '10693001004', name: 'Noah Smith', gender: 'M', age: 22, track: 'SPA' },
+                    { lrn: '10693001005', name: 'Mia Brown', gender: 'F', age: 20, track: 'SPA' },
+                    { lrn: '10693001006', name: 'Lucas Garcia', gender: 'M', age: 21, track: 'SPA' },
+                    { lrn: '10693001007', name: 'Isabella Martinez', gender: 'F', age: 21, track: 'SPA' },
+                    { lrn: '10693001008', name: 'Mason Davis', gender: 'M', age: 20, track: 'SPA' },
+                    { lrn: '10693001009', name: 'Charlotte Wilson', gender: 'F', age: 22, track: 'SPA' },
+                    { lrn: '10693001010', name: 'Elijah Anderson', gender: 'M', age: 21, track: 'SPA' },
+                    { lrn: '10693001011', name: 'Oliver Moore', gender: 'M', age: 20, track: 'SPA' },
+                    { lrn: '10693001012', name: 'Emily Taylor', gender: 'F', age: 21, track: 'SPA' },
+                    { lrn: '10693001013', name: 'Jacob Thomas', gender: 'M', age: 22, track: 'SPA' },
+                    { lrn: '10693001014', name: 'Madison White', gender: 'F', age: 20, track: 'SPA' },
+                    { lrn: '10693001015', name: 'Carter Harris', gender: 'M', age: 21, track: 'SPA' },
+                    { lrn: '10693001016', name: 'Ella Martin', gender: 'F', age: 21, track: 'SPA' },
+                    { lrn: '10693001017', name: 'Logan Thompson', gender: 'M', age: 20, track: 'SPA' },
+                    { lrn: '10693001018', name: 'Grace Clark', gender: 'F', age: 22, track: 'SPA' },
+                    { lrn: '10693001019', name: 'Jackson Lewis', gender: 'M', age: 21, track: 'SPA' },
+                    { lrn: '10693001020', name: 'Scarlett Walker', gender: 'F', age: 20, track: 'SPA' },
+                ],
+                [
+                    { lrn: '20693001001', name: 'Amelia Clark', gender: 'F', age: 20, track: 'SPJ' },
+                    { lrn: '20693001002', name: 'Benjamin Lewis', gender: 'M', age: 21, track: 'SPJ' },
+                    { lrn: '20693001003', name: 'Harper Young', gender: 'F', age: 22, track: 'SPJ' },
+                    { lrn: '20693001004', name: 'James King', gender: 'M', age: 20, track: 'SPJ' },
+                    { lrn: '20693001005', name: 'Evelyn Scott', gender: 'F', age: 21, track: 'SPJ' },
+                    { lrn: '20693001006', name: 'Henry Green', gender: 'M', age: 22, track: 'SPJ' },
+                    { lrn: '20693001007', name: 'Abigail Adams', gender: 'F', age: 20, track: 'SPJ' },
+                    { lrn: '20693001008', name: 'Alexander Baker', gender: 'M', age: 21, track: 'SPJ' },
+                    { lrn: '20693001009', name: 'Emily Nelson', gender: 'F', age: 22, track: 'SPJ' },
+                    { lrn: '20693001010', name: 'Jack Carter', gender: 'M', age: 20, track: 'SPJ' },
+                    { lrn: '20693001011', name: 'Avery Perez', gender: 'F', age: 21, track: 'SPJ' },
+                    { lrn: '20693001012', name: 'Samuel Rivera', gender: 'M', age: 22, track: 'SPJ' },
+                    { lrn: '20693001013', name: 'Ella Cooper', gender: 'F', age: 20, track: 'SPJ' },
+                    { lrn: '20693001014', name: 'Mila Richardson', gender: 'F', age: 22, track: 'SPJ' },
+                    { lrn: '20693001015', name: 'Wyatt Cox', gender: 'M', age: 20, track: 'SPJ' },
+                    { lrn: '20693001016', name: 'Camila Howard', gender: 'F', age: 21, track: 'SPJ' },
+                    { lrn: '20693001017', name: 'Julian Ward', gender: 'M', age: 22, track: 'SPJ' },
+                    { lrn: '20693001018', name: 'Luna Torres', gender: 'F', age: 20, track: 'SPJ' },
+                    { lrn: '20693001019', name: 'Gabriel Peterson', gender: 'M', age: 21, track: 'SPJ' },
+                    { lrn: '20693001020', name: 'Nora Gray', gender: 'F', age: 22, track: 'SPJ' },
+                ],
+                [
+                    { lrn: '30693001001', name: 'Ella Perez', gender: 'F', age: 21, track: 'BEC' },
+                    { lrn: '30693001002', name: 'Logan Roberts', gender: 'M', age: 20, track: 'BEC' },
+                    { lrn: '30693001003', name: 'Scarlett Turner', gender: 'F', age: 22, track: 'BEC' },
+                    { lrn: '30693001004', name: 'William Phillips', gender: 'M', age: 21, track: 'BEC' },
+                    { lrn: '30693001005', name: 'Grace Campbell', gender: 'F', age: 20, track: 'BEC' },
+                    { lrn: '30693001006', name: 'Sebastian Parker', gender: 'M', age: 22, track: 'BEC' },
+                    { lrn: '30693001007', name: 'Chloe Evans', gender: 'F', age: 21, track: 'BEC' },
+                    { lrn: '30693001008', name: 'Daniel Edwards', gender: 'M', age: 20, track: 'BEC' },
+                    { lrn: '30693001009', name: 'Penelope Collins', gender: 'F', age: 22, track: 'BEC' },
+                    { lrn: '30693001010', name: 'Matthew Stewart', gender: 'M', age: 21, track: 'BEC' },
+                    { lrn: '30693001011', name: 'Layla Morris', gender: 'F', age: 20, track: 'BEC' },
+                    { lrn: '30693001012', name: 'David Rogers', gender: 'M', age: 22, track: 'BEC' },
+                    { lrn: '30693001013', name: 'Zoe Reed', gender: 'F', age: 20, track: 'BEC' },
+                    { lrn: '30693001014', name: 'Joseph Cook', gender: 'M', age: 21, track: 'BEC' },
+                    { lrn: '30693001015', name: 'Lily Morgan', gender: 'F', age: 22, track: 'BEC' },
+                    { lrn: '30693001016', name: 'Samuel Bell', gender: 'M', age: 20, track: 'BEC' },
+                    { lrn: '30693001017', name: 'Aria Murphy', gender: 'F', age: 21, track: 'BEC' },
+                    { lrn: '30693001018', name: 'Carter Bailey', gender: 'M', age: 22, track: 'BEC' },
+                    { lrn: '30693001019', name: 'Victoria Rivera', gender: 'F', age: 20, track: 'BEC' },
+                    { lrn: '30693001020', name: 'Owen Cooper', gender: 'M', age: 21, track: 'BEC' },
+                ],
+                [
+                    { lrn: '40693001001', name: 'Mila Richardson', gender: 'F', age: 21, track: 'SPA' },
+                    { lrn: '40693001002', name: 'Wyatt Cox', gender: 'M', age: 20, track: 'SPA' },
+                    { lrn: '40693001003', name: 'Camila Howard', gender: 'F', age: 22, track: 'SPA' },
+                    { lrn: '40693001004', name: 'Julian Ward', gender: 'M', age: 20, track: 'SPA' },
+                    { lrn: '40693001005', name: 'Luna Torres', gender: 'F', age: 21, track: 'SPA' },
+                    { lrn: '40693001006', name: 'Gabriel Peterson', gender: 'M', age: 22, track: 'SPA' },
+                    { lrn: '40693001007', name: 'Nora Gray', gender: 'F', age: 20, track: 'SPA' },
+                    { lrn: '40693001008', name: 'Anthony Ramirez', gender: 'M', age: 21, track: 'SPA' },
+                    { lrn: '40693001009', name: 'Hazel James', gender: 'F', age: 22, track: 'SPA' },
+                    { lrn: '40693001010', name: 'Lincoln Watson', gender: 'M', age: 20, track: 'SPA' },
+                    { lrn: '40693001011', name: 'Ellie Brooks', gender: 'F', age: 21, track: 'SPA' },
+                    { lrn: '40693001012', name: 'Dylan Kelly', gender: 'M', age: 20, track: 'SPA' },
+                    { lrn: '40693001013', name: 'Stella Sanders', gender: 'F', age: 22, track: 'SPA' },
+                    { lrn: '40693001014', name: 'Luke Price', gender: 'M', age: 21, track: 'SPA' },
+                    { lrn: '40693001015', name: 'Aurora Bennett', gender: 'F', age: 20, track: 'SPA' },
+                    { lrn: '40693001016', name: 'Grayson Wood', gender: 'M', age: 22, track: 'SPA' },
+                    { lrn: '40693001017', name: 'Violet Barnes', gender: 'F', age: 21, track: 'SPA' },
+                    { lrn: '40693001018', name: 'Levi Ross', gender: 'M', age: 20, track: 'SPA' },
+                    { lrn: '40693001019', name: 'Savannah Henderson', gender: 'F', age: 22, track: 'SPA' },
+                    { lrn: '40693001020', name: 'Hudson Coleman', gender: 'M', age: 21, track: 'SPA' },
+                ],
+                [
+                    { lrn: '50693001001', name: 'Avery Perez', gender: 'F', age: 20, track: 'SPJ' },
+                    { lrn: '50693001002', name: 'Samuel Rivera', gender: 'M', age: 21, track: 'SPJ' },
+                    { lrn: '50693001003', name: 'Ella Cooper', gender: 'F', age: 22, track: 'SPJ' },
+                    { lrn: '50693001004', name: 'Mila Richardson', gender: 'F', age: 20, track: 'SPJ' },
+                    { lrn: '50693001005', name: 'Wyatt Cox', gender: 'M', age: 21, track: 'SPJ' },
+                    { lrn: '50693001006', name: 'Camila Howard', gender: 'F', age: 22, track: 'SPJ' },
+                    { lrn: '50693001007', name: 'Julian Ward', gender: 'M', age: 20, track: 'SPJ' },
+                    { lrn: '50693001008', name: 'Luna Torres', gender: 'F', age: 21, track: 'SPJ' },
+                    { lrn: '50693001009', name: 'Gabriel Peterson', gender: 'M', age: 22, track: 'SPJ' },
+                    { lrn: '50693001010', name: 'Nora Gray', gender: 'F', age: 20, track: 'SPJ' },
+                    { lrn: '50693001011', name: 'Anthony Ramirez', gender: 'M', age: 21, track: 'SPJ' },
+                    { lrn: '50693001012', name: 'Hazel James', gender: 'F', age: 22, track: 'SPJ' },
+                    { lrn: '50693001013', name: 'Lincoln Watson', gender: 'M', age: 20, track: 'SPJ' },
+                    { lrn: '50693001014', name: 'Ellie Brooks', gender: 'F', age: 21, track: 'SPJ' },
+                    { lrn: '50693001015', name: 'Dylan Kelly', gender: 'M', age: 22, track: 'SPJ' },
+                    { lrn: '50693001016', name: 'Stella Sanders', gender: 'F', age: 20, track: 'SPJ' },
+                    { lrn: '50693001017', name: 'Luke Price', gender: 'M', age: 21, track: 'SPJ' },
+                    { lrn: '50693001018', name: 'Aurora Bennett', gender: 'F', age: 22, track: 'SPJ' },
+                    { lrn: '50693001019', name: 'Grayson Wood', gender: 'M', age: 20, track: 'SPJ' },
+                    { lrn: '50693001020', name: 'Violet Barnes', gender: 'F', age: 21, track: 'SPJ' },
+                ],
+                [
+                    { lrn: '60693001001', name: 'Levi Ross', gender: 'M', age: 20, track: 'BEC' },
+                    { lrn: '60693001002', name: 'Savannah Henderson', gender: 'F', age: 22, track: 'BEC' },
+                    { lrn: '60693001003', name: 'Hudson Coleman', gender: 'M', age: 21, track: 'BEC' },
+                    { lrn: '60693001004', name: 'Ava Thompson', gender: 'F', age: 20, track: 'BEC' },
+                    { lrn: '60693001005', name: 'Liam Johnson', gender: 'M', age: 21, track: 'BEC' },
+                    { lrn: '60693001006', name: 'Sophia Lee', gender: 'F', age: 22, track: 'BEC' },
+                    { lrn: '60693001007', name: 'Noah Smith', gender: 'M', age: 20, track: 'BEC' },
+                    { lrn: '60693001008', name: 'Mia Brown', gender: 'F', age: 21, track: 'BEC' },
+                    { lrn: '60693001009', name: 'Lucas Garcia', gender: 'M', age: 22, track: 'BEC' },
+                    { lrn: '60693001010', name: 'Isabella Martinez', gender: 'F', age: 20, track: 'BEC' },
+                    { lrn: '60693001011', name: 'Mason Davis', gender: 'M', age: 21, track: 'BEC' },
+                    { lrn: '60693001012', name: 'Charlotte Wilson', gender: 'F', age: 22, track: 'BEC' },
+                    { lrn: '60693001013', name: 'Elijah Anderson', gender: 'M', age: 20, track: 'BEC' },
+                    { lrn: '60693001014', name: 'Oliver Moore', gender: 'F', age: 21, track: 'BEC' },
+                    { lrn: '60693001015', name: 'Emily Taylor', gender: 'M', age: 22, track: 'BEC' },
+                    { lrn: '60693001016', name: 'Jacob Thomas', gender: 'F', age: 20, track: 'BEC' },
+                    { lrn: '60693001017', name: 'Madison White', gender: 'M', age: 21, track: 'BEC' },
+                    { lrn: '60693001018', name: 'Carter Harris', gender: 'F', age: 22, track: 'BEC' },
+                    { lrn: '60693001019', name: 'Ella Martin', gender: 'M', age: 20, track: 'BEC' },
+                    { lrn: '60693001020', name: 'Logan Thompson', gender: 'F', age: 21, track: 'BEC' },
+                ],
+            ],
             showAddTeacherModal: false,
-            showClassInfoModal: false,
-            teachersSubjects: [],
-            selectedTeacher: {
-                subjects: []
-            },
-            classes: [],
-            superClasses: [],
-            
-            dummyTableData: [],
-            allTeacherSubjects: [],
-            selectedRows:[],
+            subjectOptions: [
+                { value: 'Math', label: 'Math' },
+                { value: 'Science', label: 'Science' },
+                { value: 'English', label: 'English' },
+                { value: 'Filipino', label: 'Filipino' },
+                { value: 'Araling Panlipunan', label: 'Araling Panlipunan' },
+                { value: 'MAPEH', label: 'MAPEH' },
+                { value: 'TLE', label: 'TLE' },
+                { value: 'EPP', label: 'EPP' },
+                { value: 'ESP', label: 'ESP' },
+            ],
+            advisers: [
+                { name: 'Polaris Jumel Dasmarinas', id: 'EMP-001' },
+                { name: 'Joshua Ralph Solomon', id: 'EMP-002' },
+                { name: 'Harvey Samson', id: 'EMP-003' }
+            ],
             selectedAdviser: '',
-            selectedSubject: '',
             selectedSubjectAdviser: '',
-            advisers: [],
-            form: {
-                student_ids: [],
-                class_id: '',
-                class_name: '',
-                sy_id: '',
-                adviser_id: '',
-                teacher_subject_ids: [],
-                is_advisory: false,
-            },
+            gradeOptions: [
+                { value: 'Grade 7', label: 'Grade 7' },
+                { value: 'Grade 8', label: 'Grade 8' },
+                { value: 'Grade 9', label: 'Grade 9' },
+                { value: 'Grade 10', label: 'Grade 10' },
+                { value: 'Grade 11', label: 'Grade 11' },
+                { value: 'Grade 12', label: 'Grade 12' }
+            ],
+            curriculumOptions: [
+                { value: 'Junior High School', label: 'Junior High School' },
+                { value: 'Senior High School', label: 'Senior High School' }
+            ],
+            trackOptions: [
+                { value: 'SPA', label: 'SPA' },
+                { value: 'SPJ', label: 'SPJ' },
+                { value: 'BEC', label: 'BEC' }
+            ],
+            statusOptions: [
+                { value: 'Pending', label: 'Pending' },
+                { value: 'Accepted', label: 'Accepted' },
+                { value: 'Not Accepted', label: 'Not Accepted' }
+            ],
+            submittedRows: [
+                {
+                    grade: '7',
+                    curriculum: 'Junior High School',
+                    track: 'SPA',
+                    section: 'Einstein',
+                    adviser: 'Joshua Ralph Xander Jumel Solomon',
+                    students: 10,
+                    date: '04/01/25',
+                    status: 'Pending'
+                },
+                {
+                    grade: '7',
+                    curriculum: 'Junior High School',
+                    track: 'SPA',
+                    section: 'Einstein',
+                    adviser: 'Joshua Ralph Xander Jumel Solomon',
+                    students: 42,
+                    date: '04/01/25',
+                    status: 'Accepted'
+                },
+                {
+                    grade: '7',
+                    curriculum: 'Junior High School',
+                    track: 'SPA',
+                    section: 'Einstein',
+                    adviser: 'Joshua Ralph Xander Jumel Solomon',
+                    students: 42,
+                    date: '04/01/25',
+                    status: 'Not Accepted'
+                },
+                {
+                    grade: '7',
+                    curriculum: 'Junior High School',
+                    track: 'SPA',
+                    section: 'Einstein',
+                    adviser: 'Joshua Ralph Xander Jumel Solomon',
+                    students: 42,
+                    date: '04/01/25',
+                    status: 'Not Accepted'
+                },
+                {
+                    grade: '7',
+                    curriculum: 'Junior High School',
+                    track: 'SPA',
+                    section: 'Einstein',
+                    adviser: 'Joshua Ralph Xander Jumel Solomon',
+                    students: 42,
+                    date: '04/01/25',
+                    status: 'Not Accepted'
+                },
+                {
+                    grade: '7',
+                    curriculum: 'Junior High School',
+                    track: 'SPA',
+                    section: 'Einstein',
+                    adviser: 'Joshua Ralph Xander Jumel Solomon',
+                    students: 42,
+                    date: '04/01/25',
+                    status: 'Not Accepted'
+                },
+                {
+                    grade: '7',
+                    curriculum: 'Junior High School',
+                    track: 'SPA',
+                    section: 'Einstein',
+                    adviser: 'Joshua Ralph Xander Jumel Solomon',
+                    students: 42,
+                    date: '04/01/25',
+                    status: 'Not Accepted'
+                },
+            ],
+            selectedSubmittedGrade: '',
+            selectedSubmittedCurriculum: '',
+            selectedSubmittedTrack: '',
+            selectedSubmittedStatus: '',
+            showClassInfoModal: false,
+            selectedClassInfo: null,
+            selectedSubject: '',
+            selectedSubject2: '',
         };
-    },
-    watch: {
-        selectedClassSection(newClass) {
-            if (newClass) {
-                this.form.class_id = newClass.Class_ID;
-                this.form.class_name = newClass.Section;
-                this.form.sy_id = newClass.SY_ID;
-            } else {
-                this.form.class_id = '';
-                this.form.class_name = '';
-                this.form.sy_id = '';
-            }
-        },
-        selectedRows(newLRNs) {
-            const allRows = this.dummyTableData[this.enteredIdx] || [];
-
-            // Get the actual row objects based on selected LRNs
-            this.leftSelectedStudents = allRows.filter(row =>
-                newLRNs.includes(row.lrn)
-            );
-
-            // Set student_ids in form using their student_id
-            this.form.student_ids = this.leftSelectedStudents.map(row => row.student_id);
-        },
-        selectedClass(newVal) {
-            this.selectedTrack = newVal ? newVal.Track : '';
-        }
-    },
-    mounted() {
-        this.fetchStudentCounts();
-        this.fetchTeacherSubjects();
-        this.getAllClasses();
-        this.getClassesExcludingIncomplete();
     },
     methods: {
         setTab(tab) {
             this.activeTab = tab;
         },
-        async logForm() {
-            console.log('Form Data:', this.form);
-
-            try {
-                const response = await createClass(this.form);
-                console.log('Class created successfully:', response);
-                // this.$swal.fire('Success', response.message, 'success');
-            } catch (error) {
-                console.error('Failed to create class:', error);
-                // this.$swal.fire('Error', 'Failed to create class.', 'error');
-            }
-        },
-        logSelectedAdviserId() {
-            console.log('Selected Adviser ID:', this.selectedAdviser);
-
-            // If you want to get the adviser object by ID and log more info:
-            const adviser = this.advisers.find(a => a.id === this.selectedAdviser);
-            if (adviser) {
-                console.log('Selected Adviser:', adviser);
+        showBlankView(idx) {
+            if (typeof idx === 'number') {
+                this.enteredGrade = this.grades[idx].mainTitle;
+                this.enteredCurriculum = this.grades[idx].subTitle;
+                this.selectedTrack = '';
+                this.selectedClassSection = '';
+                this.enteredIdx = idx;
+                this.showGrade7Detail = true;
+                this.showBlank = false;
             } else {
-                console.log('Adviser not found');
+                this.showBlank = true;
+                this.showGrade7Detail = false;
             }
-        },
-        logSelectedAdviserSubjectId() {
-            // find subject by name from subjectOptions
-            const subject = this.subjectOptions.find(s => s.name === this.selectedSubject);
-            console.log('Selected Subject Name:', this.selectedSubject);
-            console.log('Selected Subject ID:', subject ? subject.id : 'NOT FOUND');
-        },
-        logTeacherSubjectId() {
-            if (!this.subjectOptions || !Array.isArray(this.subjectOptions)) {
-                console.warn('subjectOptions is not loaded yet');
-                return;
-            }
-            const subject = this.subjectOptions.find(s => s.name === this.teacherEntry.subject);
-            console.log('Selected Teacher Subject Name:', this.teacherEntry.subject);
-            console.log('Selected Teacher Subject ID:', subject ? subject.id : 'NOT FOUND');
-        },
-
-        getTeacherSubjectId(teacherId, subjectId) {
-            const match = this.teachersSubjects.find(
-                item => String(item.teacher_id) === String(teacherId) && String(item.subject_id) === String(subjectId)
-            );
-            console.log('getTeacherSubjectId:', teacherId, subjectId, '=>', match ? match.id : 'NOT FOUND');
-            return match ? match.id : null;
-        },
-        adviserIdByName(name) {
-            // Use the correct array here:
-            const adviser = this.teacherOptions.find(adviser => adviser.name === name);
-            console.log('adviserIdByName:', name, '=>', adviser ? adviser.id : 'NOT FOUND');
-            return adviser ? adviser.id : '';
-        },
-
-        subjectIdByName(name) {
-            const match = this.subjectOptions.find(subject => subject.name === name);
-            console.log('subjectIdByName:', name, '=>', match ? match.id : 'NOT FOUND');
-            return match ? match.id : '';
-        },
-
-        addSubjectTeacher() {
-            this.subjectTeachers.push({ subject: '', teacher: '' });
-        },
-
-        removeSubjectTeacher(index) {
-            this.subjectTeachers.splice(index, 1);
-        },
-        submitFacultyAssignments() {
-            const teacherSubjectIds = [];
-
-            // STEP 1: Adviser teacher_subject_id
-            const adviserId = this.selectedAdviser; // adviser ID
-            const adviserSubject = this.subjectOptions.find(s => s.name === this.selectedSubject);
-            const adviserSubjectId = adviserSubject ? adviserSubject.id : '';
-
-            if (adviserId && adviserSubjectId) {
-                const adviserTeacherSubjectId = this.getTeacherSubjectId(adviserId, adviserSubjectId);
-                if (adviserTeacherSubjectId) {
-                    teacherSubjectIds.push(adviserTeacherSubjectId);
-                } else {
-                    console.error(`No teacher-subject match found for adviserId ${adviserId} and subjectId ${adviserSubjectId}`);
-                }
-            } else {
-                console.error('Adviser ID or Subject ID is missing');
-            }
-
-            // STEP 2: Other subject teachers
-            for (const entry of this.subjectTeachers) {
-                const teacherId = this.adviserIdByName(entry.teacher);
-                const subjectId = this.subjectIdByName(entry.subject);
-
-                if (!teacherId || !subjectId) {
-                    console.error(`Missing teacher or subject ID for "${entry.teacher}" / "${entry.subject}"`);
-                    continue;
-                }
-
-                const teacherSubjectId = this.getTeacherSubjectId(teacherId, subjectId);
-
-                if (teacherSubjectId) {
-                    teacherSubjectIds.push(teacherSubjectId);
-                } else {
-                    console.error(`No match found for teacherId ${teacherId} and subjectId ${subjectId}`);
-                }
-            }
-
-            // Save locally in parent form state
-            this.form.teacher_subject_ids = teacherSubjectIds;
-            this.form.adviser_id = adviserId;   // <--- Save adviserId here
-
-            console.log('Saved locally in form:', this.form);
-
-            // Close the modal
-            this.showAddTeacherModal = false;
-        },
-        async fetchStudentCounts() {
-            try {
-                const response = await getAllAcceptedStudents();
-                const data = response.students;
-                
-                console.log("DATA:", data);
-
-                const gradeCounts = {
-                    'Grade 7': 0,
-                    'Grade 8': 0,
-                    'Grade 9': 0,
-                    'Grade 10': 0,
-                    'Grade 11': 0,
-                    'Grade 12': 0
-                };
-
-                // Initialize grade-based dummyTableData structure
-                const tableDataByGrade = {
-                    'Grade 7': [],
-                    'Grade 8': [],
-                    'Grade 9': [],
-                    'Grade 10': [],
-                    'Grade 11': [],
-                    'Grade 12': []
-                };
-
-                // Process each student
-                data.forEach(student => {
-                    const gradeKey = `Grade ${student.Grade_Level}`;
-                    if (gradeCounts[gradeKey] !== undefined) {
-                        gradeCounts[gradeKey]++;
-
-                        // Add to table data
-                        tableDataByGrade[gradeKey].push({
-                            student_id: student.Student_ID, 
-                            lrn: student.LRN,
-                            name: `${student.FirstName} ${student.MiddleName} ${student.LastName}`.trim(),
-                            gender: student.Sex === 'M' ? 'Male' : 'Female',
-                            age: student.Age,
-                            track: student.Track || 'N/A'
-                        });
-                    }
-                });
-
-                // Update student counts per grade
-                this.grades = this.grades.map(grade => ({
-                    ...grade,
-                    studentCount: `${gradeCounts[grade.mainTitle] || 0} Total Students`
-                }));
-
-                // Assign formatted data to dummyTableData (in order of grades array)
-                this.dummyTableData = this.grades.map(grade => tableDataByGrade[grade.mainTitle] || []);
-
-            } catch (error) {
-                console.error('Failed to fetch students:', error);
-            }
-        },
-        async fetchTeacherSubjects() {
-            console.log('fetchTeacherSubjects started');
-            try {
-                const data = await getAllTeacherSubjects(); // data is directly the array
-
-                this.teachersSubjects = data;
-
-                console.log('Sample item from teacher-subject data:', data[0]);
-
-                // Get unique subjects
-                this.subjectOptions = [...new Set(data.map(item => item.subject))].map(subject => ({
-                    id: subject,  // This is wrong if `subject` is string like "Mathematics"
-                    name: subject
-                }));
-
-                // Get unique adviser names
-                const uniqueAdvisers = [];
-                const adviserSet = new Set();
-
-                console.log('TeachersSubjects:', this.teachersSubjects);
-
-                for (const item of data) {
-                    if (!adviserSet.has(item.teacher_name)) {
-                        adviserSet.add(item.teacher_name);
-                        uniqueAdvisers.push({
-                            id: item.teacher_id,
-                            name: item.teacher_name
-                        });
-                    }
-                }
-
-                this.advisers = uniqueAdvisers;
-
-                console.log('Advisers:', this.advisers); // Now advisers will show the correct array
-
-
-            } catch (error) {
-                console.error('Error fetching teacher-subject mappings:', error);
-            }
-        },
-        async getAllClasses() {
-            console.log('getAllClasses started');
-            try {
-                const data = await getAllClasses();
-                this.classes = data;
-                console.log("CLASSES ARE12:", this.classes);
-            } catch (err) {
-                this.error = 'Failed to load classes.';
-                console.error(err);
-            } finally {
-                this.loading = false;
-            }
-        },
-        async getClassesExcludingIncomplete() {
-            try {
-                const data = await getClassesExcludingIncomplete(); // API call
-
-                this.superClasses = data.map(c => {
-                    const firstStudentClass = c.student_classes[0]; // First entry for adviser data
-                    const adviser = firstStudentClass?.adviser
-                        ? `${firstStudentClass.adviser.LastName}, ${firstStudentClass.adviser.FirstName} ${firstStudentClass.adviser.MiddleName ?? ''}`.trim()
-                        : 'Not assigned';
-
-                    return {
-                        grade: c.Grade_Level,
-                        curriculum: c.Curriculum ?? 'N/A',
-                        track: c.Track ?? 'N/A',
-                        section: c.Section ?? 'N/A',
-                        adviser,
-                        students: c.student_classes_count ?? 0,
-                        date: new Date(c.created_at).toLocaleDateString(),
-                        status: c.Status,
-                    };
-                });
-            } catch (error) {
-                console.error('Failed to fetch class data:', error);
-            }
-        },
-
-        getTeachersBySubjectName(subject) {
-            return this.teachersSubjects
-                .filter(item => item.subject === subject)
-                .map(item => ({
-                    id: item.teacher_id,
-                    name: item.teacher_name
-                }));
-        },
-
-        // Get subjects for a selected teacher
-        getSubjectsByTeacherName(teacherName) {
-            return this.teachersSubjects
-                .filter(item => item.teacher_name === teacherName)
-                .map(item => item.subject);
         },
         handleEnter(idx) {
             this.showBlankView(idx);
@@ -821,6 +732,10 @@ export default {
             this.selectedAdviser = '';
             this.selectedSubjectAdviser = '';
         },
+        adviserIdByName(name) {
+            const adviser = this.advisers.find(a => a.name === name);
+            return adviser ? adviser.id : '';
+        },
         openClassInfoModal(row) {
             this.selectedClassInfo = row;
             this.showClassInfoModal = true;
@@ -829,31 +744,17 @@ export default {
             this.showClassInfoModal = false;
             this.selectedClassInfo = null;
         },
-        showBlankView(idx) {
-            if (typeof idx === 'number') {
-                this.enteredGrade = this.grades[idx].mainTitle;
-                this.enteredCurriculum = this.grades[idx].subTitle;
-                this.selectedTrack = '';
-                this.selectedClassSection = '';
-                this.enteredIdx = idx;
-                this.showGrade7Detail = true;
-                this.showBlank = false;
-            } else {
-                this.showBlank = true;
-                this.showGrade7Detail = false;
-            }
-        },
-        
     },
-
     computed: {
         filteredTableData() {
-            let filteredData = this.dummyTableData[this.enteredIdx] || [];
+            let filteredData = this.dummyTableData[this.enteredIdx];
 
-            if (this.rightGender && this.rightGender !== "All") {
+            // Apply gender filter
+            if (this.rightGender && this.rightGender !== "" && this.rightGender !== "All") {
                 filteredData = filteredData.filter(row => row.gender === this.rightGender);
             }
 
+            // Apply search filter
             if (this.rightSearch) {
                 const searchTerm = this.rightSearch.toLowerCase();
                 filteredData = filteredData.filter(row =>
@@ -865,76 +766,42 @@ export default {
             return filteredData;
         },
         filteredLeftTableData() {
-            if (!this.leftSex) return this.leftSelectedStudents;
-            return this.leftSelectedStudents.filter(row => row.gender === (this.leftSex === 'M' ? 'Male' : 'Female'));
-        },
-        subjectOptions() {
-            const uniqueSubjects = new Map();
-            this.teachersSubjects.forEach(item => {
-                if (!uniqueSubjects.has(item.subject.Subject_ID)) {
-                    uniqueSubjects.set(item.subject.Subject_ID, item.subject);
-                }
-            });
-            return Array.from(uniqueSubjects.values()).map(subject => ({
-                id: subject.Subject_ID,
-                name: subject.SubjectName
-            }));
-        },
-        advisers() {
-            if (!this.teachersSubjects || !this.teachersSubjects.length) return [];
-
-            const unique = new Map();
-
-            this.teachersSubjects.forEach(item => {
-                const teacher = item.teacher;
-                if (teacher && !unique.has(item.teacher_id)) {
-                    const fullName = `${teacher.FirstName} ${teacher.LastName}`;
-                    unique.set(item.teacher_id, { id: item.teacher_id, name: fullName });
-                }
-            });
-
-            return Array.from(unique.values());
-        },
-        teacherOptions() {
-            const unique = new Map();
-
-            this.teachersSubjects.forEach(item => {
-                const teacher = item.teacher;
-                if (teacher && !unique.has(item.teacher_id)) {
-                    const fullName = `${teacher.FirstName} ${teacher.LastName}`;
-                    unique.set(item.teacher_id, {
-                        id: item.teacher_id,
-                        name: fullName
-                    });
-                }
-            });
-
-            return Array.from(unique.values());
-        },
-        selectedAdviserEmployeeNo() {
-            if (!this.selectedAdviser) return '';
-            const teacherSubject = this.teachersSubjects.find(
-                item => item.teacher_id === this.selectedAdviser
-            );
-            return teacherSubject?.teacher?.EmployeeNo || '';
-        },
-        filteredClassesByGrade() {
-            if (!this.enteredGrade) {
-                return [];
+            let filteredData = this.dummyTableData[this.enteredIdx];
+            if (this.leftSex && this.leftSex !== "") {
+                filteredData = filteredData.filter(row => row.gender === this.leftSex);
             }
-            // Remove 'Grade ' prefix if present, e.g. "Grade 7" -> "7"
-            const gradeNumber = this.enteredGrade.replace(/^Grade\s*/, '');
-
-            console.log("GRADE ENTERED:", gradeNumber);
-            // filter classes where Grade_Level equals cleaned gradeNumber
-            return this.classes.filter(c => c.Grade_Level === gradeNumber);
+            return filteredData;
         },
-        selectedClass() {
-            return this.selectedClassSection || null;
-        }
-     
+        filteredSubmittedRows() {
+            const selectedGrade = typeof this.selectedSubmittedGrade === 'object' ? this.selectedSubmittedGrade?.value : this.selectedSubmittedGrade;
+            const selectedCurriculum = typeof this.selectedSubmittedCurriculum === 'object' ? this.selectedSubmittedCurriculum?.value : this.selectedSubmittedCurriculum;
+            const selectedTrack = typeof this.selectedSubmittedTrack === 'object' ? this.selectedSubmittedTrack?.value : this.selectedSubmittedTrack;
+            const selectedStatus = typeof this.selectedSubmittedStatus === 'object' ? this.selectedSubmittedStatus?.value : this.selectedSubmittedStatus;
+            const search = this.rightSearch ? this.rightSearch.toLowerCase() : '';
 
-
-    }
+            return this.submittedRows.filter(row => {
+                const gradeMatch = !selectedGrade || row.grade === selectedGrade;
+                const curriculumMatch = !selectedCurriculum || row.curriculum === selectedCurriculum;
+                const trackMatch = !selectedTrack || row.track === selectedTrack;
+                const statusMatch = !selectedStatus || row.status === selectedStatus;
+                const searchMatch = !search ||
+                    row.curriculum.toLowerCase().includes(search) ||
+                    row.track.toLowerCase().includes(search) ||
+                    row.section.toLowerCase().includes(search) ||
+                    row.adviser.toLowerCase().includes(search);
+                return gradeMatch && curriculumMatch && trackMatch && statusMatch && searchMatch;
+            });
+        },
+        allRowsSelected() {
+            return this.selectedRows.length === this.filteredTableData.length;
+        },
+        toggleSelectAll() {
+            if (this.allRowsSelected) {
+                this.selectedRows = this.filteredTableData.map(row => row.lrn);
+            } else {
+                this.selectedRows = [];
+            }
+        },
+    },
 };
 </script>

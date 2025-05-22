@@ -295,31 +295,13 @@
 import { ref, reactive, computed, onMounted, watch } from 'vue'
 import Dropdown from '@/components/dropdown.vue'
 import Searchbar from '@/components/searchbar.vue'
-import { getAllStudents, createStudent, bulkRegisterStudents } from '@/service/studentService'
-import { useToast } from 'vue-toastification'
-
-function calculateAge(birthdate) {
-  if (!birthdate) return ''
-  const today = new Date()
-  const birth = new Date(birthdate)
-  let age = today.getFullYear() - birth.getFullYear()
-  const m = today.getMonth() - birth.getMonth()
-  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
-    age--
-  }
-  return age
-}
-
-
- 
+import { getAllStudents, createStudent } from '@/service/studentService'
 // ===================== TAB STATE =====================
 const tabs = [
     { label: 'Add Student', value: 'add' },
     { label: 'Submitted', value: 'submitted' },
 ]
-
 const activeTab = ref('add')
-const toast = useToast()
 
 onMounted(async () => {
   try {
@@ -349,9 +331,9 @@ onMounted(async () => {
 // ===================== FORM FIELD DEFINITIONS =====================
 const addStudentFields = [
     // Row 1: Basic academic info
-    { name: 'Grade_Level', label: 'Grade Level', type: 'select', placeholder: 'Select Grade Level', options: ['7', '8', '9', '10', '11', '12'], required: true, row: 1 },
-    { name: 'Curriculum', label: 'Curriculum', type: 'select', placeholder: 'Select Curriculum', options: ['SHS', 'JHS'], required: true, row: 1 },
-    { name: 'Track', label: 'Track', type: 'select', placeholder: 'Select Track', options: ['HUMSS', 'TVL', 'SPJ', 'SPA', 'BEP'], required: true, row: 1 },
+    { name: 'Grade_Level', label: 'Grade Level', type: 'select', placeholder: 'Select Grade Level', options: ['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'], required: true, row: 1 },
+    { name: 'Curriculum', label: 'Curriculum', type: 'select', placeholder: 'Select Curriculum', options: [], required: true, row: 1 },
+    { name: 'Track', label: 'Track', type: 'select', placeholder: 'Select Track', options: [], required: true, row: 1 },
     { name: 'LRN', label: 'LRN', type: 'text', required: true, row: 1 },
     // Row 2: Personal info
     { name: 'LastName', label: 'Last Name', type: 'text', placeholder: 'Last Name', required: true, row: 2 },
@@ -421,10 +403,6 @@ watch(() => formData.Grade_Level, (newValue) => {
   }
 })
 
-watch(() => formData.BirthDate, (newDate) => {
-  formData.Age = calculateAge(newDate)
-})
-
 async function handleAddStudentSubmit() {
     try {
         const dataToSend = JSON.parse(JSON.stringify(formData))
@@ -451,58 +429,44 @@ async function handleAddStudentSubmit() {
 
         // Reset form
         Object.keys(formData).forEach(key => (formData[key] = ''))
-        toast.success('Student added successfully!')
     } catch (error) {
         console.error('Error adding student:', error)
-        toast.error('Failed to add student. Please try again.')
     }
 }
 
 
 
 // ===================== BULK REGISTRATION STATE =====================
+const bulkFormData = reactive({
+    gradeLevel: '',
+    curriculum: '',
+    track: '',
+})
+const fileInput = ref(null)
+const selectedFile = ref(null)
 
-const bulkFormData = ref({
-    gradeLevel: "",
-    curriculum: "",
-    track: ""
-});
+function handleFileUpload(event) {
+    const file = event.target.files[0]
+    if (file && file.type === 'text/csv') {
+        selectedFile.value = file
+    } else {
+        alert('Please upload a valid CSV file')
+        if (fileInput.value) fileInput.value.value = ''
+        selectedFile.value = null
+    }
+}
 
-const selectedFile = ref(null);
-const fileInput = ref(null);
-
-const handleFileUpload = (event) => {
-    selectedFile.value = event.target.files[0];
-};
-
-const handleBulkSubmit = async () => {
+async function handleBulkSubmit() {
     if (!selectedFile.value) {
-        alert("Please select a CSV file.");
-        return;
+        alert('Please upload a CSV file')
+        return
     }
-
-    const formData = new FormData();
-    formData.append("csv_file", selectedFile.value);
-    formData.append("gradeLevel", bulkFormData.value.gradeLevel);
-    formData.append("curriculum", bulkFormData.value.curriculum);
-    formData.append("track", bulkFormData.value.track);
-
-    try {
-        const response = await bulkRegisterStudents(formData);
-        toast.success('Students added successfully!')
-        // Reset form
-        bulkFormData.value = {
-            gradeLevel: "",
-            curriculum: "",
-            track: ""
-        };
-        selectedFile.value = null;
-        fileInput.value.value = ""; // reset the actual input
-    } catch (error) {
-        toast.error(error.message || "Bulk registration failed.");
-        console.log(error.message);
-    }
-};
+    bulkFormData.gradeLevel = ''
+    bulkFormData.curriculum = ''
+    bulkFormData.track = ''
+    selectedFile.value = null
+    if (fileInput.value) fileInput.value.value = ''
+}
 
 // ===================== FILTERS & SEARCH FOR SUBMITTED STUDENTS =====================
 const selectedGrade = ref('')
@@ -522,79 +486,35 @@ const filteredStudents = computed(() => {
 // ===================== MODAL FOR VIEWING/EDITING STUDENT =====================
 const showModal = ref(false)
 const selectedStudent = ref(null)
-
-// Create reactive modalFormData with initial keys from addStudentFields
 const modalFormData = reactive(Object.fromEntries(addStudentFields.map(f => [f.name, ''])))
-
 const isEditing = ref(false)
 const comment = ref('')
 
 function openModal(student) {
-    showModal.value = true;
-    isEditing.value = false;
-
-    const original = student.original;
-
-    // Reset modalFormData before filling
-    for (const key in modalFormData) {
-        modalFormData[key] = original[key] ?? '';
-    }
-
-    // === Map backend values to display-friendly values ===
-    if (original.Sex === 'M') modalFormData.Sex = 'Male';
-    else if (original.Sex === 'F') modalFormData.Sex = 'Female';
-
-    if (original.Curriculum === 'JHS') {
-        modalFormData.Curriculum = 'Junior High School';
-    } else if (original.Curriculum === 'SHS') {
-        modalFormData.Curriculum = 'Senior High School';
-    }
-
-    // Convert "7" ➝ "Grade 7"
-    if (original.Grade_Level) {
-        modalFormData.Grade_Level = `Grade ${original.Grade_Level}`;
-    }
-
-    // === Set curriculum options ===
-    const curriculumField = addStudentFields.find(f => f.name === 'Curriculum');
-    if (curriculumField) {
-        curriculumField.options = ['Junior High School', 'Senior High School'];
-    }
-
-    // === Set track options ===
-    const curriculum = modalFormData.Curriculum;
-    const trackField = addStudentFields.find(f => f.name === 'Track');
-    if (trackField) {
-        trackField.options = trackOptions[curriculum] || [];
-    }
+    selectedStudent.value = student
+    isEditing.value = false
+    Object.keys(modalFormData).forEach(key => { modalFormData[key] = '' })
+    Object.keys(modalFormData).forEach(key => {
+        if (student[key] !== undefined) modalFormData[key] = student[key]
+    })
+    comment.value = student.comment || ''
+    showModal.value = true
 }
 
-
-// ✅ Called when user cancels/close modal
 function closeModal() {
     showModal.value = false
     selectedStudent.value = null
     isEditing.value = false
     comment.value = ''
-
-    // Clear form data
-    Object.keys(modalFormData).forEach(key => {
-        modalFormData[key] = ''
-    })
 }
 
-// ✅ Enables form editing
 function startEditing() {
     isEditing.value = true
 }
 
-// ✅ Handles updating student data
 function handleUpdateStudent() {
     if (!selectedStudent.value) return
-
-    // Locate the student by LRN and update in the source list
     const index = students.value.findIndex(s => s.lrn === modalFormData.lrn)
-
     if (index !== -1) {
         students.value[index] = {
             ...students.value[index],
@@ -605,9 +525,7 @@ function handleUpdateStudent() {
     } else {
         alert('Error: Student record not found!')
     }
-
     isEditing.value = false
     closeModal()
 }
-
 </script>

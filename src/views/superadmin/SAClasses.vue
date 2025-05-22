@@ -1,429 +1,361 @@
 <template>
-    <div class="w-full">
-        <h1 class="text-5xl font-bold mb-6">Classes</h1>
-
-        <div class="bg-white shadow-lg border border-gray-200 rounded-lg p-6 mb-6 flex flex-col" style="height: 865px;">
-           <div class="flex flex-wrap justify-between items-center mb-4 gap-4">
-            <!-- Filters on the left -->
-                <div class="filters flex-wrap">
-                    <select class="filter-dropdown" v-model="filters.grade" @change="handleChange">
-                    <option value="">Grades (All)</option>
-                    <option v-for="grade in uniqueGrades" :key="grade" :value="grade">{{ grade }}</option>
-                    </select>
-
-                    <select class="filter-dropdown" v-model="filters.curriculum" @change="handleChange">
-                    <option value="">Curriculums (All)</option>
-                    <option v-for="curriculum in uniqueCurriculums" :key="curriculum" :value="curriculum">{{ curriculum }}</option>
-                    </select>
-
-                    <select class="filter-dropdown" v-model="filters.track" @change="handleChange">
-                    <option value="">Tracks (All)</option>
-                    <option v-for="track in uniqueTracks" :key="track" :value="track">{{ track }}</option>
-                    </select>
-
-                    <select class="filter-dropdown" v-model="filters.status" @change="handleChange">
-                    <option value="">Status (All)</option>
-                    <option v-for="status in uniqueStatuses" :key="status" :value="status">{{ status }}</option>
-                    </select>
-                </div>
-
-                <!-- Search bar on the right -->
-                <div class="search-bar" style="position: relative; min-width: 200px; max-width: 300px; flex-shrink: 0;">
-                    <input
-                    type="text"
-                    placeholder="Search..."
-                    v-model="searchQuery"
-                    @input="handleChange"
-                    style="padding-left: 30px; width: 100%;"
-                    />
-                    <i class="fa fa-search" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #888;"></i>
-                </div>
-            </div>
-
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                        <th class="border-b border-gray-300"></th>
-                        <th class="border-b border-gray-300">Grade Level</th>
-                        <th class="border-b border-gray-300">Curriculum</th>
-                        <th class="border-b border-gray-300">Track</th>
-                        <th class="border-b border-gray-300">Class Section</th>
-                        <th class="border-b border-gray-300">Class Advisory</th>
-                        <th class="border-b border-gray-300">Student Added</th>
-                        <th class="border-b border-gray-300">Date Added</th>
-                        <th class="border-b border-gray-300">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="personnel in paginatedPersonnel" :key="personnel.section + personnel.adviser">
-                            <td class="px-6 py-4 border-b border-gray-300"><input type="checkbox" /></td>
-                            <td class="px-6 py-4 border-b border-gray-300">{{ personnel.grade }}</td>
-                            <td class="px-6 py-4 border-b border-gray-300">{{ personnel.curriculum }}</td>
-                            <td class="px-6 py-4 border-b border-gray-300">{{ personnel.track }}</td>
-                            <td class="px-6 py-4 border-b border-gray-300">{{ personnel.section }}</td>
-                            <td class="px-6 py-4 border-b border-gray-300">{{ personnel.adviser }}</td>
-                            <td class="px-6 py-4 border-b border-gray-300">{{ personnel.student }}</td>
-                            <td class="px-6 py-4 border-b border-gray-300">{{ personnel.date }}</td>
-                            <td class="px-6 py-4 border-b border-gray-300">
-                                <span :class="statusClass(personnel.status)">
-                                    {{ personnel.status }}
-                                </span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-        <div class="button">
-            <button class="red">Reject</button>
-            <button class="green">Accept</button>
-        </div>
-
-            <div class="flex justify-center items-center mt-4 space-x-1 pt-4 border-t border-gray-300">
-                <button
-                    class="px-3 border border-[#295F98] text-[#295F98] py-1 rounded w-28 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex items-center justify-center gap-1 cursor-pointer"
-                    @click="prevPage"
-                    :disabled="currentPage === 1"
-                >
-                    ← Previous
-                </button>
-                
-                <button
-                    v-for="page in totalPages"
-                    :key="page"
-                    class="py-1 border border-[#295F98] rounded w-10 text-center"
-                    :class="[
-                        page === currentPage ? 'bg-[#295F98] text-white' : 'text-gray-600',
-                        page === '...' ? 'cursor-default' : 'cursor-pointer',
-                        currentPage === page ? 'active' : '',
-                    ]"
-                    @click="page !== '...' && (currentPage = page)"
-                >
-                    {{ page }}
-                </button>
-                
-                <button
-                    class="px-3 border border-[#295F98] text-[#295F98] py-1 rounded w-28 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex items-center justify-center gap-1 cursor-pointer"
-                    @click="nextPage"
-                    :disabled="currentPage === totalPages"
-                >
-                    Next →
-                </button>
-            </div>
-            
-        </div>
+  <div class="container">
+    <div class="nav-title">
+      <h1>Personnel Setup</h1>
     </div>
+
+    <div class="content">
+      <div class="filtering-section">
+
+        <div class="filter">
+          <Dropdown
+            :showStatus="true"
+            @update:selectedStatus="selectedStatus = $event"
+          />
+
+          <Dropdown
+            :showGrade="true"
+            @update:selectedGrade="selectedGrade = $event"
+          />
+
+          <Dropdown
+            :showCurriculum="true"
+            @update:selectedCurriculum="selectedCurriculum = $event"
+          />
+
+          <Dropdown
+            :showTrack="true"
+            @update:selectedTrack="selectedTrack = $event"
+          />
+        </div>
+
+        <div class="search-bar">
+          <input type="text" v-model="searchQuery" placeholder="Search..." />
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th>GRADE LEVEL</th>
+              <th>CURRICULUM</th>
+              <th>TRACK</th>
+              <th>CLASS SECTION</th>
+              <th>CLASS ADVISER</th>
+              <th>STUDENT ADDED</th>
+              <th>DATE ADDED</th>
+              <th>STATUS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="personnel in paginatedPersonnel"
+              :key="personnel.employee"
+            >
+              <td>
+                <input type="checkbox" />
+              </td>
+              <td>{{ personnel.grade }}</td>
+              <td>{{ personnel.curriculum }}</td>
+              <td>{{ personnel.track }}</td>
+              <td>{{ personnel.section }}</td>
+              <td>{{ personnel.adviser }}</td>
+              <td>{{ personnel.student }}</td>
+              <td>{{ personnel.date }}</td>
+              <td>{{ personnel.status }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Modal: conditionally rendered -->
+    <Modal v-if="showModal" @close="showModal = false" />
+
+    <div class="pagination">
+      <button @click="prevPage" :disabled="currentPage === 1">
+        ← Previous
+      </button>
+      <button
+        v-for="page in totalPages"
+        :key="page"
+        @click="currentPage = page"
+        :class="{ active: currentPage === page }"
+      >
+        {{ page }}
+      </button>
+      <button @click="nextPage" :disabled="currentPage === totalPages">
+        Next →
+      </button>
+    </div>
+  </div>
+  <br />
 </template>
 
 <script>
-import { getClassesWithStudentCount } from "@/service/superadminService";
+  import Dropdown from '@/SAcomponents/SAdropdown.vue';
+  import Buttons from '@/SAcomponents/SAButtons.vue';
+  import Modal from '@/SAcomponents/SAmodal.vue';
 
-export default {
-  data() {
-    return {
-      rawClasses: [],
-      currentPage: 1,
-      itemsPerPage: 10,
-      searchQuery: "",
-      filters: {
-        grade: "",
-        curriculum: "",
-        track: "",
-        status: "",
-      },
-    };
-  },
-  computed: {
-    personnel() {
-      return this.rawClasses
-        .map(item => ({
-          grade: item.Grade_Level,
-          curriculum: item.Curriculum,
-          track: item.Track,
-          section: item.Section,
-          adviser: item.adviser
-          ? `${item.adviser.FirstName} ${item.adviser.MiddleName} ${item.adviser.LastName}`
-          : "N/A",
-          student: item.student_added ?? 0,
-          date: new Date(item.created_at).toLocaleDateString(),
-          status: item.Status,
-        }))
-        .filter(item => {
-          const matchesGrade = this.filters.grade ? item.grade === this.filters.grade : true;
-          const matchesCurriculum = this.filters.curriculum ? item.curriculum === this.filters.curriculum : true;
-          const matchesTrack = this.filters.track ? item.track === this.filters.track : true;
-          const matchesStatus = this.filters.status ? item.status === this.filters.status : true;
-          const matchesSearch = Object.values(item).some(val =>
-            String(val).toLowerCase().includes(this.searchQuery.toLowerCase())
-          );
-          return matchesGrade && matchesCurriculum && matchesTrack && matchesStatus && matchesSearch;
+  export default {
+    components: {
+      Dropdown,
+      Buttons,
+      Modal,
+    },
+    data() {
+      return {
+        selectedAccess: '',
+        searchQuery: '',
+        showModal: false,
+personnel: [
+  /*   1 */ { grade: 7,  curriculum: "K-12", track: "STEM",   section: "A",  adviser: "Mr. Alvin Cruz",        student: 32, date: "2024-06-03", status: "Active"  },
+  /*   2 */ { grade: 7,  curriculum: "BEC",  track: "ABM",    section: "B",  adviser: "Ms. Bianca Reyes",      student: 29, date: "2024-06-04", status: "Active"  },
+  /*   3 */ { grade: 7,  curriculum: "SPED",track: "TVL",    section: "C",  adviser: "Mr. Carlo Santos",      student: 24, date: "2024-05-30", status: "Inactive"},
+  /*   4 */ { grade: 7,  curriculum: "K-12",track: "HUMSS",  section: "D",  adviser: "Mrs. Dana Vicente",     student: 28, date: "2024-06-01", status: "Active"  },
+
+  /*   5 */ { grade: 8,  curriculum: "K-12",track: "STEM",   section: "A",  adviser: "Mr. Edgar Ramos",       student: 31, date: "2024-06-02", status: "Active"  },
+  /*   6 */ { grade: 8,  curriculum: "BEC", track: "ABM",    section: "B",  adviser: "Ms. Faith Molina",      student: 26, date: "2024-06-05", status: "Inactive"},
+  /*   7 */ { grade: 8,  curriculum: "SPED",track: "TVL",    section: "C",  adviser: "Mr. Gary Flores",       student: 27, date: "2024-05-28", status: "Active"  },
+  /*   8 */ { grade: 8,  curriculum: "K-12",track: "HUMSS",  section: "D",  adviser: "Mrs. Hazel Abad",       student: 30, date: "2024-05-31", status: "Active"  },
+
+  /*   9 */ { grade: 9,  curriculum: "K-12",track: "STEM",   section: "A",  adviser: "Mr. Ivan Torres",       student: 33, date: "2024-06-03", status: "Inactive"},
+  /*  10 */ { grade: 9,  curriculum: "BEC", track: "ABM",    section: "B",  adviser: "Ms. Jane Lim",          student: 25, date: "2024-06-04", status: "Active"  },
+  /*  11 */ { grade: 9,  curriculum: "SPED",track: "TVL",    section: "C",  adviser: "Mr. Kent Navarro",      student: 23, date: "2024-06-01", status: "Active"  },
+  /*  12 */ { grade: 9,  curriculum: "K-12",track: "HUMSS",  section: "D",  adviser: "Mrs. Liza Bautista",    student: 30, date: "2024-05-29", status: "Inactive"},
+
+  /*  13 */ { grade: 10, curriculum: "K-12",track: "STEM",   section: "A",  adviser: "Mr. Mark Sevilla",      student: 34, date: "2024-06-02", status: "Active"  },
+  /*  14 */ { grade: 10, curriculum: "BEC", track: "ABM",    section: "B",  adviser: "Ms. Nica Herrera",      student: 28, date: "2024-06-05", status: "Active"  },
+  /*  15 */ { grade: 10, curriculum: "SPED",track: "TVL",    section: "C",  adviser: "Mr. Oscar Dizon",       student: 26, date: "2024-05-30", status: "Inactive"},
+  /*  16 */ { grade: 10, curriculum: "K-12",track: "HUMSS",  section: "D",  adviser: "Mrs. Paula Gomez",      student: 29, date: "2024-05-31", status: "Active"  },
+
+  /*  17 */ { grade: 11, curriculum: "K-12",track: "STEM",   section: "A",  adviser: "Mr. Quinn Rivera",      student: 35, date: "2024-06-03", status: "Active"  },
+  /*  18 */ { grade: 11, curriculum: "BEC", track: "ABM",    section: "B",  adviser: "Ms. Rina Alvarez",      student: 30, date: "2024-06-04", status: "Inactive"},
+  /*  19 */ { grade: 11, curriculum: "SPED",track: "TVL",    section: "C",  adviser: "Mr. Simon Velasco",     student: 22, date: "2024-06-01", status: "Active"  },
+  /*  20 */ { grade: 11, curriculum: "K-12",track: "HUMSS",  section: "D",  adviser: "Mrs. Tina Cuevas",      student: 31, date: "2024-05-29", status: "Active"  },
+
+  /*  21 */ { grade: 11, curriculum: "K-12",track: "STEM",   section: "E",  adviser: "Ms. Uma Magno",         student: 28, date: "2024-06-06", status: "Active"  },
+  /*  22 */ { grade: 11, curriculum: "BEC", track: "ABM",    section: "F",  adviser: "Mr. Vince Carreon",     student: 27, date: "2024-06-07", status: "Inactive"},
+  /*  23 */ { grade: 11, curriculum: "SPED",track: "TVL",    section: "G",  adviser: "Ms. Wendy Perez",       student: 24, date: "2024-06-03", status: "Active"  },
+  /*  24 */ { grade: 11, curriculum: "K-12",track: "HUMSS",  section: "H",  adviser: "Mr. Xavier Uy",         student: 32, date: "2024-06-02", status: "Active"  },
+
+  /*  25 */ { grade: 12, curriculum: "K-12",track: "STEM",   section: "A",  adviser: "Ms. Yna De Guzman",     student: 36, date: "2024-06-04", status: "Active"  },
+  /*  26 */ { grade: 12, curriculum: "BEC", track: "ABM",    section: "B",  adviser: "Mr. Zach Lopez",        student: 29, date: "2024-06-05", status: "Inactive"},
+  /*  27 */ { grade: 12, curriculum: "SPED",track: "TVL",    section: "C",  adviser: "Ms. Abby Soriano",      student: 25, date: "2024-06-01", status: "Active"  },
+  /*  28 */ { grade: 12, curriculum: "K-12",track: "HUMSS",  section: "D",  adviser: "Mr. Ben Santos",        student: 30, date: "2024-05-30", status: "Active"  },
+
+  /*  29 */ { grade: 12, curriculum: "K-12",track: "STEM",   section: "E",  adviser: "Mrs. Carla Ramos",      student: 33, date: "2024-06-06", status: "Active"  },
+  /*  30 */ { grade: 12, curriculum: "BEC", track: "ABM",    section: "F",  adviser: "Mr. Derek Sison",       student: 28, date: "2024-06-07", status: "Inactive"},
+  /*  31 */ { grade: 12, curriculum: "SPED",track: "TVL",    section: "G",  adviser: "Ms. Ella Villanueva",   student: 26, date: "2024-06-03", status: "Active"  },
+  /*  32 */ { grade: 12, curriculum: "K-12",track: "HUMSS",  section: "H",  adviser: "Mr. Felix Robles",      student: 31, date: "2024-06-02", status: "Active"  },
+
+  /*  33 */ { grade: 9,  curriculum: "K-12",track: "STEM",   section: "E",  adviser: "Ms. Gail Vallar",       student: 28, date: "2024-06-08", status: "Inactive"},
+  /*  34 */ { grade: 10, curriculum: "BEC", track: "ABM",    section: "E",  adviser: "Mr. Hugo Reyes",        student: 27, date: "2024-06-09", status: "Active"  },
+  /*  35 */ { grade: 8,  curriculum: "SPED",track: "TVL",    section: "E",  adviser: "Ms. Iris Villa",        student: 23, date: "2024-06-10", status: "Inactive"},
+  /*  36 */ { grade: 7,  curriculum: "K-12",track: "HUMSS",  section: "E",  adviser: "Mr. Jake Santos",       student: 29, date: "2024-06-05", status: "Active"  },
+
+  /*  37 */ { grade: 10, curriculum: "K-12",track: "STEM",   section: "F",  adviser: "Mrs. Kara Del Rosario", student: 30, date: "2024-06-06", status: "Active"  },
+  /*  38 */ { grade: 11, curriculum: "BEC", track: "ABM",    section: "I",  adviser: "Mr. Leo Ramos",         student: 28, date: "2024-06-07", status: "Inactive"},
+  /*  39 */ { grade: 7,  curriculum: "SPED",track: "TVL",    section: "F",  adviser: "Ms. Mona Cruz",         student: 24, date: "2024-06-08", status: "Active"  },
+  /*  40 */ { grade: 9,  curriculum: "K-12",track: "HUMSS",  section: "F",  adviser: "Mr. Noel Pascual",      student: 30, date: "2024-06-09", status: "Active"  }
+],
+        currentPage: 1,
+        itemsPerPage: 20,
+      };
+    },
+    computed: {
+      filteredPersonnel() {
+        const searchLower = this.searchQuery.toLowerCase();
+        return this.personnel.filter((person) => {
+          const matchesSearch =
+            !this.searchQuery ||
+            person.name.toLowerCase().includes(searchLower) ||
+            person.employee.toLowerCase().includes(searchLower);
+
+          const matchesAccess =
+            this.selectedAccess === '' ||
+            this.selectedAccess === 'All' ||
+            person.access === this.selectedAccess;
+
+          return matchesSearch && matchesAccess;
         });
+      },
+      totalPages() {
+        return Math.ceil(this.filteredPersonnel.length / this.itemsPerPage);
+      },
+      paginatedPersonnel() {
+        const start = (this.currentPage - 1) * this.itemsPerPage;
+        return this.filteredPersonnel.slice(start, start + this.itemsPerPage);
+      },
     },
-    paginatedPersonnel() {
-      const start = (this.currentPage - 1) * this.itemsPerPage;
-      return this.personnel.slice(start, start + this.itemsPerPage);
+    methods: {
+      prevPage() {
+        if (this.currentPage > 1) {
+          this.currentPage--;
+        }
+      },
+      nextPage() {
+        if (this.currentPage < this.totalPages) {
+          this.currentPage++;
+        }
+      },
+      handleOpenModal() {
+        this.showModal = true;
+      },
     },
-    totalPages() {
-      return Math.ceil(this.personnel.length / this.itemsPerPage);
-    },
-    uniqueGrades() {
-      return [...new Set(this.rawClasses.map(c => c.Grade_Level).filter(Boolean))];
-    },
-    uniqueCurriculums() {
-      return [...new Set(this.rawClasses.map(c => c.Curriculum).filter(Boolean))];
-    },
-    uniqueTracks() {
-      return [...new Set(this.rawClasses.map(c => c.Track).filter(Boolean))];
-    },
-    uniqueStatuses() {
-      return [...new Set(this.rawClasses.map(c => c.Status).filter(Boolean))];
-    },
-  },
-  methods: {
-    async fetchClasses() {
-      try {
-        const data = await getClassesWithStudentCount();
-        this.rawClasses = data;
-      } catch (error) {
-        console.error("Failed to fetch classes:", error);
-      }
-    },
-    handleChange() {
-      this.currentPage = 1;
-    },
-    prevPage() {
-      if (this.currentPage > 1) this.currentPage--;
-    },
-    nextPage() {
-      if (this.currentPage < this.totalPages) this.currentPage++;
-    },
-    statusClass(status) {
-      switch (status?.toLowerCase()) {
-        case "active":
-          return "text-green-600 font-semibold";
-        case "inactive":
-          return "text-red-600 font-semibold";
-        default:
-          return "text-gray-600 font-semibold";
-      }
-    },
-  },
-  mounted() {
-    this.fetchClasses();
-  },
-};
+  };
 </script>
 
-
-
-
-
 <style scoped>
-.container {
-  width: 125%;
-  padding: 10px;
-  box-sizing: border-box;
-}
+  .container {
+    width: 125%;
+    padding: 10px;
+    box-sizing: border-box;
+  }
 
+  .content {
+    background-color: #ffffff;
+    box-shadow:
+      rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+      rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+    padding: 30px 30px;
+    border-radius: 5px;
+  }
 
-.nav-title h1 {
-  color: #295f98;
-  font-weight: bold;
-  font-size: 48px;
-  padding: 0;
-  margin: 0;
-}
+  .nav-title h1 {
+    color: #295f98;
+    font-weight: bold;
+    font-size: 48px;
+    padding: 0;
+    margin: 0;
+  }
 
-.filters {
+  .filtering-section {
+    display: flex;
+    justify-content: space-between;
+    border-radius: 5px;
+    margin-bottom: 20px;
+  }
+
+  .filter {
     display: flex;
     gap: 20px;
-    flex-wrap: nowrap;
     align-items: center;
-    margin-left: 15px;
-}
+  }
 
-.filter-dropdown {
-  padding: 10px 15px;
-  width: 210px;
-  border: 1px solid #295f98;
-  border-radius: 5px;
-  font-size: 14px;
-  background: #fff;
-  font-weight: bold;
-  color: #295f98;
-  cursor: pointer;
-  appearance: none;
-  position: relative;
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  padding-right: 30px;
-  transition: all 0.3s ease-in-out;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='18' height='18' fill='%23295f98'><path d='M7 10l5 5 5-5H7z'/></svg>");
-}
-
-.filter-dropdown:focus {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='18' height='18' fill='%23295f98'><path d='M7 14l5-5 5 5H7z'/></svg>");
-}
-
-.search-bar {
-  position: relative; /* needed for absolute icon */
-  margin-left: auto;  /* pushes search bar right */
-  width: 300px;       /* fixed width or min/max */
-}
-
-.search-bar input { 
-  padding: 8px 8px 8px 30px; /* left padding to fit icon */
-  border: 1px solid #295f98;
-  border-radius: 5px;
-  width: 100%;
-}
-
-.search-bar i {
-  position: absolute;
-  left: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #295f98;
-}
-
-.table-container {
-  flex: 1; /* Fills the remaining space */
-  margin-bottom: 16px;
-  background: #fff;
-  border-radius: 8px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  max-height: 700px;
-  box-shadow:
-    rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
-    rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th,
-td {
-  padding: 15px;
-  text-align: center;
-  font-size: 14px;
-}
-
-th {
-  padding-top: 20px;
-  background: #F6F6F6;
-  color: #000;
-  position: sticky;
-  top: 0;
-  z-index: 1;
-}
-
-tr {
-  cursor: pointer;
-}
-
-tr:hover { 
-  background-color: #f6f6f6;
-}
-  
-.pagination {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-.page {
-  font-weight: bold;
-}
-
-.pagination { 
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-.pagination button {
-  background-color: #f0f0f0;
-  border: 1px solid #ddd;
-  padding: 8px 12px;
-  margin: 0 5px;
-  cursor: pointer;
-}
-
-.pagination button.active { 
-  background-color: #295f98;
-  color: white;
-}
-
-.pagination button:disabled {
-  cursor: not-allowed; 
-  opacity: 0.5;
-}
-
-.bg-green {
-  background-color: #28a745;
-}
-
-.bg-red {
-  background-color: #dc3545;
-}
-
-.bg-yellow {
-  background-color: #ffc107;
-}
-.status-active {
-  font-weight: 600;
-  color: #16a34a; /* green-600 */
-}
-
-.status-pending {
-  font-weight: 600;
-  color: #eab308; /* yellow-500 */
-}
-
-.status-inactive {
-  font-weight: 600;
-  color: #dc2626; /* red-600 */
-}
-
-.status-default {
-  font-weight: 600;
-  color: #9ca3af; /* gray-400 */
-}
-
-.text-black {
-  color: black;
-}
-.button {
-    width: 100%;
+  .buttons {
     display: flex;
-    justify-content: end;
-    gap: 15px;
-}
-.red,
-.green {
-    padding: 5px 30px;
-    align-items: center;
-    color: #ffffff;
+    gap: 10px;
+  }
+  .filter-dropdown {
+    padding: 15px 20px;
+    width: 160px;
+    border: 1px solid #295f98;
     border-radius: 5px;
+    font-size: 14px;
+    background: #fff;
+    font-weight: bold;
+    color: #295f98;
     cursor: pointer;
-}
-.red {
-    background-color: #D30000;
-}
-.red:hover {
-  background-color: #D95353;
-}
-.green {
-    background-color: #0C5A48;
-}
-.red:hover {
-    background-color: #FF0000;
-}
-.green:hover {
-    background-color: #0C5A48;
-}
+    appearance: none;
+    position: relative;
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 30px;
+    transition: all 0.3s ease-in-out;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='18' height='18' fill='%23295f98'><path d='M14 7l-5 5 5 5V7z'/></svg>");
+  }
+
+  .filter-dropdown:focus {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='18' height='18' fill='%23295f98'><path d='M7 10l5 5 5-5H7z'/></svg>");
+  }
+
+  .search-bar {
+    display: flex;
+    gap: 10px;
+  }
+
+  .search-bar input {
+    padding: 8px;
+    border: 1px solid #295f98;
+    border-radius: 5px;
+    width: 250px;
+  }
+
+  .table-container {
+    background: #fff;
+    border-radius: 8px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 600px;
+    box-shadow:
+      rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+      rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+    border: 1px solid #ddd;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    padding: 15px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+    font-size: 12px;
+  }
+
+  th {
+    padding-top: 20px;
+    background: #F6F6F6;
+    color: #000;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  tr {
+    cursor: pointer;
+  }
+  tr:hover {
+    background-color: #f6f6f6;
+  }
+  
+  .pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .page {
+    font-weight: bold;
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .pagination button {
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    margin: 0 5px;
+    cursor: pointer;
+  }
+
+  .pagination button.active {
+    background-color: #295f98;
+    color: white;
+  }
+
+  .pagination button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
 </style>
