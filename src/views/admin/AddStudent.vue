@@ -295,8 +295,23 @@
 import { ref, reactive, computed, onMounted, watch } from 'vue'
 import Dropdown from '@/components/dropdown.vue'
 import Searchbar from '@/components/searchbar.vue'
-import { getAllStudents, createStudent } from '@/service/studentService'
+import { getAllStudents, createStudent, bulkRegisterStudents } from '@/service/studentService'
 import { useToast } from 'vue-toastification'
+
+function calculateAge(birthdate) {
+  if (!birthdate) return ''
+  const today = new Date()
+  const birth = new Date(birthdate)
+  let age = today.getFullYear() - birth.getFullYear()
+  const m = today.getMonth() - birth.getMonth()
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+    age--
+  }
+  return age
+}
+
+
+ 
 // ===================== TAB STATE =====================
 const tabs = [
     { label: 'Add Student', value: 'add' },
@@ -334,9 +349,9 @@ onMounted(async () => {
 // ===================== FORM FIELD DEFINITIONS =====================
 const addStudentFields = [
     // Row 1: Basic academic info
-    { name: 'Grade_Level', label: 'Grade Level', type: 'select', placeholder: 'Select Grade Level', options: ['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'], required: true, row: 1 },
-    { name: 'Curriculum', label: 'Curriculum', type: 'select', placeholder: 'Select Curriculum', options: [], required: true, row: 1 },
-    { name: 'Track', label: 'Track', type: 'select', placeholder: 'Select Track', options: [], required: true, row: 1 },
+    { name: 'Grade_Level', label: 'Grade Level', type: 'select', placeholder: 'Select Grade Level', options: ['7', '8', '9', '10', '11', '12'], required: true, row: 1 },
+    { name: 'Curriculum', label: 'Curriculum', type: 'select', placeholder: 'Select Curriculum', options: ['SHS', 'JHS'], required: true, row: 1 },
+    { name: 'Track', label: 'Track', type: 'select', placeholder: 'Select Track', options: ['HUMSS', 'TVL', 'SPJ', 'SPA', 'BEP'], required: true, row: 1 },
     { name: 'LRN', label: 'LRN', type: 'text', required: true, row: 1 },
     // Row 2: Personal info
     { name: 'LastName', label: 'Last Name', type: 'text', placeholder: 'Last Name', required: true, row: 2 },
@@ -406,6 +421,10 @@ watch(() => formData.Grade_Level, (newValue) => {
   }
 })
 
+watch(() => formData.BirthDate, (newDate) => {
+  formData.Age = calculateAge(newDate)
+})
+
 async function handleAddStudentSubmit() {
     try {
         const dataToSend = JSON.parse(JSON.stringify(formData))
@@ -442,36 +461,48 @@ async function handleAddStudentSubmit() {
 
 
 // ===================== BULK REGISTRATION STATE =====================
-const bulkFormData = reactive({
-    gradeLevel: '',
-    curriculum: '',
-    track: '',
-})
-const fileInput = ref(null)
-const selectedFile = ref(null)
 
-function handleFileUpload(event) {
-    const file = event.target.files[0]
-    if (file && file.type === 'text/csv') {
-        selectedFile.value = file
-    } else {
-        alert('Please upload a valid CSV file')
-        if (fileInput.value) fileInput.value.value = ''
-        selectedFile.value = null
-    }
-}
+const bulkFormData = ref({
+    gradeLevel: "",
+    curriculum: "",
+    track: ""
+});
 
-async function handleBulkSubmit() {
+const selectedFile = ref(null);
+const fileInput = ref(null);
+
+const handleFileUpload = (event) => {
+    selectedFile.value = event.target.files[0];
+};
+
+const handleBulkSubmit = async () => {
     if (!selectedFile.value) {
-        alert('Please upload a CSV file')
-        return
+        alert("Please select a CSV file.");
+        return;
     }
-    bulkFormData.gradeLevel = ''
-    bulkFormData.curriculum = ''
-    bulkFormData.track = ''
-    selectedFile.value = null
-    if (fileInput.value) fileInput.value.value = ''
-}
+
+    const formData = new FormData();
+    formData.append("csv_file", selectedFile.value);
+    formData.append("gradeLevel", bulkFormData.value.gradeLevel);
+    formData.append("curriculum", bulkFormData.value.curriculum);
+    formData.append("track", bulkFormData.value.track);
+
+    try {
+        const response = await bulkRegisterStudents(formData);
+        toast.success('Students added successfully!')
+        // Reset form
+        bulkFormData.value = {
+            gradeLevel: "",
+            curriculum: "",
+            track: ""
+        };
+        selectedFile.value = null;
+        fileInput.value.value = ""; // reset the actual input
+    } catch (error) {
+        toast.error(error.message || "Bulk registration failed.");
+        console.log(error.message);
+    }
+};
 
 // ===================== FILTERS & SEARCH FOR SUBMITTED STUDENTS =====================
 const selectedGrade = ref('')

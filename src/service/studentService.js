@@ -25,6 +25,19 @@ export const createStudent = async (studentData) => {
     }
 };
 
+export const bulkRegisterStudents = async (formData) => {
+    try {
+        const response = await API.post("/student/bulk-upload", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response ? error.response.data : error;
+    }
+};
+
 // get all pending 
 export const getAllPendingStudents = async () => {
     try {
