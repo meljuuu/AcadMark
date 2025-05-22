@@ -482,19 +482,28 @@ const handleBulkSubmit = async () => {
 
     const formData = new FormData();
     formData.append("csv_file", selectedFile.value);
-    formData.append("gradeLevel", bulkFormData.value.gradeLevel);
-    formData.append("curriculum", bulkFormData.value.curriculum);
+
+    // Remove 'Grade' word if present, and trim whitespace
+    const grade = bulkFormData.value.gradeLevel.replace(/Grade\s*/i, "").trim();
+
+      let curriculum = bulkFormData.value.curriculum;
+    if (curriculum === 'Junior High School') curriculum = 'JHS';
+    else if (curriculum === 'Senior High School') curriculum = 'SHS';
+
+    formData.append("gradeLevel", grade);
+    formData.append("curriculum", curriculum);
     formData.append("track", bulkFormData.value.track);
 
     try {
         const response = await bulkRegisterStudents(formData);
-        toast.success('Students added successfully!')
+        toast.success('Students added successfully!');
         // Reset form
         bulkFormData.value = {
             gradeLevel: "",
             curriculum: "",
             track: ""
         };
+
         selectedFile.value = null;
         fileInput.value.value = ""; // reset the actual input
     } catch (error) {
@@ -502,6 +511,7 @@ const handleBulkSubmit = async () => {
         console.log(error.message);
     }
 };
+
 
 // ===================== FILTERS & SEARCH FOR SUBMITTED STUDENTS =====================
 const selectedGrade = ref('')

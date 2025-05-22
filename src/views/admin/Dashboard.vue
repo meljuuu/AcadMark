@@ -188,21 +188,21 @@
                 </th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200 text-sm">
+            <tbody class="divide-y divide-gray-200 text-sm justify-center">
               <tr v-for="(item, index) in classes" :key="index">
-                <td class="px-4 py-2">{{ item.grade }}</td>
-                <td class="px-1 py-2">{{ item.track }}</td>
-                <td class="px-2 py-2">{{ item.section }}</td>
+                <td class="px-4 py-2">{{ item.Grade_Level }}</td>
+                <td class="px-1 py-2">{{ item.Track }}</td>
+                <td class="px-2 py-2">{{ item.Section }}</td>
                 <td class="px-2 py-2">{{ item.adviser }}</td>
-                <td class="px-4 py-2">{{ item.students }}</td>
+                <td class="px-4 py-2">{{ item.student_classes_count }}</td>
                 <td class="px-4 py-2">
                   <span
                     :class="
-                      item.status === 'Active' ? 'bg-green-800' : 'bg-red-600'
+                      item.Status === 'Accepted' ? 'bg-green-800' : 'bg-orange-600'
                     "
                     class="text-white px-1 py-1 rounded-sm text-[11px] w-[60px] h-[20px] inline-block text-center"
                   >
-                    {{ item.status }}
+                    {{ item.Status }}
                   </span>
                 </td>
               </tr>
@@ -217,9 +217,6 @@
         <h2 class="text-xl font-semibold text-gray-700 mb-4">
           Total Submitted Students
         </h2>
-        <p class="text-sm text-center text-gray-600 mb-4">
-          Comparison between the Advisory Class and Subject Class
-        </p>
         <div
           class="flex justify-center items-center"
           style="width: 100%; height: 400px"
@@ -249,7 +246,10 @@ import {
   getStudentGenderDistribution,
   getAcceptedClassesCount,
   getLatestStudents,
+  getSubmissionStatusCounts
 } from '@/service/adminDashboardService';
+
+import { getClassesExcludingIncomplete } from '@/service/teacherSubjectsService';
 
   Chart.register(
     BarElement,
@@ -307,6 +307,9 @@ export default {
       await this.fetchStudentGradeDistribution();
       await this.fetchGenderDistribution(); 
       await this.fetchLatestStudents(); 
+      await this.fetchClasses(); 
+      await this.fetchSubmissionStatusCounts();
+
     },
     methods: {
       async fetchStats() {
@@ -325,6 +328,15 @@ export default {
         console.error("Failed to fetch stats:", error);
       }
     },
+
+     async fetchSubmissionStatusCounts() {
+        try {
+          const data = await getSubmissionStatusCounts(); // 🆕 API call
+          this.renderSubmissionStatusChart(data); // 🆕 Dynamic rendering
+        } catch (error) {
+          console.error('Failed to fetch submission status counts:', error);
+        }
+      },
 
       async fetchStudentGradeDistribution() {
         try {
@@ -370,6 +382,35 @@ export default {
           console.log('Mapped recent students:', this.recentStudents);
         } catch (error) {
           console.error('Failed to fetch latest students:', error);
+        }
+      },
+
+      async fetchClasses() {
+        try {
+          const response = await getClassesExcludingIncomplete();
+
+          // Step 1: Sort by created_at in descending order
+          const sorted = response.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+          // Step 2: Take the latest 10
+          const latestTen = sorted.slice(0, 10);
+
+          // Step 3: Format the adviser full name
+          this.classes = latestTen.map((item) => {
+            const adviser = item.student_classes?.[0]?.adviser;
+            const adviserFullName = adviser
+              ? `${adviser.FirstName} ${adviser.MiddleName || ''} ${adviser.LastName}`.trim()
+              : 'N/A';
+
+            return {
+              ...item,
+              adviser: adviserFullName,
+            };
+          });
+
+          console.log('Fetched and processed classes (latest 10):', this.classes);
+        } catch (error) {
+          console.error('Failed to fetch classes:', error);
         }
       },
 
@@ -465,10 +506,8 @@ export default {
         });
       },
 
-      renderSubmissionStatusChart() {
-        const ctx = document
-          .getElementById('submissionStatusChart')
-          ?.getContext('2d');
+       renderSubmissionStatusChart(data) {
+        const ctx = document.getElementById('submissionStatusChart')?.getContext('2d');
         if (!ctx) return;
 
         if (this._submissionStatusChartInstance) {
@@ -478,16 +517,24 @@ export default {
         this._submissionStatusChartInstance = new Chart(ctx, {
           type: 'bar',
           data: {
-            labels: ['Approved', 'Pending', 'Declined'],
+            labels: ['Accepted', 'Pending', 'Declined'],
             datasets: [
               {
                 label: 'Male',
-                data: [15, 10, 5], // static
+                data: [
+                  data.Male?.Accepted || 0,
+                  data.Male?.Pending || 0,
+                  data.Male?.Declined || 0
+                ],
                 backgroundColor: 'rgba(255, 206, 86, 0.8)',
               },
               {
                 label: 'Female',
-                data: [12, 8, 6], // static
+                data: [
+                  data.Female?.Accepted || 0,
+                  data.Female?.Pending || 0,
+                  data.Female?.Declined || 0
+                ],
                 backgroundColor: 'rgba(59, 130, 246, 0.8)',
               },
             ],
@@ -498,7 +545,7 @@ export default {
             scales: {
               y: {
                 beginAtZero: true,
-                ticks: { stepSize: 5 },
+                ticks: { stepSize: 1 },
               },
             },
             plugins: {

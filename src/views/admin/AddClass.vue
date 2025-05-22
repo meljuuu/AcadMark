@@ -568,6 +568,7 @@ export default {
             try {
                 const response = await createClass(this.form);
                 console.log('Class created successfully:', response);
+                toast.success(response);
                 // this.$swal.fire('Success', response.message, 'success');
             } catch (error) {
                 console.error('Failed to create class:', error);
@@ -779,7 +780,7 @@ export default {
             try {
                 const data = await getAllClasses();
                 this.classes = data;
-                console.log("CLASSES ARE12:", this.classes);
+                console.log("CLASSES ARE:", this.classes);
             } catch (err) {
                 this.error = 'Failed to load classes.';
                 console.error(err);

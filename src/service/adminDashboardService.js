@@ -68,6 +68,16 @@ export const getLatestStudents = async () => {
   }
 };
 
+export const getSubmissionStatusCounts = async () => {
+  try {
+    const response = await API.get('/dashboard/students/status-counts');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching student status counts:', error);
+    throw error;
+  }
+};
+
 
 
 
