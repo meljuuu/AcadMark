@@ -53,7 +53,6 @@
     className: { type: String, required: true },
     subjectName: { type: String, required: true },
     gradeLevel: { type: [String, Number], required: true },
-    subject_id: { type: String, required: true },
     classType: { type: String, required: true },
     class_id: { type: String, required: true },
   });
@@ -85,7 +84,6 @@
         className: props.className,
         subjectName: props.subjectName,
         gradeLevel: props.gradeLevel,
-        subject_id: props.subject_id,
         classType: props.classType,
       },
     });

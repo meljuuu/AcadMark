@@ -16,7 +16,6 @@
         :classType="classItem.classType"
         :className="classItem.className"
         :subjectName="classItem.subjectName"
-        :subject_id="classItem.subject_id"
         :gradeLevel="classItem.gradeLevel"
         :type="classItem.classType"
       />
@@ -27,7 +26,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import Card from '@/components/card.vue';
-import { classService } from '@/service/classService';
+import { classService } from '@/service/classesService';
 
 const classes = ref([]);
 const loading = ref(true);
