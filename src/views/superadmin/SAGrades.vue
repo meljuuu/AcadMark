@@ -6,21 +6,21 @@
   <div class="content mt-3">
     <div class="filtering-section">
       <select v-model="selectedGrade" class="filter-dropdown">
-        <option disabled value="">Grade Level</option>
+        <option value="">Grade Level (All)</option>
         <option v-for="grade in grades" :key="grade" :value="grade">
           Grade {{ grade }}
         </option>
       </select>
 
       <select v-model="selectedCurriculum" class="filter-dropdown">
-        <option disabled value="">Curriculum</option>
+        <option value="">Curriculum (All)</option>
         <option v-for="curriculum in curriculums" :key="curriculum" :value="curriculum">
           {{ curriculum }}
         </option>
       </select>
 
       <select v-model="selectedTrack" class="filter-dropdown">
-        <option disabled value="">Track</option>
+        <option value="">Track (All)</option>
         <option v-for="track in tracks" :key="track" :value="track">
           {{ track }}
         </option>
@@ -138,7 +138,7 @@ const filteredCards = computed(() => {
 
 .filter-dropdown {
   padding: 15px 20px;
-  width: 200px;
+  width: 210px;
   border: 1px solid #295f98;
   border-radius: 5px;
   font-size: 14px;
@@ -163,8 +163,9 @@ const filteredCards = computed(() => {
   display: flex;
   flex-wrap: wrap;
   gap: 50px;
-  justify-content: center;
+  justify-content: center; 
 }
+
 
 .card {
   width: 208px;

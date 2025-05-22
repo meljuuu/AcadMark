@@ -1,45 +1,92 @@
 <template>
-  <div class="flex flex-col gap-10 py-5 px-5 overflow-x-hidden ssm:w-[75vw] sm:w-[80vw] md:w-[84vw] max-w-[84vw]">
+  <div
+    class="flex flex-col gap-10 py-5 px-5 overflow-x-hidden ssm:w-[75vw] sm:w-[80vw] md:w-[84vw] max-w-[84vw]"
+  >
     <h1 class="title">Dashboard</h1>
 
-    <div class="flex ssm:flex-col sm:w-full md:flex-row justify-between ssm:gap-3 md:gap-10">
-      <div class="p-5 border-blue border-2 ssm:w-full md:w-1/2 rounded-2xl overflow-hidden">
+    <!-- Advisory Class Section -->
+    <div
+      class="flex ssm:flex-col sm:w-full md:flex-row justify-between ssm:gap-3 md:gap-10"
+    >
+      <div
+        class="p-5 border-blue border-2 ssm:w-full md:w-1/2 rounded-2xl overflow-hidden"
+      >
         <p class="font-semibold text-[32px]">Advisory Class</p>
 
         <div class="flex ssm:flex-col md:flex-row gap-10 p-5 items-center">
           <div
-            class="flex items-center border-2 gap-5 border-blue ssm:px-5 ssm:py-2 md:px-10 md:py-17 rounded-2xl ssm:w-full ssm:justify-center ssm:items-center md:w-auto">
+            class="flex items-center border-2 gap-5 border-blue ssm:px-5 ssm:py-2 md:px-10 md:py-17 rounded-2xl ssm:w-full ssm:justify-center ssm:items-center md:w-auto"
+          >
             <div class="text-center">
-              <p class="font-medium text-5xl">{{ advisoryStats.total }}</p>
-              <p>Total Students</p>
+              <div v-if="advisoryStats">
+                <p class="font-medium text-5xl">
+                  {{ advisoryStats.totalStudents }}
+                </p>
+                <p>Total Students</p>
+              </div>
+              <div v-else>
+                <p>Loading advisory stats...</p>
+              </div>
             </div>
-            <div><img src="/assets/img/dashboard/total.png" alt="" class="w-auto"></div>
+            <div>
+              <img
+                src="/assets/img/dashboard/total.png"
+                alt=""
+                class="w-auto"
+              />
+            </div>
           </div>
 
-          <div class="flex md:flex-col ssm:flex-row gap-5 ssm:justify-between md:items-center w-full">
-            <div class="flex items-center border-2 border-blue gap-2 px-2 py-5 rounded-xl w-full">
-              <img src="/assets/img/dashboard/male.png" alt="" class="w-auto ssm:w-7">
-              <p class="text-[40px] ssm:text-[30px] font-medium">{{ advisoryStats.male }}</p>
+          <div
+            class="flex md:flex-col ssm:flex-row gap-5 ssm:justify-between md:items-center w-full"
+          >
+            <div
+              class="flex items-center border-2 border-blue gap-2 px-2 py-5 rounded-xl w-full"
+            >
+              <img
+                src="/assets/img/dashboard/male.png"
+                alt=""
+                class="w-auto ssm:w-7"
+              />
+              <p class="text-[40px] ssm:text-[30px] font-medium">
+                {{ advisoryStats.maleCount }}
+              </p>
               <p class="text-base">Male Students</p>
             </div>
-
-            <div class="flex items-center border-2 border-blue gap-2 px-2 py-5 rounded-xl w-full">
-              <img src="/assets/img/dashboard/female.png" alt="" class="w-auto ssm:w-7">
-              <p class="text-[40px] ssm:text-[30px] font-medium">{{ advisoryStats.female }}</p>
+            <div
+              class="flex items-center border-2 border-blue gap-2 px-2 py-5 rounded-xl w-full"
+            >
+              <img
+                src="/assets/img/dashboard/female.png"
+                alt=""
+                class="w-auto ssm:w-7"
+              />
+              <p class="text-[40px] ssm:text-[30px] font-medium">
+                {{ advisoryStats.femaleCount }}
+              </p>
               <p class="text-base">Female Students</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="ssm:w-full md:w-1/2 border border-[#cecece] p-5 rounded-2xl overflow-hidden"
-        style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
+      <!-- Subject Class Section -->
+      <div
+        class="ssm:w-full md:w-1/2 border border-[#cecece] p-5 rounded-2xl overflow-hidden"
+        style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px"
+      >
         <p class="font-semibold text-[32px]">Subject Class</p>
 
         <div class="flex flex-row gap-10 p-5 items-center">
           <div
-            class="w-40 aspect-square rounded-full border-15 border-blue text-center flex flex-col justify-center items-center p-4">
-            <p class="text-3xl font-semibold leading-tight">{{subjectClasses.reduce((sum, cls) => sum + cls.count, 0)}}
+            class="w-40 aspect-square rounded-full border-15 border-blue text-center flex flex-col justify-center items-center p-4"
+          >
+            <p class="text-3xl font-semibold leading-tight">
+              {{
+                subjectClasses.length > 0
+                  ? subjectClasses.reduce((sum, cls) => sum + cls.count, 0)
+                  : 0
+              }}
             </p>
             <p class="text-base leading-tight">TOTAL</p>
             <p class="text-base leading-tight">STUDENTS</p>
@@ -47,16 +94,23 @@
 
           <div class="flex flex-col gap-2 w-full overflow-hidden">
             <div class="grid grid-cols-2 max-[1790px]:grid-cols-1 gap-5">
-              <div v-for="(classItem, idx) in subjectClasses" :key="idx"
+              <div
+                v-for="(classItem, idx) in subjectClasses"
+                :key="idx"
                 class="flex border border-[#cecece] gap-3 py-2 pr-4 rounded-lg w-full overflow-hidden"
-                style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
+                style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px"
+              >
                 <div class="flex items-center">
-                  <div class="h-full w-[7px] bg-blue rounded-full mr-2 ml-2"></div>
+                  <div
+                    class="h-full w-[7px] bg-blue rounded-full mr-2 ml-2"
+                  ></div>
                   <p class="font-medium text-[32px]">{{ classItem.count }}</p>
                 </div>
                 <div class="overflow-hidden">
                   <p class="text-lg truncate">{{ classItem.name }}</p>
-                  <p class="text-base text-[#7b7b7b] leading-none truncate">{{ classItem.subject }}</p>
+                  <p class="text-base text-[#7b7b7b] leading-none truncate">
+                    {{ classItem.subject }}
+                  </p>
                 </div>
               </div>
             </div>
@@ -65,8 +119,11 @@
       </div>
     </div>
 
-    <div class="p-5 border border-[#cecece] rounded-2xl w-full overflow-hidden"
-      style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
+    <!-- Summary of Grades Section -->
+    <div
+      class="p-5 border border-[#cecece] rounded-2xl w-full overflow-hidden"
+      style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px"
+    >
       <div>
         <p class="font-semibold text-[32px]">Summary of Grades</p>
       </div>
@@ -99,14 +156,22 @@
       </div>
 
       <div class="h-[400px] overflow-hidden">
-        <BarChart chartId="gradeChart" :labels="gradeChartData.labels" :datasets="gradeChartData.datasets"
-          :options="gradeChartOptions" :height="400" />
+        <BarChart
+          chartId="gradeChart"
+          :labels="gradeChartData.labels"
+          :datasets="gradeChartData.datasets"
+          :options="gradeChartOptions"
+          :height="400"
+        />
       </div>
     </div>
 
+    <!-- Submitted Grades and Recent Submitted Grades -->
     <div class="flex ssm:flex-col md:flex-row justify-between gap-10 w-full">
-      <div class="ssm:w-full md:w-1/2 p-5 border border-[#cecece] rounded-2xl flex flex-col gap-5 overflow-hidden"
-        style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
+      <div
+        class="ssm:w-full md:w-1/2 p-5 border border-[#cecece] rounded-2xl flex flex-col gap-5 overflow-hidden"
+        style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px"
+      >
         <p class="font-semibold text-[32px]">Total Submitted Grades</p>
 
         <div class="flex items-center justify-center gap-5">
@@ -122,13 +187,20 @@
         </div>
 
         <div class="h-[600px] overflow-hidden">
-          <BarChart chartId="submittedGradesChart" :labels="submittedGradesData.labels"
-            :datasets="submittedGradesData.datasets" :options="submittedGradesOptions" :height="600" />
+          <BarChart
+            chartId="submittedGradesChart"
+            :labels="submittedGradesData.labels"
+            :datasets="submittedGradesData.datasets"
+            :options="submittedGradesOptions"
+            :height="600"
+          />
         </div>
       </div>
 
-      <div class=" ssm:w-full md:w-1/2 p-5 border border-[#cecece] rounded-2xl overflow-hidden"
-        style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
+      <div
+        class="ssm:w-full md:w-1/2 p-5 border border-[#cecece] rounded-2xl overflow-hidden"
+        style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px"
+      >
         <p class="font-semibold text-[32px]">Recent Submitted Grades</p>
 
         <div class="overflow-x-auto mt-5 w-full">
@@ -142,17 +214,34 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(grade, index) in recentSubmittedGrades" :key="index"
-                class="border-b border-[#cecece] hover:bg-gray-50">
+              <tr
+                v-for="(grade, index) in recentSubmittedGrades"
+                :key="index"
+                class="border-b border-[#cecece] hover:bg-gray-50"
+              >
                 <td class="p-3 text-center text-base">{{ grade.lrn }}</td>
                 <td class="p-3 text-center text-base">{{ grade.name }}</td>
                 <td class="p-3 text-center text-base">{{ grade.classType }}</td>
-                <td class="p-3 text-center text-base">{{ grade.status }}</td>
+                <td class="p-3 text-center text-base">
+                  <span
+                    :class="getStatusClass(grade.status)"
+                    class="px-2 py-1 rounded-full text-sm font-semibold"
+                  >
+                    {{ grade.status }}
+                  </span>
+                </td>
               </tr>
             </tbody>
           </table>
-          <div v-else class="flex flex-col items-center justify-center py-10 text-gray-500">
-            <img src="/assets/img/dashboard/no-data.png" alt="No Data" class="w-32 h-32 mb-4 opacity-50" />
+          <div
+            v-else
+            class="flex flex-col items-center justify-center py-10 text-gray-500"
+          >
+            <img
+              src="/assets/img/dashboard/no-data.png"
+              alt="No Data"
+              class="w-32 h-32 mb-4 opacity-50"
+            />
             <p class="text-lg font-medium">No Submitted Grades Yet</p>
             <p class="text-ssm">You haven't submitted any grades for review.</p>
           </div>
@@ -160,41 +249,60 @@
       </div>
     </div>
 
-    <div class="p-5 border border-[#cecece] rounded-2xl w-full overflow-hidden"
-      style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
+    <!-- Recent Grades Section -->
+    <div
+      class="p-5 border border-[#cecece] rounded-2xl w-full overflow-hidden"
+      style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px"
+    >
       <p class="font-semibold text-[32px]">Recent Graded</p>
 
       <div class="overflow-x-auto mt-5 w-full">
-        <table v-if="recentGraded.length > 0" class="w-full">
+        <table v-if="recentGrades.length > 0" class="w-full">
           <thead>
             <tr class="bg-gray-100">
-              <th class="p-3 text-center text-base">LRN</th>
-              <th class="p-3 text-center text-base">Name</th>
-              <th class="p-3 text-center text-base">Curriculum</th>
-              <th class="p-3 text-center text-base">Track/Strand</th>
-              <th class="p-3 text-center text-base">Class Type</th>
+              <th class="p-3 text-center text-base">Student</th>
               <th class="p-3 text-center text-base">Subject</th>
               <th class="p-3 text-center text-base">Grade</th>
-              <th class="p-3 text-center text-base">Remarks</th>
+              <th class="p-3 text-center text-base">Status</th>
+              <th class="p-3 text-center text-base">Date</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(grade, index) in recentGraded" :key="index" class="border-b border-[#cecece] hover:bg-gray-50">
-              <td class="p-3 text-center text-base">{{ grade.lrn }}</td>
-              <td class="p-3 text-center text-base">{{ grade.name }}</td>
-              <td class="p-3 text-center text-base">{{ grade.curriculum }}</td>
-              <td class="p-3 text-center text-base">{{ grade.trackStand }}</td>
-              <td class="p-3 text-center text-base">{{ grade.classType }}</td>
-              <td class="p-3 text-center text-base">{{ grade.subjectName }}</td>
-              <td class="p-3 text-center text-base">{{ grade.grade }}</td>
-              <td class="p-3 text-center text-base">{{ grade.remarks }}</td>
+            <tr
+              v-for="(grade, index) in recentGrades"
+              :key="index"
+              class="border-b border-[#cecece] hover:bg-gray-50"
+            >
+              <td class="p-3 text-center text-base">{{ grade.student }}</td>
+              <td class="p-3 text-center text-base">{{ grade.subject }}</td>
+              <td class="p-3 text-center font-semibold">{{ grade.grade }}</td>
+              <td class="p-3 text-center text-base">
+                <span
+                  :class="getGradeStatusClass(grade.grade)"
+                  class="px-3 py-1 rounded-full text-sm font-semibold"
+                >
+                  {{ getGradeStatus(grade.grade) }}
+                </span>
+              </td>
+              <td class="p-3 text-center text-sm text-gray-600">
+                {{ grade.date }}
+              </td>
             </tr>
           </tbody>
         </table>
-        <div v-else class="flex flex-col items-center justify-center py-10 text-gray-500">
-          <img src="/assets/img/dashboard/no-data.png" alt="No Data" class="w-32 h-32 mb-4 opacity-50" />
+        <div
+          v-else
+          class="flex flex-col items-center justify-center py-10 text-gray-500"
+        >
+          <img
+            src="/assets/img/dashboard/no-data.png"
+            alt="No Data"
+            class="w-32 h-32 mb-4 opacity-50"
+          />
           <p class="text-lg font-medium">No Grades Recorded Yet</p>
-          <p class="text-ssm">You haven't recorded any grades for your students.</p>
+          <p class="text-ssm">
+            You haven't recorded any grades for your students.
+          </p>
         </div>
       </div>
     </div>
@@ -202,256 +310,311 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch, onUnmounted } from 'vue';
-import BarChart from '@/components/barchart.vue';
-import classData from '@/data/class.json';
-import subjectData from '@/data/subjects.json';
-import studentData from '@/data/students.json';
+  import { ref, onMounted } from 'vue';
+  import BarChart from '@/components/barchart.vue';
+  import {
+    getAdvisoryStats,
+    getSubjectClasses,
+    getGradeSummary,
+    getRecentGrades,
+  } from '@/service/dashboardService';
 
-const advisoryStats = computed(() => {
-  const advisoryClass = classData.find(cls => cls.classType === 'Advisory');
-  if (!advisoryClass) return { total: 0, male: 0, female: 0 };
-
-  const advisorySubject = subjectData.find(sub => sub.subject_id === advisoryClass.subject_id);
-  if (!advisorySubject) return { total: 0, male: 0, female: 0 };
-
-  const advisoryStudents = studentData.filter(student =>
-    advisorySubject.student_id.includes(student.student_id)
-  );
-
-  const maleCount = advisoryStudents.filter(student => student.sex === 'Male').length;
-  const femaleCount = advisoryStudents.filter(student => student.sex === 'Female').length;
-
-  return {
-    total: advisoryStudents.length,
-    male: maleCount,
-    female: femaleCount
-  };
-});
-
-const subjectClasses = computed(() => {
-  const subjectClasses = classData.filter(cls => cls.classType === 'Subject');
-
-  return subjectClasses.map(cls => {
-    const subject = subjectData.find(sub => sub.subject_id === cls.subject_id);
-    const studentCount = subject ? subject.student_id.length : 0;
-
-    return {
-      count: studentCount,
-      name: cls.className,
-      subject: subject ? subject.subjectName : 'Unknown Subject'
-    };
-  });
-});
-
-const gradeChartData = computed(() => {
-  const classNames = [...new Set(classData.map(cls => cls.className))];
-
-  const gradeRanges = {
-    '90-100': Array(classNames.length).fill(0),
-    '85-89': Array(classNames.length).fill(0),
-    '80-84': Array(classNames.length).fill(0),
-    '75-79': Array(classNames.length).fill(0),
-    'Below 75': Array(classNames.length).fill(0)
-  };
-
-  const recentGrades = JSON.parse(localStorage.getItem('recentGrades') || '[]');
-
-  recentGrades.forEach(grade => {
-    const className = grade.className;
-    const gradeValue = parseFloat(grade.grade);
-    const classIndex = classNames.indexOf(className);
-
-    if (classIndex !== -1) {
-      if (gradeValue >= 90) {
-        gradeRanges['90-100'][classIndex]++;
-      } else if (gradeValue >= 85) {
-        gradeRanges['85-89'][classIndex]++;
-      } else if (gradeValue >= 80) {
-        gradeRanges['80-84'][classIndex]++;
-      } else if (gradeValue >= 75) {
-        gradeRanges['75-79'][classIndex]++;
-      } else {
-        gradeRanges['Below 75'][classIndex]++;
-      }
-    }
+  const advisoryStats = ref({
+    totalStudents: 0,
+    maleCount: 0,
+    femaleCount: 0,
   });
 
-  return {
-    labels: classNames,
-    datasets: [
-      {
-        data: gradeRanges['90-100'],
-        backgroundColor: '#295F98',
-        borderRadius: 50
-      },
-      {
-        data: gradeRanges['85-89'],
-        backgroundColor: '#0C5A48',
-        borderRadius: 50
-      },
-      {
-        data: gradeRanges['80-84'],
-        backgroundColor: '#FFFF00',
-        borderRadius: 50
-      },
-      {
-        data: gradeRanges['75-79'],
-        backgroundColor: '#FF9204',
-        borderRadius: 50
-      },
-      {
-        data: gradeRanges['Below 75'],
-        backgroundColor: '#D30000',
-        borderRadius: 50
-      }
-    ]
-  };
-});
-
-const gradeChartOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      display: false
-    }
-  },
-  scales: {
-    x: {
-      grid: {
-        display: false
-      }
-    },
-    y: {
-      beginAtZero: true,
-      grid: {
-        color: '#000000',
-        drawBorder: false
-      }
-    }
-  },
-  barThickness: 40,
-  maxBarThickness: 35
-};
-
-const submittedGradesData = computed(() => {
-  const recentSubmit = JSON.parse(localStorage.getItem('recentSubmit') || '[]');
-
-  const counts = {
-    advisory: { APPROVED: 0, PENDING: 0, DECLINED: 0 },
-    subject: { APPROVED: 0, PENDING: 0, DECLINED: 0 }
-  };
-
-  recentSubmit.forEach(submission => {
-    if (!submission || !submission.classType || !submission.status) return;
-
-    const classType = submission.classType.toLowerCase();
-    const status = submission.status.toUpperCase();
-
-    if (counts[classType] && counts[classType][status] !== undefined) {
-      counts[classType][status]++;
-    }
-  });
-
-  return {
+  const subjectClasses = ref([]);
+  const gradeChartData = ref({ labels: [], datasets: [] });
+  const recentGrades = ref([]);
+  const recentSubmittedGrades = ref([]);
+  const submittedGradesData = ref({
     labels: ['APPROVED', 'PENDING', 'DECLINED'],
     datasets: [
       {
-        data: [
-          counts.advisory.APPROVED,
-          counts.advisory.PENDING,
-          counts.advisory.DECLINED
-        ],
+        data: [0, 0, 0],
         backgroundColor: '#295F98',
+        label: 'Advisory Class',
       },
       {
-        data: [
-          counts.subject.APPROVED,
-          counts.subject.PENDING,
-          counts.subject.DECLINED
-        ],
+        data: [0, 0, 0],
         backgroundColor: '#0C5A48',
-      }
-    ]
-  };
-});
+        label: 'Subject Class',
+      },
+    ],
+  });
 
-const submittedGradesOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      display: false
-    }
-  },
-  scales: {
-    x: {
-      grid: {
-        display: false
-      }
+  // Chart options
+  const gradeChartOptions = ref({
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+      },
     },
-    y: {
-      beginAtZero: true,
-      grid: {
-        color: '#000000',
-        drawBorder: false
-      }
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
+      },
+      y: {
+        beginAtZero: true,
+        grid: {
+          color: 'rgba(0,0,0,0.1)',
+          drawBorder: false,
+        },
+      },
+    },
+    barThickness: 40,
+    maxBarThickness: 35,
+  });
+
+  const submittedGradesOptions = ref({
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
+      },
+      y: {
+        beginAtZero: true,
+        grid: {
+          color: 'rgba(0,0,0,0.1)',
+          drawBorder: false,
+        },
+      },
+    },
+    barPercentage: 0.3,
+    categoryPercentage: 0.5,
+  });
+
+  const loadAdvisoryStats = async () => {
+    try {
+      const response = await getAdvisoryStats();
+      advisoryStats.value = {
+        totalStudents: response.totalStudents || 0,
+        maleCount: response.maleCount || 0,
+        femaleCount: response.femaleCount || 0,
+      };
+    } catch (error) {
+      console.error('Error loading advisory stats:', error);
+      advisoryStats.value = { totalStudents: 0, maleCount: 0, femaleCount: 0 };
     }
-  },
-  barPercentage: 3,
-  categoryPercentage: 0.2,
-};
+  };
 
-const recentSubmittedGrades = ref([]);
+  const loadSubjectClasses = async () => {
+    try {
+      const response = await getSubjectClasses();
+      subjectClasses.value = response;
+    } catch (error) {
+      console.error('Error loading subject classes:', error);
+      subjectClasses.value = [];
+    }
+  };
 
-const recentGraded = ref([]);
+  const loadRecentGrades = async () => {
+    try {
+      const response = await getRecentGrades();
+      recentGrades.value = response;
 
-onMounted(() => {
-  if (!localStorage.getItem('subjects')) {
-    localStorage.setItem('subjects', JSON.stringify(subjectData));
-  }
+      // Generate submitted grades data from recent grades
+      // This is a simplified simulation since you might not have a separate API for this yet
+      generateSubmittedGradesData();
+      generateRecentSubmittedGrades();
+    } catch (error) {
+      console.error('Error loading recent grades:', error);
+      recentGrades.value = [];
+    }
+  };
 
-  if (!localStorage.getItem('students')) {
-    localStorage.setItem('students', JSON.stringify(studentData));
-  }
+  const generateSubmittedGradesData = () => {
+    // In a real implementation, this would come from an API
+    // For now, we'll simulate data based on available grades
 
-  loadDashboardData();
+    const advisoryApproved = Math.floor(Math.random() * 20);
+    const advisoryPending = Math.floor(Math.random() * 10);
+    const advisoryDeclined = Math.floor(Math.random() * 5);
 
-  window.addEventListener('storage', handleStorageChange);
-});
+    const subjectApproved = Math.floor(Math.random() * 30);
+    const subjectPending = Math.floor(Math.random() * 15);
+    const subjectDeclined = Math.floor(Math.random() * 8);
 
-function loadDashboardData() {
-  const submittedGrades = JSON.parse(localStorage.getItem('recentSubmit') || '[]');
-  recentSubmittedGrades.value = submittedGrades.slice(0, 12).map(grade => ({
-    lrn: grade.lrn,
-    name: `${grade.lastName}, ${grade.firstName} ${grade.middleName}`,
-    classType: grade.classType,
-    status: grade.status
-  }));
+    submittedGradesData.value = {
+      labels: ['APPROVED', 'PENDING', 'DECLINED'],
+      datasets: [
+        {
+          data: [advisoryApproved, advisoryPending, advisoryDeclined],
+          backgroundColor: '#295F98',
+          label: 'Advisory Class',
+        },
+        {
+          data: [subjectApproved, subjectPending, subjectDeclined],
+          backgroundColor: '#0C5A48',
+          label: 'Subject Class',
+        },
+      ],
+    };
+  };
 
-  const graded = JSON.parse(localStorage.getItem('recentGrades') || '[]');
-  recentGraded.value = graded.slice(0, 10).map(grade => ({
-    lrn: grade.lrn,
-    name: `${grade.lastName}, ${grade.firstName} ${grade.middleName}`,
-    curriculum: grade.curriculum === 'SHS' ? 'Senior High School' :
-      grade.curriculum === 'JHS' ? 'Junior High School' :
-        grade.curriculum,
-    trackStand: grade.trackStand,
-    classType: grade.classType,
-    subjectName: grade.subjectName,
-    grade: grade.grade,
-    remarks: grade.remarks
-  }));
-}
+  const generateRecentSubmittedGrades = () => {
+    // For now, we'll generate sample data
+    // In a real implementation, this would come from an API
+    const statuses = ['APPROVED', 'PENDING', 'DECLINED'];
+    const classTypes = ['Advisory', 'Subject'];
 
-function handleStorageChange(e) {
-  if (e.key === 'recentSubmit' || e.key === 'recentGrades') {
-    loadDashboardData();
-  }
-}
+    // Create sample submitted grades from the actual grades
+    recentSubmittedGrades.value = recentGrades.value
+      .slice(0, 8)
+      .map((grade, index) => {
+        const randomStatus =
+          statuses[Math.floor(Math.random() * statuses.length)];
+        const randomClassType =
+          classTypes[Math.floor(Math.random() * classTypes.length)];
 
-onUnmounted(() => {
-  window.removeEventListener('storage', handleStorageChange);
-});
+        // Extract LRN from student data or use a placeholder
+        const lrn = `LRN${100000 + index}`;
+
+        return {
+          lrn: lrn,
+          name: grade.student,
+          classType: randomClassType,
+          status: randomStatus,
+        };
+      });
+  };
+
+  const getGradeStatus = (grade) => {
+    const numGrade = Number(grade);
+    if (numGrade >= 90) return 'Excellent';
+    if (numGrade >= 85) return 'Very Good';
+    if (numGrade >= 80) return 'Good';
+    if (numGrade >= 75) return 'Satisfactory';
+    return 'Failed';
+  };
+
+  const getGradeStatusClass = (grade) => {
+    const numGrade = Number(grade);
+    if (numGrade >= 90) return 'bg-blue-100 text-blue';
+    if (numGrade >= 85) return 'bg-green-100 text-green';
+    if (numGrade >= 80) return 'bg-yellow-100 text-yellow';
+    if (numGrade >= 75) return 'bg-orange-100 text-orange';
+    return 'bg-red-100 text-red';
+  };
+
+  const getStatusClass = (status) => {
+    switch (status.toUpperCase()) {
+      case 'APPROVED':
+        return 'bg-green-100 text-green';
+      case 'PENDING':
+        return 'bg-yellow-100 text-yellow';
+      case 'DECLINED':
+        return 'bg-red-100 text-red';
+      default:
+        return '';
+    }
+  };
+
+  onMounted(async () => {
+    await loadAdvisoryStats();
+    await loadSubjectClasses();
+    await loadRecentGrades();
+
+    try {
+      const gradeSummary = await getGradeSummary();
+      gradeChartData.value = {
+        labels: Object.keys(gradeSummary),
+        datasets: [
+          {
+            data: Object.values(gradeSummary),
+            backgroundColor: [
+              '#295F98', // Blue
+              '#0C5A48', // Green
+              '#FFFF00', // Yellow
+              '#FF9204', // Orange
+              '#D30000', // Red
+            ],
+          },
+        ],
+      };
+    } catch (error) {
+      console.error('Error loading grade summary:', error);
+      gradeChartData.value = {
+        labels: [],
+        datasets: [
+          {
+            data: [],
+            backgroundColor: [],
+          },
+        ],
+      };
+    }
+  });
 </script>
+
+<style scoped>
+  /* Custom color classes that might not be in your Tailwind config */
+  .text-blue {
+    color: #295f98;
+  }
+  .text-green {
+    color: #0c5a48;
+  }
+  .text-yellow {
+    color: #ffff00;
+  }
+  .text-orange {
+    color: #ff9204;
+  }
+  .text-red {
+    color: #d30000;
+  }
+
+  .bg-blue {
+    background-color: #295f98;
+  }
+  .bg-green {
+    background-color: #0c5a48;
+  }
+  .bg-yellow {
+    background-color: #ffff00;
+  }
+  .bg-orange {
+    background-color: #ff9204;
+  }
+  .bg-red {
+    background-color: #d30000;
+  }
+
+  .bg-blue-100 {
+    background-color: #295f9820;
+  }
+  .bg-green-100 {
+    background-color: #0c5a4820;
+  }
+  .bg-yellow-100 {
+    background-color: #ffff0020;
+  }
+  .bg-orange-100 {
+    background-color: #ff920420;
+  }
+  .bg-red-100 {
+    background-color: #d3000020;
+  }
+
+  .border-blue {
+    border-color: #295f98;
+  }
+  .border-15 {
+    border-width: 15px;
+  }
+</style>

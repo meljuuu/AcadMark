@@ -1,707 +1,336 @@
 <template>
-  <div class="container">
-    <div class="nav-title">
-      <h1>Personnel Setup</h1>
-    </div>
+  <div class="w-full">
+    <h1 class="text-5xl font-bold mb-6">Personnel Setup</h1>
+    <div class="bg-white shadow-lg border border-gray-200 rounded-lg p-6 mb-6 flex flex-col" style="height: 880px;">
+        <div class="flex flex-wrap justify-between items-center mb-4 gap-4">
+          <div class="flex gap-4 flex-wrap items-center">
+              <div class="filters">
+                  <select v-model="selectedAccess" class="filter-dropdown">
+                      <option value="">All Access</option>
+                      <option value="Admin">Admin</option>
+                      <option value="Teacher">Teacher</option>
+                  </select>
+              </div>
 
-    <div class="content">
-      <div class="filtering-section">
-        <div class="search-bar">
-          <Dropdown
-            :showAccess="true"
-            @update:selectedAccess="selectedAccess = $event"
-          />
-          <input type="text" v-model="searchQuery" placeholder="Search..." />
-        </div>
-
-        <div class="buttons">
-          <Buttons label="Add Faculty" @open-modal="showModal = true" />
-        </div>
-      </div>
-  
-      <div class="content">
-        <div class="filtering-section">
-          <div class="search-bar">
-            <input type="text" v-model="searchQuery" placeholder="Search..." />
-            <!-- Uncomment these when you have the components and modals ready -->
-            <!--
-            <Buttons @click="openAddModal" />
-            <ImportClassListButton @click="openImportModal" />
-            <Modal ref="addModalRef" />
-            -->
+              <div class="relative">
+                  <input
+                  v-model="searchQuery"
+                  type="text"
+                  placeholder="Search..."
+                  class="border border-[#295f98] rounded px-10 py-2 "
+                  />
+                  <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+              </div>
           </div>
+
+
+          <button
+            @click="showModal = true"
+            class="bg-[#295f98] text-white px-4 py-2 rounded hover:bg-blue-900 whitespace-nowrap cursor-pointer"
+          >
+            Add Faculty
+          </button>
+
+          <!-- Import & Use the Modal -->
+          <AddFacultyModal
+            v-model="showModal"
+            @submit="handleFacultySubmit"
+          />
         </div>
-  
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>EMPLOYEE</th>
-                <th>NAME</th>
-                <th>QUALIFICATION</th>
-                <th>ACCESS</th>
-                <th>EMAIL</th>
-                <th>ACTION</th>
-              </tr>
+
+        <EditFacultyModal 
+          v-if="showEditModal"
+          :modelValue="showEditModal"
+          :facultyData="editData"
+          :subjects="subjects"
+          formMode="edit"
+          @update:modelValue="showEditModal = false"
+          @updated="handleFacultyEdit"
+        />
+
+        <div class="overflow-x-auto flex-1 overflow-y-auto" style="min-height: 0;">
+          <table class="w-full table-auto border-collapse">
+             <thead>
+                <tr class="bg-gray-100">
+                  <th class="px-6 py-3 text-left font-medium text-gray-700 border-b border-gray-300">Employee No.</th>
+                  <th class="px-6 py-3 text-left font-medium text-gray-700 border-b border-gray-300">Name</th>
+                  <th class="px-6 py-3 text-left font-medium text-gray-700 border-b border-gray-300">Qualification</th>
+                  <th class="px-6 py-3 text-left font-medium text-gray-700 border-b border-gray-300">Access</th>
+                  <th class="px-6 py-3 text-left font-medium text-gray-700 border-b border-gray-300">Email</th>
+                  <th class="px-6 py-3 text-left font-medium text-gray-700 border-b border-gray-300">Action</th>
+                </tr>
             </thead>
-            <tbody>
-              <tr
-                v-for="(student, index) in paginatedStudents"
-                :key="student.lrn"
-                @click="showUnReleasedModal(student)"
-              >
-                <td>{{ student.lrn }}</td>
-                <td>{{ student.name }}</td>
-                <td>{{ student.track }}</td>
-                <td>{{ student.curriculum }}</td>
-                <td>{{ student.batch }}</td>
-                <td>
-                  <span :class="['status', student.status.toLowerCase().replace(/\s+/g, '-')]">
-                    {{ student.status }}
-                  </span>
+             <tbody>
+              <tr v-for="(employee, index) in paginatedEmployees" :key="index" class="hover:bg-gray-50">
+                <td class="px-6 py-4 border-b border-gray-300">{{ employee.empNo }}</td>
+                <td class="px-6 py-4 border-b border-gray-300">{{ employee.name }}</td>
+                <td class="px-6 py-4 border-b border-gray-300">{{ employee.qualification }}</td>
+                <td class="px-6 py-4 border-b border-gray-300">{{ employee.access }}</td>
+                <td class="px-6 py-4 border-b border-gray-300">{{ employee.email }}</td>
+                <td class="px-6 py-4 border-b border-gray-300 space-x-2">
+                  <button @click="openEditModal(employee)" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 cursor-pointer">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button @click="confirmDelete(employee)" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 cursor-pointer">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
                 </td>
-              </tr>
-              <tr v-if="filteredStudents.length === 0">
-                <td colspan="6" style="text-align:center; padding: 20px;">No results found.</td>
               </tr>
             </tbody>
           </table>
         </div>
-  
-        <div class="pagination" v-if="totalPages > 1">
+
+        <div class="flex justify-center items-center mt-4 space-x-1 pt-4 border-t border-gray-300">
           <button
-            :disabled="currentPage === 1"
-            @click="currentPage--"
+              class="px-3 border border-[#295F98] text-[#295F98] py-1 rounded w-28 disabled:opacity-50 whitespace-nowrap flex items-center justify-center gap-1 cursor-pointer"
+              :disabled="currentPage === 1"
+              @click="currentPage--"
           >
-            Prev
+              <span>←</span> Previous
           </button>
+
           <button
-            v-for="page in totalPages"
-            :key="page"
-            @click="goToPage(page)"
-            :class="{ active: currentPage === page }"
+              v-for="page in pageNumbers"
+              :key="page"
+              class="py-1 border border-[#295F98] rounded w-10 text-center"
+              :class="{
+              'bg-[#295F98] text-white': page === currentPage,
+              'text-gray-600': page !== currentPage,
+              'cursor-default': page === '...',
+              'cursor-pointer': page !== '...',
+              }"
+              @click="page !== '...' && (currentPage = page)"
+              :disabled="page === '...'"
           >
-            {{ page }}
+              {{ page }}
           </button>
+
           <button
-            :disabled="currentPage === totalPages"
-            @click="currentPage++"
+              class="px-3 border border-[#295F98] text-[#295F98] py-1 rounded w-28 disabled:opacity-50 whitespace-nowrap flex items-center justify-center gap-1 cursor-pointer"
+              :disabled="currentPage === totalPages"
+              @click="currentPage++"
           >
-            Next
+              Next <span>→</span>
           </button>
         </div>
-  
-        <!-- Example modal placeholder -->
-        <div v-if="modalVisible" class="modal-overlay" @click.self="closeModal">
-          <div class="modal-content">
-            <h3>Student Details</h3>
-            <p><strong>Employee</strong> {{ modalStudent.lrn }}</p>
-            <p><strong>Name</strong> {{ modalStudent.name }}</p>
-            <p><strong>Qualification</strong> {{ modalStudent.track }}</p>
-            <p><strong>Access</strong> {{ modalStudent.curriculum }}</p>
-            <p><strong>Email</strong> {{ modalStudent.batch }}</p>
-            <p><strong>Action</strong> {{ modalStudent.status }}</p>
-            <button @click="closeModal">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Modal: conditionally rendered -->
-    <Modal v-if="showModal" @close="showModal = false" />
-
-    <div class="pagination">
-      <button @click="prevPage" :disabled="currentPage === 1">← Previous</button>
-      <button
-        v-for="page in totalPages"
-        :key="page"
-        @click="currentPage = page"
-        :class="{ active: currentPage === page }"
-      >
-        {{ page }}
-      </button>
-      <button @click="nextPage" :disabled="currentPage === totalPages">Next →</button>
     </div>
   </div>
-  <br />
 </template>
 
 <script>
-  import Dropdown from '@/SAcomponents/SAdropdown.vue';
-  import Buttons from '@/SAcomponents/SAButtons.vue';
-  import Modal from '@/SAcomponents/SAmodal.vue';
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+import Swal from 'sweetalert2';
+import AddFacultyModal from './components/AddFacultyModal.vue';
+import EditFacultyModal from './components/EditFacultyModal.vue';
 
-  export default {
-    components: {
-      Dropdown,
-      Buttons,
-      Modal,
-    },
-    data() {
+export default {
+  components: {
+    AddFacultyModal,
+    EditFacultyModal,
+  },
+  data() {
+    return {
+      showModal: false,
+      showEditModal: false,
+      editData: null,
+      currentPage: 1,
+      perPage: 10,
+      selectedAccess: '',
+      searchQuery: '',
+      employees: [], // Now fetched dynamically
+      subjects: [],
+    };
+  },
+  mounted() {
+    this.fetchEmployees(); // fetch on load
+    this.fetchSubjects();
+  },
+  
+  methods: {
+     async fetchSubjects() {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://127.0.0.1:8000/api/subject/getSubjects', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      this.subjects = Array.isArray(response.data) ? response.data : response.data.data || [];
+    } catch (error) {
+      console.error('Failed to fetch subjects:', error);
+      Swal.fire('Error', 'Could not load subjects.', 'error');
+    }
+  },
+ async fetchEmployees() {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await axios.get('http://127.0.0.1:8000/api/teacher/getAll', {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    // Adjust for new API structure
+    const teacherList = Array.isArray(response.data.teachers)
+      ? response.data.teachers
+      : [];
+
+    this.employees = teacherList.map(item => {
+      const t = item.teacher;
       return {
-        selectedAccess: '',
-        searchQuery: '',
-        showModal: false,
-        personnel: [
-          {
-            employee: 'EMP001',
-            name: 'Alice Johnson',
-            qualification: 'MBA',
-            access: 'Admin',
-            email: 'alice.johnson@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP002',
-            name: 'Bob Smith',
-            qualification: 'MSc',
-            access: 'Teacher',
-            email: 'bob.smith@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP003',
-            name: 'Carol White',
-            qualification: 'PhD',
-            access: 'Teacher',
-            email: 'carol.white@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP004',
-            name: 'David Brown',
-            qualification: 'BSc',
-            access: 'Admin',
-            email: 'david.brown@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP005',
-            name: 'Eva Green',
-            qualification: 'MEd',
-            access: 'Teacher',
-            email: 'eva.green@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP006',
-            name: 'Frank Black',
-            qualification: 'BSc',
-            access: 'Teacher',
-            email: 'frank.black@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP007',
-            name: 'Grace Lee',
-            qualification: 'MBA',
-            access: 'Admin',
-            email: 'grace.lee@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP008',
-            name: 'Henry Wilson',
-            qualification: 'MSc',
-            access: 'Teacher',
-            email: 'henry.wilson@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP009',
-            name: 'Isabel King',
-            qualification: 'PhD',
-            access: 'Teacher',
-            email: 'isabel.king@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP010',
-            name: 'Jackie Turner',
-            qualification: 'MEd',
-            access: 'Teacher',
-            email: 'jackie.turner@example.com',
-            status: 'Active',
-          },
-
-          {
-            employee: 'EMP011',
-            name: 'Kevin Scott',
-            qualification: 'MBA',
-            access: 'Admin',
-            email: 'kevin.scott@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP012',
-            name: 'Laura Adams',
-            qualification: 'BSc',
-            access: 'Teacher',
-            email: 'laura.adams@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP013',
-            name: 'Michael Evans',
-            qualification: 'MSc',
-            access: 'Teacher',
-            email: 'michael.evans@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP014',
-            name: 'Nina Collins',
-            qualification: 'PhD',
-            access: 'Admin',
-            email: 'nina.collins@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP015',
-            name: 'Oliver Young',
-            qualification: 'BEd',
-            access: 'Teacher',
-            email: 'oliver.young@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP016',
-            name: 'Patricia Hill',
-            qualification: 'MEd',
-            access: 'Teacher',
-            email: 'patricia.hill@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP017',
-            name: 'Quinn Lewis',
-            qualification: 'MBA',
-            access: 'Admin',
-            email: 'quinn.lewis@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP018',
-            name: 'Rachel Walker',
-            qualification: 'BSc',
-            access: 'Teacher',
-            email: 'rachel.walker@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP019',
-            name: 'Steven Harris',
-            qualification: 'MSc',
-            access: 'Teacher',
-            email: 'steven.harris@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP020',
-            name: 'Tina Martin',
-            qualification: 'PhD',
-            access: 'Teacher',
-            email: 'tina.martin@example.com',
-            status: 'Active',
-          },
-
-          {
-            employee: 'EMP021',
-            name: 'Uma Baker',
-            qualification: 'MBA',
-            access: 'Admin',
-            email: 'uma.baker@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP022',
-            name: 'Victor Carter',
-            qualification: 'BEd',
-            access: 'Teacher',
-            email: 'victor.carter@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP023',
-            name: 'Wendy Diaz',
-            qualification: 'MEd',
-            access: 'Teacher',
-            email: 'wendy.diaz@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP024',
-            name: 'Xander Fisher',
-            qualification: 'MBA',
-            access: 'Admin',
-            email: 'xander.fisher@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP025',
-            name: 'Yvonne Grant',
-            qualification: 'BSc',
-            access: 'Teacher',
-            email: 'yvonne.grant@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP026',
-            name: 'Zachary Howard',
-            qualification: 'MSc',
-            access: 'Teacher',
-            email: 'zachary.howard@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP027',
-            name: 'Angela Jenkins',
-            qualification: 'PhD',
-            access: 'Teacher',
-            email: 'angela.jenkins@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP028',
-            name: 'Brian Kelly',
-            qualification: 'MEd',
-            access: 'Teacher',
-            email: 'brian.kelly@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP029',
-            name: 'Cynthia Lopez',
-            qualification: 'MBA',
-            access: 'Admin',
-            email: 'cynthia.lopez@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP030',
-            name: 'Derek Morgan',
-            qualification: 'BSc',
-            access: 'Teacher',
-            email: 'derek.morgan@example.com',
-            status: 'Active',
-          },
-
-          {
-            employee: 'EMP031',
-            name: 'Ella Nelson',
-            qualification: 'MSc',
-            access: 'Teacher',
-            email: 'ella.nelson@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP032',
-            name: 'Fred Owens',
-            qualification: 'PhD',
-            access: 'Teacher',
-            email: 'fred.owens@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP033',
-            name: 'Gina Perez',
-            qualification: 'MBA',
-            access: 'Admin',
-            email: 'gina.perez@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP034',
-            name: 'Harry Quinn',
-            qualification: 'BEd',
-            access: 'Teacher',
-            email: 'harry.quinn@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP035',
-            name: 'Irene Roberts',
-            qualification: 'MEd',
-            access: 'Teacher',
-            email: 'irene.roberts@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP036',
-            name: 'James Stewart',
-            qualification: 'MBA',
-            access: 'Admin',
-            email: 'james.stewart@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP037',
-            name: 'Karen Thomas',
-            qualification: 'BSc',
-            access: 'Teacher',
-            email: 'karen.thomas@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP038',
-            name: 'Larry Underwood',
-            qualification: 'MSc',
-            access: 'Teacher',
-            email: 'larry.underwood@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP039',
-            name: 'Monica Vargas',
-            qualification: 'PhD',
-            access: 'Teacher',
-            email: 'monica.vargas@example.com',
-            status: 'Active',
-          },
-          {
-            employee: 'EMP040',
-            name: 'Nathan Williams',
-            qualification: 'MEd',
-            access: 'Teacher',
-            email: 'nathan.williams@example.com',
-            status: 'Active',
-          },
-        ],
-        currentPage: 1,
-        itemsPerPage: 20,
+        empNo: t.EmployeeNo,
+        name: `${t.FirstName} ${t.LastName}`,
+        qualification: t.Educational_Attainment || '',
+        access: t.Position,
+        email: t.Email,
+        original: {
+          ...t,
+          Subject_IDs: item.Subject_IDs, // include subject IDs for modal
+          subjects: item.subjects,       // include subject objects if needed
+          id: t.id || t.Teacher_ID
+        }
       };
-    },
-    computed: {
-      filteredPersonnel() {
-        const searchLower = this.searchQuery.toLowerCase();
-        return this.personnel.filter((person) => {
-          const matchesSearch =
-            !this.searchQuery ||
-            person.name.toLowerCase().includes(searchLower) ||
-            person.employee.toLowerCase().includes(searchLower);
+    });
+  } catch (error) {
+    console.error('Failed to fetch employees:', error);
+    Swal.fire('Error', 'Could not load employee data.', 'error');
+  }
+},
 
-          const matchesAccess =
-            this.selectedAccess === '' ||
-            this.selectedAccess === 'All' ||
-            person.access === this.selectedAccess;
+  
+    handleFacultySubmit(name) {
+      console.log('Faculty submitted:', name);
+    },
+    async openEditModal(employee) {
+      if (!this.subjects.length) {
+        await this.fetchSubjects();
+      }
+        this.editData = employee.original ? { ...employee.original } : { ...employee };
+        this.showEditModal = true;
+      },
+    handleFacultyEdit(updatedData) {
+      console.log('Faculty updated:', updatedData);
+      // Find by EmployeeNo, since updatedData does not have empNo
+      const index = this.employees.findIndex(emp => emp.empNo === updatedData.EmployeeNo);
+      if (index !== -1) {
+        // Update the mapped fields and original
+        this.employees[index] = {
+          ...this.employees[index],
+          name: `${updatedData.FirstName} ${updatedData.LastName}`,
+          qualification: updatedData.Educational_Attainment || '',
+          access: updatedData.Position,
+          email: updatedData.Email,
+          original: { ...updatedData, id: updatedData.id || updatedData.Teacher_ID }
+        };
+      }
+      this.showEditModal = false; // Close the modal
+    },
+    confirmDelete(employee) {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: `Delete employee ${employee.name}? This action cannot be undone.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const teacherId = employee.original?.id || employee.original?.Teacher_ID || employee.original?.id;
+          const token = localStorage.getItem('token');
+          await axios.delete(`http://127.0.0.1:8000/api/teachers/delete/${teacherId}`, {
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          this.employees = this.employees.filter(emp => emp.empNo !== employee.empNo);
+          Swal.fire('Deleted!', 'Employee has been deleted.', 'success');
+        } catch (error) {
+          Swal.fire('Error', 'Failed to delete employee.', 'error');
+        }
+      }
+    });
+  },
+  },
+  computed: {
+    totalPages() {
+      return Math.ceil(this.filteredEmployees.length / this.perPage);
+    },
+    paginatedEmployees() {
+      const start = (this.currentPage - 1) * this.perPage;
+      return this.filteredEmployees.slice(start, start + this.perPage);
+    },
+    filteredEmployees() {
+      const query = this.searchQuery.toLowerCase();
+      return this.employees.filter((employee) => {
+        const matchesAccess =
+          this.selectedAccess === '' || employee.access === this.selectedAccess;
 
-          return matchesSearch && matchesAccess;
-        });
-      },
-      totalPages() {
-        return Math.ceil(this.filteredPersonnel.length / this.itemsPerPage);
-      },
-      paginatedPersonnel() {
-        const start = (this.currentPage - 1) * this.itemsPerPage;
-        return this.filteredPersonnel.slice(start, start + this.itemsPerPage);
-      },
+        const matchesSearch =
+          employee.empNo.toLowerCase().includes(query) ||
+          employee.name.toLowerCase().includes(query) ||
+          employee.qualification.toLowerCase().includes(query) ||
+          employee.access.toLowerCase().includes(query) ||
+          employee.email.toLowerCase().includes(query);
+
+        return matchesAccess && matchesSearch;
+      });
     },
-    methods: {
-      prevPage() {
-        if (this.currentPage > 1) {
-          this.currentPage--;
-        }
-      },
-      nextPage() {
-        if (this.currentPage < this.totalPages) {
-          this.currentPage++;
-        }
-      },
-      handleOpenModal() {
-        this.showModal = true;
-      },
+    pageNumbers() {
+      const pages = [];
+      const total = this.totalPages;
+      const current = this.currentPage;
+
+      if (total <= 7) {
+        for (let i = 1; i <= total; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        if (current > 3) pages.push('...');
+        const start = Math.max(2, current - 1);
+        const end = Math.min(total - 1, current + 1);
+        for (let i = start; i <= end; i++) pages.push(i);
+        if (current < total - 2) pages.push('...');
+        pages.push(total);
+      }
+      return pages;
     },
-  };
+  },
+};
 </script>
 
 <style scoped>
-  .container {
-    width: 125%;
-    padding: 10px;
-    box-sizing: border-box;
-  }
+.filters {
+  display: flex;
+  gap: 10px;
+} 
 
-  .content {
-    background-color: #ffffff;
-    box-shadow:
-      rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
-      rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
-    padding: 30px 30px;
-    border-radius: 5px;
-  }
+.filter-dropdown {
+  padding: 10px 15px;
+  width: 210px;
+  border: 1px solid #295f98;
+  border-radius: 5px;
+  font-size: 14px;
+  background: #fff;
+  font-weight: bold;
+  color: #295f98;
+  cursor: pointer;
+  appearance: none;
+  position: relative;
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+  transition: all 0.3s ease-in-out;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='18' height='18' fill='%23295f98'><path d='M7 10l5 5 5-5H7z'/></svg>");
+}
 
-  .nav-title h1 {
-    color: #295f98;
-    font-weight: bold;
-    font-size: 48px;
-    padding: 0;
-    margin: 0;
-  }
-
-  .filtering-section {
-    display: flex;
-    justify-content: space-between;
-    border-radius: 5px;
-    margin-bottom: 20px;
-  }
-
-  .buttons {
-    display: flex;
-    gap: 10px;
-  }
-  .filter-dropdown {
-    padding: 15px 20px;
-    width: 160px;
-    border: 1px solid #295f98;
-    border-radius: 5px;
-    font-size: 14px;
-    background: #fff;
-    font-weight: bold;
-    color: #295f98;
-    cursor: pointer;
-    appearance: none;
-    position: relative;
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    padding-right: 30px;
-    transition: all 0.3s ease-in-out;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='18' height='18' fill='%23295f98'><path d='M14 7l-5 5 5 5V7z'/></svg>");
-  }
-
-  .filter-dropdown:focus {
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='18' height='18' fill='%23295f98'><path d='M7 10l5 5 5-5H7z'/></svg>");
-  }
-
-  .search-bar {
-    display: flex;
-    gap: 10px;
-  }
-
-  .search-bar input {
-    padding: 8px;
-    border: 1px solid #295f98;
-    border-radius: 5px;
-    width: 250px;
-  }
-
-  .add-student {
-    background: #295f98;
-    color: #fff;
-    border: none;
-    padding: 15px 20px;
-    border-radius: 3px;
-    cursor: pointer;
-    font-size: 16px;
-  }
-
-  .table-container {
-    background: #fff;
-    border-radius: 8px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    max-height: 600px;
-    box-shadow:
-      rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
-      rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
-    border: 1px solid #ddd;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  th,
-  td {
-    padding: 15px;
-    text-align: center;
-    border-bottom: 1px solid #ddd;
-    font-size: 12px;
-  }
-
-  th {
-    padding-top: 20px;
-    background: #F6F6F6;
-    color: #000;
-    position: sticky;
-    top: 0;
-    z-index: 1;
-  }
-
-  tr {
-    cursor: pointer;
-  }
-  tr:hover {
-    background-color: #f6f6f6;
-  }
-
-  .status {
-    min-width: 70px;
-    display: inline-block;
-  }
-
-  .status.approved {
-    background: #0c5a48;
-    color: white;
-    padding: 5px 20px;
-    border-radius: 5px;
-    font-size: 12px;
-  }
-  .status.review {
-    background-color: #fbdf5a;
-    color: white;
-    padding: 5px 20px;
-    border-radius: 5px;
-    font-size: 12px;
-  }
-
-  .status.revised {
-    background-color: #b32113;
-    color: white;
-    padding: 5px 20px;
-    border-radius: 5px;
-    font-size: 12px;
-  }
-
-  .status.not-applicable {
-    background-color: #7e7a79;
-    color: white;
-    padding: 5px 20px;
-    border-radius: 5px;
-    font-size: 12px;
-  }
-
-  .pagination {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-  }
-
-  .page {
-    font-weight: bold;
-  }
-
-  .pagination {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-  }
-
-  .pagination button {
-    background-color: #f0f0f0;
-    border: 1px solid #ddd;
-    padding: 8px 12px;
-    margin: 0 5px;
-    cursor: pointer;
-  }
-
-  .pagination button.active {
-    background-color: #295f98;
-    color: white;
-  }
-
-  .pagination button:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-  }
+.filter-dropdown:focus {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='18' height='18' fill='%23295f98'><path d='M7 14l5-5 5 5H7z'/></svg>");
+}
 </style>

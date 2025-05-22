@@ -1,168 +1,213 @@
 <template>
-    <div class="max-h-[412px]">
-        <div class="flex justify-between px-5 py-3">
-            <Dropdown :showQuarter="true" v-model="selectedQuarter" />
-            <Searchbar v-model="searchQuery" />
-        </div>
-
-        <div class="overflow-auto px-5">
-            <table class="w-full border-collapse text-center text-sm">
-                <thead class="bg-gray-100 text-[#464F60] text-[15px] font-semibold">
-                    <tr>
-                        <th class="p-2 w-1/6">LRN</th>
-                        <th class="p-2 w-1/6">Name</th>
-                        <th class="p-2 w-1/6">Gender</th>
-                        <th class="p-2 w-1/6">Age</th>
-                        <th class="p-2 w-1/6">Grade</th>
-                        <th class="p-2 w-1/6">Status</th>
-                    </tr>
-                </thead>
-                <tbody class="font-medium text-[15px]">
-                    <tr v-if="paginatedStudents.length === 0">
-                        <td colspan="6" class="p-2 text-center">No students available.</td>
-                    </tr>
-                    <tr v-for="student in paginatedStudents" :key="student.lrn" class="hover:bg-gray-200 cursor-pointer"
-                        @click="openModal(student)">
-                        <td class="p-2 w-1/6">{{ student.lrn }}</td>
-                        <td class="p-2 w-1/6">{{ student.lastName + ", " + student.firstName + " " + student.middleName
-                            }}</td>
-                        <td class="p-2 w-1/6">{{ student.sex }}</td>
-                        <td class="p-2 w-1/6">{{ getAge(student.birthDate) }}</td>
-                        <td class="p-2 w-1/6">{{ getGradeForQuarter(student) }}</td>
-                        <td class="p-2 w-1/6">
-                            <span
-                                class="px-4 py-2 rounded text-white inline-block w-[135px] font-light text-center bg-orange">
-                                Pending
-                            </span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <modal v-if="showMessage" :showMessage="showMessage" @close="closeModal" :trackStand="trackStand"
-            :selectedStudent="selectedStudent" :selectedQuarter="selectedQuarter" />
+  <div class="max-h-[412px]">
+    <div class="flex justify-between px-5 py-3">
+      <Dropdown :showQuarter="true" v-model="selectedQuarter" />
+      <Searchbar v-model="searchQuery" />
     </div>
+
+    <div class="overflow-auto px-5">
+      <table class="w-full border-collapse text-center text-sm">
+        <thead class="bg-gray-100 text-[#464F60] text-[15px] font-semibold">
+          <tr>
+            <th class="p-2 w-1/6">LRN</th>
+            <th class="p-2 w-1/6">Name</th>
+            <th class="p-2 w-1/6">Gender</th>
+            <th class="p-2 w-1/6">Age</th>
+            <th class="p-2 w-1/6">Grade</th>
+            <th class="p-2 w-1/6">Status</th>
+          </tr>
+        </thead>
+        <tbody class="font-medium text-[15px]">
+          <tr v-if="paginatedStudents.length === 0">
+            <td colspan="6" class="p-2 text-center">No students available.</td>
+          </tr>
+          <tr
+            v-for="student in paginatedStudents"
+            :key="student.lrn"
+            class="hover:bg-gray-200 cursor-pointer"
+            @click="openModal(student)"
+          >
+            <td class="p-2 w-1/6">{{ student.lrn }}</td>
+            <td class="p-2 w-1/6">
+              {{
+                student.lastName +
+                ', ' +
+                student.firstName +
+                ' ' +
+                student.middleName
+              }}
+            </td>
+            <td class="p-2 w-1/6">{{ student.sex }}</td>
+            <td class="p-2 w-1/6">{{ getAge(student.birthDate) }}</td>
+            <td class="p-2 w-1/6">{{ getGradeForQuarter(student) }}</td>
+            <td class="p-2 w-1/6">
+              <span
+                class="px-4 py-2 rounded text-white inline-block w-[135px] font-light text-center bg-orange"
+              >
+                Pending
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <modal
+      v-if="showMessage"
+      :showMessage="showMessage"
+      @close="closeModal"
+      :trackStand="trackStand"
+      :selectedStudent="selectedStudent"
+      :selectedQuarter="selectedQuarter"
+    />
+  </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
-import Dropdown from '@/components/dropdown.vue';
-import Searchbar from '@/components/searchbar.vue';
-import modal from '@/components/modal.vue';
+  import { ref, onMounted, computed, watch } from 'vue';
+  import Dropdown from '@/components/dropdown.vue';
+  import Searchbar from '@/components/searchbar.vue';
+  import modal from '@/components/modal.vue';
 
-const props = defineProps({
+  const props = defineProps({
     subject_id: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     trackStand: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     currentPage: {
-        type: Number,
-        required: true,
+      type: Number,
+      required: true,
     },
     itemsPerPage: {
-        type: Number,
-        required: true,
+      type: Number,
+      required: true,
     },
-});
+  });
 
-const emit = defineEmits(['update:currentPage', 'update:totalItems']);
+  const emit = defineEmits(['update:currentPage', 'update:totalItems']);
 
-const students = ref([]);
-const selectedQuarter = ref("1st");
-const searchQuery = ref("");
-const showMessage = ref(false);
-const selectedStudent = ref(null);
+  const students = ref([]);
+  const selectedQuarter = ref('1st');
+  const searchQuery = ref('');
+  const showMessage = ref(false);
+  const selectedStudent = ref(null);
 
-const quarterMapping = {
-    "1st": "first",
-    "2nd": "second",
-    "3rd": "third",
-    "4th": "fourth"
-};
+  const quarterMapping = {
+    '1st': 'first',
+    '2nd': 'second',
+    '3rd': 'third',
+    '4th': 'fourth',
+  };
 
-const fetchStudents = () => {
+  const refreshSubmittedData = () => {
+    fetchStudents();
+  };
+
+  // Expose this method to the parent component
+  defineExpose({
+    refreshSubmittedData,
+  });
+
+  const fetchStudents = () => {
     try {
-        const key = `submittedGrade_${props.subject_id}`;
-        const storedData = JSON.parse(localStorage.getItem(key)) || [];
-        students.value = storedData;
-        emit('update:currentPage', 1);
-        emit('update:totalItems', students.value.length);
-    } catch (error) {
+      const key = `submittedGrade_${props.subject_id}`;
+      const storedData = localStorage.getItem(key);
+
+      if (storedData) {
+        students.value = JSON.parse(storedData);
+        console.log('Loaded submitted students:', students.value);
+      } else {
         students.value = [];
-        emit('update:currentPage', 1);
-        emit('update:totalItems', 0);
-    }
-};
+      }
 
-const filteredStudents = computed(() => {
+      emit('update:currentPage', 1);
+      emit('update:totalItems', students.value.length);
+    } catch (error) {
+      console.error('Error loading submitted students:', error);
+      students.value = [];
+      emit('update:currentPage', 1);
+      emit('update:totalItems', 0);
+    }
+  };
+
+  const filteredStudents = computed(() => {
     if (!searchQuery.value) {
-        return students.value;
+      return students.value;
     }
-    return students.value.filter(student => {
-        return student.firstName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-            student.lastName.toLowerCase().includes(searchQuery.value.toLowerCase());
+    return students.value.filter((student) => {
+      return (
+        student.firstName
+          .toLowerCase()
+          .includes(searchQuery.value.toLowerCase()) ||
+        student.lastName.toLowerCase().includes(searchQuery.value.toLowerCase())
+      );
     });
-});
+  });
 
-const totalPages = computed(() => {
+  const totalPages = computed(() => {
     if (filteredStudents.value.length === 0) {
-        return 0;
+      return 0;
     }
     return Math.ceil(filteredStudents.value.length / props.itemsPerPage);
-});
+  });
 
-const paginatedStudents = computed(() => {
+  const paginatedStudents = computed(() => {
     if (filteredStudents.value.length === 0) {
-        return [];
+      return [];
     }
 
     const startIndex = (props.currentPage - 1) * props.itemsPerPage;
     const endIndex = startIndex + props.itemsPerPage;
     return filteredStudents.value.slice(startIndex, endIndex);
-});
+  });
 
-watch(filteredStudents, (newFilteredStudents) => {
-    const newTotalPages = Math.ceil(newFilteredStudents.length / props.itemsPerPage);
-    if (props.currentPage > newTotalPages && newTotalPages > 0) {
+  watch(
+    filteredStudents,
+    (newFilteredStudents) => {
+      const newTotalPages = Math.ceil(
+        newFilteredStudents.length / props.itemsPerPage
+      );
+      if (props.currentPage > newTotalPages && newTotalPages > 0) {
         emit('update:currentPage', newTotalPages);
-    } else if (newTotalPages === 0) {
+      } else if (newTotalPages === 0) {
         emit('update:currentPage', 1);
-    }
-}, { deep: true });
+      }
+    },
+    { deep: true }
+  );
 
-const getGradeForQuarter = (student) => {
+  const getGradeForQuarter = (student) => {
     const quarterKey = quarterMapping[selectedQuarter.value];
     return student.grades[quarterKey] || '';
-};
+  };
 
-const getAge = (birthDate) => {
+  const getAge = (birthDate) => {
     const birth = new Date(birthDate);
     const ageDifMs = Date.now() - birth.getTime();
     const ageDate = new Date(ageDifMs);
     return Math.abs(ageDate.getUTCFullYear() - 1970);
-};
+  };
 
-const openModal = (student) => {
+  const openModal = (student) => {
     selectedStudent.value = student;
     showMessage.value = true;
-};
+  };
 
-const closeModal = () => {
+  const closeModal = () => {
     showMessage.value = false;
-};
+  };
 
-onMounted(() => {
+  onMounted(() => {
     fetchStudents();
     if (students.value.length === 0) {
-        emit('update:currentPage', 1);
-        emit('update:totalItems', 0);
+      emit('update:currentPage', 1);
+      emit('update:totalItems', 0);
     } else {
-        emit('update:totalItems', students.value.length);
+      emit('update:totalItems', students.value.length);
     }
-});
+  });
 </script>
