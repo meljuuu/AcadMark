@@ -1,5 +1,4 @@
 <template>
-
     <!-- Add Faculty Modal -->
     <transition name="modal-fade" @after-leave="emitClose">
       <div class="modal-overlay" v-if="showModal" @click.self="closeModal">
