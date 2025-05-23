@@ -25,7 +25,24 @@ export const classService = {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });
-            return response.data;
+            
+            if (response.data.status === 'success') {
+                return {
+                    status: 'success',
+                    data: {
+                        maleCount: response.data.data.maleCount,
+                        femaleCount: response.data.data.femaleCount,
+                        totalStudents: response.data.data.totalStudents,
+                        className: response.data.data.className,
+                        section: response.data.data.section,
+                        gradeLevel: response.data.data.gradeLevel,
+                        track: response.data.data.track,
+                        curriculum: response.data.data.curriculum
+                    }
+                };
+            } else {
+                throw new Error(response.data.message || 'Failed to fetch class details');
+            }
         } catch (error) {
             throw this.handleError(error);
         }
