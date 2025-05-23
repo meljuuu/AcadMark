@@ -58,9 +58,10 @@
             class="w-40 aspect-square rounded-full border-15 border-blue text-center flex flex-col justify-center items-center p-4">
             <p class="text-3xl font-semibold leading-tight">
               {{
-                subjectClasses.length > 0
-                  ? subjectClasses.reduce((sum, cls) => sum + cls.count, 0)
-                  : 0
+                subjectClassesGrouped && subjectClassesGrouped.length > 0 ?
+                subjectClassesGrouped.reduce((sum, classGroup) =>
+                  sum + (classGroup.subjects ? classGroup.subjects.reduce((subSum, subject) => subSum + subject.count, 0) : 0), 0)
+                : 0
               }}
             </p>
             <p class="text-base leading-tight">TOTAL</p>
@@ -68,21 +69,24 @@
           </div>
 
           <div class="flex flex-col gap-2 w-full overflow-hidden">
-            <div class="grid grid-cols-2 max-[1790px]:grid-cols-1 gap-5">
-              <div v-for="(classItem, idx) in subjectClasses" :key="idx"
-                class="flex border border-[#cecece] gap-3 py-2 pr-4 rounded-lg w-full overflow-hidden"
-                style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px">
+            <div v-for="(classGroup, classIdx) in (subjectClassesGrouped || [])" :key="classIdx"
+                 class="flex flex-col border border-[#cecece] gap-2 py-2 pr-4 rounded-lg w-full overflow-hidden mb-4"
+                 style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
                 <div class="flex items-center">
-                  <div class="h-full w-[7px] bg-blue rounded-full mr-2 ml-2"></div>
-                  <p class="font-medium text-[32px]">{{ classItem.count }}</p>
+                   <div class="h-full w-[7px] bg-blue rounded-full mr-2 ml-2"></div>
+                   <p class="font-medium text-xl truncate">{{ classGroup.name }}</p>
                 </div>
-                <div class="overflow-hidden">
-                  <p class="text-lg truncate">{{ classItem.name }}</p>
-                  <p class="text-base text-[#7b7b7b] leading-none truncate">
-                    {{ classItem.subject }}
-                  </p>
+                <div v-for="(subjectItem, subjectIdx) in (classGroup.subjects || [])" :key="subjectIdx" class="flex items-center gap-3 ml-5">
+                    <p class="font-medium text-lg">{{ subjectItem.count }}</p>
+                    <p class="text-base text-[#7b7b7b] leading-none truncate">
+                        {{ subjectItem.subject }}
+                    </p>
                 </div>
-              </div>
+            </div>
+            <div v-if="subjectClassesGrouped && subjectClassesGrouped.length === 0" class="flex flex-col items-center justify-center py-10 text-gray-500">
+                <img src="/assets/img/dashboard/no-data.png" alt="No Data" class="w-32 h-32 mb-4 opacity-50" />
+                <p class="text-lg font-medium">No Subject Classes Assigned</p>
+                <p class="text-ssm">You are not currently assigned to teach any subject classes.</p>
             </div>
           </div>
         </div>
@@ -340,7 +344,23 @@ const loadAdvisoryStats = async () => {
 const loadSubjectClasses = async () => {
   try {
     const response = await getSubjectClasses();
-    subjectClasses.value = response;
+    // Group classes by class name
+    const groupedClasses = response.reduce((acc, curr) => {
+      const key = curr.ClassName;
+      if (!acc[key]) {
+        acc[key] = {
+          name: key,
+          subjects: []
+        };
+      }
+      acc[key].subjects.push({
+        subject: curr.SubjectName,
+        count: curr.student_count
+      });
+      return acc;
+    }, {});
+    
+    subjectClasses.value = Object.values(groupedClasses);
   } catch (error) {
     console.error('Error loading subject classes:', error);
     subjectClasses.value = [];
@@ -351,71 +371,40 @@ const loadRecentGrades = async () => {
   try {
     const response = await getRecentGrades();
     recentGrades.value = response;
-
-    // Generate submitted grades data from recent grades
-    // This is a simplified simulation since you might not have a separate API for this yet
-    generateSubmittedGradesData();
-    generateRecentSubmittedGrades();
+    
+    // Generate submitted grades data based on actual status counts
+    const statusCounts = response.reduce((acc, curr) => {
+      acc[curr.status] = (acc[curr.status] || 0) + 1;
+      return acc;
+    }, {});
+    
+    submittedGradesData.value = {
+      labels: ['APPROVED', 'PENDING', 'DECLINED'],
+      datasets: [
+        {
+          data: [
+            statusCounts.accepted || 0,
+            statusCounts.pending || 0,
+            statusCounts.declined || 0
+          ],
+          backgroundColor: '#295F98',
+          label: 'Advisory Class',
+        }
+      ],
+    };
+    
+    // Generate recent submitted grades from actual data
+    recentSubmittedGrades.value = response.slice(0, 8).map(grade => ({
+      lrn: grade.student.split(' ')[0], // Assuming first part is LRN
+      name: grade.student,
+      classType: 'Subject', // Since these are subject grades
+      status: grade.status.toUpperCase()
+    }));
   } catch (error) {
     console.error('Error loading recent grades:', error);
     recentGrades.value = [];
+    recentSubmittedGrades.value = [];
   }
-};
-
-const generateSubmittedGradesData = () => {
-  // In a real implementation, this would come from an API
-  // For now, we'll simulate data based on available grades
-
-  const advisoryApproved = Math.floor(Math.random() * 20);
-  const advisoryPending = Math.floor(Math.random() * 10);
-  const advisoryDeclined = Math.floor(Math.random() * 5);
-
-  const subjectApproved = Math.floor(Math.random() * 30);
-  const subjectPending = Math.floor(Math.random() * 15);
-  const subjectDeclined = Math.floor(Math.random() * 8);
-
-  submittedGradesData.value = {
-    labels: ['APPROVED', 'PENDING', 'DECLINED'],
-    datasets: [
-      {
-        data: [advisoryApproved, advisoryPending, advisoryDeclined],
-        backgroundColor: '#295F98',
-        label: 'Advisory Class',
-      },
-      {
-        data: [subjectApproved, subjectPending, subjectDeclined],
-        backgroundColor: '#0C5A48',
-        label: 'Subject Class',
-      },
-    ],
-  };
-};
-
-const generateRecentSubmittedGrades = () => {
-  // For now, we'll generate sample data
-  // In a real implementation, this would come from an API
-  const statuses = ['APPROVED', 'PENDING', 'DECLINED'];
-  const classTypes = ['Advisory', 'Subject'];
-
-  // Create sample submitted grades from the actual grades
-  recentSubmittedGrades.value = recentGrades.value
-    .slice(0, 8)
-    .map((grade, index) => {
-      const randomStatus =
-        statuses[Math.floor(Math.random() * statuses.length)];
-      const randomClassType =
-        classTypes[Math.floor(Math.random() * classTypes.length)];
-
-      // Extract LRN from student data or use a placeholder
-      const lrn = `LRN${100000 + index}`;
-
-      return {
-        lrn: lrn,
-        name: grade.student,
-        classType: randomClassType,
-        status: randomStatus,
-      };
-    });
 };
 
 const getGradeStatus = (grade) => {
@@ -450,11 +439,13 @@ const getStatusClass = (status) => {
 };
 
 onMounted(async () => {
-  await loadAdvisoryStats();
-  await loadSubjectClasses();
-  await loadRecentGrades();
-
   try {
+    await Promise.all([
+      loadAdvisoryStats(),
+      loadSubjectClasses(),
+      loadRecentGrades()
+    ]);
+
     const gradeSummary = await getGradeSummary();
     gradeChartData.value = {
       labels: Object.keys(gradeSummary),
@@ -472,7 +463,7 @@ onMounted(async () => {
       ],
     };
   } catch (error) {
-    console.error('Error loading grade summary:', error);
+    console.error('Error loading dashboard data:', error);
     gradeChartData.value = {
       labels: [],
       datasets: [
