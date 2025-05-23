@@ -36,7 +36,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="student in filteredStudents" :key="student.student_id">
+                <tr v-for="(student, index) in filteredStudents" :key="`${student.student_id}-${student.class_id}-${index}`">
                   <td class="table-cell">{{ student.lrn }}</td>
                   <td class="table-cell">{{ student.firstName }} {{ student.lastName }}</td>
                   <td class="table-cell">{{ student.sex }}</td>
