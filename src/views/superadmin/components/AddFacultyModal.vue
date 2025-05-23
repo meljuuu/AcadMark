@@ -6,7 +6,7 @@
     @click.self="$emit('update:modelValue', false)"
   >
     <div class="bg-white p-6 rounded-md w-[1000px] shadow-lg max-w-full">
-      <h2 class="text-xl text-[#295f98] font-semibold mb-6">Add Faculty</h2>
+      <h2 class="text-xl text-[#295f98] font-semibold mb-6">Add Personnel</h2>
       <form @submit.prevent="handleSubmit" class="space-y-4 p-2">
         <!-- Profile Section -->
         <h1 class="font-semibold text-[#295f98]">Profile</h1>
@@ -78,38 +78,7 @@
           </div>
         </div>
 
-        <div class="flex gap-4 mb-4" v-if="selectedAccession === 'Teacher'">
-          <div class="floating-label flex-1" :class="{ filled: subject1 }">
-            <select v-model="subject1" class="input" required>
-              <option value="" disabled selected hidden>Select Subject 1</option>
-            <option v-for="subject in subjects" :key="subject.Subject_ID" :value="subject.Subject_ID">
-              {{ subject.SubjectName }}
-            </option>
-            </select>
-            <label>{{ subject1 ? capitalize(subject1) : 'Subject 1' }}</label>
-            <span class="custom-arrow"></span>
-          </div>
-
-         <div v-if="showSubject2" class="floating-label flex-1" :class="{ filled: subject2 }">
-          <select v-model="subject2" class="input">
-            <option value="" disabled selected hidden>Select Subject 2</option>
-            <option v-for="subject in subjects" :key="subject.Subject_ID" :value="subject.Subject_ID">
-              {{ subject.SubjectName }}
-            </option>
-          </select>
-          <label>{{ subject2 ? capitalize(subject2) : 'Subject 2' }}</label>
-          <span class="custom-arrow"></span>
-        </div>
-
-          <button
-            type="button"
-            @click="toggleSubject2"
-            class="px-5 py-3.5 text-white rounded cursor-pointer"
-            :class="showSubject2 ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'"
-          >
-            {{ showSubject2 ? '-' : '+' }}
-          </button>
-        </div>
+      
 
               <!-- Additional Information Section -->
       <h1 class="font-semibold text-[#295f98]">Additional Info</h1>
@@ -191,6 +160,45 @@
             <label>Confirm Password</label>
           </div>
         </div>
+
+
+            <div v-if="selectedAccession === 'Teacher'">
+      <h1 class="font-semibold text-[#295f98] mb-2">Teacher Subject</h1>
+      <div class="flex gap-4 mb-4">
+        <div class="floating-label flex-1" :class="{ filled: subject1 }">
+          <select v-model="subject1" class="input" required>
+            <option value="" disabled selected hidden>Select Subject 1</option>
+            <option v-for="subject in subjects" :key="subject.Subject_ID" :value="subject.Subject_ID">
+              {{ subject.SubjectName }}
+            </option>
+          </select>
+          <label>{{ subject1 ? capitalize(subject1) : 'Subject 1' }}</label>
+          <span class="custom-arrow"></span>
+        </div>
+
+        <div v-if="showSubject2" class="floating-label flex-1" :class="{ filled: subject2 }">
+          <select v-model="subject2" class="input">
+            <option value="" disabled selected hidden>Select Subject 2</option>
+            <option v-for="subject in subjects" :key="subject.Subject_ID" :value="subject.Subject_ID">
+              {{ subject.SubjectName }}
+            </option>
+          </select>
+          <label>{{ subject2 ? capitalize(subject2) : 'Subject 2' }}</label>
+          <span class="custom-arrow"></span>
+        </div>
+
+        <button
+          type="button"
+          @click="toggleSubject2"
+          class="px-5 py-3.5 text-white rounded cursor-pointer"
+          :class="showSubject2 ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'"
+        >
+          {{ showSubject2 ? '-' : '+' }}
+        </button>
+      </div>
+    </div>
+
+
    <!-- Accession Section -->
         <h2 class="text-xl text-[#295f98] font-semibold mb-6">Accession</h2>
         <div class="flex gap-6 items-center">
@@ -346,23 +354,25 @@ watch(selectedAccession, (val) => {
 
   if (result.isConfirmed) {
       const formData = {
-      Email: email.value,
-      Password: password.value,
-      ConfirmPassword: confirmPassword.value, // optional, if your API checks it
-      EmployeeNo: employeeNumber.value,
-      Educational_Attainment: educationalAttainment.value,
-      Teaching_Position: teachingPosition.value,
-      FirstName: firstName.value,
-      LastName: lastName.value,
-      MiddleName: middleName.value,
-      Suffix: suffix.value,
-      BirthDate: birthDate.value,
-      Sex: sex.value,
-      Position: selectedAccession.value,  // Ensure selectedAccession is included
-      ContactNumber: contactNumber.value,
-      Address: address.value,
-      Subject_IDs: getSelectedSubjects(), // returns [1] or [1, 2]
-    };
+  Email: email.value,
+  Password: password.value,
+  ConfirmPassword: confirmPassword.value,
+  EmployeeNo: employeeNumber.value,
+  Educational_Attainment: educationalAttainment.value,
+  Teaching_Position: teachingPosition.value,
+  FirstName: firstName.value,
+  LastName: lastName.value,
+  MiddleName: middleName.value,
+  Suffix: suffix.value,
+  BirthDate: birthDate.value,
+  Sex: sex.value,
+  Position: selectedAccession.value,
+  ContactNumber: contactNumber.value,
+  Address: address.value,
+  ...(selectedAccession.value === 'Teacher' && {
+    Subject_IDs: getSelectedSubjects(),
+  }),
+};
     try {
       const token = localStorage.getItem('token');
 

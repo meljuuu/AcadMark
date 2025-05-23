@@ -28,7 +28,7 @@
             @click="showModal = true"
             class="bg-[#295f98] text-white px-4 py-2 rounded hover:bg-blue-900 whitespace-nowrap cursor-pointer"
           >
-            Add Faculty
+            Add Personnel
           </button>
 
           <!-- Import & Use the Modal -->
