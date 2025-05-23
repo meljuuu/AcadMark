@@ -18,6 +18,7 @@
         :subjectName="classItem.subjectName"
         :gradeLevel="classItem.gradeLevel"
         :type="classItem.classType"
+        :subject_id="classItem.subject_id"
       />
     </div>
   </div>
