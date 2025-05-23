@@ -297,7 +297,7 @@ const acceptAlert = async () => {
 }
 
 .filter-dropdown {
-  padding: 15px 20px;
+  padding: 10px 15px;
   width: 210px;
   border: 1px solid #295f98;
   border-radius: 5px;
@@ -331,8 +331,9 @@ const acceptAlert = async () => {
   background-color: #ffffff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border: 2px solid #EEEEEE;
-  padding: 30px 20px;
+  padding: 10px;
   border-radius: 5px;
+
 }
 
 .top-head {
@@ -345,13 +346,11 @@ const acceptAlert = async () => {
   flex: 1; /* Fills the remaining space */
   margin-bottom: 16px;
   background: #fff;
-  border-radius: 8px;
   overflow-y: auto;
   overflow-x: hidden;
   max-height: 700px;
-  box-shadow:
-    rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
-    rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+  margin-left: 15px;
+  margin-top: 0;
 }
 
 table {

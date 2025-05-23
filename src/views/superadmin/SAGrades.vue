@@ -117,7 +117,7 @@ const filteredCards = computed(() => {
   background-color: #ffffff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border: 2px solid #EEEEEE;
-  padding: 30px 20px;
+  padding: 20px;
   border-radius: 5px;
 }
 
@@ -126,11 +126,11 @@ const filteredCards = computed(() => {
   gap: 20px;
   flex-wrap: nowrap;
   align-items: center;
-  margin-left: 15px;
+  margin-left: 5px;
 }
 
 .filter-dropdown {
-  padding: 15px 20px;
+  padding: 10px 15px;
   width: 210px;
   border: 1px solid #295f98;
   border-radius: 5px;
@@ -156,9 +156,9 @@ const filteredCards = computed(() => {
   display: flex;
   flex-wrap: wrap;
   gap: 50px;
-  justify-content: center; 
+  margin-left: 5px;
+  margin-right: -5px;
 }
-
 
 .card {
   width: 208px;
@@ -170,6 +170,7 @@ const filteredCards = computed(() => {
   position: relative;
   overflow: hidden;
   border-radius: 10px;
+  margin-top: -20px;
 }
 
 .header {
