@@ -28,7 +28,7 @@
                     <select v-model="selectedCurriculum" class="border border-gray-300 rounded-lg p-3">
                         <option value="">Curriculum</option>
                         <option v-for="curriculum in curriculums" :key="curriculum" :value="curriculum">
-                            {{ curriculum }}
+                            {{ getSchoolLevel(curriculum) }}
                         </option>
                     </select>
 
@@ -87,8 +87,8 @@ export default {
             selectedCurriculum: '',
             selectedTrack: '',
             grades: ['7', '8', '9', '10'],
-            curriculums: ['BEC', 'STEM', 'ABM'],
-            tracks: ['Einstein', 'Rizal', 'Bonifacio'],
+            curriculums: ['JHS', 'SHS'],
+            tracks: ['STEM', 'ABM', 'BEC'],
             cards: []
         };
     },
