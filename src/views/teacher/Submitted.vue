@@ -1,56 +1,10 @@
 <template>
-<<<<<<< HEAD
   <div class="max-h-[412px]">
     <div class="flex justify-between px-5 py-3">
       <Dropdown :showQuarter="true" v-model="selectedQuarter" />
-      <Searchbar v-model="searchQuery" />
-=======
-    <div class="max-h-[412px]">
-        <div class="flex justify-between px-5 py-3">
-            <Dropdown :showQuarter="true" v-model="selectedQuarter" />
-            <div class="w-1/3">
-                <Searchbar v-model="searchQuery" />
-            </div>
-        </div>
-
-        <div class="overflow-auto px-5">
-            <table class="w-full border-collapse text-center text-sm">
-                <thead class="bg-gray-100 text-[#464F60] text-[15px] font-semibold">
-                    <tr>
-                        <th class="p-2 w-1/6">LRN</th>
-                        <th class="p-2 w-1/6">NAME</th>
-                        <th class="p-2 w-1/6">GENDER</th>
-                        <th class="p-2 w-1/6">AGE</th>
-                        <th class="p-2 w-1/6">GRADE</th>
-                        <th class="p-2 w-1/6">STATUS</th>
-                    </tr>
-                </thead>
-                <tbody class="font-medium text-[15px]">
-                    <tr v-if="paginatedStudents.length === 0">
-                        <td colspan="6" class="p-2 text-center">No students available.</td>
-                    </tr>
-                    <tr v-for="student in paginatedStudents" :key="student.lrn" class="hover:bg-gray-200 cursor-pointer"
-                        @click="openModal(student)">
-                        <td class="p-2 w-1/6">{{ student.lrn }}</td>
-                        <td class="p-2 w-1/6">{{ student.lastName + ", " + student.firstName + " " + student.middleName
-                        }}</td>
-                        <td class="p-2 w-1/6">{{ student.sex }}</td>
-                        <td class="p-2 w-1/6">{{ getAge(student.birthDate) }}</td>
-                        <td class="p-2 w-1/6">{{ getGradeForQuarter(student) }}</td>
-                        <td class="p-2 w-1/6">
-                            <span
-                                class="px-4 py-2 rounded text-white inline-block w-[135px] font-light text-center bg-[#FF9204]">
-                                Pending
-                            </span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <modal v-if="showMessage" :showMessage="showMessage" @close="closeModal" :trackStand="trackStand"
-            :selectedStudent="selectedStudent" :selectedQuarter="selectedQuarter" />
->>>>>>> c596329 (Teacher Side Revisions - sweet alert modals / synced sidebar / total students in dashboard / grading validationand working status (marked, unmarked, show all) / Using "-" instead of "no grade" / Scrollable table instead of pagination)
+      <div class="w-1/3">
+        <Searchbar v-model="searchQuery" />
+      </div>
     </div>
 
     <div class="overflow-auto px-5">
@@ -58,40 +12,27 @@
         <thead class="bg-gray-100 text-[#464F60] text-[15px] font-semibold">
           <tr>
             <th class="p-2 w-1/6">LRN</th>
-            <th class="p-2 w-1/6">Name</th>
-            <th class="p-2 w-1/6">Gender</th>
-            <th class="p-2 w-1/6">Age</th>
-            <th class="p-2 w-1/6">Grade</th>
-            <th class="p-2 w-1/6">Status</th>
+            <th class="p-2 w-1/6">NAME</th>
+            <th class="p-2 w-1/6">GENDER</th>
+            <th class="p-2 w-1/6">AGE</th>
+            <th class="p-2 w-1/6">GRADE</th>
+            <th class="p-2 w-1/6">STATUS</th>
           </tr>
         </thead>
         <tbody class="font-medium text-[15px]">
           <tr v-if="paginatedStudents.length === 0">
             <td colspan="6" class="p-2 text-center">No students available.</td>
           </tr>
-          <tr
-            v-for="student in paginatedStudents"
-            :key="student.lrn"
-            class="hover:bg-gray-200 cursor-pointer"
-            @click="openModal(student)"
-          >
+          <tr v-for="student in paginatedStudents" :key="student.lrn" class="hover:bg-gray-200 cursor-pointer"
+            @click="openModal(student)">
             <td class="p-2 w-1/6">{{ student.lrn }}</td>
-            <td class="p-2 w-1/6">
-              {{
-                student.lastName +
-                ', ' +
-                student.firstName +
-                ' ' +
-                student.middleName
-              }}
-            </td>
+            <td class="p-2 w-1/6">{{ student.lastName + ", " + student.firstName + " " + student.middleName
+            }}</td>
             <td class="p-2 w-1/6">{{ student.sex }}</td>
             <td class="p-2 w-1/6">{{ getAge(student.birthDate) }}</td>
             <td class="p-2 w-1/6">{{ getGradeForQuarter(student) }}</td>
             <td class="p-2 w-1/6">
-              <span
-                class="px-4 py-2 rounded text-white inline-block w-[135px] font-light text-center bg-orange"
-              >
+              <span class="px-4 py-2 rounded text-white inline-block w-[135px] font-light text-center bg-[#FF9204]">
                 Pending
               </span>
             </td>
@@ -100,184 +41,167 @@
       </table>
     </div>
 
-    <modal
-      v-if="showMessage"
-      :showMessage="showMessage"
-      @close="closeModal"
-      :trackStand="trackStand"
-      :selectedStudent="selectedStudent"
-      :selectedQuarter="selectedQuarter"
-    />
+    <modal v-if="showMessage" :showMessage="showMessage" @close="closeModal" :trackStand="trackStand"
+      :selectedStudent="selectedStudent" :selectedQuarter="selectedQuarter" />
   </div>
 </template>
 
 <script setup>
-<<<<<<< HEAD
-  import { ref, onMounted, computed, watch } from 'vue';
-  import Dropdown from '@/components/dropdown.vue';
-  import Searchbar from '@/components/searchbar.vue';
-  import modal from '@/components/modal.vue';
-=======
 import { ref, onMounted, computed, watch } from 'vue';
 import Dropdown from '@/components/dropdown.vue';
 import Searchbar from '@/components/searchbar.vue';
 import modal from '@/components/modal.vue';
 import Swal from 'sweetalert2';
->>>>>>> c596329 (Teacher Side Revisions - sweet alert modals / synced sidebar / total students in dashboard / grading validationand working status (marked, unmarked, show all) / Using "-" instead of "no grade" / Scrollable table instead of pagination)
 
-  const props = defineProps({
-    subject_id: {
-      type: String,
-      required: true,
-    },
-    trackStand: {
-      type: String,
-      required: true,
-    },
-    currentPage: {
-      type: Number,
-      required: true,
-    },
-    itemsPerPage: {
-      type: Number,
-      required: true,
-    },
-  });
+const props = defineProps({
+  subject_id: {
+    type: String,
+    required: true,
+  },
+  trackStand: {
+    type: String,
+    required: true,
+  },
+  currentPage: {
+    type: Number,
+    required: true,
+  },
+  itemsPerPage: {
+    type: Number,
+    required: true,
+  },
+});
 
-  const emit = defineEmits(['update:currentPage', 'update:totalItems']);
+const emit = defineEmits(['update:currentPage', 'update:totalItems']);
 
-  const students = ref([]);
-  const selectedQuarter = ref('1st');
-  const searchQuery = ref('');
-  const showMessage = ref(false);
-  const selectedStudent = ref(null);
+const students = ref([]);
+const selectedQuarter = ref('1st');
+const searchQuery = ref('');
+const showMessage = ref(false);
+const selectedStudent = ref(null);
 
-  const quarterMapping = {
-    '1st': 'first',
-    '2nd': 'second',
-    '3rd': 'third',
-    '4th': 'fourth',
-  };
+const quarterMapping = {
+  '1st': 'first',
+  '2nd': 'second',
+  '3rd': 'third',
+  '4th': 'fourth',
+};
 
-  const refreshSubmittedData = () => {
-    fetchStudents();
-  };
+const refreshSubmittedData = () => {
+  fetchStudents();
+};
 
-  // Expose this method to the parent component
-  defineExpose({
-    refreshSubmittedData,
-  });
+// Expose this method to the parent component
+defineExpose({
+  refreshSubmittedData,
+});
 
-  const fetchStudents = () => {
-    try {
-      const key = `submittedGrade_${props.subject_id}`;
-      const storedData = localStorage.getItem(key);
+const fetchStudents = () => {
+  try {
+    const key = `submittedGrade_${props.subject_id}`;
+    const storedData = localStorage.getItem(key);
 
-      if (storedData) {
-        students.value = JSON.parse(storedData);
-        console.log('Loaded submitted students:', students.value);
-      } else {
-        students.value = [];
-      }
-
-      emit('update:currentPage', 1);
-      emit('update:totalItems', students.value.length);
-    } catch (error) {
-      console.error('Error loading submitted students:', error);
+    if (storedData) {
+      students.value = JSON.parse(storedData);
+      console.log('Loaded submitted students:', students.value);
+    } else {
       students.value = [];
+    }
+
+    emit('update:currentPage', 1);
+    emit('update:totalItems', students.value.length);
+  } catch (error) {
+    console.error('Error loading submitted students:', error);
+    students.value = [];
+    emit('update:currentPage', 1);
+    emit('update:totalItems', 0);
+  }
+};
+
+const filteredStudents = computed(() => {
+  if (!searchQuery.value) {
+    return students.value;
+  }
+  return students.value.filter((student) => {
+    return (
+      student.firstName
+        .toLowerCase()
+        .includes(searchQuery.value.toLowerCase()) ||
+      student.lastName.toLowerCase().includes(searchQuery.value.toLowerCase())
+    );
+  });
+});
+
+const totalPages = computed(() => {
+  if (filteredStudents.value.length === 0) {
+    return 0;
+  }
+  return Math.ceil(filteredStudents.value.length / props.itemsPerPage);
+});
+
+const paginatedStudents = computed(() => {
+  if (filteredStudents.value.length === 0) {
+    return [];
+  }
+
+  const startIndex = (props.currentPage - 1) * props.itemsPerPage;
+  const endIndex = startIndex + props.itemsPerPage;
+  return filteredStudents.value.slice(startIndex, endIndex);
+});
+
+watch(
+  filteredStudents,
+  (newFilteredStudents) => {
+    const newTotalPages = Math.ceil(
+      newFilteredStudents.length / props.itemsPerPage
+    );
+    if (props.currentPage > newTotalPages && newTotalPages > 0) {
+      emit('update:currentPage', newTotalPages);
+    } else if (newTotalPages === 0) {
       emit('update:currentPage', 1);
-      emit('update:totalItems', 0);
     }
-  };
+  },
+  { deep: true }
+);
 
-  const filteredStudents = computed(() => {
-    if (!searchQuery.value) {
-      return students.value;
-    }
-    return students.value.filter((student) => {
-      return (
-        student.firstName
-          .toLowerCase()
-          .includes(searchQuery.value.toLowerCase()) ||
-        student.lastName.toLowerCase().includes(searchQuery.value.toLowerCase())
-      );
-    });
-  });
+const getGradeForQuarter = (student) => {
+  const quarterKey = quarterMapping[selectedQuarter.value];
+  return student.grades[quarterKey] || '';
+};
 
-  const totalPages = computed(() => {
-    if (filteredStudents.value.length === 0) {
-      return 0;
-    }
-    return Math.ceil(filteredStudents.value.length / props.itemsPerPage);
-  });
+const getAge = (birthDate) => {
+  const birth = new Date(birthDate);
+  const ageDifMs = Date.now() - birth.getTime();
+  const ageDate = new Date(ageDifMs);
+  return Math.abs(ageDate.getUTCFullYear() - 1970);
+};
 
-  const paginatedStudents = computed(() => {
-    if (filteredStudents.value.length === 0) {
-      return [];
-    }
+const openModal = (student) => {
+  selectedStudent.value = student;
+  showMessage.value = true;
+};
 
-    const startIndex = (props.currentPage - 1) * props.itemsPerPage;
-    const endIndex = startIndex + props.itemsPerPage;
-    return filteredStudents.value.slice(startIndex, endIndex);
-  });
+const closeModal = () => {
+  showMessage.value = false;
+};
 
-  watch(
-    filteredStudents,
-    (newFilteredStudents) => {
-      const newTotalPages = Math.ceil(
-        newFilteredStudents.length / props.itemsPerPage
-      );
-      if (props.currentPage > newTotalPages && newTotalPages > 0) {
-        emit('update:currentPage', newTotalPages);
-      } else if (newTotalPages === 0) {
-        emit('update:currentPage', 1);
-      }
-    },
-    { deep: true }
-  );
-
-  const getGradeForQuarter = (student) => {
-    const quarterKey = quarterMapping[selectedQuarter.value];
-    return student.grades[quarterKey] || '';
-  };
-
-  const getAge = (birthDate) => {
-    const birth = new Date(birthDate);
-    const ageDifMs = Date.now() - birth.getTime();
-    const ageDate = new Date(ageDifMs);
-    return Math.abs(ageDate.getUTCFullYear() - 1970);
-  };
-
-  const openModal = (student) => {
-    selectedStudent.value = student;
-    showMessage.value = true;
-  };
-
-  const closeModal = () => {
-    showMessage.value = false;
-  };
-
-<<<<<<< HEAD
-  onMounted(() => {
-=======
 const showAlertModal = (message, type = 'error', title = 'Error') => {
-    Swal.fire({
-        title: title,
-        text: message,
-        icon: type,
-        confirmButtonColor: type === 'error' ? '#dc2626' : '#16a34a',
-        confirmButtonText: 'OK'
-    });
+  Swal.fire({
+    title: title,
+    text: message,
+    icon: type,
+    confirmButtonColor: type === 'error' ? '#dc2626' : '#16a34a',
+    confirmButtonText: 'OK'
+  });
 };
 
 onMounted(() => {
->>>>>>> c596329 (Teacher Side Revisions - sweet alert modals / synced sidebar / total students in dashboard / grading validationand working status (marked, unmarked, show all) / Using "-" instead of "no grade" / Scrollable table instead of pagination)
-    fetchStudents();
-    if (students.value.length === 0) {
-      emit('update:currentPage', 1);
-      emit('update:totalItems', 0);
-    } else {
-      emit('update:totalItems', students.value.length);
-    }
-  });
+  fetchStudents();
+  if (students.value.length === 0) {
+    emit('update:currentPage', 1);
+    emit('update:totalItems', 0);
+  } else {
+    emit('update:totalItems', students.value.length);
+  }
+});
 </script>
