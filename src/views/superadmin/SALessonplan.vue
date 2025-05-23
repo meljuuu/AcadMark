@@ -126,12 +126,13 @@
 
       <!-- Pagination Section -->
       <div class="flex justify-center items-center mt-4 space-x-1 pt-4 border-t border-gray-300">
-        <button
-          class="px-3 border border-[#295F98] text-[#295F98] py-1 rounded w-28 disabled:opacity-50"
+       <button
+          class="w-28 px-3 border border-[#295F98] text-[#295F98] py-1 rounded disabled:opacity-50 flex items-center justify-center gap-1"
           :disabled="currentPage === 1"
           @click="currentPage--"
         >
-          ← Previous
+          <span>←</span>
+          <span>Previous</span>
         </button>
         <button
           v-for="page in pageNumbers"
@@ -149,11 +150,12 @@
           {{ page }}
         </button>
         <button
-          class="px-3 border border-[#295F98] text-[#295F98] py-1 rounded w-28 disabled:opacity-50"
+          class="w-28 px-3 border border-[#295F98] text-[#295F98] py-1 rounded disabled:opacity-50 flex items-center justify-center gap-1"
           :disabled="currentPage === totalPages"
           @click="currentPage++"
         >
-          Next →
+          <span>Next</span>
+          <span>→</span>
         </button>
       </div>
     </div>
