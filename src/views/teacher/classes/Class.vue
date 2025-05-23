@@ -192,8 +192,6 @@ export default {
     const subjectInfo = ref(null);
     const maleCount = ref(0);
     const femaleCount = ref(0);
-    const totalStudents = ref(0);
-    const classDetails = ref(null);
     const activeComponent = ref('Classlist');
     const currentPage = ref(1);
     const itemsPerPage = ref(10);
@@ -232,13 +230,8 @@ export default {
           const data = response.data;
           maleCount.value = data.maleCount;
           femaleCount.value = data.femaleCount;
-          totalStudents.value = data.totalStudents;
-          classDetails.value = {
-            className: data.className,
-            section: data.section,
-            gradeLevel: data.gradeLevel,
-            track: data.track,
-            curriculum: data.curriculum
+          subjectInfo.value = {
+            subjectName: data.subjectName,
           };
         } else {
           error.value = response.message || 'Failed to fetch class details';
@@ -250,6 +243,10 @@ export default {
         loading.value = false;
       }
     };
+
+    const totalStudents = computed(() => {
+      return maleCount.value + femaleCount.value;
+    });
 
     const totalPages = computed(() => {
       if (totalItems.value === 0) {

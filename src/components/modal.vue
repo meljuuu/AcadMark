@@ -64,52 +64,11 @@
                     </div>
                 </div>
 
-<<<<<<< HEAD
-            <div v-if="showLis">
-                <button @click="$emit('close')"
-                    class="absolute top-2.5 right-2.5 bg-red-500 text-white border-none p-2.5 cursor-pointer">Close</button>
-                <table class="w-full bg-[#F6F6F6]">
-                    <thead class="text-center">
-                        <tr class="text-semibold text-[#464F60] text-[15px]">
-                            <th rowspan="2">LRN</th>
-                            <th rowspan="2">Full Name</th>
-                            <th colspan="4">Quarter</th>
-                            <th rowspan="2">Average</th>
-                            <th rowspan="2">Remarks</th>
-                        </tr>
-                        <tr class="text-semibold text-[#464F60] text-[15px]">
-                            <th>Q1</th>
-                            <th>Q2</th>
-                            <th>Q3</th>
-                            <th>Q4</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-center">
-                        <tr v-for="student in students" :key="student.student_id">
-                            <td>{{ student.lrn }}</td>
-                            <td>{{ student.firstName }} {{ student.lastName }}</td>
-                            <td>{{ student.grades?.first || '-' }}</td>
-                            <td>{{ student.grades?.second || '-' }}</td>
-                            <td>{{ student.grades?.third || '-' }}</td>
-                            <td>{{ student.grades?.fourth || '-' }}</td>
-                            <td>{{ calculateAverage(student.grades || {}) }}</td>
-                            <td>{{ getRemarks(student) }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div v-if="selectedStudent">
-                <div class="flex items-center justify-center">
-                    <div class="bg-white p-10 flex flex-col gap-5">
-                        <p class="text-blue font-semibold text-2xl">STUDENT INFO</p>
-=======
                 <div v-if="selectedStudent" class="bg-white rounded-xl shadow-2xl relative max-w-4xl mx-auto">
                     <div class="p-6 border-b border-gray-200">
                         <h2 class="text-2xl font-semibold text-gray-800">Student Information</h2>
                     </div>
                     <div class="p-10 flex flex-col gap-5">
->>>>>>> b49d369ca5170d9ebffbd9c685c38c650acc68f3
                         <div class="flex flex-col gap-3">
                             <div class="flex gap-10">
                                 <div class="flex flex-col gap-1">

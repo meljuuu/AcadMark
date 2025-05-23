@@ -51,26 +51,11 @@
         </div>
       </div>
 
-<<<<<<< HEAD
-    <modal
-      v-if="showLis"
-      :subject_id="subject_id"
-      :showLis="showLis"
-      :showMessage="false"
-      :selectedStudent="null"
-      :selectedQuarter="'1st'"
-      :trackStand="'STEM'"
-      :subjectName="subjectName"
-      :students="studentsInSubject"
-      @close="showLis = false"
-    />
-=======
       <div>
         <modal v-if="showLis" :subject_id="subject_id" :showLis="showLis" :showMessage="false" :selectedStudent="null"
           :selectedQuarter="'1st'" :trackStand="'STEM'" :subjectName="subjectName" @close="showLis = false" />
       </div>
     </div>
->>>>>>> b49d369ca5170d9ebffbd9c685c38c650acc68f3
   </div>
 </template>
 
