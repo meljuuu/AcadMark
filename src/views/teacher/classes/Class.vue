@@ -253,6 +253,8 @@
       const subjectInfo = ref(null);
       const maleCount = ref(0);
       const femaleCount = ref(0);
+      const totalStudents = ref(0);
+      const classDetails = ref(null);
       const activeComponent = ref('Classlist');
       const currentPage = ref(1);
       const itemsPerPage = ref(10);
@@ -287,27 +289,28 @@
           loading.value = true;
           error.value = null;
           const response = await classService.getClassDetails(class_id);
+          
           if (response.status === 'success') {
             const data = response.data;
             maleCount.value = data.maleCount;
             femaleCount.value = data.femaleCount;
-            subjectInfo.value = {
-              subjectName: data.subjectName,
+            totalStudents.value = data.totalStudents;
+            classDetails.value = {
+              className: data.className,
+              section: data.section,
+              gradeLevel: data.gradeLevel,
+              track: data.track,
+              curriculum: data.curriculum
             };
           } else {
             error.value = response.message || 'Failed to fetch class details';
           }
         } catch (err) {
-          error.value =
-            err.message || 'An error occurred while fetching class details';
+          error.value = err.message || 'An error occurred while fetching class details';
         } finally {
           loading.value = false;
         }
       };
-
-      const totalStudents = computed(() => {
-        return maleCount.value + femaleCount.value;
-      });
 
       const totalPages = computed(() => {
         if (totalItems.value === 0) {
@@ -354,15 +357,14 @@
         subjectInfo,
         maleCount,
         femaleCount,
+        totalStudents,
+        classDetails,
         activeComponent,
         navItems,
         goBack,
-        totalStudents,
+        totalPages,
         currentPage,
         itemsPerPage,
-        totalPages,
-        prevPage,
-        nextPage,
         totalItems,
         updateTotalItems,
         loading,
