@@ -69,6 +69,7 @@
       :selectedQuarter="'1st'"
       :trackStand="'STEM'"
       :subjectName="subjectName"
+      :students="studentsInSubject"
       @close="showLis = false"
     />
   </div>

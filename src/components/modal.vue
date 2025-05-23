@@ -24,11 +24,11 @@
                         <tr v-for="student in students" :key="student.student_id">
                             <td>{{ student.lrn }}</td>
                             <td>{{ student.firstName }} {{ student.lastName }}</td>
-                            <td>{{ student.grades.first || '-' }}</td>
-                            <td>{{ student.grades.second || '-' }}</td>
-                            <td>{{ student.grades.third || '-' }}</td>
-                            <td>{{ student.grades.fourth || '-' }}</td>
-                            <td>{{ calculateAverage(student.grades) }}</td>
+                            <td>{{ student.grades?.first || '-' }}</td>
+                            <td>{{ student.grades?.second || '-' }}</td>
+                            <td>{{ student.grades?.third || '-' }}</td>
+                            <td>{{ student.grades?.fourth || '-' }}</td>
+                            <td>{{ calculateAverage(student.grades || {}) }}</td>
                             <td>{{ getRemarks(student) }}</td>
                         </tr>
                     </tbody>
@@ -168,9 +168,21 @@ const props = defineProps({
         type: String,
         required: true,
     },
+    students: {
+        type: Array,
+        required: true
+    }
 });
 
-const students = ref([]);
+const students = ref(props.students.map(student => ({
+    ...student,
+    grades: {
+        first: null,
+        second: null,
+        third: null,
+        fourth: null
+    }
+})));
 
 const quarterMapping = {
     "1st": "first",
@@ -179,42 +191,9 @@ const quarterMapping = {
     "4th": "fourth"
 };
 
-const loadStudents = () => {
-    const subjectKey = `subject_${props.subject_id}`;
-    const storedData = localStorage.getItem(subjectKey);
-    const recentGrades = JSON.parse(localStorage.getItem('recentGrades') || '[]');
-
-    if (storedData) {
-        students.value = JSON.parse(storedData);
-
-        students.value.forEach(student => {
-            const studentGrades = recentGrades.filter(grade =>
-                grade.student_id === student.student_id &&
-                grade.subjectName === props.subjectName
-            );
-
-            if (studentGrades.length > 0) {
-                if (!student.grades) {
-                    student.grades = {
-                        first: null,
-                        second: null,
-                        third: null,
-                        fourth: null
-                    };
-                }
-
-                studentGrades.forEach(grade => {
-                    const quarterKey = quarterMapping[grade.quarter];
-                    if (quarterKey) {
-                        student.grades[quarterKey] = grade.grade;
-                    }
-                });
-            }
-        });
-    }
-};
-
 const calculateAverage = (grades) => {
+    if (!grades) return '-';
+    
     const allGradesEmpty = [grades.first, grades.second, grades.third, grades.fourth].every(grade => grade === '-' || grade === '' || grade === null);
 
     if (allGradesEmpty) {
@@ -240,6 +219,8 @@ const calculateAverage = (grades) => {
 };
 
 const getRemarks = (student) => {
+    if (!student.grades) return 'Failed';
+    
     const quarterGrade = calculateAverage(student.grades);
 
     if (quarterGrade === '-' || quarterGrade === null || quarterGrade === '' || parseFloat(quarterGrade) <= 75) {
@@ -250,7 +231,7 @@ const getRemarks = (student) => {
 
 watchEffect(() => {
     if (props.subject_id) {
-        loadStudents();
+        // loadStudents();
     }
 });
 
