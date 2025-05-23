@@ -207,6 +207,10 @@
 
               <div v-else class="py-5 text-center text-gray-500">
                 No subjects available
+                <div v-if="error" class="text-red-500 mt-2">{{ error }}</div>
+                <div class="text-xs text-gray-400 mt-2">
+                  Debug: {{ JSON.stringify(studentSubjects) }}
+                </div>
               </div>
             </div>
           </div>
@@ -331,14 +335,20 @@
       console.log('Subjects data:', subjectsData);
 
       if (subjectsData.status === 'success') {
-        studentSubjects.value = subjectsData.subjects || [];
+        // Access the first student's subjects from the student_subjects array
+        const studentSubjectsData = subjectsData.student_subjects[0];
+        if (studentSubjectsData && studentSubjectsData.subjects) {
+          studentSubjects.value = studentSubjectsData.subjects;
+        } else {
+          studentSubjects.value = [];
+          error.value = 'No subjects found for this student';
+        }
         
         // Fetch grades for each subject
         const gradesData = await getStudentGrades(studentId);
         console.log('Grades data:', gradesData);
 
         if (gradesData.status === 'success') {
-          // Convert grades array to object for easier access
           studentGrades.value = gradesData.grades.reduce((acc, grade) => {
             acc[grade.subject_id] = grade.grades;
             return acc;
