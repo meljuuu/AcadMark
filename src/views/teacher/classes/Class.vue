@@ -10,8 +10,8 @@
     <div class="flex flex-col gap-10">
       <div
         :class="{
-          'bg-blue': classType === 'Advisory',
-          'bg-green': classType === 'Subject',
+          'bg-blue': classType?.toLowerCase() === 'advisory',
+          'bg-green': classType?.toLowerCase() === 'subject'
         }"
         class="flex items-center justify-between px-7 py-5 rounded-xl"
       >
@@ -45,13 +45,13 @@
 
         <div
           :class="{
-            'text-[#3E6FA2]': classType === 'Advisory',
-            'text-[#357e58]': classType === 'Subject',
+            'text-[#3E6FA2]': classType?.toLowerCase() === 'advisory',
+            'text-[#357e58]': classType?.toLowerCase() === 'subject'
           }"
           class="flex items-center justify-center pr-15 h-[150px]"
         >
           <p class="font-bold text-[150px]">
-            {{ trackStand + ' ' + gradeLevel }}
+            {{ parseInt(gradeLevel) <= 10 ? (subjectName + ' ' + gradeLevel) : (trackStand + ' ' + gradeLevel) }}
           </p>
         </div>
       </div>
@@ -215,6 +215,10 @@
         Debug: Component: {{ activeComponent }}, Total Items: {{ totalItems }},
         Total Pages: {{ totalPages }}, Current Page: {{ currentPage }}
       </p>
+    </div>
+
+    <div class="text-xs text-gray-500 mt-2">
+      Debug: classType = "{{ classType }}"
     </div>
   </div>
 </template>

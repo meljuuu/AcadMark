@@ -85,7 +85,7 @@
         className: props.className,
         subjectName: props.subjectName,
         gradeLevel: props.gradeLevel,
-        classType: props.classType,
+        classType: props.type === 'Advisory' ? 'Advisory' : 'Subject',
         subject_id: props.subject_id
       },
     });
