@@ -465,6 +465,11 @@
     { deep: true }
   );
 
+  // Add a watch on studentGrades to update GWA and remarks
+  watch(studentGrades, () => {
+    Grade.value = calculateAverageGrade.value;
+  }, { deep: true });
+
   const generateCSV = (type) => {
     const student = selectedStudent.value;
 
