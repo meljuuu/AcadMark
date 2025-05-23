@@ -67,6 +67,53 @@ export const declineStudent = async (id, comment) => {
 };
 
 
+// Lesson Plans Get All
+export const getAllLessonPlans = async () => {
+  try {
+    const response = await API.get("/superadmin/lesson-plans");
+    return response.data;
+  } catch (error) {
+    console.error("API error:", error);
+    throw error.response ? error.response.data : error;
+  }
+};
+
+// Approve Lesson Plan
+export const approveLessonPlan = async (lessonPlanId) => {
+  try {
+    const response = await API.put(`/superadmin/lesson-plans/${lessonPlanId}/approve`);
+    return response.data;
+  } catch (error) {
+    console.error("API error:", error);
+    throw error.response ? error.response.data : error;
+  }
+};
+
+// Decline Lesson Plan 
+export const rejectLessonPlan = async (lessonPlanId) => {
+  try {
+    const response = await API.put(`/superadmin/lesson-plans/${lessonPlanId}/decline`);
+    return response.data;
+  } catch (error) {
+    console.error("API error:", error);
+    throw error.response ? error.response.data : error;
+  }
+};
+
+// Get Specific Lesson Plan
+export const getLessonPlanById = async (lessonPlanId) => {
+  try {
+    const response = await API.get(`/superadmin/lesson-plans/${lessonPlanId}`);
+    return response.data;
+  } catch (error) {
+    console.error("API error:", error);
+    throw error.response ? error.response.data : error;
+  }
+};
+
+
+
+
 
 
 
