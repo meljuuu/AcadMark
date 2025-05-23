@@ -43,9 +43,9 @@
             <td class="p-2 w-1/6">
               <span class="px-4 py-2 rounded text-white inline-block w-[135px] font-light text-center"
                 :class="{
-                  'bg-[#FF9204]': student.status === 'Pending',
-                  'bg-green-500': student.status === 'Accepted',
-                  'bg-red-500': student.status === 'Declined'
+                  'bg-[#FF9204]': !student.status || student.status.toLowerCase() === 'pending',
+                  'bg-green-500': student.status?.toLowerCase() === 'accepted',
+                  'bg-red-500': student.status?.toLowerCase() === 'declined'
                 }">
                 {{ (student.status || 'pending').charAt(0).toUpperCase() + (student.status || 'pending').slice(1) }}
               </span>
@@ -105,7 +105,7 @@ const quarterMapping = {
 };
 
 const refreshSubmittedData = () => {
-  fetchStudents();
+  loadSubjectData();
 };
 
 // Expose this method to the parent component
@@ -113,35 +113,42 @@ defineExpose({
   refreshSubmittedData,
 });
 
-const fetchStudents = async () => {
+const loadSubjectData = async () => {
   loading.value = true;
   error.value = '';
   
   try {
-    console.log('Fetching students for subject:', props.subject_id);
+    console.log('Loading subject data for subject_id:', props.subject_id);
     const response = await getSubjectGrades(props.subject_id);
-    console.log('API Response:', response);
-    
-    if (response.status === 'success') {
-      if (Array.isArray(response.data)) {
-        students.value = response.data;
-        console.log('Loaded submitted students:', students.value);
-      } else {
-        console.warn('Response data is not an array:', response.data);
-        students.value = [];
-        error.value = 'Invalid data format received from server';
-      }
+    console.log('Raw API response:', response);
+
+    if (response.status === 'success' && response.data && Array.isArray(response.data)) {
+      console.log('Processing students data:', response.data);
+      
+      students.value = response.data.map((student) => {
+        console.log('Processing student:', student);
+        
+        return {
+          ...student,
+          grades: {
+            first: student.grades?.first || null,
+            second: student.grades?.second || null,
+            third: student.grades?.third || null,
+            fourth: student.grades?.fourth || null,
+          },
+        };
+      });
+
+      console.log('Final students array:', students.value);
     } else {
-      console.error('API returned error status:', response);
-      students.value = [];
-      error.value = response.message || 'Failed to load student data';
+      console.error('Invalid response format:', response);
+      error.value = 'Failed to load student data';
     }
 
     emit('update:currentPage', 1);
     emit('update:totalItems', students.value.length);
   } catch (error) {
-    console.error('Error loading submitted students:', error);
-    students.value = [];
+    console.error('Error loading subject data:', error);
     error.value = error.message || 'Failed to load student data. Please try again.';
     emit('update:currentPage', 1);
     emit('update:totalItems', 0);
@@ -171,13 +178,6 @@ const filteredStudents = computed(() => {
   });
 });
 
-const totalPages = computed(() => {
-  if (filteredStudents.value.length === 0) {
-    return 0;
-  }
-  return Math.ceil(filteredStudents.value.length / props.itemsPerPage);
-});
-
 const paginatedStudents = computed(() => {
   if (filteredStudents.value.length === 0) {
     return [];
@@ -187,21 +187,6 @@ const paginatedStudents = computed(() => {
   const endIndex = startIndex + props.itemsPerPage;
   return filteredStudents.value.slice(startIndex, endIndex);
 });
-
-watch(
-  filteredStudents,
-  (newFilteredStudents) => {
-    const newTotalPages = Math.ceil(
-      newFilteredStudents.length / props.itemsPerPage
-    );
-    if (props.currentPage > newTotalPages && newTotalPages > 0) {
-      emit('update:currentPage', newTotalPages);
-    } else if (newTotalPages === 0) {
-      emit('update:currentPage', 1);
-    }
-  },
-  { deep: true }
-);
 
 const getGradeForQuarter = (student) => {
   const quarterKey = quarterMapping[selectedQuarter.value];
@@ -226,6 +211,6 @@ const closeModal = () => {
 };
 
 onMounted(() => {
-  fetchStudents();
+  loadSubjectData();
 });
 </script>

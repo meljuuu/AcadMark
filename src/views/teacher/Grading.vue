@@ -195,8 +195,12 @@ const quarterMapping = {
 
 const loadGrade = () => {
   if (selectedStudent.value) {
+    console.log('Loading grade for student:', selectedStudent.value);
     const gradeKey = quarterMapping[selectedQuarter.value];
+    console.log('Grade key:', gradeKey);
+    console.log('Student grades:', selectedStudent.value.grades);
     Grade.value = selectedStudent.value.grades[gradeKey] || '';
+    console.log('Loaded grade value:', Grade.value);
   }
 };
 
@@ -239,9 +243,6 @@ async function saveGrades() {
       }
 
       const user = JSON.parse(userStr);
-      console.log('User data from localStorage:', userStr);
-      console.log('Parsed user object:', user);
-      console.log('Teacher ID:', user.teacher_ID);
       if (!user.teacher_ID) {
         throw new Error('Teacher ID not found in user data');
       }
@@ -251,6 +252,7 @@ async function saveGrades() {
         Student_ID: selectedStudent.value.student_id,
         Subject_ID: props.subject_id,
         Teacher_ID: user.teacher_ID,
+        Class_ID: selectedStudent.value.class_id,
         Q1: selectedStudent.value.grades.first ? parseFloat(selectedStudent.value.grades.first) : null,
         Q2: selectedStudent.value.grades.second ? parseFloat(selectedStudent.value.grades.second) : null,
         Q3: selectedStudent.value.grades.third ? parseFloat(selectedStudent.value.grades.third) : null,
@@ -298,7 +300,6 @@ async function submitGrades() {
     return;
   }
 
-  // Get teacher ID from localStorage
   const userStr = localStorage.getItem('user');
   if (!userStr) {
     Swal.fire({
@@ -311,9 +312,6 @@ async function submitGrades() {
   }
 
   const user = JSON.parse(userStr);
-  console.log('User data from localStorage:', userStr);
-  console.log('Parsed user object:', user);
-  console.log('Teacher ID:', user.teacher_ID);
   if (!user.teacher_ID) {
     Swal.fire({
       icon: 'error',
@@ -330,6 +328,7 @@ async function submitGrades() {
       Student_ID: student.student_id,
       Subject_ID: props.subject_id,
       Teacher_ID: user.teacher_ID,
+      Class_ID: student.class_id,
       Q1: grades.first ? parseFloat(grades.first) : null,
       Q2: grades.second ? parseFloat(grades.second) : null,
       Q3: grades.third ? parseFloat(grades.third) : null,
@@ -345,13 +344,10 @@ async function submitGrades() {
 
     if (result.status === 'success') {
       showSubmitSuccess.value = true;
-      // Clear selections after successful submission
       studentsInSubject.value.forEach(student => {
         student.selected = false;
       });
       selectAll.value = false;
-      
-      // Reload the data to ensure we have the latest from the backend
       await loadSubjectData();
     } else {
       throw new Error(result.message || 'Failed to submit grades');
@@ -412,27 +408,39 @@ async function loadSubjectData() {
     
     // Fetch students and their grades from the backend
     const response = await classService.getClassStudents(props.subject_id);
-    console.log('API response:', response);
+    console.log('Raw API response:', response);
 
     if (response.status === 'success' && response.data && Array.isArray(response.data)) {
-      studentsInSubject.value = response.data.map((student) => ({
-        ...student,
-        selected: false,
-        grades: {
-          first: student.grades?.first || null,
-          second: student.grades?.second || null,
-          third: student.grades?.third || null,
-          fourth: student.grades?.fourth || null,
-        },
-      }));
+      console.log('Processing students data:', response.data);
+      
+      studentsInSubject.value = response.data.map((student) => {
+        console.log('Processing student:', student); // Log each student being processed
+        
+        const processedStudent = {
+          ...student,
+          selected: false,
+          grades: {
+            first: student.grades?.first || null,
+            second: student.grades?.second || null,
+            third: student.grades?.third || null,
+            fourth: student.grades?.fourth || null,
+          },
+        };
+        
+        console.log('Processed student data:', processedStudent); // Log the processed student
+        return processedStudent;
+      });
+
+      console.log('Final students array:', studentsInSubject.value);
 
       if (studentsInSubject.value.length > 0) {
         currentIndex.value = 0;
         selectedStudent.value = studentsInSubject.value[0];
+        console.log('Selected student:', selectedStudent.value);
         loadGrade();
       }
     } else {
-      console.error('Failed to fetch students or invalid response format:', response);
+      console.error('Invalid response format:', response);
       Swal.fire({
         icon: 'error',
         title: 'Error',

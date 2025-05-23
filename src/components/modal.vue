@@ -37,18 +37,14 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200">
-                                    <tr v-for="student in students" :key="student.student_id" class="hover:bg-gray-50">
+                                    <tr v-for="(student, index) in students" :key="`${student.student_id}-${student.class_id}-${index}`" class="hover:bg-gray-50">
                                         <td class="px-6 py-4 whitespace-nowrap">{{ student.lrn }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">{{ student.firstName }} {{
-                                            student.lastName
-                                        }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">{{ student.firstName }} {{ student.lastName }}</td>
                                         <td class="px-6 py-4 text-center">{{ student.grades.first || '-' }}</td>
                                         <td class="px-6 py-4 text-center">{{ student.grades.second || '-' }}</td>
                                         <td class="px-6 py-4 text-center">{{ student.grades.third || '-' }}</td>
                                         <td class="px-6 py-4 text-center">{{ student.grades.fourth || '-' }}</td>
-                                        <td class="px-6 py-4 text-center font-medium">{{
-                                            calculateAverage(student.grades) }}
-                                        </td>
+                                        <td class="px-6 py-4 text-center font-medium">{{ calculateAverage(student.grades) }}</td>
                                         <td class="px-6 py-4 text-center">
                                             <span :class="{
                                                 'px-3 py-1 rounded-full text-sm font-medium': true,

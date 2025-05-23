@@ -57,7 +57,7 @@ export const classService = {
     // Get students for a specific subject
     async getClassStudents(subjectId) {
         try {
-            const response = await axios.get(`${API_URL}/classes/get-students-for-subject/${subjectId}`, {
+            const response = await axios.get(`${API_URL}/classes/${subjectId}/students`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }

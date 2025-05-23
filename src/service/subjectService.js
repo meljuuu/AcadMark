@@ -14,3 +14,19 @@ export const getAllSubjects = async () => {
         throw error;
     }
 };
+
+// Add new function to get subject grades
+export const getSubjectGrades = async (subjectId) => {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await API.get(`/grades/subject/${subjectId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Failed to fetch subject grades:", error);
+        throw error;
+    }
+};
