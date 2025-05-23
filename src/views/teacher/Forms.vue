@@ -141,65 +141,51 @@
               >
                 <thead>
                   <tr>
-                    <th
-                      class="bg-gray-100 text-center p-2 text-sm text-gray-700"
-                    >
+                    <th class="bg-gray-100 text-center p-2 text-sm text-gray-700">
                       SUBJECT
                     </th>
-                    <th
-                      class="bg-gray-100 text-center p-2 text-sm text-gray-700"
-                    >
+                    <th class="bg-gray-100 text-center p-2 text-sm text-gray-700">
                       1ST QUARTER
                     </th>
-                    <th
-                      class="bg-gray-100 text-center p-2 text-sm text-gray-700"
-                    >
+                    <th class="bg-gray-100 text-center p-2 text-sm text-gray-700">
                       2ND QUARTER
                     </th>
-                    <th
-                      class="bg-gray-100 text-center p-2 text-sm text-gray-700"
-                    >
+                    <th class="bg-gray-100 text-center p-2 text-sm text-gray-700">
                       3RD QUARTER
                     </th>
-                    <th
-                      class="bg-gray-100 text-center p-2 text-sm text-gray-700"
-                    >
+                    <th class="bg-gray-100 text-center p-2 text-sm text-gray-700">
                       4TH QUARTER
                     </th>
-                    <th
-                      class="bg-gray-100 text-center p-2 text-sm text-gray-700"
-                    >
+                    <th class="bg-gray-100 text-center p-2 text-sm text-gray-700">
                       Final Grade
                     </th>
-                    <th
-                      class="bg-gray-100 text-center p-2 text-sm text-gray-700"
-                    >
+                    <th class="bg-gray-100 text-center p-2 text-sm text-gray-700">
                       Remarks
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(subject, index) in studentSubjects" :key="index">
+                  <tr v-for="subject in studentSubjects" :key="subject.subject_id">
                     <td class="p-2 text-center font-semibold text-gray-800">
-                      {{ subject.subjectName || '-' }}
+                      {{ subject.subjectName }}
                     </td>
                     <td class="p-2 text-center font-semibold text-gray-800">
-                      {{ getGrade(subject.subject_id, 'first') || 'No grade' }}
+                      {{ subject.grades.Q1 || 'No grade' }}
                     </td>
                     <td class="p-2 text-center font-semibold text-gray-800">
-                      {{ getGrade(subject.subject_id, 'second') || 'No grade' }}
+                      {{ subject.grades.Q2 || 'No grade' }}
                     </td>
                     <td class="p-2 text-center font-semibold text-gray-800">
-                      {{ getGrade(subject.subject_id, 'third') || 'No grade' }}
+                      {{ subject.grades.Q3 || 'No grade' }}
                     </td>
                     <td class="p-2 text-center font-semibold text-gray-800">
-                      {{ getGrade(subject.subject_id, 'fourth') || 'No grade' }}
+                      {{ subject.grades.Q4 || 'No grade' }}
                     </td>
                     <td class="p-2 text-center font-semibold text-gray-800">
-                      {{ calculateGWA(subject.subject_id) || 'No grade' }}
+                      {{ subject.grades.FinalGrade || 'No grade' }}
                     </td>
                     <td class="p-2 text-center font-semibold text-gray-800">
-                      {{ getRemarks(subject.subject_id) }}
+                      {{ subject.grades.Remarks || 'No remarks' }}
                     </td>
                   </tr>
                 </tbody>
@@ -313,7 +299,7 @@
       const studentId = students.value[index].Student_ID;
       selectedStudent.value = students.value[index];
       
-      // Update student info for display
+      // Update student info
       selectedStudentInfo.value = {
         firstName: students.value[index].FirstName,
         middleName: students.value[index].MiddleName,
@@ -330,35 +316,15 @@
         ].filter(Boolean).join(', ')
       };
 
-      // Fetch subjects for the selected student
+      // Fetch subjects with grades
       const subjectsData = await getStudentSubjects(studentId);
       console.log('Subjects data:', subjectsData);
 
       if (subjectsData.status === 'success') {
-        // Access the first student's subjects from the student_subjects array
         const studentSubjectsData = subjectsData.student_subjects[0];
         if (studentSubjectsData && studentSubjectsData.subjects) {
           studentSubjects.value = studentSubjectsData.subjects;
-        } else {
-          studentSubjects.value = [];
-          error.value = 'No subjects found for this student';
         }
-        
-        // Fetch grades for each subject
-        const gradesData = await getStudentGrades(studentId);
-        console.log('Grades data:', gradesData);
-
-        if (gradesData.status === 'success') {
-          studentGrades.value = gradesData.grades.reduce((acc, grade) => {
-            acc[grade.subject_id] = grade.grades;
-            return acc;
-          }, {});
-        } else {
-          error.value = gradesData.message || 'Failed to fetch student grades';
-        }
-      } else {
-        error.value = subjectsData.message || 'Failed to fetch student subjects';
-        studentSubjects.value = [];
       }
     } catch (err) {
       console.error('Error fetching student data:', err);
@@ -370,8 +336,8 @@
   };
 
   const getGrade = (subjectId, quarter) => {
-    const grades = studentGrades.value[subjectId];
-    if (!grades) return 'No grade';
+    const subject = studentSubjects.value.find(s => s.subject_id === subjectId);
+    if (!subject || !subject.grades) return 'No grade';
     
     const quarterMap = {
       'first': 'Q1',
@@ -380,19 +346,19 @@
       'fourth': 'Q4'
     };
     
-    const grade = grades[quarterMap[quarter]];
+    const grade = subject.grades[quarterMap[quarter]];
     return grade !== null && grade !== undefined ? grade : 'No grade';
   };
 
   const calculateGWA = (subjectId) => {
-    const grades = studentGrades.value[subjectId];
-    if (!grades) return 'No grade';
+    const subject = studentSubjects.value.find(s => s.subject_id === subjectId);
+    if (!subject || !subject.grades) return 'No grade';
 
     const quarterGrades = [
-      grades.Q1,
-      grades.Q2,
-      grades.Q3,
-      grades.Q4
+      subject.grades.Q1,
+      subject.grades.Q2,
+      subject.grades.Q3,
+      subject.grades.Q4
     ];
 
     // Check if all grades are empty or undefined
@@ -414,6 +380,9 @@
   };
 
   const getRemarks = (subjectId) => {
+    const subject = studentSubjects.value.find(s => s.subject_id === subjectId);
+    if (!subject || !subject.grades) return 'No remarks';
+    
     const gwa = calculateGWA(subjectId);
     if (gwa === 'No grade' || gwa === 'INC') {
       return 'No remarks';
