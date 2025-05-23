@@ -20,7 +20,8 @@
         <div class="w-[30%] max-h-[580px] overflow-y-auto mb-5 rounded-bl-lg">
           <p class="p-4 text-lg font-semibold">Name</p>
           <div v-if="loading" class="py-5 px-4 text-center">
-            Loading students...
+            <div class="loading-spinner"></div>
+            <p class="mt-2 text-gray-600">Loading students...</p>
           </div>
           <div v-else-if="filteredStudents.length > 0">
             <div
@@ -115,12 +116,14 @@
                 <button
                   class="bg-blue text-white py-2 px-3 rounded-md text-sm font-semibold cursor-pointer hover:bg-[#cecece]"
                   @click="generateCSV('SF10')"
+                  :disabled="loadingGrades"
                 >
                   SF10
                 </button>
                 <button
                   class="bg-blue text-white py-2 px-3 rounded-md text-sm font-semibold cursor-pointer hover:bg-[#cecece]"
                   @click="generateCSV('SF9')"
+                  :disabled="loadingGrades"
                 >
                   SF9
                 </button>
@@ -128,8 +131,12 @@
             </div>
 
             <div>
+              <div v-if="loadingGrades" class="py-10 text-center">
+                <div class="loading-spinner"></div>
+                <p class="mt-2 text-gray-600">Loading grades...</p>
+              </div>
               <table
-                v-if="studentSubjects.length > 0"
+                v-else-if="studentSubjects.length > 0"
                 class="w-full table-auto"
               >
                 <thead>
@@ -233,6 +240,7 @@
   const loading = ref(true);
   const studentGrades = ref({});
   const error = ref(null);
+  const loadingGrades = ref(false);
 
   onMounted(async () => {
     loading.value = true;
@@ -296,46 +304,41 @@
   });
 
   const selectStudent = async (index) => {
-    if (index >= 0 && index < filteredStudents.value.length) {
-      const student = filteredStudents.value[index];
-      selectedStudent.value = student;
-      selectedStudentInfo.value = {
-        firstName: student.FirstName,
-        middleName: student.MiddleName,
-        lastName: student.LastName,
-        lrn: student.LRN,
-        sex: student.Sex,
-        curriculum: student.Curriculum,
-        birthDate: student.BirthDate,
-        address: student.Address || `${student.HouseNo || ''} ${student.Barangay || ''} ${student.Municipality || ''} ${student.Province || ''}`.trim()
-      };
-      error.value = null;
+    loadingGrades.value = true;
+    try {
+      const studentId = students.value[index].Student_ID;
+      selectedStudent.value = students.value[index];
+      
+      // Fetch subjects for the selected student
+      const subjectsData = await getStudentSubjects(studentId);
+      console.log('Subjects data:', subjectsData);
 
-      try {
-        console.log('Selected student:', student);
-
-        const studentId = student.Student_ID;
+      if (subjectsData.status === 'success') {
+        studentSubjects.value = subjectsData.subjects || [];
         
-        if (!studentId) {
-          console.error('Student ID is missing:', student);
-          error.value = 'Invalid student data';
-          return;
-        }
+        // Fetch grades for each subject
+        const gradesData = await getStudentGrades(studentId);
+        console.log('Grades data:', gradesData);
 
-        const subjectsData = await getStudentSubjects(studentId);
-        console.log('Subjects data:', subjectsData);
-
-        if (subjectsData.status === 'success') {
-          studentSubjects.value = subjectsData.subjects || [];
+        if (gradesData.status === 'success') {
+          // Convert grades array to object for easier access
+          studentGrades.value = gradesData.grades.reduce((acc, grade) => {
+            acc[grade.subject_id] = grade.grades;
+            return acc;
+          }, {});
         } else {
-          error.value = subjectsData.message || 'Failed to fetch student subjects';
-          studentSubjects.value = [];
+          error.value = gradesData.message || 'Failed to fetch student grades';
         }
-      } catch (err) {
-        console.error('Error fetching student subjects:', err);
-        error.value = 'Failed to fetch student subjects';
+      } else {
+        error.value = subjectsData.message || 'Failed to fetch student subjects';
         studentSubjects.value = [];
       }
+    } catch (err) {
+      console.error('Error fetching student data:', err);
+      error.value = 'Failed to fetch student data';
+      studentSubjects.value = [];
+    } finally {
+      loadingGrades.value = false;
     }
   };
 
@@ -350,7 +353,8 @@
       'fourth': 'Q4'
     };
     
-    return grades[quarterMap[quarter]] || 'No grade';
+    const grade = grades[quarterMap[quarter]];
+    return grade !== null && grade !== undefined ? grade : 'No grade';
   };
 
   const calculateGWA = (subjectId) => {
@@ -549,6 +553,20 @@
   text-align: center;
   padding: 2rem;
   color: #666;
+}
+
+.loading-spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg);}
+  100% { transform: rotate(360deg);}
 }
 </style>
 

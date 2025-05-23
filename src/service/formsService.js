@@ -105,7 +105,7 @@ export const getStudentSubjects = async (studentId) => {
 /**
  * Get student grades for a specific subject
  */
-export const getStudentGrades = async (studentId, subjectId) => {
+export const getStudentGrades = async (studentId) => {
   try {
     const token = localStorage.getItem('token');
 
@@ -113,11 +113,19 @@ export const getStudentGrades = async (studentId, subjectId) => {
       throw new Error('Authentication token not found');
     }
 
-    const response = await API.get(`/student/${studentId}/subject/${subjectId}/grades`, {
+    const response = await API.get(`/teacher/student/${studentId}/grades`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
+
+    // Transform the data to match the expected format
+    if (response.data.status === 'success') {
+      response.data.grades = response.data.grades.map(grade => ({
+        subject_id: grade.subject_id,
+        grades: grade.quarter_grades  // Map quarter_grades to grades
+      }));
+    }
 
     return response.data;
   } catch (error) {
