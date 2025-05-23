@@ -163,6 +163,7 @@ import Dropdown from '@/components/dropdown.vue';
 import { computed } from 'vue';
 import { classService } from '@/service/classService';
 import { submitGrades as apiSubmitGrades } from '@/service/gradeService';
+import Swal from 'sweetalert2';
 
 const props = defineProps({
   trackStand: String,
@@ -229,18 +230,27 @@ function saveGrades() {
   if (selectedStudent.value) {
     const gradeKey = quarterMapping[selectedQuarter.value];
     selectedStudent.value.grades[gradeKey] = Grade.value;
-    // Here you would typically call an API to save the grade
-    alert('Grade saved successfully!');
+    Swal.fire({
+      icon: 'success',
+      title: 'Success',
+      text: 'Grade saved successfully!',
+      timer: 1500,
+      showConfirmButton: false
+    });
   }
 }
 
 async function submitGrades() {
-  // Get the teacher ID
   const user = localStorage.getItem('user');
   const teacherId = user ? JSON.parse(user).Teacher_ID : null;
 
   if (!teacherId) {
-    alert('Teacher ID not found. Please login again.');
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Teacher ID not found. Please login again.',
+      confirmButtonColor: '#dc2626'
+    });
     return;
   }
 
@@ -248,7 +258,7 @@ async function submitGrades() {
     return {
       Student_ID: student.student_id,
       Subject_ID: props.subject_id,
-      Teacher_ID: teacherId, // Make sure this is included!
+      Teacher_ID: teacherId,
       Q1: student.grades.first ? parseFloat(student.grades.first) : null,
       Q2: student.grades.second ? parseFloat(student.grades.second) : null,
       Q3: student.grades.third ? parseFloat(student.grades.third) : null,
@@ -259,20 +269,28 @@ async function submitGrades() {
   });
 
   try {
-    // Add this line to debug the data you're sending
     console.log('Sending grades:', gradesData);
 
     const result = await apiSubmitGrades(gradesData);
 
     if (result.status === 'success') {
       showSubmitSuccess.value = true;
-      // Clear selected students or update UI as needed
     } else {
-      alert('Error: ' + result.message);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: result.message,
+        confirmButtonColor: '#dc2626'
+      });
     }
   } catch (error) {
     console.error('Error submitting grades:', error);
-    alert('Failed to submit grades. Please try again.');
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Failed to submit grades. Please try again.',
+      confirmButtonColor: '#dc2626'
+    });
   }
 }
 
@@ -319,7 +337,6 @@ async function loadSubjectData() {
   try {
     console.log('Loading subject data for subject_id:', props.subject_id);
 
-    // Check first if we have data in localStorage to preserve grades
     const storedData = localStorage.getItem(`subject_${props.subject_id}`);
     let localStorageStudents = [];
 
@@ -328,7 +345,6 @@ async function loadSubjectData() {
       console.log('Found stored students data:', localStorageStudents);
     }
 
-    // Fetch fresh data from API
     const response = await classService.getClassStudents(props.subject_id);
     console.log('API response:', response);
 
@@ -337,9 +353,7 @@ async function loadSubjectData() {
       response.data &&
       Array.isArray(response.data)
     ) {
-      // Map students from API and preserve grades from localStorage if they exist
       studentsInSubject.value = response.data.map((student) => {
-        // Find if this student exists in localStorage
         const storedStudent = localStorageStudents.find(
           (s) => s.student_id === student.student_id
         );
@@ -347,7 +361,6 @@ async function loadSubjectData() {
         return {
           ...student,
           selected: false,
-          // Keep existing grades if available, otherwise initialize new grades
           grades: (storedStudent && storedStudent.grades) || {
             first: null,
             second: null,
@@ -359,7 +372,6 @@ async function loadSubjectData() {
 
       console.log('Mapped students:', studentsInSubject.value);
 
-      // Save back to localStorage to ensure we have the most up-to-date list
       localStorage.setItem(
         `subject_${props.subject_id}`,
         JSON.stringify(studentsInSubject.value)
@@ -376,7 +388,6 @@ async function loadSubjectData() {
         response
       );
 
-      // If API fails but we have localStorage data, use that
       if (localStorageStudents.length > 0) {
         console.log('Using cached data from localStorage');
         studentsInSubject.value = localStorageStudents;
@@ -391,7 +402,6 @@ async function loadSubjectData() {
   } catch (error) {
     console.error('Error loading subject data:', error);
 
-    // Try to recover from localStorage if API fails
     try {
       const storedData = localStorage.getItem(`subject_${props.subject_id}`);
       if (storedData) {
@@ -415,10 +425,8 @@ function setStudentInfo(index) {
 }
 
 function validateGrade(event) {
-  // Remove any non-numeric characters
   Grade.value = Grade.value.replace(/[^0-9]/g, '');
 
-  // Ensure the value is between 0 and 100
   const numValue = parseInt(Grade.value);
   if (numValue > 100) {
     Grade.value = '100';
