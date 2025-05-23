@@ -77,7 +77,7 @@
 <script setup>
   import { ref, onMounted } from 'vue';
   import modal from '@/components/modal.vue';
-  import { classService } from '@/service/classService';
+  import { classListService } from '@/service/classListService';
 
   const props = defineProps({
     subject_id: String,
@@ -107,7 +107,7 @@
     try {
       loading.value = true;
       error.value = null;
-      const response = await classService.getClassStudents(props.subject_id);
+      const response = await classListService.getClassStudents(props.subject_id);
       if (response.status === 'success') {
         studentsInSubject.value = response.data;
       } else {
