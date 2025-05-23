@@ -226,25 +226,95 @@ function nextStudent() {
   }
 }
 
-function saveGrades() {
+async function saveGrades() {
   if (selectedStudent.value) {
-    const gradeKey = quarterMapping[selectedQuarter.value];
-    selectedStudent.value.grades[gradeKey] = Grade.value;
-    Swal.fire({
-      icon: 'success',
-      title: 'Success',
-      text: 'Grade saved successfully!',
-      timer: 1500,
-      showConfirmButton: false
-    });
+    try {
+      const gradeKey = quarterMapping[selectedQuarter.value];
+      selectedStudent.value.grades[gradeKey] = Grade.value;
+
+      // Get teacher ID from localStorage
+      const userStr = localStorage.getItem('user');
+      if (!userStr) {
+        throw new Error('User data not found in localStorage');
+      }
+
+      const user = JSON.parse(userStr);
+      console.log('User data from localStorage:', userStr);
+      console.log('Parsed user object:', user);
+      console.log('Teacher ID:', user.teacher_ID);
+      if (!user.teacher_ID) {
+        throw new Error('Teacher ID not found in user data');
+      }
+
+      // Prepare the grade data for the backend
+      const gradeData = {
+        Student_ID: selectedStudent.value.student_id,
+        Subject_ID: props.subject_id,
+        Teacher_ID: user.teacher_ID,
+        Q1: selectedStudent.value.grades.first ? parseFloat(selectedStudent.value.grades.first) : null,
+        Q2: selectedStudent.value.grades.second ? parseFloat(selectedStudent.value.grades.second) : null,
+        Q3: selectedStudent.value.grades.third ? parseFloat(selectedStudent.value.grades.third) : null,
+        Q4: selectedStudent.value.grades.fourth ? parseFloat(selectedStudent.value.grades.fourth) : null,
+      };
+
+      // Save to backend
+      const result = await apiSubmitGrades([gradeData]);
+
+      if (result.status === 'success') {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'Grade saved successfully!',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      } else {
+        throw new Error(result.message || 'Failed to save grade');
+      }
+    } catch (error) {
+      console.error('Error saving grade:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.message || 'Failed to save grade. Please try again.',
+        confirmButtonColor: '#dc2626'
+      });
+    }
   }
 }
 
-async function submitGrades() {
-  const user = localStorage.getItem('user');
-  const teacherId = user ? JSON.parse(user).Teacher_ID : null;
+const selectedStudents = computed(() => {
+  return studentsInSubject.value.filter(student => student.selected);
+});
 
-  if (!teacherId) {
+async function submitGrades() {
+  if (selectedStudents.value.length === 0) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'No Students Selected',
+      text: 'Please select at least one student to submit grades.',
+      confirmButtonColor: '#dc2626'
+    });
+    return;
+  }
+
+  // Get teacher ID from localStorage
+  const userStr = localStorage.getItem('user');
+  if (!userStr) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'User data not found. Please login again.',
+      confirmButtonColor: '#dc2626'
+    });
+    return;
+  }
+
+  const user = JSON.parse(userStr);
+  console.log('User data from localStorage:', userStr);
+  console.log('Parsed user object:', user);
+  console.log('Teacher ID:', user.teacher_ID);
+  if (!user.teacher_ID) {
     Swal.fire({
       icon: 'error',
       title: 'Error',
@@ -254,41 +324,43 @@ async function submitGrades() {
     return;
   }
 
-  const gradesData = selectedStudents.map((student) => {
+  const gradesData = selectedStudents.value.map((student) => {
+    const grades = student.grades;
     return {
       Student_ID: student.student_id,
       Subject_ID: props.subject_id,
-      Teacher_ID: teacherId,
-      Q1: student.grades.first ? parseFloat(student.grades.first) : null,
-      Q2: student.grades.second ? parseFloat(student.grades.second) : null,
-      Q3: student.grades.third ? parseFloat(student.grades.third) : null,
-      Q4: student.grades.fourth ? parseFloat(student.grades.fourth) : null,
-      FinalGrade: calculateFinalGrade(student.grades),
-      Remarks: calculateRemarks(student.grades),
+      Teacher_ID: user.teacher_ID,
+      Q1: grades.first ? parseFloat(grades.first) : null,
+      Q2: grades.second ? parseFloat(grades.second) : null,
+      Q3: grades.third ? parseFloat(grades.third) : null,
+      Q4: grades.fourth ? parseFloat(grades.fourth) : null,
+      FinalGrade: calculateFinalGrade(grades),
+      Remarks: calculateRemarks(grades),
     };
   });
 
   try {
-    console.log('Sending grades:', gradesData);
-
     const result = await apiSubmitGrades(gradesData);
 
     if (result.status === 'success') {
       showSubmitSuccess.value = true;
-    } else {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: result.message,
-        confirmButtonColor: '#dc2626'
+      // Clear selections after successful submission
+      studentsInSubject.value.forEach(student => {
+        student.selected = false;
       });
+      selectAll.value = false;
+      
+      // Reload the data to ensure we have the latest from the backend
+      await loadSubjectData();
+    } else {
+      throw new Error(result.message || 'Failed to submit grades');
     }
   } catch (error) {
     console.error('Error submitting grades:', error);
     Swal.fire({
       icon: 'error',
       title: 'Error',
-      text: 'Failed to submit grades. Please try again.',
+      text: error.message || 'Failed to submit grades. Please try again.',
       confirmButtonColor: '#dc2626'
     });
   }
@@ -336,46 +408,22 @@ watch(currentIndex, () => {
 async function loadSubjectData() {
   try {
     console.log('Loading subject data for subject_id:', props.subject_id);
-
-    const storedData = localStorage.getItem(`subject_${props.subject_id}`);
-    let localStorageStudents = [];
-
-    if (storedData) {
-      localStorageStudents = JSON.parse(storedData);
-      console.log('Found stored students data:', localStorageStudents);
-    }
-
+    
+    // Fetch students and their grades from the backend
     const response = await classService.getClassStudents(props.subject_id);
     console.log('API response:', response);
 
-    if (
-      response.status === 'success' &&
-      response.data &&
-      Array.isArray(response.data)
-    ) {
-      studentsInSubject.value = response.data.map((student) => {
-        const storedStudent = localStorageStudents.find(
-          (s) => s.student_id === student.student_id
-        );
-
-        return {
-          ...student,
-          selected: false,
-          grades: (storedStudent && storedStudent.grades) || {
-            first: null,
-            second: null,
-            third: null,
-            fourth: null,
-          },
-        };
-      });
-
-      console.log('Mapped students:', studentsInSubject.value);
-
-      localStorage.setItem(
-        `subject_${props.subject_id}`,
-        JSON.stringify(studentsInSubject.value)
-      );
+    if (response.status === 'success' && response.data && Array.isArray(response.data)) {
+      studentsInSubject.value = response.data.map((student) => ({
+        ...student,
+        selected: false,
+        grades: {
+          first: student.grades?.first || null,
+          second: student.grades?.second || null,
+          third: student.grades?.third || null,
+          fourth: student.grades?.fourth || null,
+        },
+      }));
 
       if (studentsInSubject.value.length > 0) {
         currentIndex.value = 0;
@@ -383,38 +431,22 @@ async function loadSubjectData() {
         loadGrade();
       }
     } else {
-      console.error(
-        'Failed to fetch students or invalid response format:',
-        response
-      );
-
-      if (localStorageStudents.length > 0) {
-        console.log('Using cached data from localStorage');
-        studentsInSubject.value = localStorageStudents;
-
-        if (studentsInSubject.value.length > 0) {
-          currentIndex.value = 0;
-          selectedStudent.value = studentsInSubject.value[0];
-          loadGrade();
-        }
-      }
+      console.error('Failed to fetch students or invalid response format:', response);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to load student data. Please try again.',
+        confirmButtonColor: '#dc2626'
+      });
     }
   } catch (error) {
     console.error('Error loading subject data:', error);
-
-    try {
-      const storedData = localStorage.getItem(`subject_${props.subject_id}`);
-      if (storedData) {
-        studentsInSubject.value = JSON.parse(storedData);
-        if (studentsInSubject.value.length > 0) {
-          currentIndex.value = 0;
-          selectedStudent.value = studentsInSubject.value[0];
-          loadGrade();
-        }
-      }
-    } catch (e) {
-      console.error('Error recovering from localStorage:', e);
-    }
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Failed to load student data. Please try again.',
+      confirmButtonColor: '#dc2626'
+    });
   }
 }
 
@@ -454,4 +486,80 @@ const getCurriculumLevel = () => {
   const grade = parseInt(props.gradeLevel);
   return grade <= 10 ? 'JHS' : 'SHS';
 };
+
+async function refreshGrades() {
+  try {
+    await loadSubjectData();
+  } catch (error) {
+    console.error('Error refreshing grades:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Failed to refresh grades. Please try again.',
+      confirmButtonColor: '#dc2626'
+    });
+  }
+}
+
+function validateGradeData(gradeData) {
+  const errors = [];
+  
+  if (!gradeData.Student_ID) {
+    errors.push('Student ID is required');
+  }
+  if (!gradeData.Subject_ID) {
+    errors.push('Subject ID is required');
+  }
+  if (!gradeData.Teacher_ID) {
+    errors.push('Teacher ID is required');
+  }
+  
+  // Validate quarter grades
+  ['Q1', 'Q2', 'Q3', 'Q4'].forEach(quarter => {
+    if (gradeData[quarter] !== null) {
+      const grade = parseFloat(gradeData[quarter]);
+      if (isNaN(grade) || grade < 0 || grade > 100) {
+        errors.push(`${quarter} must be a number between 0 and 100`);
+      }
+    }
+  });
+
+  return errors;
+}
+
+function checkUserAuth() {
+  const userStr = localStorage.getItem('user');
+  if (!userStr) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Authentication Error',
+      text: 'Please log in again to continue.',
+      confirmButtonColor: '#dc2626'
+    });
+    return false;
+  }
+
+  try {
+    const user = JSON.parse(userStr);
+    if (!user.teacher_ID) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Authentication Error',
+        text: 'Teacher ID not found. Please log in again.',
+        confirmButtonColor: '#dc2626'
+      });
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error('Error parsing user data:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Authentication Error',
+      text: 'Invalid user data. Please log in again.',
+      confirmButtonColor: '#dc2626'
+    });
+    return false;
+  }
+}
 </script>
