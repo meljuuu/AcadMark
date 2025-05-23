@@ -309,6 +309,23 @@
       const studentId = students.value[index].Student_ID;
       selectedStudent.value = students.value[index];
       
+      // Update student info for display
+      selectedStudentInfo.value = {
+        firstName: students.value[index].FirstName,
+        middleName: students.value[index].MiddleName,
+        lastName: students.value[index].LastName,
+        lrn: students.value[index].LRN,
+        sex: students.value[index].Sex,
+        curriculum: students.value[index].Curriculum,
+        birthDate: students.value[index].BirthDate,
+        address: [
+          students.value[index].HouseNo,
+          students.value[index].Barangay,
+          students.value[index].Municipality,
+          students.value[index].Province
+        ].filter(Boolean).join(', ')
+      };
+
       // Fetch subjects for the selected student
       const subjectsData = await getStudentSubjects(studentId);
       console.log('Subjects data:', subjectsData);
