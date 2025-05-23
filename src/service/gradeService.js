@@ -121,3 +121,22 @@ function validateGradeData(gradeData) {
 
   return errors;
 }
+
+export const updateGradeStatus = async (gradeId, status) => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await API.put(
+      `/grades/${gradeId}/status`,
+      { status },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('API error:', error);
+    throw error.response ? error.response.data : error;
+  }
+};

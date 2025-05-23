@@ -336,6 +336,7 @@ async function submitGrades() {
       Q4: grades.fourth ? parseFloat(grades.fourth) : null,
       FinalGrade: calculateFinalGrade(grades),
       Remarks: calculateRemarks(grades),
+      Status: 'pending'
     };
   });
 

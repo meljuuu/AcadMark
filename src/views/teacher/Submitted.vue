@@ -41,8 +41,13 @@
             <td class="p-2 w-1/6">{{ getAge(student.birthDate) }}</td>
             <td class="p-2 w-1/6">{{ getGradeForQuarter(student) }}</td>
             <td class="p-2 w-1/6">
-              <span class="px-4 py-2 rounded text-white inline-block w-[135px] font-light text-center bg-[#FF9204]">
-                Pending
+              <span class="px-4 py-2 rounded text-white inline-block w-[135px] font-light text-center"
+                :class="{
+                  'bg-[#FF9204]': student.status === 'Pending',
+                  'bg-green-500': student.status === 'Accepted',
+                  'bg-red-500': student.status === 'Declined'
+                }">
+                {{ (student.status || 'pending').charAt(0).toUpperCase() + (student.status || 'pending').slice(1) }}
               </span>
             </td>
           </tr>
