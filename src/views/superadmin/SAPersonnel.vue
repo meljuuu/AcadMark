@@ -1,6 +1,6 @@
 <template>
   <div class="w-full">
-    <h1 class="text-5xl font-bold mb-6">Personnel Setup</h1>
+    <h1 class="text-5xl font-bold mb-6 text-[#295f98]">Personnel Setup</h1>
     <div class="bg-white shadow-lg border border-gray-200 rounded-lg p-6 mb-6 flex flex-col" style="height: 880px;">
         <div class="flex flex-wrap justify-between items-center mb-4 gap-4">
           <div class="flex gap-4 flex-wrap items-center">

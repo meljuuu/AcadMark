@@ -1,8 +1,10 @@
 <template>
   <div class="w-full">
-    <h1 class="text-5xl font-bold mb-6">Settings</h1>
+    <div class="flex items-center space-x-6 mb-6">
+      <h1 class="text-5xl font-bold text-[#295f98]">Settings</h1>
+    </div>
 
-    <div class="mx-auto bg-white p-8 rounded-2xl w-full w-full mb-6">
+    <div class="mx-auto bg-white rounded-2xl w-full w-full mb-6">
 
        <div class="flex justify-between p-8 rounded-xl mb-6" style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
             <div v-for="tab in tabs" :key="tab" class="w-[48%] cursor-pointer"
@@ -12,9 +14,6 @@
                 </p>
             </div>
         </div>
-      
-
-
 
       <div class="text-xl text-center">
         <div v-if="activeTab === 'Subjects'">

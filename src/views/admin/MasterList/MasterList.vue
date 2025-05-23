@@ -45,18 +45,25 @@
                     <div v-for="(card, index) in filteredCards" :key="index"
                         class="rounded-xl shadow-lg border border-gray-300 overflow-hidden cursor-pointer transition-transform hover:scale-105"
                         @click="handleCardClick(card)">
-                        <div class="bg-blue text-white py-3 px-4 text-center font-semibold">
+                        <!-- Curriculum Background Color -->
+                        <div
+                            :class="['py-3 px-4 text-center font-semibold', getStatusBgClass(card.Status), 'text-white']">
                             {{ getSchoolLevel(card.Curriculum) }}
                         </div>
+
                         <div class="bg-white p-6 relative pb-20">
                             <div class="relative z-10 mt-[-17px]">
-                                <h2 class="text-5xl font-bold text-blue mb-2">
+                                <!-- Grade Level Color -->
+                                <h2 :class="['text-5xl font-bold mb-2', getStatusTextClass(card.Status)]">
                                     Grade {{ card.Grade_Level }}
                                 </h2>
-                                <p class="text-lg font-semibold text-blue">
+
+                                <!-- Track & Section Color -->
+                                <p :class="['text-lg font-semibold', getStatusTextClass(card.Status)]">
                                     {{ card.Track }} – {{ card.Section }}
                                 </p>
                             </div>
+
                             <div class="absolute top-0 right-0 w-full h-full overflow-hidden">
                                 <img src="/assets/img/logo.png" alt="School Logo"
                                     class="opacity-40 h-40 absolute top-10 right-[-40px]" />
@@ -64,14 +71,18 @@
                         </div>
                     </div>
                 </div>
+                <!-- Cards Grid -->
+
+
+
             </div>
         </div>
-    </div>
+        </div>
 </template>
 
 <script>
 import StudentList from '@/views/admin/MasterList/StudentList.vue';
-import { getAcceptedClasses } from '@/service/teacherSubjectsService';
+import { getClassesExcludingIncomplete } from '@/service/teacherSubjectsService';
 
 export default {
     name: 'Masterlist',
@@ -106,9 +117,7 @@ export default {
     methods: {
         async fetchAcceptedClasses() {
             try {
-                this.loading = true;
-                this.error = null;
-                const classes = await getAcceptedClasses();
+                const classes = await getClassesExcludingIncomplete();
                 this.cards = classes;
                 console.log("CARDS", classes);
             } catch (error) {
@@ -126,6 +135,30 @@ export default {
             if (curriculum === 'JHS') return 'Junior High School';
             if (curriculum === 'SHS') return 'Senior High School';
             return curriculum;
+        },
+        getStatusBgClass(Status) {
+            switch (Status) {
+                case 'Pending':
+                    return 'bg-orange-500';
+                case 'Declined':
+                    return 'bg-red-600';
+                case 'Accepted':
+                    return 'bg-blue-600';
+                default:
+                    return 'bg-gray-400';
+            }
+        },
+        getStatusTextClass(Status) {
+            switch (Status) {
+                case 'Pending':
+                    return 'text-orange-500';
+                case 'Declined':
+                    return 'text-red-600';
+                case 'Accepted':
+                    return 'text-blue-600';
+                default:
+                    return 'text-gray-700';
+            }
         }
     },
     mounted() {
