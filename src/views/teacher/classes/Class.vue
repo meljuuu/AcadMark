@@ -65,7 +65,7 @@
           <div>
             <component :is="activeComponent" :subject_id="subject_id" :trackStand="trackStand" :className="className"
               :subjectName="subjectName" :classType="classType" :currentPage="currentPage" :itemsPerPage="itemsPerPage"
-              @update:currentPage="currentPage = $event" @update:totalItems="updateTotalItems" :key="activeComponent">
+              :gradeLevel="gradeLevel" @update:currentPage="currentPage = $event" @update:totalItems="updateTotalItems" :key="activeComponent">
             </component>
           </div>
         </transition>

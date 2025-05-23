@@ -37,8 +37,7 @@
                   student.lastName +
                   ', ' +
                   student.firstName +
-                  ' ' +
-                  student.middleName
+                  (student.middleName ? ' ' + student.middleName : '')
                 }}
               </p>
             </div>
@@ -84,7 +83,7 @@
             </div>
             <div>
               <p class="text-blue text-xs font-bold">Curriculum</p>
-              <p class="text-2xl font-medium">{{ selectedStudent ? selectedStudent.curriculum : 'N/A' }}</p>
+              <p class="text-2xl font-medium">{{ getCurriculumLevel() }}</p>
             </div>
           </div>
           <div class="flex flex-col gap-1">
@@ -171,6 +170,7 @@ const props = defineProps({
   classType: String,
   subjectName: String,
   className: String,
+  gradeLevel: [String, Number],
 });
 
 const today = new Date();
@@ -448,4 +448,10 @@ const filteredStudents = computed(() => {
     return true;
   });
 });
+
+const getCurriculumLevel = () => {
+  if (!props.gradeLevel) return 'N/A';
+  const grade = parseInt(props.gradeLevel);
+  return grade <= 10 ? 'JHS' : 'SHS';
+};
 </script>
