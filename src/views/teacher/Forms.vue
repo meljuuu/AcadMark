@@ -33,7 +33,7 @@
                 'hover:bg-gray-200': true,
               }"
             >
-              {{ student.firstName }} {{ student.lastName }}
+              {{ student.FirstName }} {{ student.MiddleName ? student.MiddleName + ' ' : '' }} {{ student.LastName }}
             </div>
           </div>
 
@@ -52,7 +52,8 @@
                 <div class="flex flex-col gap-3">
                   <p class="text-xs font-bold text-blue">Student Name</p>
                   <p class="text-2xl font-medium">
-                    {{ selectedStudentInfo.firstName }}
+                    {{ selectedStudentInfo.firstName }} 
+                    {{ selectedStudentInfo.middleName ? selectedStudentInfo.middleName + ' ' : '' }}
                     {{ selectedStudentInfo.lastName }}
                   </p>
 
@@ -205,6 +206,11 @@
         </div>
       </div>
     </div>
+
+    <!-- Add error message display -->
+    <div v-if="error" class="p-4 mb-4 text-red-700 bg-red-100 rounded-lg">
+      {{ error }}
+    </div>
   </div>
 </template>
 
@@ -214,6 +220,7 @@
   import {
     getAdvisoryStudents,
     getStudentSubjects,
+    getStudentGrades
   } from '@/service/formsService';
 
   const searchQuery = ref('');
@@ -224,27 +231,29 @@
   const studentSubjects = ref([]);
   const Grade = ref('No grade');
   const loading = ref(true);
+  const studentGrades = ref({});
+  const error = ref(null);
 
   onMounted(async () => {
     loading.value = true;
+    error.value = null;
 
     try {
-      // Try to fetch from API first
       const data = await getAdvisoryStudents();
+      console.log('Advisory students response:', data);
 
       if (data.status === 'success' && Array.isArray(data.students)) {
         students.value = data.students;
-
         if (students.value.length > 0) {
           await selectStudent(0);
         }
       } else {
-        console.warn('No advisory students found or unexpected data format');
-        fallbackToLocalStorage();
+        error.value = data.message || 'No advisory students found';
+        console.warn('No advisory students found or unexpected data format:', data);
       }
     } catch (error) {
+      error.value = 'Failed to fetch advisory students';
       console.error('Error fetching advisory students:', error);
-      fallbackToLocalStorage();
     } finally {
       loading.value = false;
     }
@@ -278,60 +287,107 @@
 
     const query = searchQuery.value.toLowerCase();
     return students.value.filter((student) => {
-      const fullName = `${student.firstName} ${student.lastName}`.toLowerCase();
+      const fullName = `${student.FirstName} ${student.MiddleName || ''} ${student.LastName}`.toLowerCase();
       return (
         fullName.includes(query) ||
-        (student.lrn && student.lrn.toLowerCase().includes(query))
+        (student.LRN && student.LRN.toLowerCase().includes(query))
       );
     });
   });
 
   const selectStudent = async (index) => {
     if (index >= 0 && index < filteredStudents.value.length) {
-      selectedStudent.value = filteredStudents.value[index];
-
-      // Update student info
-      selectedStudentInfo.value = { ...selectedStudent.value };
+      const student = filteredStudents.value[index];
+      selectedStudent.value = student;
+      selectedStudentInfo.value = {
+        firstName: student.FirstName,
+        middleName: student.MiddleName,
+        lastName: student.LastName,
+        lrn: student.LRN,
+        sex: student.Sex,
+        curriculum: student.Curriculum,
+        birthDate: student.BirthDate,
+        address: student.Address || `${student.HouseNo || ''} ${student.Barangay || ''} ${student.Municipality || ''} ${student.Province || ''}`.trim()
+      };
+      error.value = null;
 
       try {
-        // Try to fetch subjects from API
-        const data = await getStudentSubjects(selectedStudent.value.student_id);
+        console.log('Selected student:', student);
 
-        if (data.status === 'success' && Array.isArray(data.subjects)) {
-          subjects.value = data.subjects;
+        const studentId = student.Student_ID;
+        
+        if (!studentId) {
+          console.error('Student ID is missing:', student);
+          error.value = 'Invalid student data';
+          return;
         }
-      } catch (error) {
-        console.error('Error fetching student subjects:', error);
-        // Fallback to localStorage for subjects
-        getSubjectsFromLocalStorage();
+
+        const subjectsData = await getStudentSubjects(studentId);
+        console.log('Subjects data:', subjectsData);
+
+        if (subjectsData.status === 'success') {
+          studentSubjects.value = subjectsData.subjects || [];
+        } else {
+          error.value = subjectsData.message || 'Failed to fetch student subjects';
+          studentSubjects.value = [];
+        }
+      } catch (err) {
+        console.error('Error fetching student subjects:', err);
+        error.value = 'Failed to fetch student subjects';
+        studentSubjects.value = [];
       }
-
-      // Update student subjects
-      updateStudentSubjects();
     }
   };
 
-  const getSubjectsFromLocalStorage = () => {
-    const storedSubjects = localStorage.getItem('subjects');
-    subjects.value = storedSubjects ? JSON.parse(storedSubjects) : [];
+  const getGrade = (subjectId, quarter) => {
+    const grades = studentGrades.value[subjectId];
+    if (!grades) return 'No grade';
+    
+    const quarterMap = {
+      'first': 'Q1',
+      'second': 'Q2',
+      'third': 'Q3',
+      'fourth': 'Q4'
+    };
+    
+    return grades[quarterMap[quarter]] || 'No grade';
   };
 
-  const updateStudentSubjects = () => {
-    if (!selectedStudent.value) {
-      studentSubjects.value = [];
-      Grade.value = 'No grade';
-      return;
+  const calculateGWA = (subjectId) => {
+    const grades = studentGrades.value[subjectId];
+    if (!grades) return 'No grade';
+
+    const quarterGrades = [
+      grades.Q1,
+      grades.Q2,
+      grades.Q3,
+      grades.Q4
+    ];
+
+    // Check if all grades are empty or undefined
+    if (quarterGrades.every(grade => !grade || grade === '-' || grade === 'No grade')) {
+      return 'No grade';
     }
 
-    const studentId = selectedStudent.value.student_id;
-    studentSubjects.value = subjects.value.filter(
-      (subject) =>
-        Array.isArray(subject.student_id) &&
-        subject.student_id.includes(studentId)
-    );
+    // Calculate average of valid grades
+    const validGrades = quarterGrades
+      .filter(grade => grade && grade !== '-' && grade !== 'No grade')
+      .map(grade => parseFloat(grade));
 
-    // Update the GWA grade
-    Grade.value = calculateAverageGrade.value;
+    if (validGrades.length > 0) {
+      const average = validGrades.reduce((sum, grade) => sum + grade, 0) / validGrades.length;
+      return isNaN(average) ? 'No grade' : average.toFixed(2);
+    }
+
+    return 'No grade';
+  };
+
+  const getRemarks = (subjectId) => {
+    const gwa = calculateGWA(subjectId);
+    if (gwa === 'No grade' || gwa === 'INC') {
+      return 'No remarks';
+    }
+    return parseFloat(gwa) >= 75 ? 'Passed' : 'Failed';
   };
 
   const remarks = computed(() => {
@@ -397,6 +453,7 @@
       const csvContent = [
         [
           'First Name',
+          'Middle Name',
           'Last Name',
           'LRN',
           'Sex',
@@ -406,6 +463,7 @@
         ],
         [
           student.firstName,
+          student.middleName,
           student.lastName,
           student.lrn,
           student.sex,
@@ -444,75 +502,6 @@
     }
   };
 
-  const getGrade = (subjectId, quarter) => {
-    const key = `subject_${subjectId}`;
-    const subjectData = JSON.parse(localStorage.getItem(key)) || [];
-
-    if (!selectedStudent.value) return 'No grade';
-
-    const student = subjectData.find(
-      (student) => student.student_id === selectedStudent.value.student_id
-    );
-
-    if (student && student.grades) {
-      return student.grades[quarter] || 'No grade';
-    }
-    return 'No grade';
-  };
-
-  const calculateGWA = (subjectId) => {
-    const key = `subject_${subjectId}`;
-    const subjectData = JSON.parse(localStorage.getItem(key)) || [];
-
-    if (subjectData.length === 0 || !selectedStudent.value) {
-      return 'No grade';
-    }
-
-    const student = subjectData.find(
-      (student) => student.student_id === selectedStudent.value.student_id
-    );
-
-    if (student && student.grades) {
-      const grades = [
-        student.grades['first'],
-        student.grades['second'],
-        student.grades['third'],
-        student.grades['fourth'],
-      ];
-
-      // Check if all grades are empty or undefined
-      if (
-        grades.every((grade) => !grade || grade === '-' || grade === 'No grade')
-      ) {
-        return 'No grade';
-      }
-
-      // Calculate average of valid grades
-      const validGrades = grades
-        .filter((grade) => grade && grade !== '-' && grade !== 'No grade')
-        .map((grade) => parseFloat(grade));
-
-      if (validGrades.length > 0) {
-        const average =
-          validGrades.reduce((sum, grade) => sum + grade, 0) /
-          validGrades.length;
-        return isNaN(average) ? 'No grade' : average.toFixed(2);
-      }
-    }
-
-    return 'No grade';
-  };
-
-  const getRemarks = (subjectId) => {
-    const gwa = calculateGWA(subjectId);
-
-    if (gwa === 'No grade' || gwa === 'INC') {
-      return 'No remarks';
-    }
-
-    return parseFloat(gwa) >= 75 ? 'Passed' : 'Failed';
-  };
-
   const downloadCSV = (csvContent, fileName) => {
     const blob = new Blob([csvContent.map((row) => row.join(',')).join('\n')], {
       type: 'text/csv;charset=utf-8;',
@@ -523,3 +512,43 @@
     link.click();
   };
 </script>
+
+<style scoped>
+.subjects-section {
+  margin-top: 2rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.subjects-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.subject-card {
+  background-color: white;
+  padding: 1rem;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.subject-card h4 {
+  margin: 0 0 0.5rem 0;
+  color: #2c3e50;
+}
+
+.subject-card p {
+  margin: 0.25rem 0;
+  color: #666;
+}
+
+.no-subjects {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+}
+</style>
+

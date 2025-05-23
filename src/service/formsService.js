@@ -5,12 +5,36 @@ const API = axios.create({
   withCredentials: false,
 });
 
+// Add response interceptor for better error handling
+API.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      console.error('API Error:', {
+        status: error.response.status,
+        data: error.response.data,
+        message: error.response.data?.message || 'An error occurred'
+      });
+    } else if (error.request) {
+      // The request was made but no response was received
+      console.error('No response received:', error.request);
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.error('Request setup error:', error.message);
+    }
+    return Promise.reject(error);
+  }
+);
+
 /**
  * Get all students in the teacher's advisory class
  */
 export const getAdvisoryStudents = async () => {
   try {
     const token = localStorage.getItem('token');
+    console.log('Token:', token ? 'Present' : 'Missing');
 
     if (!token) {
       throw new Error('Authentication token not found');
@@ -22,17 +46,20 @@ export const getAdvisoryStudents = async () => {
       },
     });
 
+    console.log('Advisory students response:', response.data); // Debug log
     return response.data;
   } catch (error) {
-    console.error('Error fetching advisory students:', error);
-    if (import.meta.env.DEV) {
-      // Return mock data for development
-      return {
-        status: 'success',
-        students: getSampleStudents(),
-      };
-    }
-    throw error;
+    console.error('Error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status
+    });
+    
+    return {
+      status: 'error',
+      message: error.response?.data?.message || 'Failed to fetch advisory students',
+      error: error.message
+    };
   }
 };
 
@@ -42,9 +69,14 @@ export const getAdvisoryStudents = async () => {
 export const getStudentSubjects = async (studentId) => {
   try {
     const token = localStorage.getItem('token');
+    console.log('Getting subjects for student:', studentId); // Debug log
 
     if (!token) {
       throw new Error('Authentication token not found');
+    }
+
+    if (!studentId) {
+      throw new Error('Student ID is required');
     }
 
     const response = await API.get(`/student/${studentId}/subjects`, {
@@ -53,17 +85,48 @@ export const getStudentSubjects = async (studentId) => {
       },
     });
 
+    console.log('Subjects response:', response.data); // Debug log
     return response.data;
   } catch (error) {
-    console.error('Error fetching student subjects:', error);
-    if (import.meta.env.DEV) {
-      // Return mock data for development
-      return {
-        status: 'success',
-        subjects: getSampleSubjects(studentId),
-      };
+    console.error('Error fetching student subjects:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status
+    });
+    
+    return {
+      status: 'error',
+      message: error.response?.data?.message || 'Failed to fetch student subjects',
+      error: error.message
+    };
+  }
+};
+
+/**
+ * Get student grades for a specific subject
+ */
+export const getStudentGrades = async (studentId, subjectId) => {
+  try {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      throw new Error('Authentication token not found');
     }
-    throw error;
+
+    const response = await API.get(`/student/${studentId}/subject/${subjectId}/grades`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching student grades:', error);
+    return {
+      status: 'error',
+      message: error.response?.data?.message || 'Failed to fetch student grades',
+      error: error.message
+    };
   }
 };
 
