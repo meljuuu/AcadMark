@@ -1,5 +1,6 @@
-    <template>
-        <div class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
+<template>
+    <Teleport to="body">
+        <div v-if="showLis || selectedStudent || showSubmitSuccess" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
             <div class="w-full max-w-6xl max-h-[90vh] mx-4">
                 <div v-if="showLis" class="bg-white rounded-xl shadow-2xl relative">
                     <div class="p-6 border-b border-gray-200">
@@ -64,7 +65,7 @@
                     </div>
                 </div>
 
-                <div v-if="selectedStudent" class="bg-white rounded-xl shadow-2xl relative max-w-4xl mx-auto">
+                <div v-else-if="selectedStudent" class="bg-white rounded-xl shadow-2xl relative max-w-4xl mx-auto">
                     <div class="p-6 border-b border-gray-200">
                         <h2 class="text-2xl font-semibold text-gray-800">Student Information</h2>
                     </div>
@@ -151,8 +152,7 @@
                 </div>
 
                 <!-- Success Modal -->
-                <div v-if="showSubmitSuccess"
-                    class="bg-white rounded-xl p-8 text-center shadow-xl max-w-sm w-full mx-auto">
+                <div v-else-if="showSubmitSuccess" class="bg-white rounded-xl p-8 text-center shadow-xl max-w-sm w-full mx-auto">
                     <h2 class="text-xl font-semibold text-green-600 mb-4">Success!</h2>
                     <p class="text-gray-700">Grades have been successfully submitted.</p>
                     <button @click="$emit('close')"
@@ -162,7 +162,8 @@
                 </div>
             </div>
         </div>
-    </template>
+    </Teleport>
+</template>
 
 <script setup>
 import { ref, computed, watchEffect } from 'vue';
@@ -198,19 +199,20 @@ const props = defineProps({
     },
     students: {
         type: Array,
-        required: true
+        required: true,
+        default: () => []
     }
 });
 
-const students = ref(props.students.map(student => ({
+const students = ref(props.students?.map(student => ({
     ...student,
     grades: {
-        first: null,
-        second: null,
-        third: null,
-        fourth: null
+        first: student.grades?.first || null,
+        second: student.grades?.second || null,
+        third: student.grades?.third || null,
+        fourth: student.grades?.fourth || null
     }
-})));
+})) || []);
 
 const quarterMapping = {
     "1st": "first",

@@ -53,7 +53,8 @@
 
       <div>
         <modal v-if="showLis" :subject_id="subject_id" :showLis="showLis" :showMessage="false" :selectedStudent="null"
-          :selectedQuarter="'1st'" :trackStand="'STEM'" :subjectName="subjectName" @close="showLis = false" />
+          :selectedQuarter="'1st'" :trackStand="'STEM'" :subjectName="subjectName" :students="studentsInSubject"
+          @close="showLis = false" />
       </div>
     </div>
   </div>
