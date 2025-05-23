@@ -55,6 +55,7 @@
     gradeLevel: { type: [String, Number], required: true },
     classType: { type: String, required: true },
     class_id: { type: String, required: true },
+    subject_id: { type: String, required: true },
   });
 
   const router = useRouter();
@@ -84,7 +85,8 @@
         className: props.className,
         subjectName: props.subjectName,
         gradeLevel: props.gradeLevel,
-        classType: props.classType,
+        classType: props.type === 'Advisory' ? 'Advisory' : 'Subject',
+        subject_id: props.subject_id
       },
     });
   };

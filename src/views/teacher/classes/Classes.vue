@@ -12,12 +12,13 @@
         v-for="classItem in classes"
         :key="classItem.class_id"
         :class_id="classItem.class_id"
-        :trackStand="classItem.trackStand"
+        :trackStand="parseInt(classItem.gradeLevel) <= 10 ? 'Junior High School' : classItem.trackStand"
         :classType="classItem.classType"
         :className="classItem.className"
         :subjectName="classItem.subjectName"
         :gradeLevel="classItem.gradeLevel"
         :type="classItem.classType"
+        :subject_id="classItem.subject_id"
       />
     </div>
   </div>
