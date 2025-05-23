@@ -255,6 +255,14 @@ const password = ref('');
 const confirmPassword = ref('');
 const selectedAccession = ref('');
 
+watch(selectedAccession, (val) => {
+  if (val !== 'Teacher') {
+    subject1.value = '';
+    subject2.value = '';
+    showSubject2.value = false;
+  }
+});
+
 const showSubject2 = ref(false);
 
 function capitalize(str) {
@@ -337,18 +345,20 @@ const payload = {
   Suffix: suffix.value,
   EmployeeNo: employeeNo.value,
   Educational_Attainment: educationalAttainment.value,
-  Teaching_Position: teachingPosition.value, // <-- add this line
-  Position: selectedAccession.value,         // <-- use selectedAccession for Position
+  Teaching_Position: teachingPosition.value,
+  Position: selectedAccession.value,
   BirthDate: birthDate.value,
   Sex: sex.value,
   ContactNumber: contactNumber.value,
   Address: address.value,
-  Subject_IDs: [
-    subject1.value ? Number(subject1.value) : null,
-    showSubject2.value && subject2.value ? Number(subject2.value) : null
-  ].filter(v => v),
   Email: email.value,
   Accession: selectedAccession.value,
+  ...(selectedAccession.value === 'Teacher' && {
+    Subject_IDs: [
+      subject1.value ? Number(subject1.value) : null,
+      showSubject2.value && subject2.value ? Number(subject2.value) : null
+    ].filter(v => v),
+  }),
   ...(password.value && { Password: password.value }),
 };
  try {
