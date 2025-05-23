@@ -120,7 +120,7 @@
 </template>
 
 <script>
-import { getClassesWithStudentCount } from "@/service/superadminService";
+import { getClassesExcludingIncomplete } from "@/service/teacherSubjectsService";
 
 export default {
   data() {
@@ -140,18 +140,33 @@ export default {
   computed: {
     personnel() {
       return this.rawClasses
-        .map(item => ({
-          grade: item.Grade_Level,
-          curriculum: item.Curriculum,
-          track: item.Track,
-          section: item.Section,
-          adviser: item.adviser
-          ? `${item.adviser.FirstName} ${item.adviser.MiddleName} ${item.adviser.LastName}`
-          : "N/A",
-          student: item.student_added ?? 0,
-          date: new Date(item.created_at).toLocaleDateString(),
-          status: item.Status,
-        }))
+        .map(item => {
+          let adviserName = 'N/A';
+
+          // Case 1: Adviser info directly available
+          if (item.adviser && item.adviser.FirstName) {
+            adviserName = `${item.adviser.FirstName} ${item.adviser.MiddleName} ${item.adviser.LastName}`;
+          }
+
+          // Case 2: Adviser info may be in student_classes array
+          else if (Array.isArray(item.student_classes)) {
+            const adviserFromStudents = item.student_classes.find(sc => sc.adviser && sc.adviser.FirstName);
+            if (adviserFromStudents) {
+              adviserName = `${adviserFromStudents.adviser.FirstName} ${adviserFromStudents.adviser.MiddleName} ${adviserFromStudents.adviser.LastName}`;
+            }
+          }
+
+          return {
+            grade: item.Grade_Level,
+            curriculum: item.Curriculum,
+            track: item.Track,
+            section: item.Section,
+            adviser: adviserName,
+            student: item.student_added ?? item.student_classes_count ?? 0,
+            date: new Date(item.created_at).toLocaleDateString(),
+            status: item.Status,
+          };
+        })
         .filter(item => {
           const matchesGrade = this.filters.grade ? item.grade === this.filters.grade : true;
           const matchesCurriculum = this.filters.curriculum ? item.curriculum === this.filters.curriculum : true;
@@ -162,7 +177,7 @@ export default {
           );
           return matchesGrade && matchesCurriculum && matchesTrack && matchesStatus && matchesSearch;
         });
-    },
+    },  
     paginatedPersonnel() {
       const start = (this.currentPage - 1) * this.itemsPerPage;
       return this.personnel.slice(start, start + this.itemsPerPage);
@@ -186,8 +201,9 @@ export default {
   methods: {
     async fetchClasses() {
       try {
-        const data = await getClassesWithStudentCount();
+        const data = await getClassesExcludingIncomplete();
         this.rawClasses = data;
+        console.log("DATA", data)
       } catch (error) {
         console.error("Failed to fetch classes:", error);
       }

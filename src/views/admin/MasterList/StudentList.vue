@@ -58,21 +58,30 @@
                         </svg>
                     </div>
 
-                    <div class="flex gap-2">
-                        <button class="bg-[#858585] p-2 rounded cursor-pointer" @click="handleDownload">
-                            <img src="/assets/img/admin/download.svg" class="w-7 h-7 object-contain"
-                                alt="Download Icon">
-                        </button>
-                        <button class="bg-red p-2 rounded cursor-pointer" @click="handleDeleteAll">
-                            <img src="/assets/img/admin/delete.svg" class="w-7 h-7 object-contain" alt="Delete Icon">
-                        </button>
-                        <button class="bg-blue p-2 rounded cursor-pointer" @click="showAddModal = true">
-                            <img src="/assets/img/admin/add.svg" class="w-7 h-7 object-contain" alt="">
-                        </button>
-                        <button class="bg-green p-2 rounded cursor-pointer" @click="openEditModal">
-                            <img src="/assets/img/admin/edit.svg" class="w-7 h-7 object-contain" alt="Edit Icon">
-                        </button>
-                    </div>
+                <div class="relative flex-1 mx-4 w">
+                    <input v-model="searchTerm" type="text" placeholder="Search..."
+                        class="border border-gray-300 rounded-md py-2 px-3 pl-10 w-62" />
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        class="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+
+                <div class="flex gap-2">
+                    <button class="bg-[#858585] p-2 rounded cursor-pointer" @click="handleDownload">
+                        <img src="/assets/img/admin/download.svg" class="w-7 h-7 object-contain" alt="Download Icon">
+                    </button>
+                    <button class="bg-red p-2 rounded cursor-pointer" @click="handleDeleteAll(selectedCard)">
+                        <img src="/assets/img/admin/delete.svg" class="w-7 h-7 object-contain" alt="Delete Icon">
+                    </button>
+                    <button class="bg-blue p-2 rounded cursor-pointer" @click="showAddModal = true">
+                        <img src="/assets/img/admin/add.svg" class="w-7 h-7 object-contain" alt="">
+                    </button>
+                    <button class="bg-green p-2 rounded cursor-pointer" @click="openEditModal">
+                        <img src="/assets/img/admin/edit.svg" class="w-7 h-7 object-contain" alt="Edit Icon">
+                    </button>
                 </div>
             </div>
 
@@ -280,13 +289,14 @@
             </div>
         </div>
     </div>
+</div>
 </template>
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import * as XLSX from 'xlsx';
 import { getAllAcceptedStudents } from '@/service/studentService';
-import { addStudentsToClass, removeStudentToClass } from '@/service/adminClassService';
+import { addStudentsToClass, removeStudentToClass, deleteClass } from '@/service/adminClassService';
 import Swal from 'sweetalert2'
 import { useToast } from 'vue-toastification'
 
@@ -493,22 +503,33 @@ function handleDownload() {
     toast.success('Student list downloaded successfully!')
 }
 
-async function handleDeleteAll() {
+const handleDeleteAll = async (selectedCard) => {
+    if (!selectedCard?.Class_ID) {
+        Swal.fire('Missing Class ID', 'Please select a valid class to delete.', 'warning');
+        return;
+    }
+
     const result = await Swal.fire({
         title: 'Are you sure?',
-        text: 'This will delete all student records!',
+        text: 'This will delete all student records in this class!',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
         cancelButtonColor: '#3085d6',
         confirmButtonText: 'Yes, delete all'
-    })
+    });
 
     if (result.isConfirmed) {
-        students.value = []
-        toast.success('All student records deleted successfully!')
+        try {
+            const response = await deleteClass({ class_id: selectedCard.Class_ID });
+            students.value = [];
+            toast.success(response.message || 'All student records deleted successfully!');
+        } catch (error) {
+            toast.error(error.message || 'Failed to delete student records.');
+        }
     }
-}
+};
+
 
 function toggleSelectAll() {
     if (selectAll.value) {
@@ -604,7 +625,10 @@ const handleAddStudents = async (selectedCard) => {
         modalSelectedStudents.value = [];
         modalSelectAll.value = false;
 
-        toast.success('✅ Students successfully added to class!');
+        toast.success('Students successfully added to class!');
+
+        window.location.reload();
+
     } catch (error) {
         console.error('❌ Failed to add students:', error);
         toast.error('Failed to add students to the class.');
@@ -691,6 +715,7 @@ async function handleUpdateClass(selectedCard) {
     editModalSelectAll.value = false;
 
     toast.success('Class updated successfully!');
+    
 }
 
 function openEditModal() {

@@ -52,3 +52,16 @@ export const removeStudentToClass = async (payload) => {
         throw error.response?.data || error;
     }
 };
+
+export const deleteClass = async (payload) => {
+    try {
+        // Assuming your API expects class_id as a query param
+        const response = await API.delete('/admin/remove-class', {
+            data: payload
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error deleting class:', error.response?.data || error);
+        throw error.response?.data || error;
+    }
+  };
