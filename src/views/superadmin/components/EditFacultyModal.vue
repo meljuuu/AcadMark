@@ -158,20 +158,42 @@
           </div>
         </div>
 
-        <!-- Account Setup Section -->
-      <h1 class="font-semibold text-[#295f98]">Account Setup</h1>
-      <div class="flex gap-4 mb-6">
-        <div class="floating-label flex-2" :class="{ filled: email }">
-          <input
-            v-model="email"
-            type="email"
-            placeholder=" "
-            class="input"
-            required
-          />
-          <label>Email</label>
-        </div>
+            <!-- Account Setup Section -->
+          <h1 class="font-semibold text-[#295f98]">Account Setup</h1>
+          <div class="flex gap-4 mb-6">
+            <div class="floating-label flex-2" :class="{ filled: email }">
+              <input
+                v-model="email"
+                type="email"
+                placeholder=" "
+                class="input"
+                required
+              />
+              <label>Email</label>
+            </div>
+          </div>
+          <div class="flex gap-4 mb-6">
+      <div class="floating-label flex-1" :class="{ filled: password }">
+        <input
+          v-model="password"
+          type="password"
+          placeholder=" "
+          class="input"
+          autocomplete="new-password"
+        />
+        <label>New Password</label>
       </div>
+      <div class="floating-label flex-1" :class="{ filled: confirmPassword }">
+        <input
+          v-model="confirmPassword"
+          type="password"
+          placeholder=" "
+          class="input"
+          autocomplete="new-password"
+        />
+        <label>Confirm New Password</label>
+      </div>
+    </div>
 
         <!-- Accession Section -->
         <h2 class="text-xl text-[#295f98] font-semibold mb-6">Accession</h2>
@@ -254,6 +276,7 @@ const email = ref('');
 const password = ref('');
 const confirmPassword = ref('');
 const selectedAccession = ref('');
+
 
 watch(selectedAccession, (val) => {
   if (val !== 'Teacher') {
