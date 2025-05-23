@@ -5,92 +5,105 @@
             &lt; <span class="underline hover:underline">Back</span>
         </span>
 
-        <div class="student-list-container mb-6">
-            <div class="flex justify-between items-center">
-                <div class="flex gap-4">
-                    <div class="relative w-30">
-                        <select v-model="genderFilter"
-                            class="appearance-none border border-gray-300 rounded-md px-5 py-2 w-full">
-                            <option value="Female">Female</option>
-                            <option value="Male">Male</option>
-                            <option value="All">All</option>
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                            </svg>
+        <!-- Loading State -->
+        <div v-if="loading" class="flex justify-center items-center h-64">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        </div>
+        <!-- Error State -->
+        <div v-else-if="error" class="text-red-500 text-center p-4">
+            {{ error }}
+        </div>
+        <!-- Content -->
+        <div v-else>
+            <div class="student-list-container mb-6">
+                <div class="flex justify-between items-center">
+                    <div class="flex gap-4">
+                        <div class="relative w-30">
+                            <select v-model="genderFilter"
+                                class="appearance-none border border-gray-300 rounded-md px-5 py-2 w-full">
+                                <option value="Female">Female</option>
+                                <option value="Male">Male</option>
+                                <option value="All">All</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="relative w-30">
+                            <select v-model="sortOrder"
+                                class="appearance-none border border-gray-300 rounded-md px-5 py-2 w-full">
+                                <option value="Latest">Latest</option>
+                                <option value="Oldest">Oldest</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
                         </div>
                     </div>
-                    <div class="relative w-30">
-                        <select v-model="sortOrder"
-                            class="appearance-none border border-gray-300 rounded-md px-5 py-2 w-full">
-                            <option value="Latest">Latest</option>
-                            <option value="Oldest">Oldest</option>
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </div>
+
+                    <div class="relative flex-1 mx-4 w">
+                        <input v-model="searchTerm" type="text" placeholder="Search..."
+                            class="border border-gray-300 rounded-md py-2 px-3 pl-10 w-62" />
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
                     </div>
-                </div>
 
-                <div class="relative flex-1 mx-4 w">
-                    <input v-model="searchTerm" type="text" placeholder="Search..."
-                        class="border border-gray-300 rounded-md py-2 px-3 pl-10 w-62" />
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                        class="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                </div>
-
-                <div class="flex gap-2">
-                    <button class="bg-[#858585] p-2 rounded cursor-pointer" @click="handleDownload">
-                        <img src="/assets/img/admin/download.svg" class="w-7 h-7 object-contain" alt="Download Icon">
-                    </button>
-                    <button class="bg-red p-2 rounded cursor-pointer" @click="handleDeleteAll">
-                        <img src="/assets/img/admin/delete.svg" class="w-7 h-7 object-contain" alt="Delete Icon">
-                    </button>
-                    <button class="bg-blue p-2 rounded cursor-pointer" @click="showAddModal = true">
-                        <img src="/assets/img/admin/add.svg" class="w-7 h-7 object-contain" alt="">
-                    </button>
-                    <button class="bg-green p-2 rounded cursor-pointer" @click="openEditModal">
-                        <img src="/assets/img/admin/edit.svg" class="w-7 h-7 object-contain" alt="Edit Icon">
-                    </button>
+                    <div class="flex gap-2">
+                        <button class="bg-[#858585] p-2 rounded cursor-pointer" @click="handleDownload">
+                            <img src="/assets/img/admin/download.svg" class="w-7 h-7 object-contain"
+                                alt="Download Icon">
+                        </button>
+                        <button class="bg-red p-2 rounded cursor-pointer" @click="handleDeleteAll">
+                            <img src="/assets/img/admin/delete.svg" class="w-7 h-7 object-contain" alt="Delete Icon">
+                        </button>
+                        <button class="bg-blue p-2 rounded cursor-pointer" @click="showAddModal = true">
+                            <img src="/assets/img/admin/add.svg" class="w-7 h-7 object-contain" alt="">
+                        </button>
+                        <button class="bg-green p-2 rounded cursor-pointer" @click="openEditModal">
+                            <img src="/assets/img/admin/edit.svg" class="w-7 h-7 object-contain" alt="Edit Icon">
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <div class="student-list-container">
-        <div class="overflow-x-auto bg-white shadow mb-6">
-            <table class="min-w-full">
-                <thead>
-                    <tr>
-                        <th class="bg-gray-100 font-semibold px-4 py-3 text-center">LRN</th>
-                        <th class="bg-gray-100 font-semibold px-4 py-3 text-center">Full Name</th>
-                        <th class="bg-gray-100 font-semibold px-4 py-3 text-center">Gender</th>
-                        <th class="bg-gray-100 font-semibold px-4 py-3 text-center">Birthdate</th>
-                        <th class="bg-gray-100 font-semibold px-4 py-3 text-center">Age</th>
-                        <th class="bg-gray-100 font-semibold px-4 py-3 text-center">Address</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="student in filteredStudents" :key="student.lrn">
-                        <td class="px-4 py-3  text-center text-base font-medium">{{ student.lrn }}</td>
-                        <td class="px-4 py-3  text-center text-base font-medium">{{ student.fullName }}</td>
-                        <td class="px-4 py-3  text-center text-base font-medium">{{ student.gender }}</td>
-                        <td class="px-4 py-3  text-center text-base font-medium">{{ student.birthdate }}</td>
-                        <td class="px-4 py-3  text-center text-base font-medium">{{ calculateAge(student.birthdate) }}
-                        </td>
-                        <td class="px-4 py-3  text-center text-base font-medium">{{ student.address }}</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="student-list-container">
+                <div class="overflow-x-auto bg-white shadow mb-6">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr>
+                                <th class="bg-gray-100 font-semibold px-4 py-3 text-center">LRN</th>
+                                <th class="bg-gray-100 font-semibold px-4 py-3 text-center">Full Name</th>
+                                <th class="bg-gray-100 font-semibold px-4 py-3 text-center">Gender</th>
+                                <th class="bg-gray-100 font-semibold px-4 py-3 text-center">Birthdate</th>
+                                <th class="bg-gray-100 font-semibold px-4 py-3 text-center">Age</th>
+                                <th class="bg-gray-100 font-semibold px-4 py-3 text-center">Address</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="student in filteredStudents" :key="student.lrn">
+                                <td class="px-4 py-3  text-center text-base font-medium">{{ student.lrn }}</td>
+                                <td class="px-4 py-3  text-center text-base font-medium">{{ student.fullName }}</td>
+                                <td class="px-4 py-3  text-center text-base font-medium">{{ student.gender }}</td>
+                                <td class="px-4 py-3  text-center text-base font-medium">{{ student.birthdate }}</td>
+                                <td class="px-4 py-3  text-center text-base font-medium">{{
+                                    calculateAge(student.birthdate) }}
+                                </td>
+                                <td class="px-4 py-3  text-center text-base font-medium">{{ student.address }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -285,6 +298,10 @@ const props = defineProps({
     },
 });
 
+// Add loading and error states
+const loading = ref(true);
+const error = ref(null);
+
 const genderFilter = ref('All');
 const sortOrder = ref('Latest');
 const searchTerm = ref('');
@@ -310,43 +327,47 @@ const students = ref([]); // Will hold main student list
 const possibleModalStudents = ref([]); // Will hold selectable students for modal
 
 // ✅ Function to populate students
-function populateStudents(card) {
-    if (card && Array.isArray(card.student_classes)) {
-        students.value = card.student_classes
-            .filter(sc => sc.student)
-            .map(sc => {
-                const s = sc.student;
-                const fullName = `${s.FirstName} ${s.MiddleName || ''} ${s.LastName}`.trim();
-                return {
-                    Student_ID: s.Student_ID,   // Keep original key for clarity
-                    id: s.Student_ID,           // Add alias 'id' for convenience in Vue
-                    fullName,
-                    lrn: s.LRN,
-                    address: `${s.Barangay}, ${s.Municipality}, ${s.Province}`,
-                    gender: s.Sex,
-                    birthdate: s.BirthDate,
-                    ...s
-                };
-            });
+async function populateStudents(card) {
+    try {
+        loading.value = true;
+        error.value = null;
 
-        console.log("✅ Students populated:", students.value);
-    } else {
-        console.warn("⚠️ No valid student_classes found in selectedCard");
-        students.value = [];
+        if (card && Array.isArray(card.student_classes)) {
+            students.value = card.student_classes
+                .filter(sc => sc.student)
+                .map(sc => {
+                    const s = sc.student;
+                    const fullName = `${s.FirstName} ${s.MiddleName || ''} ${s.LastName}`.trim();
+                    return {
+                        Student_ID: s.Student_ID,   // Keep original key for clarity
+                        id: s.Student_ID,           // Add alias 'id' for convenience in Vue
+                        fullName,
+                        lrn: s.LRN,
+                        address: `${s.Barangay}, ${s.Municipality}, ${s.Province}`,
+                        gender: s.Sex,
+                        birthdate: s.BirthDate,
+                        ...s
+                    };
+                });
+
+            console.log("✅ Students populated:", students.value);
+        } else {
+            console.warn("⚠️ No valid student_classes found in selectedCard");
+            students.value = [];
+        }
+    } catch (err) {
+        error.value = err.message || 'Failed to populate students';
+        console.error('Error populating students:', err);
+    } finally {
+        loading.value = false;
     }
 }
 
-
-
 // ✅ Populate on mount
-onMounted(() => {
+onMounted(async () => {
     console.log('🔄 Mounted selectedCard:', props.selectedCard);
-    populateStudents(props.selectedCard);
-});
-
-onMounted(() => {
-    console.log('🔄 Mounted selectedCard:', props.selectedCard);
-    populatePossibleModalStudents(props.selectedCard);
+    await populateStudents(props.selectedCard);
+    await populatePossibleModalStudents(props.selectedCard);
 });
 
 const populatePossibleModalStudents = async (selectedCard) => {
@@ -381,7 +402,6 @@ const populatePossibleModalStudents = async (selectedCard) => {
         console.error('❌ Error fetching accepted students:', error);
     }
 };
-
 
 // ✅ Re-populate on prop change
 watch(() => props.selectedCard, (newCard) => {
@@ -591,7 +611,6 @@ const handleAddStudents = async (selectedCard) => {
     }
 };
 
-
 const filteredEditModalStudents = computed(() => {
     let result = [...students.value];
 
@@ -674,7 +693,6 @@ async function handleUpdateClass(selectedCard) {
     toast.success('Class updated successfully!');
 }
 
-
 function openEditModal() {
     showEditModal.value = true;
     // Again, use id
@@ -682,7 +700,6 @@ function openEditModal() {
     editModalSelectAll.value = true;
 }
 </script>
-
 
 <style scoped>
 .student-list-container {
