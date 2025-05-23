@@ -17,18 +17,16 @@
 
   <div class="p-5 rounded-[5px]">
     <div class="relative">
-      <table class="w-full border-collapse border-none rounded-[5px]">
-        <thead class="bg-gray-100">
-          <tr>
-            <th v-for="header in headers" :key="header"
-              class="px-4 py-2 text-[#464F60] text-[16px] font-semibold text-center">
-              {{ header }}
-            </th>
-          </tr>
-        </thead>
-      </table>
       <div class="max-h-[600px] overflow-y-auto">
         <table class="w-full border-collapse border-none rounded-[5px]">
+          <thead class="bg-gray-100 sticky top-0">
+            <tr>
+              <th v-for="header in headers" :key="header"
+                class="px-4 py-2 text-[#464F60] text-[16px] font-semibold text-center">
+                {{ header }}
+              </th>
+            </tr>
+          </thead>
           <tbody class="text-center font-medium">
             <tr v-if="filteredStudents.length === 0">
               <td colspan="9" class="px-4 py-2">No students available.</td>
@@ -61,6 +59,7 @@ import { ref, onMounted, computed } from 'vue';
 import Dropdown from '@/components/dropdown.vue';
 import Searchbar from '@/components/searchbar.vue';
 import Swal from 'sweetalert2';
+import { getSubjectGrades } from '@/service/gradeService';
 
 const props = defineProps({
   subject_id: {
@@ -80,14 +79,30 @@ const headers = ref([
 const students = ref([]);
 const selectedSort = ref('default');
 const searchQuery = ref('');
+const loading = ref(true);
+const error = ref(null);
 
-const fetchStudents = () => {
+const fetchStudents = async () => {
   try {
-    const key = `submittedGrade_${props.subject_id}`;
-    const storedData = JSON.parse(localStorage.getItem(key)) || [];
-    students.value = storedData;
+    loading.value = true;
+    error.value = null;
+    const response = await getSubjectGrades(props.subject_id);
+    
+    if (response.status === 'success' && response.data) {
+      students.value = response.data;
+    } else {
+      throw new Error(response.message || 'Failed to fetch grades');
+    }
   } catch (error) {
-    students.value = [];
+    console.error('Error fetching grades:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: error.message || 'Failed to fetch grades. Please try again.',
+      confirmButtonColor: '#dc2626'
+    });
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -120,13 +135,10 @@ const getFinalGrade = (student) => {
   return (total / gradeCount).toFixed(2);
 };
 
-const getDescriptor = (student) => {
+const getRemarks = (student) => {
   const finalGrade = getFinalGrade(student);
-
-  if (finalGrade === '-' || finalGrade === 'INC' || parseFloat(finalGrade) <= 75) {
-    return 'Failed';
-  }
-  return 'Passed';
+  if (finalGrade === '-') return '-';
+  return parseFloat(finalGrade) >= 75 ? 'Passed' : 'Failed';
 };
 
 const gradeToNumeric = (grade) => {
@@ -209,16 +221,6 @@ const generateCSV = () => {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-};
-
-const showAlertModal = (message, type = 'error', title = 'Error') => {
-  Swal.fire({
-    title: title,
-    text: message,
-    icon: type,
-    confirmButtonColor: type === 'error' ? '#dc2626' : '#16a34a',
-    confirmButtonText: 'OK'
-  });
 };
 
 onMounted(() => {
