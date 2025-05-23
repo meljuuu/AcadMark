@@ -1,6 +1,9 @@
 <template>
-    <div class="w-full">
-        <h1 class="text-5xl font-bold mb-6">Classes</h1>
+   <div class="w-full">
+    <div class="flex items-center space-x-6 mb-6">
+      <h1 class="text-5xl font-bold text-[#295f98]">Classes</h1>
+      
+    </div>
 
         <div class="bg-white shadow-lg border border-gray-200 rounded-lg p-6 mb-6 flex flex-col" style="height: 865px;">
            <div class="flex flex-wrap justify-between items-center mb-4 gap-4">

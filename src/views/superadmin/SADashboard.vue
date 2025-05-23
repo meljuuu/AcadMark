@@ -1,17 +1,18 @@
 <template>
   <div class="w-full">
     <div class="flex items-center space-x-6 mb-6">
-      <h1 class="text-5xl font-bold">Dashboard</h1>
-      <div class="filters">
-        <select
-          id="dashboard-select"
-          v-model="selectedDashboard"
-          class="filter-dropdown"
-        >
-          <option value="teacher">Teacher Dashboard</option>
-          <option value="admin">Admin Dashboard</option>
-        </select>
-      </div>
+      <h1 class="text-5xl font-bold text-[#295f98]">Dashboard</h1>
+      
+    </div>
+    <div class="filters mb-6">
+      <select
+        id="dashboard-select"
+         v-model="selectedDashboard"
+        class="filter-dropdown"
+      >
+        <option value="teacher">Teacher Dashboard</option>
+        <option value="admin">Admin Dashboard</option>
+      </select>
     </div>
 
     <!-- Teacher Dashboard -->
@@ -21,7 +22,7 @@
         <div
           v-for="(card, index) in cards"
           :key="index"
-          class="bg-white rounded-lg shadow-lg border border-gray-200 p-6 w-1/4 flex items-center space-x-4"
+          class="bg-white rounded-lg shadow-lg border border-gray-200 p-6 w-1/2 flex items-center space-x-4"
         >
           <i :class="card.icon" class="text-gray-500 text-4xl"></i>
           <div class="text-right ml-auto">
@@ -238,11 +239,6 @@
             icon: 'fas fa-chalkboard-teacher',
           },
           { label: 'Total Students', value: 250, icon: 'fas fa-users' },
-          {
-            label: 'Academic Progress',
-            value: '85%',
-            icon: 'fas fa-chart-line',
-          },
           { label: 'Pending Grades', value: 13, icon: 'fas fa-tasks' },
         ],
         academicProgress: [

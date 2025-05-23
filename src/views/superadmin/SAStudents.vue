@@ -1,6 +1,9 @@
 <template>
-  <div>
-    <h1 class="text-5xl font-bold">Student</h1>
+  <div class="w-full">
+    <div class="flex items-center space-x-6 mb-6">
+      <h1 class="text-5xl font-bold text-[#295f98]">Students</h1>
+      
+    </div>
 
     <div class="content mt-4">
       <!-- Filter Section -->

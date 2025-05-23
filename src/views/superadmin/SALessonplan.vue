@@ -1,8 +1,9 @@
 <template>
   <div class="w-full">
     <!-- Header Section -->
-    <div class="flex items-center space-x-6 mb-7">
-      <h1 class="text-5xl font-bold">Lesson Plan</h1>
+    <div class="flex items-center space-x-6 mb-6">
+      <h1 class="text-5xl font-bold text-[#295f98]">Lesson Plan</h1>
+      
     </div>
 
     <!-- Cards Section -->

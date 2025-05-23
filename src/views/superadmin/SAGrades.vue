@@ -1,52 +1,53 @@
 <template>
-  <div class="title">
-    <h1 class="text-5xl font-bold">Grades</h1>
-  </div>
-
-  <div class="content mt-3">
-    <div class="filtering-section">
-      <select v-model="selectedGrade" class="filter-dropdown">
-        <option value="">Grade Level (All)</option>
-        <option v-for="grade in grades" :key="grade" :value="grade">
-          Grade {{ grade }}
-        </option>
-      </select>
-
-      <select v-model="selectedCurriculum" class="filter-dropdown">
-        <option value="">Curriculum (All)</option>
-        <option v-for="curriculum in curriculums" :key="curriculum" :value="curriculum">
-          {{ curriculum }}
-        </option>
-      </select>
-
-      <select v-model="selectedTrack" class="filter-dropdown">
-        <option value="">Track (All)</option>
-        <option v-for="track in tracks" :key="track" :value="track">
-          {{ track }}
-        </option>
-      </select>
+  <div class="w-full">
+    <div class="flex items-center space-x-6 mb-6">
+      <h1 class="text-5xl font-bold text-[#295f98]">Grades</h1>
     </div>
+   
+    <div class="content mt-3">
+      <div class="filtering-section">
+        <select v-model="selectedGrade" class="filter-dropdown">
+          <option value="">Grade Level (All)</option>
+          <option v-for="grade in grades" :key="grade" :value="grade">
+            Grade {{ grade }}
+          </option>
+        </select>
 
-    <div class="card-grid mt-9">
-        <div
-            class="card cursor-pointer hover:shadow-lg transition"
-            v-for="(card, index) in filteredCards"
-            :key="index"
-            @click="goToInsideCard(card)"
-        >
+        <select v-model="selectedCurriculum" class="filter-dropdown">
+          <option value="">Curriculum (All)</option>
+          <option v-for="curriculum in curriculums" :key="curriculum" :value="curriculum">
+            {{ curriculum }}
+          </option>
+        </select>
+
+        <select v-model="selectedTrack" class="filter-dropdown">
+          <option value="">Track (All)</option>
+          <option v-for="track in tracks" :key="track" :value="track">
+            {{ track }}
+          </option>
+        </select>
+      </div>
+
+      <div class="card-grid mt-9">
+          <div
+              class="card cursor-pointer hover:shadow-lg transition"
+              v-for="(card, index) in filteredCards"
+              :key="index"
+              @click="goToInsideCard(card)"
+          >
             <div class="header">
-            <p>Junior High School</p>
+              <p>Junior High School</p>
             </div>
             <div class="grade">Grade {{ card.grade }}</div>
             <div class="section" v-if="card.section && card.curriculum">
-            {{ card.section }} - {{ card.curriculum }}
+              {{ card.section }} - {{ card.curriculum }}
             </div>
             <div class="seal">
-            <img src="/assets/img/logo.png" alt="">
-            </div>
+              <img src="/assets/img/logo.png" alt="">
+          </div>
         </div>
+      </div>
     </div>
-
   </div>
 </template>
 
@@ -112,14 +113,6 @@ const filteredCards = computed(() => {
 </script>
 
 <style scoped>
-.title {
-    color: #295f98;
-    font-weight: bold;
-    font-size: 48px;
-    padding: 0;
-    margin: 20px 0;
-}
-
 .content {
   background-color: #ffffff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
