@@ -16,10 +16,10 @@
 
     <nav class="flex flex-col w-full mt-5 relative flex-1 gap-2">
       <div class="absolute left-0 w-full bg-[#3E6FA2] transitions-all duration-300 rounded-r-lg"
-        :style="{ top: `${getActiveBarPosition()}px`, height: '42px' }"></div>
+        :style="{ top: `${activeIndex * 50}px`, height: '42px' }"></div>
 
       <router-link v-for="(link, index) in links" :key="index" :to="link.path" class="nav-link relative py-2"
-        :class="{ 'active': isLinkActive(link) }" @click="activeIndex = index">
+        :class="{ 'active': activeIndex === index }" @click="activeIndex = index">
         <i :class="[link.icon, 'w-6', 'h-6', 'mr-2', 'sm:hidden', 'md:block']"></i>
         <span class="font-semibold text-[17px]">{{ link.name }}</span>
       </router-link>
@@ -66,48 +66,6 @@ const profileData = ref(null);
 
 const imageSrc = ref("/assets/img/profile/avatar.png");
 
-const isAdmin = localStorage.getItem('isAdmin') === 'true';
-
-const teacherLinks = ref([
-  { name: "Dashboard", path: "/dashboard", icon: "/assets/img/sidebar/dashboard.png" },
-  { name: "Classes", path: "/classes", icon: "/assets/img/sidebar/classes.png" },
-  { name: "Forms", path: "/forms", icon: "/assets/img/sidebar/form.png" },
-  { name: "Profile", path: "/profile", icon: "/assets/img/sidebar/form.png" }
-]);
-
-const adminLinks = ref([
-  { name: "Dashboard", path: "/admin/dashboard", icon: "fa-solid fa-chart-pie" },
-  { name: "Add Student", path: "/admin/add-student", icon: "fa-solid fa-user-plus" },
-  { name: "Record", path: "/admin/record", icon: "fa-solid fa-book" },
-  { name: "Manage Class", path: "/admin/add-class", icon: "fa-solid fa-chalkboard" },
-  { name: "Masterlist", path: "/admin/master-list", icon: "fa-solid fa-list" },
-]);
-
-const superadminLinks = ref([
-  { name: "Dashboard", path: "/superadmin/dashboard", icon: "fa-solid fa-chart-pie" },
-  { name: "Personnel", path: "/superadmin/personnel", icon: "fa-solid fa-users" },
-  { name: "Grades", path: "/superadmin/grades", icon: "fa-solid fa-chart-line" },
-  { name: "Students", path: "/superadmin/students", icon: "fa-solid fa-user-graduate" },
-  { name: "Classes", path: "/superadmin/classes", icon: "fa-solid fa-chalkboard" },
-  { name: "Lesson Plan", path: "/superadmin/lessonplan", icon: "fa-solid fa-clipboard-list" },
-  { name: "Settings", path: "/superadmin/settings", icon: "fa-solid fa-book" },
-]);
-
-const links = computed(() => {
-  return isAdmin ? adminLinks.value : teacherLinks.value;
-});
-
-const fullName = computed(() => {
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  const middleInitial = user.middleName ? user.middleName[0] + '.' : '';
-  const fullName = `${user.firstName} ${middleInitial} ${user.lastName}`;
-  return fullName;
-});
-
-const position = computed(() => {
-  return profileData.value?.position || '';
-});
-
 const updateImageFromStorage = () => {
   const savedAvatar = localStorage.getItem('teacherAvatar');
   if (savedAvatar) {
@@ -150,6 +108,56 @@ onMounted(async () => {
   }
 });
 
+// Get roles from localStorage or from profile data
+const isSuperAdmin = localStorage.getItem('isSuperAdmin') === 'true';
+const isAdmin = localStorage.getItem('isAdmin') === 'true';
+
+const teacherLinks = ref([
+  { name: "Dashboard", path: "/dashboard", icon: "fa-solid fa-chart-pie" },
+  { name: "Classes", path: "/classes", icon: "fa-solid fa-chalkboard" },
+  { name: "Forms", path: "/forms", icon: "fa-solid fa-file-alt" },
+  { name: "Profile", path: "/profile", icon: "fa-solid fa-user" },
+]);
+
+const adminLinks = ref([
+  { name: "Dashboard", path: "/admin/dashboard", icon: "fa-solid fa-chart-pie" },
+  { name: "Add Student", path: "/admin/add-student", icon: "fa-solid fa-user-plus" },
+  { name: "Record", path: "/admin/record", icon: "fa-solid fa-book" },
+  { name: "Manage Class", path: "/admin/add-class", icon: "fa-solid fa-chalkboard" },
+  { name: "Masterlist", path: "/admin/master-list", icon: "fa-solid fa-list" },
+]);
+
+const superadminLinks = ref([
+  { name: "Dashboard", path: "/superadmin/dashboard", icon: "fa-solid fa-chart-pie" },
+  { name: "Personnel", path: "/superadmin/personnel", icon: "fa-solid fa-users" },
+  { name: "Grades", path: "/superadmin/grades", icon: "fa-solid fa-chart-line" },
+  { name: "Students", path: "/superadmin/students", icon: "fa-solid fa-user-graduate" },
+  { name: "Classes", path: "/superadmin/classes", icon: "fa-solid fa-chalkboard" },
+  { name: "Lesson Plan", path: "/superadmin/lessonplan", icon: "fa-solid fa-clipboard-list" },
+  { name: "Settings", path: "/superadmin/settings", icon: "fa-solid fa-book" },
+
+]);
+
+const links = computed(() => {
+  if (isSuperAdmin) {
+    return superadminLinks.value;
+  } else if (isAdmin) {
+    return adminLinks.value;
+  } else {
+    return teacherLinks.value;
+  }
+});
+
+const fullName = computed(() => {
+  if (!profileData.value) return '';
+  const middleName = profileData.value.middleName ? profileData.value.middleName : '';
+  return `${profileData.value.firstName} ${middleName} ${profileData.value.lastName}`;
+});
+
+const position = computed(() => {
+  return profileData.value?.position || '';
+});
+
 const confirmLogout = () => {
   localStorage.clear();
   router.push('/login');
@@ -163,25 +171,4 @@ const updateActiveIndex = () => {
 // Watch for route changes and update activeIndex immediately on mount
 watch(route, updateActiveIndex, { immediate: true });
 
-const isLinkActive = (link) => {
-  // Special handling for Classes section
-  if (link.path === '/classes') {
-    // Check if we're in any of the classes-related views, but not superadmin
-    return route.path === '/classes' ||
-      (route.path.includes('/class') && !route.path.includes('/superadmin')) ||
-      (route.path.includes('/classlist') && !route.path.includes('/superadmin'));
-  }
-  return route.path === link.path;
-};
-
-const getActiveBarPosition = () => {
-  const classesIndex = links.value.findIndex(link => link.path === '/classes');
-  // Check if we're in any of the classes-related views, but not superadmin
-  if (route.path === '/classes' ||
-    (route.path.includes('/class') && !route.path.includes('/superadmin')) ||
-    (route.path.includes('/classlist') && !route.path.includes('/superadmin'))) {
-    return classesIndex * 50;
-  }
-  return activeIndex.value * 50;
-};
 </script>
