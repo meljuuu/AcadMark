@@ -146,23 +146,23 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(student, index) in students" :key="index">
-                <td class="border-b border-gray-300 px-4 py-2">{{ student.lrn }}</td>
-                <td class="border-b border-gray-300 px-4 py-2">{{ student.name }}</td>
-                <td class="border-b border-gray-300 px-4 py-2">{{ student.gender }}</td>
+              <tr v-for="(student, index) in latestStudents" :key="index">
+                <td class="border-b border-gray-300 px-4 py-2">{{ student.LRN }}</td>
+                <td class="border-b border-gray-300 px-4 py-2">{{ student.FirstName + ' ' + student.MiddleName + ' ' + student.LastName }}</td>
+                <td class="border-b border-gray-300 px-4 py-2">{{ student.Sex }}</td>
                 <!-- <td class="border-b border-gray-300 px-4 py-2">{{ student.age }}</td> -->
-                <td class="border-b border-gray-300 px-4 py-2">{{ student.gradeLevel }}</td>
-                <td class="border-b border-gray-300 px-4 py-2">{{ student.track }}</td>
+                <td class="border-b border-gray-300 px-4 py-2">{{ student.Grade_Level }}</td>
+                <td class="border-b border-gray-300 px-4 py-2">{{ student.Track }}</td>
               </tr>
             </tbody>
           </table>
         </div>
 
         <div class="flex-1 bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-          <h2 class="text-xl font-semibold text-gray-700 mb-4">
+          <h2 class="text-xl font-semibold text-gray-700 mb-10">
             Total Submitted Students
           </h2>
-          <p class="text-sm text-center text-gray-600 mb-4">Comparison between the Advisory Class and Subject Class</p>
+
           <div class="flex justify-center items-center" style="width: 100%; height: 400px">
             <canvas id="submissionStatusChart"></canvas>
           </div>
@@ -196,22 +196,21 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(cls, index) in classesData" :key="index" class="border-b border-gray-200">
-                <td class="px-4 py-2">{{ cls.grade }}</td>
-                <td class="px-4 py-2">{{ cls.track }}</td>
-                <td class="px-4 py-2">{{ cls.section }}</td>
-                <td class="px-4 py-2">{{ cls.adviser }}</td>
-                <td class="px-4 py-2">{{ cls.students }}</td>
-                <td class="px-4 py-2">
+              <tr v-for="(item, index) in classes" :key="index" class="border-b border-gray-200">
+                <td class="px-4 py-2 text-center">{{ item.Grade_Level }}</td>
+                <td class="px-4 py-2 text-center">{{ item.Track }}</td>
+                <td class="px-4 py-2 text-center">{{ item.Section }}</td>
+                <td class="px-4 py-2">{{ item.adviser }}</td>
+                <td class="px-4 py-2 text-center">{{ item.student_classes_count }}</td>
+                <td class="px-4 py-2 text-center flex justify-center">
                   <span
                     :class="[
-                      'inline-block w-20 text-center px-3 py-1 rounded-md text-sm text-white',
-                      cls.status === 'active' ? 'bg-green-900' : 'bg-red-600'
+                      'w-20 text-center px-3 py-1 rounded-md text-sm text-white',
+                      item.Status === 'Accepted' ? 'bg-green-900' : 'bg-red-600'
                     ]"
                   >
-                    {{ cls.status.charAt(0).toUpperCase() + cls.status.slice(1) }}
+                    {{ item.Status.charAt(0).toUpperCase() + item.Status.slice(1) }}
                   </span>
-
                 </td>
               </tr>
             </tbody>
@@ -224,6 +223,8 @@
 
 <script>
   import { Chart, registerables } from 'chart.js';
+  import { getStudentCount, getAcceptedClassesCount, getAcceptedStudentsPerGrade, getSubmissionStatusCounts, getLatestStudents, fetchPendingCount  } from '@/service/adminDashboardService';
+  import { getClassesExcludingIncomplete } from '@/service/teacherSubjectsService';
   Chart.register(...registerables);
 
   export default {
@@ -231,6 +232,16 @@
     data() {
       return {
         selectedDashboard: 'teacher',
+        totalStudentsChartInstance: null,
+        submissionStatusChartInstance: null,
+        studentsPieChartInstance: null,
+        academicGroupedBarChartInstance: null,
+        statusPieChartInstance: null,
+        totalSubmittedStudents: 0,
+        latestStudents: [],
+        classes: [],
+        students: [],
+        
         // Teacher Data
         cards: [
           {
@@ -238,7 +249,12 @@
             value: 25,
             icon: 'fas fa-chalkboard-teacher',
           },
-          { label: 'Total Students', value: 250, icon: 'fas fa-users' },
+          { label: 'Total Students', value: 0, icon: 'fas fa-users' },
+          {
+            label: 'Academic Progress',
+            value: '85%',
+            icon: 'fas fa-chart-line',
+          },
           { label: 'Pending Grades', value: 13, icon: 'fas fa-tasks' },
         ],
         academicProgress: [
@@ -260,65 +276,26 @@
             email: 'bob.smith@example.com',
             role: 'Faculty',
           },
-          {
-            name: 'Carol Davis',
-            email: 'carol.davis@example.com',
-            role: 'Faculty',
-          },
-          { name: 'David Lee', email: 'david.lee@example.com', role: 'Admin' },
-          {
-            name: 'Eva Martinez',
-            email: 'eva.martinez@example.com',
-            role: 'Faculty',
-          },
-          {
-            name: 'Frank Wilson',
-            email: 'frank.wilson@example.com',
-            role: 'Faculty',
-          },
-          { name: 'Grace Kim', email: 'grace.kim@example.com', role: 'Admin' },
-          {
-            name: 'Henry Clark',
-            email: 'henry.clark@example.com',
-            role: 'Faculty',
-          },
-          {
-            name: 'Ivy Scott',
-            email: 'ivy.scott@example.com',
-            role: 'Faculty',
-          },
-          {
-            name: 'Jack Turner',
-            email: 'jack.turner@example.com',
-            role: 'Admin',
-          },
         ],
         // Admin Data
         admincards: [
-          { label: 'Total Classes', value: 15, icon: 'fas fa-chalkboard-teacher' },
-          { label: 'Total Students', value: 120, icon: 'fas fa-users' },
-          { label: 'Pending Classes', value: 10, icon: 'fas fa-hourglass-half' },
+          { label: 'Total Classes', value: 0, icon: 'fas fa-chalkboard-teacher' },
+          { label: 'Total Students', value: 0, icon: 'fas fa-users' },
+          { label: 'Pending Classes', value: 0, icon: 'fas fa-hourglass-half' },
           { label: 'Pending Students', value: 50, icon: 'fas fa-user-clock' }
         ],
         totalStudentsPerGrade: [
-          { grade: 'Grade 7', students: 120 },
-          { grade: 'Grade 8', students: 135 },
-          { grade: 'Grade 9', students: 150 },
-          { grade: 'Grade 10', students: 145 },
-          { grade: 'Grade 11', students: 130 },
-          { grade: 'Grade 12', students: 125 },
+          { grade: 'Grade 7', students: 0 },
+          { grade: 'Grade 8', students: 0 },
+          { grade: 'Grade 9', students: 0 },
+          { grade: 'Grade 10', students: 0 },
+          { grade: 'Grade 11', students: 0 },
+          { grade: 'Grade 12', students: 0 },
         ],
         students: [
           { lrn: "1000000001", name: "Juan Dela Cruz", gender: "Male", age: 16, gradeLevel: "Grade 10", track: "STEM" },
           { lrn: "1000000002", name: "Maria Clara", gender: "Female", age: 17, gradeLevel: "Grade 11", track: "ABM" },
           { lrn: "1000000003", name: "Pedro Penduko", gender: "Male", age: 18, gradeLevel: "Grade 12", track: "HUMSS" },
-          { lrn: "1000000004", name: "Luzviminda Santos", gender: "Female", age: 16, gradeLevel: "Grade 10", track: "GAS" },
-          { lrn: "1000000005", name: "Carlos Rizal", gender: "Male", age: 15, gradeLevel: "Grade 9", track: "STEM" },
-          { lrn: "1000000006", name: "Ana Lopez", gender: "Female", age: 17, gradeLevel: "Grade 11", track: "ABM" },
-          { lrn: "1000000007", name: "Miguel Torres", gender: "Male", age: 18, gradeLevel: "Grade 12", track: "HUMSS" },
-          { lrn: "1000000008", name: "Isabella Cruz", gender: "Female", age: 16, gradeLevel: "Grade 10", track: "STEM" },
-          { lrn: "1000000009", name: "Josefa Mendoza", gender: "Female", age: 17, gradeLevel: "Grade 11", track: "GAS" },
-          { lrn: "1000000010", name: "Andres Bonifacio", gender: "Male", age: 18, gradeLevel: "Grade 12", track: "ABM" }
         ],
         pendingClassesData: [
           { grade: 'Grade 7', students: 110 },
@@ -329,16 +306,6 @@
           { grade: 'Grade 12', students: 115 },
         ],
           classesData: [
-          { grade: "7", track: "General", section: "A", adviser: "Ms. Santos", students: 35, status: "active" },
-          { grade: "7", track: "General", section: "B", adviser: "Mr. Cruz", students: 33, status: "pending" },
-          { grade: "8", track: "General", section: "C", adviser: "Ms. Reyes", students: 30, status: "active" },
-          { grade: "8", track: "Academic", section: "D", adviser: "Mr. Lopez", students: 28, status: "active" },
-          { grade: "9", track: "Academic", section: "E", adviser: "Ms. Garcia", students: 32, status: "pending" },
-          { grade: "10", track: "STEM", section: "F", adviser: "Mr. Diaz", students: 27, status: "active" },
-          { grade: "10", track: "ABM", section: "G", adviser: "Ms. Mendoza", students: 29, status: "pending" },
-          { grade: "11", track: "STEM", section: "H", adviser: "Mr. Ramos", students: 25, status: "active" },
-          { grade: "11", track: "ABM", section: "I", adviser: "Ms. Cruz", students: 31, status: "pending" },
-          { grade: "12", track: "General", section: "J", adviser: "Mr. Flores", students: 26, status: "active" },
         ],
       };
     },
@@ -355,6 +322,13 @@
             this.renderTotalStudentsChart();
             this.renderSubmissionStatusChart();
             this.renderStudentsPieChart();
+            this.fetchStudentCount();
+            this.fetchAcceptedClassesCount();
+            this.updateTotalStudentsPerGrade(); 
+            this.fetchAndRenderSubmissionStatus();
+            this.fetchLatestStudents();
+            this.fetchClasses();
+            this.fetchPendingClassesCount();
           });
         }
       },
@@ -368,6 +342,13 @@
         this.renderTotalStudentsChart();
         this.renderSubmissionStatusChart();
         this.renderStudentsPieChart();
+        this.fetchStudentCount();
+        this.fetchAcceptedClassesCount();
+        this.updateTotalStudentsPerGrade(); 
+        this.fetchAndRenderSubmissionStatus();
+        this.fetchLatestStudents();
+        this.fetchClasses();
+        this.fetchPendingClassesCount();
 
       }
     },
@@ -375,7 +356,14 @@
       // Admin
       renderTotalStudentsChart() {
         const ctx = document.getElementById('totalStudentsChart').getContext('2d');
-        new Chart(ctx, {
+
+        // Destroy previous instance if exists
+        if (this.totalStudentsChartInstance) {
+          this.totalStudentsChartInstance.destroy();
+        }
+
+        // Create new chart instance and store it
+        this.totalStudentsChartInstance = new Chart(ctx, {
           type: 'bar',
           data: {
             labels: this.totalStudentsPerGrade.map(item => item.grade),
@@ -418,7 +406,34 @@
         });
       },
 
-      renderSubmissionStatusChart() {
+      async fetchAndRenderSubmissionStatus() {
+        try {
+          const statusCounts = await getSubmissionStatusCounts();
+          console.log('status counts:', statusCounts);  // Just to verify the data shape
+          this.renderSubmissionStatusChart(statusCounts);
+        } catch (error) {
+          console.error('Failed to fetch submission status counts:', error);
+        }
+      },
+
+      renderSubmissionStatusChart(statusCounts) {
+        if (!statusCounts) {
+          console.error('No data to render chart');
+          return;
+        }
+
+        const maleData = [
+          statusCounts.Male?.Accepted || 0,
+          statusCounts.Male?.Pending || 0,
+          statusCounts.Male?.Declined || 0,
+        ];
+
+        const femaleData = [
+          statusCounts.Female?.Accepted || 0,
+          statusCounts.Female?.Pending || 0,
+          statusCounts.Female?.Declined || 0,
+        ];
+
         const ctx = document.getElementById('submissionStatusChart').getContext('2d');
         new Chart(ctx, {
           type: 'bar',
@@ -427,13 +442,13 @@
             datasets: [
               {
                 label: 'Male',
-                data: [15, 10, 5],
-                backgroundColor: 'rgba(255, 206, 86, 0.8)', // Yellow
+                data: maleData,
+                backgroundColor: 'rgba(255, 206, 86, 0.8)',
               },
               {
                 label: 'Female',
-                data: [12, 8, 6],
-                backgroundColor: 'rgba(59, 130, 246, 0.8)', // Blue
+                data: femaleData,
+                backgroundColor: 'rgba(59, 130, 246, 0.8)',
               },
             ],
           },
@@ -512,6 +527,109 @@
         });
       },
 
+      async fetchStudentCount() {
+        try {
+          const count = await getStudentCount();
+          const studentCard = this.admincards.find(card => card.label === 'Total Students');
+          if (studentCard) {
+            studentCard.value = count;
+          }
+        } catch (error) {
+          console.error("Could not update total students card:", error);
+        }
+      },
+
+      async fetchAcceptedClassesCount() {
+        try {
+          const count = await getAcceptedClassesCount();
+          const classCard = this.admincards.find(card => card.label === 'Total Classes');
+          if (classCard) {
+            classCard.value = count;
+          }
+        } catch (error) {
+          console.error("Could not update total classes card:", error);
+        }
+      }, 
+
+      async updateTotalStudentsPerGrade() {
+        try {
+          const data = await getAcceptedStudentsPerGrade();
+          
+          this.totalStudentsPerGrade = [
+            { grade: 'Grade 7', students: 0 },
+            { grade: 'Grade 8', students: 0 },
+            { grade: 'Grade 9', students: 0 },
+            { grade: 'Grade 10', students: 0 },
+            { grade: 'Grade 11', students: 0 },
+            { grade: 'Grade 12', students: 0 },
+          ].map(entry => {
+            const found = data.find(item => item.Grade_Level === entry.grade.replace('Grade ', ''));
+            return {
+              grade: entry.grade,
+              students: found ? found.count : 0
+            };
+          });
+
+          // Re-render chart with updated data
+          this.renderTotalStudentsChart();
+        } catch (error) {
+          console.error('Error fetching accepted students per grade:', error);
+        }
+      },
+
+      async fetchLatestStudents() {
+        try {
+          const students = await getLatestStudents();
+          console.log('Latest students:', students); // For debugging
+          this.latestStudents = students;
+        } catch (error) {
+          console.error('Error fetching latest students:', error);
+        }
+      },
+
+        async fetchClasses() {
+          try {
+            const response = await getClassesExcludingIncomplete();
+
+            // Step 1: Sort by created_at in descending order
+            const sorted = response.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+            // Step 2: Take the latest 10
+            const latestTen = sorted.slice(0, 10);
+
+            // Step 3: Format the adviser full name
+            this.classes = latestTen.map((item) => {
+              const adviser = item.student_classes?.[0]?.adviser;
+              const adviserFullName = adviser
+                ? `${adviser.FirstName} ${adviser.LastName}`.trim()
+                : 'N/A';
+
+              return {
+                ...item,
+                adviser: adviserFullName,
+              };
+            });
+
+            console.log('Fetched and processed classes (latest 10):', this.classes);
+          } catch (error) {
+            console.error('Failed to fetch classes:', error);
+          }
+        },
+
+        async fetchPendingClassesCount() {
+          try {
+            const count = await fetchPendingCount();
+            const card = this.admincards.find(card => card.label === 'Pending Classes');
+            if (card) {
+              card.value = count;
+            }
+          } catch (error) {
+            console.error("Failed to fetch pending classes count:", error);
+          }
+        },
+
+
+      
       // Teacher
       renderGroupedBarChart() {
         const ctx = document

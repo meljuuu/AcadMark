@@ -78,6 +78,28 @@ export const getSubmissionStatusCounts = async () => {
   }
 };
 
+export const getAcceptedStudentsPerGrade = async () => {
+  try {
+    const response = await API.get('/dashboard/accepted-students-per-grade');
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch accepted students per grade:", error);
+    throw error;
+  }
+};
+
+export const fetchPendingCount = async () => {
+  try {
+    const response = await API.get('/count-pending-classes');
+    console.log("classcount: ", response.data);
+    return response.data.pending_classes_count;
+    // console.log('Pending classes:', response.data.pending_classes_count);
+  } catch (error) {
+    console.error('Error fetching pending count:', error);
+  }
+}
+
+
 
 
 
