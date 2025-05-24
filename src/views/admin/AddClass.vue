@@ -140,7 +140,7 @@
                         <div class="max-h-[400px] overflow-y-auto w-full">
                             <table class="min-w-[900px] w-full border-collapse table-fixed">
                                 <tbody>
-                                    <tr v-for="(row, idx) in superClasses" :key="idx"
+                                    <tr v-for="(row, idx) in paginatedSuperClasses" :key="idx"
                                         class="border-b border-[#e0e0e0] cursor-pointer"
                                         @click="openClassInfoModal(row)">
                                         <td class="text-[14px] text-center px-3 py-2 text-[#222]">{{ row.grade }}</td>
@@ -166,6 +166,32 @@
                                     </tr>
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+                    <!-- Pagination Controls for Submitted Classes -->
+                    <div class="flex justify-between items-center mt-4 px-4">
+                        <div class="text-sm text-gray-600">
+                            Showing {{ paginatedSuperClasses.length }} of {{ superClasses.length }} entries
+                        </div>
+                        <div class="flex gap-2">
+                            <button @click="submittedCurrentPage--" :disabled="submittedCurrentPage === 1"
+                                class="px-3 py-1 rounded border border-gray-300 disabled:opacity-50">
+                                Previous
+                            </button>
+                            <button v-for="page in submittedTotalPages" :key="page" @click="submittedCurrentPage = page"
+                                :class="[
+                                    'px-3 py-1 rounded border',
+                                    submittedCurrentPage === page
+                                        ? 'bg-blue-500 text-white border-blue-500'
+                                        : 'border-gray-300 hover:bg-gray-100'
+                                ]">
+                                {{ page }}
+                            </button>
+                            <button @click="submittedCurrentPage++"
+                                :disabled="submittedCurrentPage === submittedTotalPages"
+                                class="px-3 py-1 rounded border border-gray-300 disabled:opacity-50">
+                                Next
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -296,7 +322,7 @@
                                         </thead>
                                         <tbody>
                                             <template v-if="filteredTableData.length > 0">
-                                                <tr v-for="row in filteredTableData" :key="row.lrn"
+                                                <tr v-for="row in paginatedFilteredTableData" :key="row.lrn"
                                                     class="hover:bg-[#e0e0e0] cursor-pointer">
                                                     <td class="text-center">
                                                         <input type="checkbox" v-model="selectedRows"
@@ -324,9 +350,38 @@
                                         </tbody>
                                     </table>
                                 </div>
+                                <!-- Pagination Controls for Student Selection -->
+                                <div class="flex justify-between items-center mt-4 px-4">
+                                    <div class="text-sm text-gray-600">
+                                        Showing {{ paginatedFilteredTableData.length }} of {{ filteredTableData.length
+                                        }} entries
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button @click="studentCurrentPage--" :disabled="studentCurrentPage === 1"
+                                            class="px-3 py-1 rounded border border-gray-300 disabled:opacity-50">
+                                            Previous
+                                        </button>
+                                        <button v-for="page in studentTotalPages" :key="page"
+                                            @click="studentCurrentPage = page" :class="[
+                                                'px-3 py-1 rounded border',
+                                                studentCurrentPage === page
+                                                    ? 'bg-blue-500 text-white border-blue-500'
+                                                    : 'border-gray-300 hover:bg-gray-100'
+                                            ]">
+                                            {{ page }}
+                                        </button>
+                                        <button @click="studentCurrentPage++"
+                                            :disabled="studentCurrentPage === studentTotalPages"
+                                            class="px-3 py-1 rounded border border-gray-300 disabled:opacity-50">
+                                            Next
+                                        </button>
+                                    </div>
+                                </div>
                                 <button
                                     class="mt-2 self-end bg-[#295F98] text-white border-none rounded-[6px] px-[22px] py-2 text-[15px] cursor-pointer transition-colors duration-200 hover:bg-[#1d4066]"
-                                    @click="showCheckboxes = !showCheckboxes">Select Students</button>
+                                    @click="toggleSelectAllStudents">{{ showCheckboxes ? 'Select Students'
+                                        : 'Remove Students'
+                                    }}</button>
                             </div>
                         </div>
                     </div>
@@ -535,6 +590,9 @@ export default {
             },
             loading: true,
             error: null,
+            submittedCurrentPage: 1,
+            studentCurrentPage: 1,
+            itemsPerPage: 10,
         };
     },
     watch: {
@@ -566,6 +624,15 @@ export default {
         },
         selectedClass(newVal) {
             this.selectedTrack = newVal ? newVal.Track : '';
+        },
+        rightSearch() {
+            this.studentCurrentPage = 1;
+        },
+        rightGender() {
+            this.studentCurrentPage = 1;
+        },
+        rightSort() {
+            this.studentCurrentPage = 1;
         }
     },
     mounted() {
@@ -767,7 +834,8 @@ export default {
                             name: `${student.FirstName} ${student.MiddleName} ${student.LastName}`.trim(),
                             gender: student.Sex === 'M' ? 'Male' : 'Female',
                             age: student.Age,
-                            track: student.Track || 'N/A'
+                            track: student.Track || 'N/A',
+                            created_at: student.created_at || new Date().toISOString()
                         });
                     }
                 });
@@ -923,7 +991,16 @@ export default {
         removeSelectedRow(lrn) {
             this.selectedRows = this.selectedRows.filter(selectedLrn => selectedLrn !== lrn);
         },
-
+        toggleSelectAllStudents() {
+            if (this.showCheckboxes) {
+                // If checkboxes are visible, select all students
+                this.selectedRows = this.filteredTableData.map(row => row.lrn);
+            } else {
+                // If checkboxes are not visible, clear selection
+                this.selectedRows = [];
+            }
+            this.showCheckboxes = !this.showCheckboxes;
+        },
     },
 
     computed: {
@@ -931,7 +1008,11 @@ export default {
             let filteredData = this.dummyTableData[this.enteredIdx] || [];
 
             if (this.rightGender && this.rightGender !== "All") {
-                filteredData = filteredData.filter(row => row.gender === this.rightGender);
+                filteredData = filteredData.filter(row => {
+                    const rowGender = row.gender.toLowerCase();
+                    const selectedGender = this.rightGender === 'M' ? 'male' : 'female';
+                    return rowGender === selectedGender;
+                });
             }
 
             if (this.rightSearch) {
@@ -942,11 +1023,24 @@ export default {
                 );
             }
 
+            // Sort by created_at if rightSort is set
+            if (this.rightSort) {
+                filteredData.sort((a, b) => {
+                    const dateA = new Date(a.created_at);
+                    const dateB = new Date(b.created_at);
+                    return this.rightSort === 'latest' ? dateB - dateA : dateA - dateB;
+                });
+            }
+
             return filteredData;
         },
         filteredLeftTableData() {
             if (!this.leftSex) return this.leftSelectedStudents;
-            return this.leftSelectedStudents.filter(row => row.gender === (this.leftSex === 'M' ? 'Male' : 'Female'));
+            return this.leftSelectedStudents.filter(row => {
+                const rowGender = row.gender.toLowerCase();
+                const selectedGender = this.leftSex === 'M' ? 'male' : 'female';
+                return rowGender === selectedGender;
+            });
         },
         subjectOptions() {
             const uniqueSubjects = new Map();
@@ -1060,10 +1154,26 @@ export default {
         },
         teacherButtonLabel() {
             return this.form.teacher_subject_ids.length === 0 ? 'Add Teacher' : 'Edit Teacher';
-        }
+        },
+        submittedTotalPages() {
+            return Math.ceil(this.superClasses.length / this.itemsPerPage);
+        },
 
+        paginatedSuperClasses() {
+            const start = (this.submittedCurrentPage - 1) * this.itemsPerPage;
+            const end = start + this.itemsPerPage;
+            return this.superClasses.slice(start, end);
+        },
 
+        studentTotalPages() {
+            return Math.ceil(this.filteredTableData.length / this.itemsPerPage);
+        },
 
+        paginatedFilteredTableData() {
+            const start = (this.studentCurrentPage - 1) * this.itemsPerPage;
+            const end = start + this.itemsPerPage;
+            return this.filteredTableData.slice(start, end);
+        },
     }
 };
 </script>
