@@ -248,6 +248,8 @@ const advisoryStats = ref({
   femaleCount: 0,
 });
 
+const totalStudents = ref(0);
+
 const subjectClassesGrouped = ref([]);
 const gradeChartData = ref({ labels: [], datasets: [] });
 const recentGrades = ref([]);
@@ -383,9 +385,21 @@ const loadSubjectClasses = async () => {
     }, {});
     
     subjectClassesGrouped.value = Object.values(groupedClasses);
+    
+    // Calculate total students across all subject classes
+    const subjectTotal = response.reduce((sum, curr) => {
+      if (curr.isAdvisory === false || curr.isAdvisory === 0) {
+        return sum + (curr.student_count || 0);
+      }
+      return sum;
+    }, 0);
+
+    // Add advisory total and subject total
+    totalStudents.value = advisoryStats.value.totalStudents + subjectTotal;
   } catch (error) {
     console.error('Error loading subject classes:', error);
     subjectClassesGrouped.value = [];
+    totalStudents.value = advisoryStats.value.totalStudents; // Keep advisory total even if subject loading fails
   }
 };
 
