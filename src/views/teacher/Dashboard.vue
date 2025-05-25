@@ -205,7 +205,7 @@
             <tr class="bg-gray-100">
               <th class="p-3 text-center text-base">Student</th>
               <th class="p-3 text-center text-base">Subject</th>
-              <th class="p-3 text-center text-base">Grade</th>
+              <th class="p-3 text-center text-base">Final Grade</th>
               <th class="p-3 text-center text-base">Status</th>
               <th class="p-3 text-center text-base">Date</th>
             </tr>
