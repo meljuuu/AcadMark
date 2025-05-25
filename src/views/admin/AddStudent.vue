@@ -79,7 +79,8 @@
                                 <select v-model="bulkFormData.gradeLevel"
                                     class="w-full py-3 px-5 border rounded appearance-none" required>
                                     <option disabled value="">Select Grade Level</option>
-                                    <option v-for="level in addStudentFields[0].options" :key="level" :value="level">
+                                    <option v-for="level in bulkFormFields.gradeLevel.options" :key="level"
+                                        :value="level">
                                         {{ level }}
                                     </option>
                                 </select>
@@ -95,7 +96,8 @@
                                 <select v-model="bulkFormData.curriculum"
                                     class="w-full py-3 px-5 border rounded appearance-none" required>
                                     <option disabled value="">Select Curriculum</option>
-                                    <option v-for="level in addStudentFields[1].options" :key="level" :value="level">
+                                    <option v-for="level in bulkFormFields.curriculum.options" :key="level"
+                                        :value="level">
                                         {{ level }}
                                     </option>
                                 </select>
@@ -111,7 +113,7 @@
                                 <select v-model="bulkFormData.track"
                                     class="w-full py-3 px-5 border rounded appearance-none" required>
                                     <option disabled value="">Select Track</option>
-                                    <option v-for="level in addStudentFields[2].options" :key="level" :value="level">
+                                    <option v-for="level in bulkFormFields.track.options" :key="level" :value="level">
                                         {{ level }}
                                     </option>
                                 </select>
@@ -304,15 +306,15 @@ import { useToast } from 'vue-toastification'
 import Swal from 'sweetalert2'
 
 function calculateAge(birthdate) {
-  if (!birthdate) return ''
-  const today = new Date()
-  const birth = new Date(birthdate)
-  let age = today.getFullYear() - birth.getFullYear()
-  const m = today.getMonth() - birth.getMonth()
-  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
-    age--
-  }
-  return age
+    if (!birthdate) return ''
+    const today = new Date()
+    const birth = new Date(birthdate)
+    let age = today.getFullYear() - birth.getFullYear()
+    const m = today.getMonth() - birth.getMonth()
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+        age--
+    }
+    return age
 }
 
 // ===================== TAB STATE =====================
@@ -325,31 +327,31 @@ const activeTab = ref('add')
 const toast = useToast()
 
 onMounted(async () => {
-  try {
-      const response = await getStudentsNoClass();  // or axios call
+    try {
+        const response = await getStudentsNoClass();  // or axios call
 
-    // Access the array inside response.students
-    const data = response.students;
+        // Access the array inside response.students
+        const data = response.students;
 
-    console.log("STUDENT DATA:", data)
+        console.log("STUDENT DATA:", data)
 
-    students.value = data.map(s => ({
-      gradeLevel: s.Grade_Level,
-      lrn: s.LRN,
-      fullName: `${s.LastName}, ${s.FirstName} ${s.MiddleName || ''}`.trim(),
-      curriculum: s.Curriculum === 'JHS' ? 'Junior High School' : (s.Curriculum === 'SHS' ? 'Senior High School' : s.Curriculum),
-      track: s.Track,
-      sex: s.Sex === 'M' ? 'Male' : (s.Sex === 'F' ? 'Female' : s.Sex),
-      birthdate: s.BirthDate,
-      age: s.Age,
-      status: s.Status || 'Pending',
-      original: s,
-      updated_at: s.updated_at,
-    }));
+        students.value = data.map(s => ({
+            gradeLevel: s.Grade_Level,
+            lrn: s.LRN,
+            fullName: `${s.LastName}, ${s.FirstName} ${s.MiddleName || ''}`.trim(),
+            curriculum: s.Curriculum === 'JHS' ? 'Junior High School' : (s.Curriculum === 'SHS' ? 'Senior High School' : s.Curriculum),
+            track: s.Track,
+            sex: s.Sex === 'M' ? 'Male' : (s.Sex === 'F' ? 'Female' : s.Sex),
+            birthdate: s.BirthDate,
+            age: s.Age,
+            status: s.Status || 'Pending',
+            original: s,
+            updated_at: s.updated_at,
+        }));
 
-  } catch (error) {
-    console.error('Failed to fetch students:', error);
-  }
+    } catch (error) {
+        console.error('Failed to fetch students:', error);
+    }
 });
 
 // ===================== FORM FIELD DEFINITIONS =====================
@@ -382,6 +384,12 @@ const addStudentFields = [
     { name: 'ContactNumber', label: 'Guardian/Parent Contact No.', type: 'text', required: true, row: 4 }
 ]
 
+// ===================== BULK FORM FIELD DEFINITIONS =====================
+const bulkFormFields = {
+    gradeLevel: { options: ['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'] },
+    curriculum: { options: [] },
+    track: { options: [] }
+}
 
 const groupedFields = computed(() => {
     const rows = []
@@ -398,34 +406,34 @@ const students = ref([])
 // ===================== INDIVIDUAL REGISTRATION STATE =====================
 const formData = reactive(Object.fromEntries(addStudentFields.map(f => [f.name, ''])))
 
-const trackOptions = {
+const individualTrackOptions = {
     'Junior High School': ['Academic', 'Arts and Design', 'Sports'],
     'Senior High School': ['TVL', 'ABM', 'HUMMS', 'STEM']
 }
 
 watch(() => formData.Grade_Level, (newValue) => {
-  if (['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10'].includes(newValue)) {
-    formData.Curriculum = 'Junior High School'
-  } else if (['Grade 11', 'Grade 12'].includes(newValue)) {
-    formData.Curriculum = 'Senior High School'
-  } else {
-    formData.Curriculum = ''
-  }
+    if (['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10'].includes(newValue)) {
+        formData.Curriculum = 'Junior High School'
+    } else if (['Grade 11', 'Grade 12'].includes(newValue)) {
+        formData.Curriculum = 'Senior High School'
+    } else {
+        formData.Curriculum = ''
+    }
 
-  // Reset track when grade level changes
-  formData.track = ''
+    // Reset track when grade level changes
+    formData.track = ''
 
-  // Update curriculum options (so it can display the selected value)
-  const curriculumField = addStudentFields.find(field => field.name === 'Curriculum')
-  if (curriculumField) {
-    curriculumField.options = ['Junior High School', 'Senior High School']
-  }
+    // Update curriculum options (so it can display the selected value)
+    const curriculumField = addStudentFields.find(field => field.name === 'Curriculum')
+    if (curriculumField) {
+        curriculumField.options = ['Junior High School', 'Senior High School']
+    }
 
-  // Update track options dynamically
+    // Update track options dynamically
     const trackField = addStudentFields.find(field => field.name === 'Track')
-  if (trackField) {
-      trackField.options = trackOptions[formData.Curriculum] || []
-  }
+    if (trackField) {
+        trackField.options = individualTrackOptions[formData.Curriculum] || []
+    }
 })
 
 watch(() => formData.BirthDate, (newDate) => {
@@ -436,7 +444,7 @@ async function handleAddStudentSubmit() {
     try {
         const result = await Swal.fire({
             title: 'Add New Student?',
-            text: "Are you sure you want to submit this student’s record?",
+            text: "Are you sure you want to submit this student's record?",
             icon: 'question',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
@@ -466,7 +474,7 @@ async function handleAddStudentSubmit() {
 
         await createStudent(dataToSend)
 
-        await getStudentsNoClass() 
+        await getStudentsNoClass()
 
         // Reset form
         Object.keys(formData).forEach(key => (formData[key] = ''))
@@ -500,6 +508,11 @@ const bulkFormData = ref({
     track: ""
 });
 
+const bulkTrackOptions = {
+    'Junior High School': ['Academic', 'Arts and Design', 'Sports'],
+    'Senior High School': ['TVL', 'ABM', 'HUMMS', 'STEM']
+}
+
 const selectedFile = ref(null);
 const fileInput = ref(null);
 
@@ -519,7 +532,7 @@ const handleBulkSubmit = async () => {
     // Remove 'Grade' word if present, and trim whitespace
     const grade = bulkFormData.value.gradeLevel.replace(/Grade\s*/i, "").trim();
 
-      let curriculum = bulkFormData.value.curriculum;
+    let curriculum = bulkFormData.value.curriculum;
     if (curriculum === 'Junior High School') curriculum = 'JHS';
     else if (curriculum === 'Senior High School') curriculum = 'SHS';
 
@@ -627,7 +640,7 @@ function openModal(student) {
     const curriculum = modalFormData.Curriculum;
     const trackField = addStudentFields.find(f => f.name === 'Track');
     if (trackField) {
-        trackField.options = trackOptions[curriculum] || [];
+        trackField.options = individualTrackOptions[curriculum] || [];
     }
 }
 
@@ -658,7 +671,7 @@ async function handleUpdateStudent() {
     try {
         const confirmResult = await Swal.fire({
             title: 'Update Student Record?',
-            text: "Are you sure you want to save changes to this student’s record?",
+            text: "Are you sure you want to save changes to this student's record?",
             icon: 'question',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
@@ -703,7 +716,7 @@ async function handleUpdateStudent() {
             confirmButtonText: 'OK'
         });
 
-  
+
         // Close modal and reset state
         isEditing.value = false;
         closeModal();
@@ -723,7 +736,33 @@ async function handleUpdateStudent() {
     }
 }
 
+// Watch for changes in grade level to update curriculum and track for bulk registration
+watch(() => bulkFormData.value.gradeLevel, (newValue) => {
+    if (['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10'].includes(newValue)) {
+        bulkFormData.value.curriculum = 'Junior High School';
+    } else if (['Grade 11', 'Grade 12'].includes(newValue)) {
+        bulkFormData.value.curriculum = 'Senior High School';
+    } else {
+        bulkFormData.value.curriculum = '';
+    }
 
+    // Reset track when grade level changes
+    bulkFormData.value.track = '';
 
+    // Update curriculum options for bulk form
+    bulkFormFields.curriculum.options = ['Junior High School', 'Senior High School'];
+
+    // Update track options based on curriculum for bulk form
+    bulkFormFields.track.options = bulkTrackOptions[bulkFormData.value.curriculum] || [];
+});
+
+// Watch for changes in curriculum to update track options for bulk registration
+watch(() => bulkFormData.value.curriculum, (newValue) => {
+    // Reset track when curriculum changes
+    bulkFormData.value.track = '';
+
+    // Update track options based on curriculum for bulk form
+    bulkFormFields.track.options = bulkTrackOptions[newValue] || [];
+});
 
 </script>
