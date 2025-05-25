@@ -38,8 +38,9 @@ const fetchClasses = async () => {
   try {
     loading.value = true;
     error.value = null;
-    const response = await classService.getClasses();
+    const response = await classService.getClasses(teacherId.value);
     if (response.status === 'success') {
+      console.log('Fetched classes:', response.data);
       classes.value = response.data;
     } else {
       error.value = response.message || 'Failed to fetch classes';
@@ -62,8 +63,10 @@ onMounted(() => {
   const user = JSON.parse(userData);
   console.log('Parsed user object:', user);
   
-  teacherId.value = user?.teacher_ID;
-  console.log('Extracted teacher ID:', teacherId.value);
+  console.log('Teacher ID from localStorage:', user.teacher_ID);
+  
+  teacherId.value = user.teacher_ID;
+  console.log('Teacher ID in ref:', teacherId.value);
   
   if (!teacherId.value) {
     console.error('Teacher ID not found in user object');
