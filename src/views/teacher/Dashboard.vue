@@ -248,7 +248,7 @@ const advisoryStats = ref({
   femaleCount: 0,
 });
 
-const subjectClasses = ref([]);
+const subjectClassesGrouped = ref([]);
 const gradeChartData = ref({ labels: [], datasets: [] });
 const recentGrades = ref([]);
 const recentSubmittedGrades = ref([]);
@@ -355,7 +355,7 @@ const loadAdvisoryStats = async () => {
       femaleCount: response.femaleCount || 0,
     };
   } catch (error) {
-    console.error('Error loading advisory stats:', error);
+    console.error('Error loading subject class stats:', error);
     advisoryStats.value = { totalStudents: 0, maleCount: 0, femaleCount: 0 };
   }
 };
@@ -363,26 +363,29 @@ const loadAdvisoryStats = async () => {
 const loadSubjectClasses = async () => {
   try {
     const response = await getSubjectClasses();
-    // Group classes by class name
+    // Group classes by class name and filter for non-advisory classes
     const groupedClasses = response.reduce((acc, curr) => {
-      const key = curr.ClassName;
-      if (!acc[key]) {
-        acc[key] = {
-          name: key,
-          subjects: []
-        };
+      // Only process if isAdvisory is false/0
+      if (curr.isAdvisory === false || curr.isAdvisory === 0) {
+        const key = curr.ClassName;
+        if (!acc[key]) {
+          acc[key] = {
+            name: key,
+            subjects: []
+          };
+        }
+        acc[key].subjects.push({
+          subject: curr.SubjectName,
+          count: curr.student_count
+        });
       }
-      acc[key].subjects.push({
-        subject: curr.SubjectName,
-        count: curr.student_count
-      });
       return acc;
     }, {});
     
-    subjectClasses.value = Object.values(groupedClasses);
+    subjectClassesGrouped.value = Object.values(groupedClasses);
   } catch (error) {
     console.error('Error loading subject classes:', error);
-    subjectClasses.value = [];
+    subjectClassesGrouped.value = [];
   }
 };
 
