@@ -194,9 +194,6 @@
               <div v-else class="py-5 text-center text-gray-500">
                 No subjects available
                 <div v-if="error" class="text-red-500 mt-2">{{ error }}</div>
-                <div class="text-xs text-gray-400 mt-2">
-                  Debug: {{ JSON.stringify(studentSubjects) }}
-                </div>
               </div>
             </div>
           </div>

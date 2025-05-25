@@ -145,20 +145,6 @@
         </tbody>
       </table>
     </div>
-
-    <!-- Debug info -->
-    <div v-if="
-      activeComponent === 'SummaryOfGrades' || activeComponent === 'Submitted'
-    " class="text-xs text-gray-500 mt-2 text-center">
-      <p>
-        Debug: Component: {{ activeComponent }}, Total Items: {{ totalItems }},
-        Total Pages: {{ totalPages }}, Current Page: {{ currentPage }}
-      </p>
-    </div>
-
-    <div class="text-xs text-gray-500 mt-2">
-      Debug: classType = "{{ classType }}"
-    </div>
   </div>
 </template>
 
