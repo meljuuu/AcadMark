@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000/api';
+const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const classService = {
     // Get all classes
@@ -20,9 +20,16 @@ export const classService = {
     // Get class details by ID
     async getClassDetails(classId) {
         try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.log('Please log in first');
+                return;
+            }
+
             const response = await axios.get(`${API_URL}/classes/${classId}`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json'
                 }
             });
             
@@ -44,6 +51,9 @@ export const classService = {
                 throw new Error(response.data.message || 'Failed to fetch class details');
             }
         } catch (error) {
+            if (error.response?.status === 401) {
+                localStorage.removeItem('token');
+            }
             throw this.handleError(error);
         }
     },

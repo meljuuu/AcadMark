@@ -173,6 +173,8 @@ const props = defineProps({
   subjectName: String,
   className: String,
   gradeLevel: [String, Number],
+  currentPage: Number,
+  itemsPerPage: Number,
 });
 
 const today = new Date();
