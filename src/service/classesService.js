@@ -4,13 +4,9 @@ const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const classService = {
     // Get all classes with their subjects
-    async getClasses() {
+    async getClasses(teacherId) {
         try {
-            const user = JSON.parse(localStorage.getItem('user'));
-            const teacherId = user?.teacher_ID;
-            
-            console.log('User from localStorage:', user);
-            console.log('Teacher ID being sent:', teacherId);
+            console.log('Sending request with teacher ID:', teacherId);
             
             const response = await axios.get(`${API_URL}/classes`, {
                 headers: {
@@ -20,8 +16,11 @@ export const classService = {
                     teacher_id: teacherId
                 }
             });
+            
+            console.log('API Response:', response.data);
             return response.data;
         } catch (error) {
+            console.error('API Error:', error.response?.data || error);
             throw this.handleError(error);
         }
     },
@@ -71,8 +70,10 @@ export const classService = {
     // Error handler
     handleError(error) {
         if (error.response) {
+            console.error('Error response:', error.response.data);
             return error.response.data;
         }
+        console.error('Unexpected error:', error);
         return {
             status: 'error',
             message: 'An unexpected error occurred'

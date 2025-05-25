@@ -55,7 +55,7 @@
     gradeLevel: { type: [String, Number], required: true },
     classType: { type: String, required: true },
     class_id: { type: String, required: true },
-    subject_id: { type: [String, null], required: true },
+    subject_id: { type: [String, Number, null], required: true },
   });
 
   const router = useRouter();
