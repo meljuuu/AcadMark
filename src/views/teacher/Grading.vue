@@ -19,16 +19,14 @@
       <div v-if="filteredStudents.length > 0" class="mt-4 overflow-y-auto overflow-x-auto scrollbar-hide max-h-[230px]">
         <ul>
           <li v-for="(student, index) in filteredStudents" :key="index"
-            class="flex justify-between py-2 mr-3 rounded-md transition-colors duration-200 px-2"
-            :class="{ 'bg-blue-100 border-blue': isSelectedStudent(student) }" @click="setStudentInfo(index)">
-            <div class="flex items-center gap-5 cursor-pointer">
+            class="flex justify-between py-2 mr-3 rounded-md transition-colors duration-200 px-2 cursor-pointer"
+            :class="{ 'bg-blue-100 border-blue': isSelectedStudent(student) }"
+            @click="handleStudentClick(student)">
+            <div class="flex items-center gap-5">
               <!-- Conditional background color based on grade presence for the current quarter -->
               <div :class="{
-                'bg-[#23AD00]':
-                  student.grades[quarterMapping[selectedQuarter]] !== null &&
-                  student.grades[quarterMapping[selectedQuarter]] !== '',
-                'bg-red-500':
-                  !student.grades[quarterMapping[selectedQuarter]],
+                'bg-[#23AD00]': hasGrade(student),
+                'bg-red-500': !hasGrade(student)
               }" class="w-5 h-5 rounded-2xl"></div>
               <p class="font-medium text-base truncate max-w-[150px]" :class="{
                 'text-blue font-semibold': isSelectedStudent(student),
@@ -42,7 +40,7 @@
               </p>
             </div>
             <div>
-              <input type="checkbox" class="checkbox" v-model="student.selected" />
+              <input type="checkbox" class="checkbox" v-model="student.selected" @click.stop />
             </div>
           </li>
         </ul>
@@ -68,8 +66,8 @@
           <div class="flex flex-col gap-1">
             <div>
               <p class="text-blue text-xs font-bold">Student Name</p>
-              <p class="text-2xl font-medium">{{ selectedStudent ? selectedStudent.firstName + " " +
-                selectedStudent.lastName : '(Select a Student)' }}</p>
+              <p class="text-2xl font-medium">{{ selectedStudent ? selectedStudent.firstName + " " + 
+                selectedStudent.middleName + " " + selectedStudent.lastName : '(Select a Student)' }}</p>
             </div>
             <div>
               <p class="text-blue text-xs font-bold">LRN</p>
@@ -105,7 +103,7 @@
           <div>
             <p class="text-blue text-xs font-bold">Quarter Grade</p>
             <input type="text" class="border-[1px] w-35 h-9 text-center" v-model="Grade" @input="validateGrade"
-              maxlength="3" pattern="[0-9]*" inputmode="numeric" />
+              maxlength="3" pattern="[0-9]*" inputmode="numeric" :disabled="isEditMode" />
           </div>
           <div>
             <p class="text-blue text-xs font-bold">Remarks</p>
@@ -118,8 +116,12 @@
         <p class="italic text-xs">You are grading for <span class="font-bold mt-5">{{ selectedQuarter }}</span></p>
       </div>
 
-      <button class="bg-blue max-w-28 h-8 rounded-md text-white font-semibold text-md hover:bg-[#cecece] cursor-pointer"
-        @click="saveGrades">Save</button>
+      <button 
+        class="max-w-28 h-8 rounded-md text-white font-semibold text-md hover:bg-[#cecece] cursor-pointer"
+        :class="isEditMode ? 'bg-yellow-500' : 'bg-blue'"
+        @click="toggleEditMode">
+        {{ isEditMode ? 'Edit' : 'Save' }}
+      </button>
 
       <!-- Pagination Controls -->
       <div class="relative">
@@ -185,6 +187,7 @@ const Grade = ref('');
 const selectedQuarter = ref('1st');
 const selectedMarkStatus = ref('');
 const showSubmitSuccess = ref(false);
+const isEditMode = ref(false);
 
 const quarterMapping = {
   '1st': 'first',
@@ -195,12 +198,13 @@ const quarterMapping = {
 
 const loadGrade = () => {
   if (selectedStudent.value) {
-    console.log('Loading grade for student:', selectedStudent.value);
     const gradeKey = quarterMapping[selectedQuarter.value];
-    console.log('Grade key:', gradeKey);
-    console.log('Student grades:', selectedStudent.value.grades);
-    Grade.value = selectedStudent.value.grades[gradeKey] || '';
-    console.log('Loaded grade value:', Grade.value);
+    // Check localStorage first
+    const localStorageKey = `grade_${selectedStudent.value.student_id}_${props.subject_id}_${gradeKey}`;
+    const storedGrade = localStorage.getItem(localStorageKey);
+    
+    // Use stored grade if available, otherwise use the grade from the student object
+    Grade.value = storedGrade || selectedStudent.value.grades[gradeKey] || '';
   }
 };
 
@@ -230,11 +234,23 @@ function nextStudent() {
   }
 }
 
+function toggleEditMode() {
+  if (!isEditMode.value) {
+    // When clicking Save, save the grades
+    saveGrades();
+  }
+  isEditMode.value = !isEditMode.value;
+}
+
 async function saveGrades() {
   if (selectedStudent.value) {
     try {
       const gradeKey = quarterMapping[selectedQuarter.value];
       selectedStudent.value.grades[gradeKey] = Grade.value;
+
+      // Save to localStorage
+      const localStorageKey = `grade_${selectedStudent.value.student_id}_${props.subject_id}_${gradeKey}`;
+      localStorage.setItem(localStorageKey, Grade.value);
 
       // Get teacher ID from localStorage
       const userStr = localStorage.getItem('user');
@@ -322,6 +338,9 @@ async function submitGrades() {
     return;
   }
 
+  // Store the currently selected students before submission
+  const selectedStudentIds = selectedStudents.value.map(student => student.student_id);
+
   const gradesData = selectedStudents.value.map((student) => {
     const grades = student.grades;
     return {
@@ -344,11 +363,14 @@ async function submitGrades() {
 
     if (result.status === 'success') {
       showSubmitSuccess.value = true;
-      studentsInSubject.value.forEach(student => {
-        student.selected = false;
-      });
-      selectAll.value = false;
       await loadSubjectData();
+      
+      // Restore the selected state after loading new data
+      studentsInSubject.value.forEach(student => {
+        if (selectedStudentIds.includes(student.student_id)) {
+          student.selected = true;
+        }
+      });
     } else {
       throw new Error(result.message || 'Failed to submit grades');
     }
@@ -414,20 +436,33 @@ async function loadSubjectData() {
       console.log('Processing students data:', response.data);
       
       studentsInSubject.value = response.data.map((student) => {
-        console.log('Processing student:', student); // Log each student being processed
+        // Initialize grades object with existing grades from the API
+        const grades = {
+          first: student.grades?.first || null,
+          second: student.grades?.second || null,
+          third: student.grades?.third || null,
+          fourth: student.grades?.fourth || null
+        };
+
+        // Load grades from localStorage for each quarter
+        Object.keys(quarterMapping).forEach(quarter => {
+          const gradeKey = quarterMapping[quarter];
+          const localStorageKey = `grade_${student.student_id}_${props.subject_id}_${gradeKey}`;
+          const storedGrade = localStorage.getItem(localStorageKey);
+          
+          // Only update if there's a stored grade
+          if (storedGrade) {
+            grades[gradeKey] = storedGrade;
+          }
+        });
         
         const processedStudent = {
           ...student,
           selected: false,
-          grades: {
-            first: student.grades?.first || null,
-            second: student.grades?.second || null,
-            third: student.grades?.third || null,
-            fourth: student.grades?.fourth || null,
-          },
+          grades: grades
         };
         
-        console.log('Processed student data:', processedStudent); // Log the processed student
+        console.log('Processed student:', processedStudent);
         return processedStudent;
       });
 
@@ -436,17 +471,11 @@ async function loadSubjectData() {
       if (studentsInSubject.value.length > 0) {
         currentIndex.value = 0;
         selectedStudent.value = studentsInSubject.value[0];
-        console.log('Selected student:', selectedStudent.value);
         loadGrade();
       }
     } else {
       console.error('Invalid response format:', response);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to load student data. Please try again.',
-        confirmButtonColor: '#dc2626'
-      });
+      throw new Error('Invalid response format from server');
     }
   } catch (error) {
     console.error('Error loading subject data:', error);
@@ -571,4 +600,43 @@ function checkUserAuth() {
     return false;
   }
 }
+
+function handleStudentClick(student) {
+  // Toggle student selection
+  student.selected = !student.selected;
+  setStudentInfo(studentsInSubject.value.findIndex(s => s.student_id === student.student_id));
+  
+  // Enable edit mode when selecting a student
+  isEditMode.value = false; // This will enable the input since we inverted the disabled logic
+}
+
+// Add this computed property to check if a student has a grade
+const hasGrade = computed(() => {
+  return (student) => {
+    const gradeKey = quarterMapping[selectedQuarter.value];
+    const storedGrade = student.grades[gradeKey];
+    const isCurrentStudent = selectedStudent.value && student.student_id === selectedStudent.value.student_id;
+    
+    // Check both stored grade and input grade for current student
+    if (isCurrentStudent) {
+      return (storedGrade !== null && storedGrade !== '') || (Grade.value !== null && Grade.value !== '');
+    }
+    
+    // For other students, only check stored grade
+    return storedGrade !== null && storedGrade !== '';
+  };
+});
+
+// Add a watcher for the Grade input
+watch(Grade, (newValue) => {
+  if (selectedStudent.value) {
+    const gradeKey = quarterMapping[selectedQuarter.value];
+    // Update the selected student's grade in the grades object
+    selectedStudent.value.grades[gradeKey] = newValue;
+    
+    // Save to localStorage immediately
+    const localStorageKey = `grade_${selectedStudent.value.student_id}_${props.subject_id}_${gradeKey}`;
+    localStorage.setItem(localStorageKey, newValue);
+  }
+}, { immediate: true });
 </script>
