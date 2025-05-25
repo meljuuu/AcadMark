@@ -56,7 +56,7 @@
         <div class="flex flex-row gap-10 p-5 items-center">
           <div
             class="w-40 aspect-square rounded-full border-15 border-blue text-center flex flex-col justify-center items-center p-4">
-            <p class="text-3xl font-semibold leading-tight">
+            <p class="text-2xl font-semibold leading-tight">
               {{
                 subjectClassesGrouped && subjectClassesGrouped.length > 0 ?
                 subjectClassesGrouped.reduce((sum, classGroup) =>
@@ -68,26 +68,21 @@
             <p class="text-base leading-tight">STUDENTS</p>
           </div>
 
-          <div class="flex flex-col gap-2 w-full overflow-hidden">
+          <div class="grid grid-cols-2 gap-4">
             <div v-for="(classGroup, classIdx) in (subjectClassesGrouped || [])" :key="classIdx"
                  class="flex flex-col border border-[#cecece] gap-2 py-2 pr-4 rounded-lg w-full overflow-hidden mb-4"
                  style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
                 <div class="flex items-center">
                    <div class="h-full w-[7px] bg-blue rounded-full mr-2 ml-2"></div>
-                   <p class="font-medium text-xl truncate">{{ classGroup.name }}</p>
+                   <p class="font-medium text-xl">{{ classGroup.name }}</p>
                 </div>
-                <div v-for="(subjectItem, subjectIdx) in (classGroup.subjects || [])" :key="subjectIdx" class="flex items-center gap-3 ml-5">
-                    <p class="font-medium text-lg">{{ subjectItem.count }}</p>
-                    <p class="text-base text-[#7b7b7b] leading-none truncate">
-                        {{ subjectItem.subject }}
-                    </p>
-                </div>
+                <p class="text-lg ml-5 text-gray-600">{{ classGroup.subjects ? classGroup.subjects.reduce((sum, subject) => sum + subject.count, 0) : 0 }} Students</p>
             </div>
-            <div v-if="subjectClassesGrouped && subjectClassesGrouped.length === 0" class="flex flex-col items-center justify-center py-10 text-gray-500">
-                <img src="/assets/img/dashboard/no-data.png" alt="No Data" class="w-32 h-32 mb-4 opacity-50" />
-                <p class="text-lg font-medium">No Subject Classes Assigned</p>
-                <p class="text-ssm">You are not currently assigned to teach any subject classes.</p>
-            </div>
+          </div>
+          <div v-if="subjectClassesGrouped && subjectClassesGrouped.length === 0" class="flex flex-col items-center justify-center py-10 text-gray-500">
+              <img src="/assets/img/dashboard/no-data.png" alt="No Data" class="w-32 h-32 mb-4 opacity-50" />
+              <p class="text-lg font-medium">No Subject Classes Assigned</p>
+              <p class="text-ssm">You are not currently assigned to teach any subject classes.</p>
           </div>
         </div>
       </div>
