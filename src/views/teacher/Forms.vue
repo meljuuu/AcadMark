@@ -182,10 +182,10 @@
                       {{ subject.grades.Q4 || 'No grade' }}
                     </td>
                     <td class="p-2 text-center font-semibold text-gray-800">
-                      {{ subject.grades.FinalGrade || 'No grade' }}
+                      {{ getFinalGradeDisplay(subject) }}
                     </td>
-                    <td class="p-2 text-center font-semibold text-gray-800">
-                      {{ subject.grades.Remarks || 'No remarks' }}
+                    <td class="p-2 text-center font-semibold text-gray-800" :class="remarksClass">
+                      {{ remarks }}
                     </td>
                   </tr>
                 </tbody>
@@ -351,40 +351,55 @@
     const subject = studentSubjects.value.find(s => s.subject_id === subjectId);
     if (!subject || !subject.grades) return 'No grade';
 
-    const quarterGrades = [
-      subject.grades.Q1,
-      subject.grades.Q2,
-      subject.grades.Q3,
-      subject.grades.Q4
-    ];
+    switch (subject.status?.toLowerCase()) {
+      case 'approved':
+        const quarterGrades = [
+          subject.grades.Q1,
+          subject.grades.Q2,
+          subject.grades.Q3,
+          subject.grades.Q4
+        ];
 
-    // Check if all grades are empty or undefined
-    if (quarterGrades.every(grade => !grade || grade === '-' || grade === 'No grade')) {
-      return 'No grade';
+        if (quarterGrades.every(grade => !grade || grade === '-' || grade === 'No grade')) {
+          return 'No grade';
+        }
+
+        const validGrades = quarterGrades
+          .filter(grade => grade && grade !== '-' && grade !== 'No grade')
+          .map(grade => parseFloat(grade));
+
+        if (validGrades.length > 0) {
+          const average = validGrades.reduce((sum, grade) => sum + grade, 0) / validGrades.length;
+          return isNaN(average) ? 'No grade' : average.toFixed(2);
+        }
+        return 'No grade';
+      case 'pending':
+        return 'Pending';
+      case 'declined':
+        return 'Declined';
+      default:
+        return 'No grade';
     }
-
-    // Calculate average of valid grades
-    const validGrades = quarterGrades
-      .filter(grade => grade && grade !== '-' && grade !== 'No grade')
-      .map(grade => parseFloat(grade));
-
-    if (validGrades.length > 0) {
-      const average = validGrades.reduce((sum, grade) => sum + grade, 0) / validGrades.length;
-      return isNaN(average) ? 'No grade' : average.toFixed(2);
-    }
-
-    return 'No grade';
   };
 
   const getRemarks = (subjectId) => {
     const subject = studentSubjects.value.find(s => s.subject_id === subjectId);
     if (!subject || !subject.grades) return 'No remarks';
     
-    const gwa = calculateGWA(subjectId);
-    if (gwa === 'No grade' || gwa === 'INC') {
-      return 'No remarks';
+    switch (subject.status?.toLowerCase()) {
+      case 'approved':
+        const gwa = calculateGWA(subjectId);
+        if (gwa === 'No grade' || gwa === 'INC') {
+          return 'No remarks';
+        }
+        return parseFloat(gwa) >= 75 ? 'Passed' : 'Failed';
+      case 'pending':
+        return 'Pending';
+      case 'declined':
+        return 'Declined';
+      default:
+        return 'No remarks';
     }
-    return parseFloat(gwa) >= 75 ? 'Passed' : 'Failed';
   };
 
   const remarks = computed(() => {
@@ -409,8 +424,13 @@
 
     const finalGrades = studentSubjects.value
       .map((subject) => {
+        if (subject.status?.toLowerCase() !== 'approved') {
+          return null;
+        }
         const gwa = calculateGWA(subject.subject_id);
-        return gwa !== 'No grade' && gwa !== 'INC' ? parseFloat(gwa) : null;
+        return gwa !== 'No grade' && gwa !== 'INC' && gwa !== 'Pending' && gwa !== 'Declined' 
+          ? parseFloat(gwa) 
+          : null;
       })
       .filter((grade) => grade !== null);
 
@@ -418,8 +438,7 @@
       return 'No grade';
     }
 
-    const average =
-      finalGrades.reduce((sum, grade) => sum + grade, 0) / finalGrades.length;
+    const average = finalGrades.reduce((sum, grade) => sum + grade, 0) / finalGrades.length;
     return average.toFixed(2);
   });
 
@@ -512,6 +531,55 @@
     link.href = URL.createObjectURL(blob);
     link.setAttribute('download', fileName);
     link.click();
+  };
+
+  const getFinalGradeDisplay = (subject) => {
+    if (!subject.status) return 'No grade';
+    
+    switch (subject.status.toLowerCase()) {
+      case 'approved':
+        return subject.grades.FinalGrade || 'No grade';
+      case 'pending':
+        return 'Pending';
+      case 'declined':
+        return 'Declined';
+      default:
+        return 'No grade';
+    }
+  };
+
+  const getRemarksDisplay = (subject) => {
+    if (!subject.status) return 'No remarks';
+    
+    switch (subject.status.toLowerCase()) {
+      case 'approved':
+        const finalGrade = subject.grades.FinalGrade;
+        if (!finalGrade || finalGrade === 'No grade') return 'No remarks';
+        return parseFloat(finalGrade) >= 75 ? 'Passed' : 'Failed';
+      case 'pending':
+        return 'Pending';
+      case 'declined':
+        return 'Declined';
+      default:
+        return 'No remarks';
+    }
+  };
+
+  const getRemarksClass = (subject) => {
+    if (!subject.status) return '';
+    
+    switch (subject.status.toLowerCase()) {
+      case 'approved':
+        const finalGrade = subject.grades.FinalGrade;
+        if (!finalGrade || finalGrade === 'No grade') return '';
+        return parseFloat(finalGrade) >= 75 ? 'text-green-600' : 'text-red-600';
+      case 'pending':
+        return 'text-yellow-600';
+      case 'declined':
+        return 'text-red-600';
+      default:
+        return '';
+    }
   };
 </script>
 
