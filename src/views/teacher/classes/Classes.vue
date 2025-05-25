@@ -8,18 +8,10 @@
       {{ error }}
     </div>
     <div v-else class="grid ssm:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
-      <Card
-        v-for="classItem in classes"
-        :key="classItem.class_id"
-        :class_id="classItem.class_id"
+      <Card v-for="classItem in classes" :key="classItem.class_id" :class_id="classItem.class_id"
         :trackStand="parseInt(classItem.gradeLevel) <= 10 ? 'Junior High School' : classItem.trackStand"
-        :classType="classItem.classType"
-        :className="classItem.className"
-        :subjectName="classItem.subjectName"
-        :gradeLevel="classItem.gradeLevel"
-        :type="classItem.classType"
-        :subject_id="classItem.subject_id"
-      />
+        :classType="classItem.classType" :className="classItem.className" :subjectName="classItem.subjectName"
+        :gradeLevel="classItem.gradeLevel" :type="classItem.classType" :subject_id="classItem.subject_id" />
     </div>
   </div>
 </template>
@@ -54,26 +46,26 @@ const fetchClasses = async () => {
 
 onMounted(() => {
   console.log('Component mounted - Starting to fetch teacher ID');
-  
+
   // Log the raw user data from localStorage
   const userData = localStorage.getItem('user');
   console.log('Raw user data from localStorage:', userData);
-  
+
   // Parse and log the user object
   const user = JSON.parse(userData);
   console.log('Parsed user object:', user);
-  
+
   console.log('Teacher ID from localStorage:', user.teacher_ID);
-  
+
   teacherId.value = user.teacher_ID;
   console.log('Teacher ID in ref:', teacherId.value);
-  
+
   if (!teacherId.value) {
     console.error('Teacher ID not found in user object');
     error.value = 'Teacher ID not found in localStorage';
     return;
   }
-  
+
   console.log('Teacher ID found, proceeding to fetch classes');
   fetchClasses();
 });
