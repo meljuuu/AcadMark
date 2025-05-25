@@ -264,19 +264,25 @@
                                     <select v-model="leftSex"
                                         class="w-[35%] p-[6px_10px] border border-[#e0e0e0] rounded-[6px] text-[15px] text-[#242424] bg-white">
                                         <option value="" disabled selected>Sex</option>
+                                        <option value="All">All</option>
                                         <option value="F">Female</option>
                                         <option value="M">Male</option>
                                     </select>
                                 </div>
                                 <div
                                     class="flex flex-col overflow-y-auto max-h-[600px] mb-3 rounded-[4px] border border-[#e0e0e0] bg-[#fafbfc] p-1 cursor-pointer gap-5s">
-                                    <div v-for="row in leftSelectedStudents" :key="row.lrn"
-                                        class="flex items-center p-[6px_8px] border-b border-[#f0f0f0] text-sm text-[#222] gap-10 hover:bg-[#e0e0e0]">
-                                        <span class="ml-[5px] w-[90px] font-medium">{{ row.lrn }}</span>
-                                        <span class="flex-1 -ml-[5px] font-medium">{{ row.name }}</span>
-                                        <img src="/assets/img/admin/arrow.svg" alt="right-arrow"
-                                            class="w-5 h-5 cursor-pointer" @click="removeSelectedRow(row.lrn)" />
-                                    </div>
+                                    <template v-if="leftSelectedStudents.length > 0">
+                                        <div v-for="row in filteredLeftTableData" :key="row.lrn"
+                                            class="flex items-center p-[6px_8px] border-b border-[#f0f0f0] text-sm text-[#222] gap-10 hover:bg-[#e0e0e0]">
+                                            <span class="ml-[5px] w-[90px] font-medium">{{ row.lrn }}</span>
+                                            <span class="flex-1 -ml-[5px] font-medium">{{ row.name }}</span>
+                                            <img src="/assets/img/admin/arrow.svg" alt="right-arrow"
+                                                class="w-5 h-5 cursor-pointer" @click="removeSelectedRow(row.lrn)" />
+                                        </div>
+                                    </template>
+                                    <template v-else>
+                                        <div class="text-center text-gray-500 py-4">No students selected</div>
+                                    </template>
                                 </div>
                                 <button @click="logForm"
                                     class="mt-2 w-[30%] bg-[#295F98] text-white border-none rounded-[6px] py-2 text-[15px] cursor-pointer transition-colors duration-200 hover:bg-[#1d4066] block ml-auto">
@@ -593,6 +599,7 @@ export default {
             submittedCurrentPage: 1,
             studentCurrentPage: 1,
             itemsPerPage: 10,
+            leftSelectedStudents: [],
         };
     },
     watch: {
@@ -633,7 +640,11 @@ export default {
         },
         rightSort() {
             this.studentCurrentPage = 1;
-        }
+        },
+        leftSex() {
+            // Reset to first page when filter changes
+            this.studentCurrentPage = 1;
+        },
     },
     mounted() {
         this.fetchStudentCounts();
@@ -1035,7 +1046,8 @@ export default {
             return filteredData;
         },
         filteredLeftTableData() {
-            if (!this.leftSex) return this.leftSelectedStudents;
+            if (!this.leftSex || this.leftSex === 'All') return this.leftSelectedStudents;
+
             return this.leftSelectedStudents.filter(row => {
                 const rowGender = row.gender.toLowerCase();
                 const selectedGender = this.leftSex === 'M' ? 'male' : 'female';
