@@ -576,63 +576,78 @@ export default {
     },
 
     renderSubmissionStatusChart(data) {
-      const ctx = document.getElementById('submissionStatusChart')?.getContext('2d');
-      if (!ctx) return;
+      // Wait for next tick to ensure DOM is updated
+      this.$nextTick(() => {
+        const canvas = document.getElementById('submissionStatusChart');
+        if (!canvas) {
+          console.warn('Submission status chart canvas element not found, retrying in 100ms');
+          setTimeout(() => this.renderSubmissionStatusChart(data), 100);
+          return;
+        }
 
-      if (this._submissionStatusChartInstance) {
-        this._submissionStatusChartInstance.destroy();
-      }
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          console.warn('Submission status chart canvas context not found');
+          return;
+        }
 
-      this._submissionStatusChartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: ['Accepted', 'Pending', 'Declined'],
-          datasets: [
-            {
-              label: 'Male',
-              data: [
-                data.Male?.Accepted || 0,
-                data.Male?.Pending || 0,
-                data.Male?.Declined || 0
-              ],
-              backgroundColor: 'rgba(255, 206, 86, 0.8)',
-            },
-            {
-              label: 'Female',
-              data: [
-                data.Female?.Accepted || 0,
-                data.Female?.Pending || 0,
-                data.Female?.Declined || 0
-              ],
-              backgroundColor: 'rgba(59, 130, 246, 0.8)',
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: { stepSize: 1 },
-            },
+        // Destroy existing instance if it exists
+        if (this._submissionStatusChartInstance) {
+          this._submissionStatusChartInstance.destroy();
+          this._submissionStatusChartInstance = null;
+        }
+
+        this._submissionStatusChartInstance = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: ['Accepted', 'Pending', 'Declined'],
+            datasets: [
+              {
+                label: 'Male',
+                data: [
+                  data.Male?.Accepted || 0,
+                  data.Male?.Pending || 0,
+                  data.Male?.Declined || 0
+                ],
+                backgroundColor: 'rgba(255, 206, 86, 0.8)',
+              },
+              {
+                label: 'Female',
+                data: [
+                  data.Female?.Accepted || 0,
+                  data.Female?.Pending || 0,
+                  data.Female?.Declined || 0
+                ],
+                backgroundColor: 'rgba(59, 130, 246, 0.8)',
+              },
+            ],
           },
-          plugins: {
-            legend: {
-              position: 'top',
-              labels: {
-                usePointStyle: true,
-                pointStyle: 'circle',
-                font: {
-                  size: 14,
-                  family: 'Arial, sans-serif',
-                  weight: 'bold',
-                },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: { stepSize: 1 },
               },
             },
-            tooltip: { enabled: true },
+            plugins: {
+              legend: {
+                position: 'top',
+                labels: {
+                  usePointStyle: true,
+                  pointStyle: 'circle',
+                  font: {
+                    size: 14,
+                    family: 'Arial, sans-serif',
+                    weight: 'bold',
+                  },
+                },
+              },
+              tooltip: { enabled: true },
+            },
           },
-        },
+        });
       });
     },
   },
