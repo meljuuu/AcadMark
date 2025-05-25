@@ -614,16 +614,13 @@ function handleStudentClick(student) {
 const hasGrade = computed(() => {
   return (student) => {
     const gradeKey = quarterMapping[selectedQuarter.value];
-    const storedGrade = student.grades[gradeKey];
-    const isCurrentStudent = selectedStudent.value && student.student_id === selectedStudent.value.student_id;
+    // Check both localStorage and the grades object
+    const localStorageKey = `grade_${student.student_id}_${props.subject_id}_${gradeKey}`;
+    const storedGrade = localStorage.getItem(localStorageKey);
+    const studentGrade = student.grades[gradeKey];
     
-    // Check both stored grade and input grade for current student
-    if (isCurrentStudent) {
-      return (storedGrade !== null && storedGrade !== '') || (Grade.value !== null && Grade.value !== '');
-    }
-    
-    // For other students, only check stored grade
-    return storedGrade !== null && storedGrade !== '';
+    // Return true if either localStorage or student.grades has a valid grade
+    return (storedGrade !== null && storedGrade !== '') || (studentGrade !== null && studentGrade !== '');
   };
 });
 
