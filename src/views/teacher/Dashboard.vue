@@ -139,21 +139,15 @@
         style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px">
         <p class="font-semibold text-[32px]">Total Submitted Grades</p>
 
-        <div class="flex items-center justify-center gap-5">
-          <div class="flex gap-3">
-            <div class="bg-blue w-5 h-5 rounded-full"></div>
-            <p class="text-blue text-base">Advisory Class</p>
-          </div>
 
-          <div class="flex gap-3">
-            <div class="bg-[#0C5A48] w-5 h-5 rounded-full"></div>
-            <p class="text-[#0C5A48] text-base">Subject Class</p>
-          </div>
-        </div>
-
-        <div class="h-[600px] overflow-hidden">
-          <BarChart chartId="submittedGradesChart" :labels="submittedGradesData.labels"
-            :datasets="submittedGradesData.datasets" :options="submittedGradesOptions" :height="600" />
+        <div class="h-[400px] overflow-hidden">
+          <BarChart 
+            chartId="submittedGradesChart" 
+            :labels="submittedGradesChartData.labels"
+            :datasets="submittedGradesChartData.datasets" 
+            :options="submittedGradesChartOptions" 
+            :height="400" 
+          />
         </div>
       </div>
 
@@ -258,20 +252,71 @@ const subjectClasses = ref([]);
 const gradeChartData = ref({ labels: [], datasets: [] });
 const recentGrades = ref([]);
 const recentSubmittedGrades = ref([]);
-const submittedGradesData = ref({
+const submittedGradesChartData = ref({
   labels: ['APPROVED', 'PENDING', 'DECLINED'],
   datasets: [
     {
+      label: '',
       data: [0, 0, 0],
-      backgroundColor: '#295F98',
-      label: 'Advisory Class',
+      backgroundColor: '#295F98'
     },
     {
-      data: [0, 0, 0],
-      backgroundColor: '#0C5A48',
       label: 'Subject Class',
+      data: [0, 0, 0],
+      backgroundColor: '#0C5A48'
+    }
+  ]
+});
+
+const submittedGradesChartOptions = ref({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: true,
+      position: 'top',
+      labels: {
+        font: {
+          size: 14,
+          weight: 'bold'
+        },
+        padding: 20,
+        usePointStyle: true,
+        pointStyle: 'circle',
+        boxWidth: 10,
+        boxHeight: 10,
+        margin: 20
+      }
+    }
+  },
+  scales: {
+    x: {
+      grid: {
+        display: false
+      },
+      ticks: {
+        font: {
+          size: 12,
+          weight: 'bold'
+        }
+      }
     },
-  ],
+    y: {
+      beginAtZero: true,
+      grid: {
+        color: 'rgba(0,0,0,0.1)',
+        drawBorder: false
+      },
+      ticks: {
+        font: {
+          size: 12,
+          weight: 'bold'
+        }
+      }
+    }
+  },
+  barPercentage: 0.6,
+  categoryPercentage: 0.8
 });
 
 // Chart options
@@ -300,63 +345,6 @@ const gradeChartOptions = ref({
   barThickness: 40,
   maxBarThickness: 35,
 });
-
-const submittedGradesOptions = ref({
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      display: true,
-      position: 'top',
-      labels: {
-        font: {
-          size: 14,
-          weight: 'bold'
-        }
-      }
-    },
-  },
-  scales: {
-    x: {
-      grid: {
-        display: false,
-      },
-      ticks: {
-        font: {
-          size: 14,
-          weight: 'bold'
-        }
-      }
-    },
-    y: {
-      beginAtZero: true,
-      grid: {
-        color: 'rgba(0,0,0,0.1)',
-        drawBorder: false,
-      },
-      ticks: {
-        font: {
-          size: 14,
-          weight: 'bold'
-        }
-      },
-      suggestedMax: Math.max(
-        ...submittedGradesData.value.datasets[0].data,
-        ...submittedGradesData.value.datasets[1].data
-      ) * 1.1
-    },
-  },
-  barPercentage: 0.3,
-  categoryPercentage: 0.5,
-});
-
-// Watch for changes in submittedGradesData and update suggestedMax
-watch(submittedGradesData, (newData) => {
-  submittedGradesOptions.value.scales.y.suggestedMax = Math.max(
-    ...newData.datasets[0].data,
-    ...newData.datasets[1].data
-  ) * 1.1;
-}, { deep: true });
 
 const loadAdvisoryStats = async () => {
   try {
@@ -403,54 +391,49 @@ const loadRecentGrades = async () => {
     const response = await getRecentGrades();
     recentGrades.value = response;
     
-    // Generate submitted grades data based on actual status counts
-    const statusCounts = response.reduce((acc, curr) => {
-      // Initialize counts for both advisory and subject classes
-      if (!acc[curr.status]) {
-        acc[curr.status] = {
-          advisory: 0,
-          subject: 0
-        };
-      }
-      
-      // Increment the appropriate counter based on isAdvisory flag
-      if (curr.isAdvisory) {
-        acc[curr.status].advisory++;
+    // Count statuses for both advisory and subject classes
+    const statusCounts = {
+      advisory: { approved: 0, pending: 0, declined: 0 },
+      subject: { approved: 0, pending: 0, declined: 0 }
+    };
+
+    response.forEach(grade => {
+      const status = grade.status.toLowerCase();
+      if (grade.isAdvisory) {
+        statusCounts.advisory[status]++;
       } else {
-        acc[curr.status].subject++;
+        statusCounts.subject[status]++;
       }
-      
-      return acc;
-    }, {});
-    
-    // Format data for the bar chart
-    submittedGradesData.value = {
+    });
+
+    // Update chart data
+    submittedGradesChartData.value = {
       labels: ['APPROVED', 'PENDING', 'DECLINED'],
       datasets: [
         {
-          data: [
-            statusCounts.accepted?.advisory || 0,
-            statusCounts.pending?.advisory || 0,
-            statusCounts.declined?.advisory || 0
-          ],
-          backgroundColor: '#295F98',
           label: 'Advisory Class',
+          data: [
+            statusCounts.advisory.approved,
+            statusCounts.advisory.pending,
+            statusCounts.advisory.declined
+          ],
+          backgroundColor: '#295F98'
         },
         {
-          data: [
-            statusCounts.accepted?.subject || 0,
-            statusCounts.pending?.subject || 0,
-            statusCounts.declined?.subject || 0
-          ],
-          backgroundColor: '#0C5A48',
           label: 'Subject Class',
+          data: [
+            statusCounts.subject.approved,
+            statusCounts.subject.pending,
+            statusCounts.subject.declined
+          ],
+          backgroundColor: '#0C5A48'
         }
-      ],
+      ]
     };
-    
-    // Generate recent submitted grades from actual data
+
+    // Update recent submitted grades for the table
     recentSubmittedGrades.value = response.slice(0, 8).map(grade => ({
-      lrn: grade.student.split(' ')[0], // Assuming first part is LRN
+      lrn: grade.student.split(' ')[0],
       name: grade.student,
       classType: grade.isAdvisory ? 'Advisory' : 'Subject',
       status: grade.status.toUpperCase()
