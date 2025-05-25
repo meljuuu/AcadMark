@@ -115,6 +115,10 @@ const getGradeForQuarter = (student, quarter) => {
 };
 
 const getFinalGrade = (student) => {
+  if (!student.status || student.status.toLowerCase() !== 'approved') {
+    return '-';
+  }
+
   const grades = ['first', 'second', 'third', 'fourth'];
   let total = 0;
   let gradeCount = 0;
@@ -136,6 +140,10 @@ const getFinalGrade = (student) => {
 };
 
 const getRemarks = (student) => {
+  if (!student.status || student.status.toLowerCase() !== 'approved') {
+    return '-';
+  }
+
   const finalGrade = getFinalGrade(student);
   if (finalGrade === '-') return '-';
   return parseFloat(finalGrade) >= 75 ? 'Passed' : 'Failed';

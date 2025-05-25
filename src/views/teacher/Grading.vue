@@ -66,8 +66,8 @@
           <div class="flex flex-col gap-1">
             <div>
               <p class="text-blue text-xs font-bold">Student Name</p>
-              <p class="text-2xl font-medium">{{ selectedStudent ? selectedStudent.firstName + " " +
-                selectedStudent.lastName : '(Select a Student)' }}</p>
+              <p class="text-2xl font-medium">{{ selectedStudent ? selectedStudent.firstName + " " + 
+                selectedStudent.middleName + " " + selectedStudent.lastName : '(Select a Student)' }}</p>
             </div>
             <div>
               <p class="text-blue text-xs font-bold">LRN</p>

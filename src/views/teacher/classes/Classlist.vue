@@ -38,7 +38,7 @@
               <tbody>
                 <tr v-for="(student, index) in filteredStudents" :key="`${student.student_id}-${student.class_id}-${index}`">
                   <td class="table-cell">{{ student.lrn }}</td>
-                  <td class="table-cell">{{ student.firstName }} {{ student.lastName }}</td>
+                  <td class="table-cell">{{ student.firstName }} {{ student.middleName }} {{ student.lastName }}</td>
                   <td class="table-cell">{{ student.sex }}</td>
                   <td class="table-cell">{{ student.birthDate }}</td>
                   <td class="table-cell">{{ calculateAge(student.birthDate) }}</td>
@@ -82,7 +82,7 @@ const filteredStudents = computed(() => {
     return studentsInSubject.value;
   }
   return studentsInSubject.value.filter(student => {
-    const fullName = `${student.firstName} ${student.lastName}`.toLowerCase();
+    const fullName = `${student.firstName} ${student.middleName} ${student.lastName}`.toLowerCase();
     return fullName.includes(searchQuery.value.toLowerCase());
   });
 });

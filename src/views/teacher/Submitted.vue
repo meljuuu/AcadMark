@@ -11,17 +11,22 @@
       <table class="w-full border-collapse text-center text-sm">
         <thead class="bg-gray-100 text-[#464F60] text-[15px] font-semibold">
           <tr>
-            <th class="p-2 w-1/6">LRN</th>
-            <th class="p-2 w-1/6">NAME</th>
-            <th class="p-2 w-1/6">GENDER</th>
-            <th class="p-2 w-1/6">AGE</th>
-            <th class="p-2 w-1/6">GRADE</th>
-            <th class="p-2 w-1/6">STATUS</th>
+            <th class="p-2 w-1/12">LRN</th>
+            <th class="p-2 w-1/12">NAME</th>
+            <th class="p-2 w-1/12">GENDER</th>
+            <th class="p-2 w-1/12">AGE</th>
+            <th class="p-2 w-1/12">Q1</th>
+            <th class="p-2 w-1/12">Q2</th>
+            <th class="p-2 w-1/12">Q3</th>
+            <th class="p-2 w-1/12">Q4</th>
+            <th class="p-2 w-1/12">FINAL GRADE</th>
+            <th class="p-2 w-1/12">REMARKS</th>
+            <th class="p-2 w-1/12">STATUS</th>
           </tr>
         </thead>
         <tbody class="font-medium text-[15px]">
           <tr v-if="loading">
-            <td colspan="6" class="p-2 text-center">
+            <td colspan="11" class="p-2 text-center">
               <div class="flex justify-center items-center">
                 <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue"></div>
                 <span class="ml-2">Loading...</span>
@@ -29,22 +34,27 @@
             </td>
           </tr>
           <tr v-else-if="paginatedStudents.length === 0">
-            <td colspan="6" class="p-2 text-center">
+            <td colspan="11" class="p-2 text-center">
               {{ error || 'No students available.' }}
             </td>
           </tr>
           <tr v-for="student in paginatedStudents" :key="student.lrn" class="hover:bg-gray-200 cursor-pointer"
             @click="openModal(student)">
-            <td class="p-2 w-1/6">{{ student.lrn }}</td>
-            <td class="p-2 w-1/6">{{ student.lastName + ", " + student.firstName + " " + student.middleName }}</td>
-            <td class="p-2 w-1/6">{{ student.sex }}</td>
-            <td class="p-2 w-1/6">{{ getAge(student.birthDate) }}</td>
-            <td class="p-2 w-1/6">{{ getGradeForQuarter(student) }}</td>
-            <td class="p-2 w-1/6">
+            <td class="p-2 w-1/12">{{ student.lrn }}</td>
+            <td class="p-2 w-1/12">{{ student.lastName + ", " + student.firstName + " " + student.middleName }}</td>
+            <td class="p-2 w-1/12">{{ student.sex }}</td>
+            <td class="p-2 w-1/12">{{ getAge(student.birthDate) }}</td>
+            <td class="p-2 w-1/12">{{ getGradeForQuarter(student, 'first') }}</td>
+            <td class="p-2 w-1/12">{{ getGradeForQuarter(student, 'second') }}</td>
+            <td class="p-2 w-1/12">{{ getGradeForQuarter(student, 'third') }}</td>
+            <td class="p-2 w-1/12">{{ getGradeForQuarter(student, 'fourth') }}</td>
+            <td class="p-2 w-1/12">{{ getFinalGrade(student) }}</td>
+            <td class="p-2 w-1/12" :class="getRemarksClass(student)">{{ getRemarks(student) }}</td>
+            <td class="p-2 w-1/12">
               <span class="px-4 py-2 rounded text-white inline-block w-[135px] font-light text-center"
                 :class="{
                   'bg-[#FF9204]': !student.status || student.status.toLowerCase() === 'pending',
-                  'bg-green-500': student.status?.toLowerCase() === 'accepted',
+                  'bg-green-500': student.status?.toLowerCase() === 'approved',
                   'bg-red-500': student.status?.toLowerCase() === 'declined'
                 }">
                 {{ (student.status || 'pending').charAt(0).toUpperCase() + (student.status || 'pending').slice(1) }}
@@ -188,9 +198,43 @@ const paginatedStudents = computed(() => {
   return filteredStudents.value.slice(startIndex, endIndex);
 });
 
-const getGradeForQuarter = (student) => {
-  const quarterKey = quarterMapping[selectedQuarter.value];
-  return student.grades?.[quarterKey] || '';
+const getGradeForQuarter = (student, quarter) => {
+  const grade = student.grades?.[quarter];
+  if (!grade || grade === null || grade === undefined || grade === '') {
+    return '-';
+  }
+  return grade;
+};
+
+const getFinalGrade = (student) => {
+  const grades = ['first', 'second', 'third', 'fourth'];
+  let total = 0;
+  let gradeCount = 0;
+
+  for (let quarter of grades) {
+    const grade = getGradeForQuarter(student, quarter);
+    if (grade !== '-') {
+      total += parseFloat(grade);
+      gradeCount++;
+    }
+  }
+
+  if (gradeCount < 4) return '-';
+  return (total / gradeCount).toFixed(2);
+};
+
+const getRemarks = (student) => {
+  const finalGrade = getFinalGrade(student);
+  if (finalGrade === '-') return '-';
+  return parseFloat(finalGrade) >= 75 ? 'Passed' : 'Failed';
+};
+
+const getRemarksClass = (student) => {
+  const remarks = getRemarks(student);
+  return {
+    'text-green-500': remarks === 'Passed',
+    'text-red-500': remarks === 'Failed'
+  };
 };
 
 const getAge = (birthDate) => {

@@ -39,7 +39,7 @@
                                 <tbody class="divide-y divide-gray-200">
                                     <tr v-for="(student, index) in students" :key="`${student.student_id}-${student.class_id}-${index}`" class="hover:bg-gray-50">
                                         <td class="px-6 py-4 whitespace-nowrap">{{ student.lrn }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">{{ student.firstName }} {{ student.lastName }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">{{ student.firstName }} {{ student.middleName }} {{ student.lastName }}</td>
                                         <td class="px-6 py-4 text-center">{{ student.grades.first || '-' }}</td>
                                         <td class="px-6 py-4 text-center">{{ student.grades.second || '-' }}</td>
                                         <td class="px-6 py-4 text-center">{{ student.grades.third || '-' }}</td>
@@ -71,8 +71,7 @@
                                 <div class="flex flex-col gap-1">
                                     <div>
                                         <p class="text-blue text-xs font-bold">Student Name</p>
-                                        <p class="text-2xl font-medium">{{ selectedStudent.firstName }} {{
-                                            selectedStudent.lastName }}</p>
+                                        <p class="text-2xl font-medium">{{ selectedStudent.firstName }} {{ selectedStudent.middleName }} {{ selectedStudent.lastName }}</p>
                                     </div>
                                     <div>
                                         <p class="text-blue text-xs font-bold">LRN</p>
@@ -162,7 +161,9 @@
 </template>
 
 <script setup>
-import { ref, computed, watchEffect } from 'vue';
+import { ref, computed, watchEffect, onMounted } from 'vue';
+import { getSubjectGrades } from '@/service/gradeService';
+import Swal from 'sweetalert2';
 
 const props = defineProps({
     subject_id: {
@@ -200,15 +201,44 @@ const props = defineProps({
     }
 });
 
-const students = ref(props.students?.map(student => ({
-    ...student,
-    grades: {
-        first: student.grades?.first || null,
-        second: student.grades?.second || null,
-        third: student.grades?.third || null,
-        fourth: student.grades?.fourth || null
+const students = ref([]);
+const loading = ref(true);
+const error = ref(null);
+
+const fetchStudents = async () => {
+  try {
+    loading.value = true;
+    error.value = null;
+    const response = await getSubjectGrades(props.subject_id);
+    
+    if (response.status === 'success' && response.data) {
+      students.value = response.data.map(student => ({
+        ...student,
+        firstName: student.firstName || '',
+        middleName: student.middleName || '',
+        lastName: student.lastName || '',
+        grades: {
+          first: student.grades?.first || null,
+          second: student.grades?.second || null,
+          third: student.grades?.third || null,
+          fourth: student.grades?.fourth || null
+        }
+      }));
+    } else {
+      throw new Error(response.message || 'Failed to fetch grades');
     }
-})) || []);
+  } catch (error) {
+    console.error('Error fetching grades:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: error.message || 'Failed to fetch grades. Please try again.',
+      confirmButtonColor: '#dc2626'
+    });
+  } finally {
+    loading.value = false;
+  }
+};
 
 const quarterMapping = {
     "1st": "first",
@@ -245,20 +275,33 @@ const calculateAverage = (grades) => {
 };
 
 const getRemarks = (student) => {
-    if (!student.grades) return 'Failed';
+    if (!student.grades) return '-';
     
+    // Check if all quarters have valid grades
+    const allQuartersComplete = ['first', 'second', 'third', 'fourth'].every(quarter => {
+        const grade = student.grades[quarter];
+        return grade && grade !== '-' && grade !== '' && grade !== null;
+    });
+
+    // If any quarter is missing, return '-'
+    if (!allQuartersComplete) {
+        return '-';
+    }
+
     const quarterGrade = calculateAverage(student.grades);
 
-    if (quarterGrade === '-' || quarterGrade === null || quarterGrade === '' || parseFloat(quarterGrade) < 75) {
-        return 'Failed';
+    // Only show Passed/Failed if we have a valid numeric grade
+    if (quarterGrade === '-' || quarterGrade === null || quarterGrade === '' || quarterGrade === 'INC') {
+        return '-';
     }
-    return 'Passed';
+
+    return parseFloat(quarterGrade) >= 75 ? 'Passed' : 'Failed';
 };
 
-watchEffect(() => {
-    if (props.subject_id) {
-        // loadStudents();
-    }
+onMounted(() => {
+  if (props.subject_id) {
+    fetchStudents();
+  }
 });
 
 const quarterGrade = computed(() => {
