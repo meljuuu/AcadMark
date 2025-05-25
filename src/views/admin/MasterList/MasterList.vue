@@ -77,7 +77,7 @@
 
             </div>
         </div>
-        </div>
+    </div>
 </template>
 
 <script>
@@ -139,25 +139,25 @@ export default {
         getStatusBgClass(Status) {
             switch (Status) {
                 case 'Pending':
-                    return 'bg-orange-500';
+                    return 'bg-orange';
                 case 'Declined':
-                    return 'bg-red-600';
+                    return 'bg-red';
                 case 'Accepted':
-                    return 'bg-blue-600';
+                    return 'bg-blue';
                 default:
-                    return 'bg-gray-400';
+                    return 'bg-gray';
             }
         },
         getStatusTextClass(Status) {
             switch (Status) {
                 case 'Pending':
-                    return 'text-orange-500';
+                    return 'text-orange';
                 case 'Declined':
-                    return 'text-red-600';
+                    return 'text-red';
                 case 'Accepted':
-                    return 'text-blue-600';
+                    return 'text-blue';
                 default:
-                    return 'text-gray-700';
+                    return 'text-gray';
             }
         }
     },
