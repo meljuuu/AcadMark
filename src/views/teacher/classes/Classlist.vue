@@ -43,7 +43,7 @@
                   <td class="table-cell">{{ student.birthDate }}</td>
                   <td class="table-cell">{{ calculateAge(student.birthDate) }}</td>
                   <td class="table-cell">{{ student.contactNumber }}</td>
-                  <td class="table-cell">{{ student.address }}</td>
+                  <td class="table-cell">{{ `${student.houseNo} ${student.barangay}, ${student.municipality}, ${student.province}` }}</td>
                 </tr>
               </tbody>
             </table>
