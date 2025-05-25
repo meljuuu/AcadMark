@@ -239,7 +239,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import BarChart from '@/components/barchart.vue';
 import {
   getAdvisoryStats,
@@ -306,7 +306,14 @@ const submittedGradesOptions = ref({
   maintainAspectRatio: false,
   plugins: {
     legend: {
-      display: false,
+      display: true,
+      position: 'top',
+      labels: {
+        font: {
+          size: 14,
+          weight: 'bold'
+        }
+      }
     },
   },
   scales: {
@@ -314,6 +321,12 @@ const submittedGradesOptions = ref({
       grid: {
         display: false,
       },
+      ticks: {
+        font: {
+          size: 14,
+          weight: 'bold'
+        }
+      }
     },
     y: {
       beginAtZero: true,
@@ -321,11 +334,29 @@ const submittedGradesOptions = ref({
         color: 'rgba(0,0,0,0.1)',
         drawBorder: false,
       },
+      ticks: {
+        font: {
+          size: 14,
+          weight: 'bold'
+        }
+      },
+      suggestedMax: Math.max(
+        ...submittedGradesData.value.datasets[0].data,
+        ...submittedGradesData.value.datasets[1].data
+      ) * 1.1
     },
   },
   barPercentage: 0.3,
   categoryPercentage: 0.5,
 });
+
+// Watch for changes in submittedGradesData and update suggestedMax
+watch(submittedGradesData, (newData) => {
+  submittedGradesOptions.value.scales.y.suggestedMax = Math.max(
+    ...newData.datasets[0].data,
+    ...newData.datasets[1].data
+  ) * 1.1;
+}, { deep: true });
 
 const loadAdvisoryStats = async () => {
   try {
@@ -374,21 +405,45 @@ const loadRecentGrades = async () => {
     
     // Generate submitted grades data based on actual status counts
     const statusCounts = response.reduce((acc, curr) => {
-      acc[curr.status] = (acc[curr.status] || 0) + 1;
+      // Initialize counts for both advisory and subject classes
+      if (!acc[curr.status]) {
+        acc[curr.status] = {
+          advisory: 0,
+          subject: 0
+        };
+      }
+      
+      // Increment the appropriate counter based on isAdvisory flag
+      if (curr.isAdvisory) {
+        acc[curr.status].advisory++;
+      } else {
+        acc[curr.status].subject++;
+      }
+      
       return acc;
     }, {});
     
+    // Format data for the bar chart
     submittedGradesData.value = {
       labels: ['APPROVED', 'PENDING', 'DECLINED'],
       datasets: [
         {
           data: [
-            statusCounts.accepted || 0,
-            statusCounts.pending || 0,
-            statusCounts.declined || 0
+            statusCounts.accepted?.advisory || 0,
+            statusCounts.pending?.advisory || 0,
+            statusCounts.declined?.advisory || 0
           ],
           backgroundColor: '#295F98',
           label: 'Advisory Class',
+        },
+        {
+          data: [
+            statusCounts.accepted?.subject || 0,
+            statusCounts.pending?.subject || 0,
+            statusCounts.declined?.subject || 0
+          ],
+          backgroundColor: '#0C5A48',
+          label: 'Subject Class',
         }
       ],
     };
@@ -397,7 +452,7 @@ const loadRecentGrades = async () => {
     recentSubmittedGrades.value = response.slice(0, 8).map(grade => ({
       lrn: grade.student.split(' ')[0], // Assuming first part is LRN
       name: grade.student,
-      classType: 'Subject', // Since these are subject grades
+      classType: grade.isAdvisory ? 'Advisory' : 'Subject',
       status: grade.status.toUpperCase()
     }));
   } catch (error) {

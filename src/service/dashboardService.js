@@ -53,6 +53,7 @@ export const getSubjectClasses = async () => {
   }
 };
 
+
 export const getGradeSummary = async () => {
   try {
     const response = await API.get('/teacher/grade-summary');
