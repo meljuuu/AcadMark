@@ -50,21 +50,30 @@ const router = useRouter();
 const goBack = () => router.back();
 
 function goToInsideCard(subject) {
-  // Save subject to sessionStorage for later use
+  // Log the selected subject ID
+  console.log("Selected subject ID:", subject.subject_id);
+
+  // Save subject to sessionStorage for later use (optional)
   sessionStorage.setItem("selectedSubjectData", JSON.stringify(subject));
 
   // Parse grade and section from className (e.g., "Grade 7 - B")
   const [gradePart, section] = selectedClassData.value.className.split(" - ");
   const grade = gradePart.replace("Grade ", "").trim();
 
+  // Navigate to insideCard with subject_id
   router.push({
     name: "insideCard",
     params: {
       grade,
-      section,
+      section
     },
-  });
+    query: {
+      subject_id: subject.subject_id
+    }
+  });;
 }
+
+
 
 
 const selectedGrade = ref("");

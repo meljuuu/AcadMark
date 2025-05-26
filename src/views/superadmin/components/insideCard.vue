@@ -63,14 +63,14 @@
             <td>{{ student.lastName }}, {{ student.firstName }} {{ student.middleName }}</td>
             <td>{{ student.sex }}</td>
             <td>{{ student.age }}</td>
-            <td>{{ student.grade }}</td>
+            <td>{{ student.subject_grades.Q1 }}</td>
             <td>
               <span :class="{
-                'text-green-600': student.status === 'Approved',
-                'text-red-600': student.status === 'Not Approved',
-                'text-yellow-600': student.status === 'Pending'
+                'text-green-600': student.subject_grades.Status === 'Approved',
+                'text-red-600': student.subject_grades.Status === 'Not Approved',
+                'text-yellow-600': student.subject_grades.Status === 'Pending'
               }">
-                {{ student.status }}
+                {{ student.subject_grades.Status }}
               </span>
             </td>
           </tr>
@@ -78,6 +78,7 @@
         </tbody>
       </table>
       <GradeModal v-if="showModal" :student="selectedStudent" @close="showModal = false" />
+
 
       <div class="button mt-5">
         <button class="red" @click="reject">Reject</button>
@@ -88,46 +89,66 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { ref, computed, watch, onMounted } from "vue";
 import GradeModal from './GradeModal.vue';
 import Swal from 'sweetalert2'
 import dayjs from 'dayjs';
 
+const route = useRoute();
 const students = ref([]);
+const router = useRouter()
+const subjectId = ref(null);
+const filteredStudents = ref([]);
 
 onMounted(() => {
-  const classData = sessionStorage.getItem("selectedClassData");
+  subjectId.value = parseInt(route.query.subject_id);
+  console.log("CLASS ID123321:", subjectId.value);
 
+  const classData = sessionStorage.getItem('selectedClassData');
   if (classData) {
-    const parsedClassData = JSON.parse(classData);
-    console.log("Class Info:", parsedClassData);
+    const parsed = JSON.parse(classData);
+    console.log('Class Info:', parsed);
 
-    if (parsedClassData.students) {
-      // Process students to add age and grade
-      students.value = parsedClassData.students.map((student) => {
-        const age = student.birthDate ? dayjs().diff(dayjs(student.birthDate), 'year') : null;
-        return {
-          ...student,
-          age,
-          grade: parsedClassData.className,
-          status: student.subject_grades?.[0]?.Status ?? 'Pending'
-        };
-      });
-    }
+    filteredStudents.value = parsed.students
+      .map((student) => {
+        const matchingGrade = student.subject_grades.find(
+          (g) => g.subject_id === subjectId.value
+        );
+
+        if (matchingGrade) {
+          // ✅ Calculate age from birthDate
+          const birthDate = new Date(student.birthDate);
+          const today = new Date();
+          let age = today.getFullYear() - birthDate.getFullYear();
+          const m = today.getMonth() - birthDate.getMonth();
+          if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--; // Adjust if birthday hasn't occurred yet this year
+          }
+
+          return {
+            ...student,
+            age, // ✅ Add age field
+            subject_grades: matchingGrade,
+          };
+        }
+
+        return null;
+      })
+      .filter(Boolean); // Remove students without matching grade
   }
 });
 
-const router = useRouter()
 const goBack = () => router.back()
 
 const showModal = ref(false)
 const selectedStudent = ref(null)
 
 const openGradeModal = (student) => {
-  selectedStudent.value = student
-  showModal.value = true
-}
+  console.log('Selected student for modal:', student); // ✅ Optional debug
+  selectedStudent.value = student;
+  showModal.value = true;
+};
 
 const selectedStatus = ref("All");
 const selectedGender = ref("All");
@@ -137,22 +158,6 @@ const searchQuery = ref('');
 const statuses = ["Pending", "Approved", "Not Approved"];
 const genders = ["Male", "Female"];
 const tracks = ["STEM", "ABM", "TVL", "HUMSS"];
-
-
-const filteredStudents = computed(() => {
-  return students.value.filter((student) => {
-    const matchesSearch = `${student.firstName} ${student.lastName}`
-      .toLowerCase()
-      .includes(searchQuery.value.toLowerCase());
-
-    const matchesStatus = selectedStatus.value === 'All' || student.status === selectedStatus.value;
-    const matchesGender = selectedGender.value === 'All' || student.gender === selectedGender.value;
-    const matchesTrack = selectedTrack.value === 'All' || student.track === selectedTrack.value;
-
-    return matchesSearch && matchesStatus && matchesGender && matchesTrack;
-  });
-});
-
 
 const paginatedStudents = computed(() => filteredStudents.value)
 
