@@ -225,6 +225,8 @@
   import { Chart, registerables } from 'chart.js';
   import { getStudentCount, getAcceptedClassesCount, getAcceptedStudentsPerGrade, getSubmissionStatusCounts, getLatestStudents, fetchPendingCount  } from '@/service/adminDashboardService';
   import { getClassesExcludingIncomplete } from '@/service/teacherSubjectsService';
+  import { getSummaryStats, getRecentFaculties } from '@/service/superadminService';
+
   Chart.register(...registerables);
 
   export default {
@@ -243,15 +245,11 @@
         students: [],
         
         // Teacher Data
-        cards: [
-          {
-            label: 'Total Teachers',
-            value: 25,
-            icon: 'fas fa-chalkboard-teacher',
-          },
-          { label: 'Total Students', value: 0, icon: 'fas fa-users' },
-          { label: 'Pending Grades', value: 13, icon: 'fas fa-tasks' },
-        ],
+      cards: [
+        { label: 'Total Teachers', value: 0, icon: 'fas fa-chalkboard-teacher' },
+        { label: 'Total Students', value: 0, icon: 'fas fa-users' },
+        { label: 'Pending Grades', value: 0, icon: 'fas fa-tasks' },
+      ],
         academicProgress: [
           { grade: 'Grade 7', veryGood: 8, good: 12, failed: 5 },
           { grade: 'Grade 8', veryGood: 10, good: 15, failed: 3 },
@@ -265,11 +263,6 @@
             name: 'Alice Johnson',
             email: 'alice.johnson@example.com',
             role: 'Admin',
-          },
-          {
-            name: 'Bob Smith',
-            email: 'bob.smith@example.com',
-            role: 'Faculty',
           },
         ],
         // Admin Data
@@ -330,6 +323,8 @@
     },
     mounted() {
       if (this.selectedDashboard === 'teacher') {
+        this.fetchSummaryStats();
+        this.fetchRecentFaculties();
         this.renderGroupedBarChart();
         this.renderStatusPieChart();
       }
@@ -723,8 +718,46 @@
           },
         });
       },
+
+// Teacher Dashboard
+      async fetchSummaryStats() {
+        try {
+          const response = await getSummaryStats();
+          const stats = response.data;
+
+          this.cards.forEach(card => {
+            if (card.label === 'Total Teachers') {
+              card.value = stats.total_teachers;
+            } else if (card.label === 'Total Students') {
+              card.value = stats.total_students;
+            } else if (card.label === 'Pending Grades') {
+              card.value = stats.pending_grades;
+            }
+          });
+        } catch (error) {
+          console.error('Error loading summary stats:', error);
+        }
+      },
+
+    async fetchRecentFaculties(limit = 5) {
+      try {
+        const result = await getRecentFaculties(limit);
+        this.faculties = result.data.map(teacher => ({
+          name: `${teacher.FirstName} ${teacher.LastName}`,
+          email: teacher.Email,
+          role: teacher.Position,
+        }));
+      } catch (error) {
+        console.error('Error loading recent faculties:', error);
+      }
+    },
+
+      
+
     },
   };
+
+
 </script>
 
 <style scoped>

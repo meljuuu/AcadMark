@@ -18,6 +18,32 @@ export const getClassesWithStudentCount = async () => {
   }
 };
 
+//Dashboard "Teacher" get the Recently Added Faculties
+export const getRecentFaculties = async (limit = 5) => {
+  try {
+    const response = await API.get('/super-admin/recent-faculties', {
+      params: { limit }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("API error:", error);
+    throw error.response ? error.response.data : error;
+  }
+};
+
+
+
+// Dashboard Summary Stats (Teachers, Students, Pending Grades)
+export const getSummaryStats = async () => {
+  try {
+    const response = await API.get("/super-admin/summary-stats");
+    return response.data;
+  } catch (error) {
+    console.error("API error:", error);
+    throw error.response ? error.response.data : error;
+  }
+};
+
 
 // Students Tab
 export const getAllStudentsData = async () => {
