@@ -4,7 +4,10 @@
     <span class="chevron">&lt;</span>
     <span>Back</span>
   </div>
-   
+
+    <div class="flex items-center space-x-6 mb-6 mt-8">
+        <h1 class="text-5xl font-bold text-[#295f98]">Subjects</h1>
+    </div>
     <div class="content mt-3">
       <div class="card-grid mt-9">
           <div
@@ -14,12 +17,8 @@
               @click="goToInsideCard(card)"
           >
             <div class="header">
-              <p>Junior High School</p>
             </div>
-            <div class="grade">Grade {{ card.grade }}</div>
-            <div class="subjects" v-if="card.subjects">
-            {{ card.subjects }}
-            </div>
+            <div class="grade">{{ card.subjects }}</div>
             <div class="teacher" v-if="card.teacher">
                 {{ card.teacher }}
             </div>
@@ -126,7 +125,7 @@ const filteredCards = computed(() => {
 }
 
 .card {
-  width: 208px;
+  width: 250px;
   height: 180px;
   background: white;
   border-radius: 8px;
@@ -142,7 +141,7 @@ const filteredCards = computed(() => {
   font-weight: bold;
   color: #FFFFFF;
   background-color: #295f98;
-  padding: 13px 25px;
+  height: 40px;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
 
@@ -177,9 +176,9 @@ const filteredCards = computed(() => {
 
 .seal {
   position: absolute;
-  bottom: -20px;
-  right: -25px;
-  width: 95px;
+  bottom: -30px;
+  right: -30px;
+  width: 130px;
   height: auto;
   opacity: 0.5;
 }

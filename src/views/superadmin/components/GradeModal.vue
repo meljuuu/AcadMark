@@ -37,7 +37,19 @@
         <h2 class="text-blue-800 font-semibold text-xl mb-4" style="color: #295F98;">GRADING</h2>
         <div class="flex items-center gap-4 mb-6">
             <div>
-                <label class="block text-sm font-semibold mb-1">Quarter Grade</label>
+                <label class="block text-sm font-semibold mb-1">1st Quarter</label>
+                <input type="number" class="border px-2 py-1 w-24" v-model="grade" readonly/>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold mb-1">2nd Quarter</label>
+                <input type="number" class="border px-2 py-1 w-24" v-model="grade" readonly/>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold mb-1">3rd Quarter</label>
+                <input type="number" class="border px-2 py-1 w-24" v-model="grade" readonly/>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold mb-1">4th Quarter</label>
                 <input type="number" class="border px-2 py-1 w-24" v-model="grade" readonly/>
             </div>
             <div>
