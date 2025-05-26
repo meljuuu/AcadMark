@@ -1,10 +1,6 @@
 <template>
-  <div
-    v-if="modelValue"
-    class="fixed inset-0 z-[100] flex items-center justify-center"
-    :style="{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }"
-    @click.self="$emit('update:modelValue', false)"
-  >
+  <div v-if="modelValue" class="fixed inset-0 z-[100] flex items-center justify-center"
+    :style="{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }" @click.self="$emit('update:modelValue', false)">
     <div class="bg-white p-6 rounded-md w-[1000px] shadow-lg max-w-full">
       <form @submit.prevent="handleSubmit" class="space-y-4 p-2">
         <h2 class="text-xl text-[#295f98] font-semibold mb-6">Class Info</h2>
@@ -14,17 +10,22 @@
           <div class="space-y-4">
             <div>
               <h1 class="font-semibold text-[#295f98]">Class Adviser</h1>
-              <p class="text-[1.5rem] text-black-700">Mr. John Doe</p>
+              <p class="text-[1.5rem] text-black-700">{{ props.classInfo.adviser }}</p>
             </div>
             <div>
               <h1 class="font-semibold text-[#295f98]">Curriculum</h1>
-              <p class="text-[1.5rem] text-black-700">STEM, HUMSS</p>
+              <p class="text-[1.5rem] text-black-700">
+                {{
+                props.classInfo.curriculum === 'JHS' ? 'Junior High School' :
+                props.classInfo.curriculum === 'SHS' ? 'Senior High School' :
+                props.classInfo.curriculum
+                }}
+              </p>
             </div>
+
             <div>
               <h1 class="font-semibold text-[#295f98]">Class Section</h1>
-              <p class="text-[1.5rem] text-black-700">
-                Section A, Section B
-              </p>
+              <p class="text-[1.5rem] text-black-700">{{ props.classInfo.section }}</p>
             </div>
           </div>
 
@@ -32,31 +33,30 @@
           <div class="space-y-4">
             <div>
               <h1 class="font-semibold text-[#295f98]">Grade Level</h1>
-              <p class="text-[1.5rem] text-black-700">Grade 11</p>
+              <p class="text-[1.5rem] text-black-700">Grade {{ props.classInfo.grade }}</p>
             </div>
             <div>
               <h1 class="font-semibold text-[#295f98]">Track</h1>
-              <p class="text-[1.5rem] text-black-700"> Academic Track</p>
+              <p class="text-[1.5rem] text-black-700">{{ props.classInfo.track }}</p>
             </div>
             <div>
               <h1 class="font-semibold text-[#295f98]">
                 Recently Added Student
               </h1>
-              <p class="text-[1.5rem] text-black-700">Jane Smith</p>
+              <!-- Replace with actual logic if available -->
+              <p class="text-[1.5rem] text-black-700">{{ props.classInfo.student || 'N/A' }}</p>
             </div>
           </div>
         </div>
 
         <!-- Section Separator -->
         <h2 class="text-xl text-[#295f98] font-semibold mt-4">Comments</h2>
-        <textarea
-          rows="5"
-          placeholder="Enter comments or additional notes here..."
-          class="w-full mt-2 p-3 border border-gray-300 rounded-md shadow-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#295f98]"
-        ></textarea>
+        <textarea v-model="props.classInfo.comments" rows="5" placeholder="Enter comments or additional notes here..."
+          class="w-full mt-2 p-3 border border-gray-300 rounded-md shadow-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#295f98]"></textarea>
+
 
         <!-- Buttons -->
-        <div class="button">
+        <div class="button" v-if="props.classInfo.status === 'Pending'">
           <button type="button" @click="confirmReject" class="red">
             Reject
           </button>
@@ -69,50 +69,106 @@
   </div>
 </template>
 
-<script setup>
-  import { ref, onMounted, watch } from 'vue';
-  import Swal from 'sweetalert2';
-  import 'sweetalert2/dist/sweetalert2.min.css';
 
-  const props = defineProps({
-    modelValue: Boolean,
-  });
+<script setup>
+import { ref, onMounted, watch } from 'vue';
+import Swal from 'sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
+import { acceptClass, rejectClass } from '@/service/studentClassService';
+
+
+const props = defineProps({
+  modelValue: Boolean,
+  classInfo: Object,
+})
+
 
   const emit = defineEmits(['update:modelValue', 'submit']);
+  const comment = ref('');
 
-  function confirmReject() {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'Do you want to reject this class?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#aaa',
-      confirmButtonText: 'Yes, reject it!',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        emit('update:modelValue', false);
-        Swal.fire('Rejected!', 'The class has been rejected.', 'success');
-      }
-    });
+async function confirmReject() {
+  if (!props.classInfo.comments || !props.classInfo.comments.trim()) {
+    Swal.fire('Missing Comment', 'Please provide a comment before rejecting.', 'warning');
+    return;
   }
 
-  function confirmAccept() {
-    Swal.fire({
-      title: 'Confirm Acceptance',
-      text: 'Do you want to accept this class?',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#0c5a48',
-      cancelButtonColor: '#aaa',
-      confirmButtonText: 'Yes, accept it!',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        emit('submit');
-        Swal.fire('Accepted!', 'The class has been accepted.', 'success');
+  Swal.fire({
+    title: 'Are you sure?',
+    text: 'Do you want to reject this class?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#aaa',
+    confirmButtonText: 'Yes, reject it!',
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const payload = {
+          class_id: props.classInfo.class_id,
+          comments: props.classInfo.comments,
+        };
+
+        console.log('Rejecting class with payload:', payload);
+
+        const response = await rejectClass(payload);
+
+        if (!response.error) {
+          emit('submit'); // Notify parent to refresh the list
+          emit('update:modelValue', false); // Close modal
+
+          Swal.fire('Rejected!', 'The class has been rejected.', 'success');
+        } else {
+          Swal.fire('Error', 'Something went wrong while rejecting the class.', 'error');
+        }
+      } catch (error) {
+        console.error('Error during rejectClass API call:', error);
+        Swal.fire('Error', 'An unexpected error occurred.', 'error');
       }
-    });
-  }
+    }
+  });
+}
+
+
+
+async function confirmAccept() {
+  Swal.fire({
+    title: 'Confirm Acceptance',
+    text: 'Do you want to accept this class?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#0c5a48',
+    cancelButtonColor: '#aaa',
+    confirmButtonText: 'Yes, accept it!',
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        console.log('Sending class IDs to accept:', [props.classInfo.class_id]);
+
+        const response = await acceptClass([props.classInfo.class_id]);
+
+        console.log('Response from acceptClass API:', response);
+
+        if (!response.error) {
+          emit('submit'); // notify parent to refresh list
+
+          // Close modal explicitly (optional)
+          emit('update:modelValue', false);
+
+          Swal.fire('Accepted!', 'The class has been accepted.', 'success');
+        } else {
+          Swal.fire('Error', 'Something went wrong while accepting the class.', 'error');
+        }
+      } catch (error) {
+        console.error('Error during acceptClass API call:', error);
+        Swal.fire('Error', 'An unexpected error occurred.', 'error');
+      }
+    }
+    
+  });
+  
+}
+
+
 </script>
 
 <style scoped>

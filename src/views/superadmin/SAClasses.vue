@@ -4,10 +4,7 @@
       <h1 class="text-5xl font-bold text-[#295f98]">Classes</h1>
     </div>
 
-    <div
-      class="bg-white shadow-lg border border-gray-200 rounded-lg p-6 mb-6 flex flex-col"
-      style="height: 865px;"
-    >
+    <div class="bg-white shadow-lg border border-gray-200 rounded-lg p-6 mb-6 flex flex-col" style="height: 865px;">
       <div class="flex flex-wrap justify-between items-center mb-4 gap-4">
         <!-- Filters on the left -->
         <div class="filters flex-wrap">
@@ -18,7 +15,8 @@
 
           <select class="filter-dropdown" v-model="filters.curriculum" @change="handleChange">
             <option value="">Curriculums (All)</option>
-            <option v-for="curriculum in uniqueCurriculums" :key="curriculum" :value="curriculum">{{ curriculum }}</option>
+            <option v-for="curriculum in uniqueCurriculums" :key="curriculum" :value="curriculum">{{ curriculum }}
+            </option>
           </select>
 
           <select class="filter-dropdown" v-model="filters.track" @change="handleChange">
@@ -33,21 +31,11 @@
         </div>
 
         <!-- Search bar on the right -->
-        <div
-          class="search-bar"
-          style="position: relative; min-width: 200px; max-width: 300px; flex-shrink: 0;"
-        >
-          <input
-            type="text"
-            placeholder="Search..."
-            v-model="searchQuery"
-            @input="handleChange"
-            style="padding-left: 30px; width: 100%;"
-          />
-          <i
-            class="fa fa-search"
-            style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #888;"
-          ></i>
+        <div class="search-bar" style="position: relative; min-width: 200px; max-width: 300px; flex-shrink: 0;">
+          <input type="text" placeholder="Search..." v-model="searchQuery" @input="handleChange"
+            style="padding-left: 30px; width: 100%;" />
+          <i class="fa fa-search"
+            style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #888;"></i>
         </div>
       </div>
 
@@ -67,12 +55,8 @@
             </tr>
           </thead>
           <tbody>
-            <tr
-              v-for="personnel in paginatedPersonnel"
-              :key="personnel.section + personnel.adviser"
-              @click="openModal(personnel)"
-              style="cursor: pointer;"
-            >
+            <tr v-for="personnel in paginatedPersonnel" :key="personnel.section + personnel.adviser"
+              @click="openModal(personnel)" style="cursor: pointer;">
               <td class="px-6 py-4 border-b border-gray-300"><input type="checkbox" /></td>
               <td class="px-6 py-4 border-b border-gray-300">{{ personnel.grade }}</td>
               <td class="px-6 py-4 border-b border-gray-300">{{ personnel.curriculum }}</td>
@@ -94,44 +78,30 @@
         <button class="green">Accept</button>
       </div>
 
-      <div
-        class="flex justify-center items-center mt-4 space-x-1 pt-4 border-t border-gray-300"
-      >
+      <div class="flex justify-center items-center mt-4 space-x-1 pt-4 border-t border-gray-300">
         <button
           class="px-3 border border-[#295F98] text-[#295F98] py-1 rounded w-28 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex items-center justify-center gap-1 cursor-pointer"
-          @click="prevPage"
-          :disabled="currentPage === 1"
-        >
+          @click="prevPage" :disabled="currentPage === 1">
           ← Previous
         </button>
 
-        <button
-          v-for="page in totalPages"
-          :key="page"
-          class="py-1 border border-[#295F98] rounded w-10 text-center"
+        <button v-for="page in totalPages" :key="page" class="py-1 border border-[#295F98] rounded w-10 text-center"
           :class="[
             page === currentPage ? 'bg-[#295F98] text-white' : 'text-gray-600',
-          ]"
-          @click="currentPage = page"
-        >
+          ]" @click="currentPage = page">
           {{ page }}
         </button>
 
         <button
           class="px-3 border border-[#295F98] text-[#295F98] py-1 rounded w-28 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex items-center justify-center gap-1 cursor-pointer"
-          @click="nextPage"
-          :disabled="currentPage === totalPages"
-        >
+          @click="nextPage" :disabled="currentPage === totalPages">
           Next →
         </button>
       </div>
     </div>
 
     <!-- Modal uses v-model for visibility -->
-    <ClassInfoModal
-      v-model="isModalOpen"
-      :classInfo="selectedClass"
-    />
+    <ClassInfoModal v-model="isModalOpen" :classInfo="selectedClass" @submit="fetchClasses" />
   </div>
 </template>
 
@@ -177,6 +147,7 @@ export default {
           }
 
           return {
+            class_id: item.Class_ID, // ✅ Add Class_ID here
             grade: item.Grade_Level,
             curriculum: item.Curriculum,
             track: item.Track,
@@ -185,13 +156,12 @@ export default {
             student: item.student_added ?? item.student_classes_count ?? 0,
             date: new Date(item.created_at).toLocaleDateString(),
             status: item.Status,
+            comments: item.comments,
           };
         })
         .filter((item) => {
           const matchesGrade = this.filters.grade ? item.grade === this.filters.grade : true;
-          const matchesCurriculum = this.filters.curriculum
-            ? item.curriculum === this.filters.curriculum
-            : true;
+          const matchesCurriculum = this.filters.curriculum ? item.curriculum === this.filters.curriculum : true;
           const matchesTrack = this.filters.track ? item.track === this.filters.track : true;
           const matchesStatus = this.filters.status ? item.status === this.filters.status : true;
           const matchesSearch = Object.values(item).some((val) =>
@@ -225,6 +195,7 @@ export default {
       try {
         const data = await getClassesExcludingIncomplete();
         this.rawClasses = data;
+        console.log("DATA:!@#", this.rawClasses)
       } catch (error) {
         console.error("Failed to fetch classes:", error);
       }
@@ -240,11 +211,11 @@ export default {
     },
     statusClass(status) {
       switch (status?.toLowerCase()) {
-        case "active":
+        case "accepted":
           return "text-green-600";
         case "pending":
           return "text-orange-600";
-        case "inactive":
+        case "declined":
           return "text-red-600";
         default:
           return "";
@@ -252,6 +223,7 @@ export default {
     },
     openModal(personnel) {
       this.selectedClass = personnel;
+      console.log("DATA:", this.selectedClass)
       this.isModalOpen = true;
     },
   },
