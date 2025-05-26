@@ -27,6 +27,7 @@ import SASettings from './views/superadmin/SASettings.vue';
 
 // Inside the superadmin card
 import insideCard from './views/superadmin/components/insideCard.vue';
+import subjectcards from './views/superadmin/components/subjectcards.vue';
 
 const routes = [
   {
@@ -142,6 +143,12 @@ const routes = [
     path: '/superadmin/settings',
     name: 'superadmin-settings',
     component: SASettings,
+    meta: { requiresAuth: true, requiresSuperAdmin: true },
+  },
+  {
+    path:'/superadmin/subjectcards',
+    name: 'subjectcards',
+    component: subjectcards,
     meta: { requiresAuth: true, requiresSuperAdmin: true },
   },
   {

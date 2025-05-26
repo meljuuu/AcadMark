@@ -1,33 +1,11 @@
 <template>
   <div class="w-full">
-    <div class="flex items-center space-x-6 mb-6">
-      <h1 class="text-5xl font-bold text-[#295f98]">Grades</h1>
-    </div>
+    <div class="back-btn" @click="goBack">
+    <span class="chevron">&lt;</span>
+    <span>Back</span>
+  </div>
    
     <div class="content mt-3">
-      <div class="filtering-section">
-        <select v-model="selectedGrade" class="filter-dropdown">
-          <option value="">Grade Level (All)</option>
-          <option v-for="grade in grades" :key="grade" :value="grade">
-            Grade {{ grade }}
-          </option>
-        </select>
-
-        <select v-model="selectedCurriculum" class="filter-dropdown">
-          <option value="">Curriculum (All)</option>
-          <option v-for="curriculum in curriculums" :key="curriculum" :value="curriculum">
-            {{ curriculum }}
-          </option>
-        </select>
-
-        <select v-model="selectedTrack" class="filter-dropdown">
-          <option value="">Track (All)</option>
-          <option v-for="track in tracks" :key="track" :value="track">
-            {{ track }}
-          </option>
-        </select>
-      </div>
-
       <div class="card-grid mt-9">
           <div
               class="card cursor-pointer hover:shadow-lg transition"
@@ -39,8 +17,11 @@
               <p>Junior High School</p>
             </div>
             <div class="grade">Grade {{ card.grade }}</div>
-            <div class="section" v-if="card.section && card.curriculum">
-              {{ card.section }} - {{ card.curriculum }}
+            <div class="subjects" v-if="card.subjects">
+            {{ card.subjects }}
+            </div>
+            <div class="teacher" v-if="card.teacher">
+                {{ card.teacher }}
             </div>
             <div class="seal">
               <img src="/assets/img/logo.png" alt="">
@@ -57,10 +38,11 @@ import { ref, computed } from "vue";
 import { useRouter } from 'vue-router';
 
 const router = useRouter()
+const goBack = () => router.back()
 
 function goToInsideCard(card) {
   router.push({
-    name: 'subjectcards',
+    name: 'insideCard',
     params: {
       grade: card.grade,
       section: card.section
@@ -77,30 +59,13 @@ const curriculums = ["BEC", "K-12", "SPED"];
 const tracks = ["STEM", "ABM", "TVL", "HUMSS"];
 
 const cards = ref([
-  // Grade 7
-  { grade: 7, section: "Einstein", curriculum: "BEC", track: "STEM" },
-  { grade: 7, section: "Einstein", curriculum: "K-12", track: "ABM" },
-  { grade: 7, section: "Newton", curriculum: "SPED", track: "TVL" },
-  { grade: 7, section: "Einstein", curriculum: "K-12", track: "STEM" },
-  { grade: 7, section: "Einstein", curriculum: "BEC", track: "HUMSS" },
-  { grade: 7, section: "Einstein", curriculum: "SPED", track: "TVL" },
-
-  // Grade 8
-  { grade: 8, section: "Einstein", curriculum: "K-12", track: "STEM" },
-  { grade: 8, section: "Einstein", curriculum: "BEC", track: "ABM" },
-  { grade: 8, section: "Einstein", curriculum: "SPED", track: "TVL" },
-  { grade: 8, section: "Einstein", curriculum: "K-12", track: "HUMSS" },
-  { grade: 8, section: "Einstein", curriculum: "BEC", track: "STEM" },
-  { grade: 8, section: "Einstein", curriculum: "SPED", track: "TVL" },
-
-  // Grade 9
-  { grade: 9, section: "Einstein", curriculum: "K-12", track: "ABM" },
-  { grade: 9, section: "Einstein", curriculum: "BEC", track: "TVL" },
-  { grade: 9, section: "Einstein", curriculum: "SPED", track: "HUMSS" },
-  { grade: 9, section: "Einstein", curriculum: "K-12", track: "STEM" },
-  { grade: 9, section: "Einstein", curriculum: "BEC", track: "HUMSS" },
-  { grade: 9, section: "Einstein", curriculum: "SPED", track: "ABM" },
+  { grade: 7, subjects: "Math", curriculum: "BEC", track: "STEM", teacher: "Mr. Cruz" },
+  { grade: 7, subjects: "English", curriculum: "K-12", track: "ABM", teacher: "Ms. Santos" },
+  { grade: 8, subjects: "Biology", curriculum: "SPED", track: "TVL", teacher: "Mr. Reyes" },
+  { grade: 9, subjects: "Chemistry", curriculum: "BEC", track: "HUMSS", teacher: "Mrs. Gomez" },
+  { grade: 10, subjects: "Physics", curriculum: "K-12", track: "STEM", teacher: "Ms. Dela Cruz" },
 ]);
+
 
 const filteredCards = computed(() => {
   return cards.value.filter(card => {
@@ -187,7 +152,8 @@ const filteredCards = computed(() => {
 }
 
 .grade,
-.section {
+.subjects,
+.teacher {
     text-align: start;
     padding-left: 10px;
     color: #295F98;
@@ -199,8 +165,13 @@ const filteredCards = computed(() => {
   font-weight: 500;
 }
 
-.section {
-  font-size: 16px;
+.teacher {
+  font-size: 15px;
+  padding-left: 16px;
+}
+
+.subjects {
+  font-size: 23px;
   padding-left: 16px;
 }
 
@@ -211,5 +182,24 @@ const filteredCards = computed(() => {
   width: 95px;
   height: auto;
   opacity: 0.5;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 24px;
+    color: #333;
+    transition: color 0.2s;
+    font-weight: 600;
+}
+
+span:hover {
+    text-decoration: underline;
+}
+
+.chevron {
+    font-size: 25px;
 }
 </style>

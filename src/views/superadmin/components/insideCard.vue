@@ -176,6 +176,169 @@ const students = ref([
     grade: 10,
     status: 'Pending',
   },
+    {
+    lrn: '112233445566',
+    firstName: 'Pedro',
+    lastName: 'Garcia',
+    gender: 'Male',
+    age: 16,
+    grade: 10,
+    status: 'Pending',
+  },
+    {
+    lrn: '112233445566',
+    firstName: 'Pedro',
+    lastName: 'Garcia',
+    gender: 'Male',
+    age: 16,
+    grade: 10,
+    status: 'Pending',
+  },
+    {
+    lrn: '112233445566',
+    firstName: 'Pedro',
+    lastName: 'Garcia',
+    gender: 'Male',
+    age: 16,
+    grade: 10,
+    status: 'Pending',
+  },
+    {
+    lrn: '112233445566',
+    firstName: 'Pedro',
+    lastName: 'Garcia',
+    gender: 'Male',
+    age: 16,
+    grade: 10,
+    status: 'Pending',
+  },
+    {
+    lrn: '112233445566',
+    firstName: 'Pedro',
+    lastName: 'Garcia',
+    gender: 'Male',
+    age: 16,
+    grade: 10,
+    status: 'Pending',
+  },
+    {
+    lrn: '112233445566',
+    firstName: 'Pedro',
+    lastName: 'Garcia',
+    gender: 'Male',
+    age: 16,
+    grade: 10,
+    status: 'Pending',
+  },
+    {
+    lrn: '112233445566',
+    firstName: 'Pedro',
+    lastName: 'Garcia',
+    gender: 'Male',
+    age: 16,
+    grade: 10,
+    status: 'Pending',
+  },
+    {
+    lrn: '112233445566',
+    firstName: 'Pedro',
+    lastName: 'Garcia',
+    gender: 'Male',
+    age: 16,
+    grade: 10,
+    status: 'Pending',
+  },
+    {
+    lrn: '112233445566',
+    firstName: 'Pedro',
+    lastName: 'Garcia',
+    gender: 'Male',
+    age: 16,
+    grade: 10,
+    status: 'Pending',
+  },
+    {
+    lrn: '112233445566',
+    firstName: 'Pedro',
+    lastName: 'Garcia',
+    gender: 'Male',
+    age: 16,
+    grade: 10,
+    status: 'Pending',
+  },
+    {
+    lrn: '112233445566',
+    firstName: 'Pedro',
+    lastName: 'Garcia',
+    gender: 'Male',
+    age: 16,
+    grade: 10,
+    status: 'Pending',
+  },
+    {
+    lrn: '112233445566',
+    firstName: 'Pedro',
+    lastName: 'Garcia',
+    gender: 'Male',
+    age: 16,
+    grade: 10,
+    status: 'Pending',
+  },
+    {
+    lrn: '112233445566',
+    firstName: 'Pedro',
+    lastName: 'Garcia',
+    gender: 'Male',
+    age: 16,
+    grade: 10,
+    status: 'Pending',
+  },
+    {
+    lrn: '112233445566',
+    firstName: 'Pedro',
+    lastName: 'Garcia',
+    gender: 'Male',
+    age: 16,
+    grade: 10,
+    status: 'Pending',
+  },
+  {
+    lrn: '112233445566',
+    firstName: 'Pedro',
+    lastName: 'Garcia',
+    gender: 'Male',
+    age: 16,
+    grade: 10,
+    status: 'Pending',
+  },
+  {
+    lrn: '112233445566',
+    firstName: 'Pedro',
+    lastName: 'Garcia',
+    gender: 'Male',
+    age: 16,
+    grade: 10,
+    status: 'Pending',
+  },
+  {
+    lrn: '112233445566',
+    firstName: 'Pedro',
+    lastName: 'Garcia',
+    gender: 'Male',
+    age: 16,
+    grade: 10,
+    status: 'Pending',
+  },
+  {
+    lrn: '112233445566',
+    firstName: 'Pedro',
+    lastName: 'Garcia',
+    gender: 'Male',
+    age: 16,
+    grade: 10,
+    status: 'Pending',
+  },
+  
   // add more students as needed
 ])
 
@@ -299,16 +462,6 @@ span:hover {
     font-size: 25px;
 }
 
-.container {
-    background-color: #ffffff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border: 2px solid #EEEEEE;
-    padding: 30px 20px;
-    border-radius: 5px;
-    width: 100%;          /* Makes it wider but still responsive */
-    max-width: 3400px;   /* Optional: limits width on large screens */
-}
-
 .head {
     display: flex;
 }
@@ -327,14 +480,35 @@ span:hover {
     width: 100%;
   }
 
+.container {
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 2px solid #EEEEEE;
+  padding: 30px 20px;
+  border-radius: 5px;
+  width: 100%;
+  max-width: 3400px;
+  overflow: hidden; 
+  max-height: none;
+}
+
 .table-container {
-  overflow-x: auto;
+  max-height: none;
+  width: 100%;
+  overflow-x: auto; 
+}
+
+th {
+  top: 0;
+  background-color: #f4f4f4;
+  z-index: 1;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
+  min-width: 800px; 
 }
 
 tr {
@@ -352,16 +526,20 @@ td {
   text-align: center;
 }
 
-th {
-  background-color: #f4f4f4;
-}
 
 .button {
     width: 100%;
     display: flex;
     justify-content: end;
     gap: 15px;
+    position: sticky;
+    top: 0; /* ← Required */
+    z-index: 10; /* ← To stay on top of others */
+    background-color: white; /* ← Optional: prevents overlap */
+    padding: 10px; /* Optional spacing */
 }
+
+
 .red,
 .green {
     padding: 5px 30px;
