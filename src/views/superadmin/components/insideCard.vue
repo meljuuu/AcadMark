@@ -5,113 +5,118 @@
   </div>
 
   <div class="container mt-8">
-        <div class="head">
-          <div class="filtering-section">
-          <select v-model="selectedStatus" class="filter-dropdown">
-            <option value="All">Status (All)</option>
-            <option v-for="status in statuses" :key="status" :value="status">
-              {{ status }}
-            </option>
-          </select>
+    <div class="head">
+      <div class="filtering-section">
+        <select v-model="selectedStatus" class="filter-dropdown">
+          <option value="All">Status (All)</option>
+          <option v-for="status in statuses" :key="status" :value="status">
+            {{ status }}
+          </option>
+        </select>
 
-          <select v-model="selectedGender" class="filter-dropdown">
-            <option value="All">Gender (All)</option>
-            <option v-for="gender in genders" :key="gender" :value="gender">
-              {{ gender }}
-            </option>
-          </select>
+        <select v-model="selectedGender" class="filter-dropdown">
+          <option value="All">Gender (All)</option>
+          <option v-for="gender in genders" :key="gender" :value="gender">
+            {{ gender }}
+          </option>
+        </select>
 
-          <select v-model="selectedTrack" class="filter-dropdown">
-            <option value="All">Track (All)</option>
-            <option v-for="track in tracks" :key="track" :value="track">
-              {{ track }}
-            </option>
-          </select>
+        <select v-model="selectedTrack" class="filter-dropdown">
+          <option value="All">Track (All)</option>
+          <option v-for="track in tracks" :key="track" :value="track">
+            {{ track }}
+          </option>
+        </select>
+      </div>
+
+      <div class="search-bar p-4">
+        <div class="relative w-[320px]">
+          <input v-model="searchQuery" type="text" placeholder="Search..."
+            class="border border-[#295f98] rounded pl-10 pr-4 py-3 w-full" />
         </div>
-
-        <div class="search-bar p-4">
-          <div class="relative w-[320px]">
-            <input
-              v-model="searchQuery"
-              type="text"
-              placeholder="Search..."
-              class="border border-[#295f98] rounded pl-10 pr-4 py-3 w-full"
-            />
-          </div>
-        </div>
+      </div>
 
     </div>
 
     <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                <th>
-                    <input
-                    type="checkbox"
-                    :checked="allSelected"
-                    @change="toggleSelectAll"
-                    />
-                </th>
-                <th>LRN</th>
-                <th>NAME</th>
-                <th>GENDER</th>
-                <th>AGE</th>
-                <th>GRADE</th>
-                <th>STATUS</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="student in paginatedStudents"
-                    :key="student.lrn"
-                    @click="openGradeModal(student)"
-                    class="cursor-pointer hover:bg-gray-100">
-                <td>
-                    <input
-                    type="checkbox"
-                    :value="student.lrn"
-                    v-model="selectedStudents"
-                    @click.stop
-                    />
-                </td>
-                <td>{{ student.lrn }}</td>
-                <td>{{ student.lastName }}, {{ student.firstName }}</td>
-                <td>{{ student.gender }}</td>
-                <td>{{ student.age }}</td>
-                <td>Grade {{ student.grade }}</td>
-                <td>
-                    <span
-                    :class="{
-                        'text-green-600': student.status === 'Approved',
-                        'text-red-600': student.status === 'Not Approved',
-                        'text-yellow-600': student.status === 'Pending'
-                    }"
-                    >
-                    {{ student.status }}
-                    </span>
-                </td>
-                </tr>
-            </tbody>
-        </table>
-        <GradeModal
-          v-if="showModal"
-          :student="selectedStudent"
-          @close="showModal = false"
-        />
+      <table>
+        <thead>
+          <tr>
+            <th>
+              <input type="checkbox" :checked="allSelected" @change="toggleSelectAll" />
+            </th>
+            <th>LRN</th>
+            <th>NAME</th>
+            <th>GENDER</th>
+            <th>AGE</th>
+            <th>GRADE</th>
+            <th>STATUS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="student in paginatedStudents" :key="student.lrn" @click="openGradeModal(student)"
+            class="cursor-pointer hover:bg-gray-100">
+            <td>
+              <input type="checkbox" :value="student.lrn" v-model="selectedStudents" @click.stop />
+            </td>
+            <td>{{ student.lrn }}</td>
+            <td>{{ student.lastName }}, {{ student.firstName }} {{ student.middleName }}</td>
+            <td>{{ student.sex }}</td>
+            <td>{{ student.age }}</td>
+            <td>{{ student.grade }}</td>
+            <td>
+              <span :class="{
+                'text-green-600': student.status === 'Approved',
+                'text-red-600': student.status === 'Not Approved',
+                'text-yellow-600': student.status === 'Pending'
+              }">
+                {{ student.status }}
+              </span>
+            </td>
+          </tr>
 
-        <div class="button mt-5">
-            <button class="red" @click="reject">Reject</button>
-            <button class="green" @click="acceptAlert">Accept</button>
-        </div>
+        </tbody>
+      </table>
+      <GradeModal v-if="showModal" :student="selectedStudent" @close="showModal = false" />
+
+      <div class="button mt-5">
+        <button class="red" @click="reject">Reject</button>
+        <button class="green" @click="acceptAlert">Accept</button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { useRouter } from 'vue-router'
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import GradeModal from './GradeModal.vue';
 import Swal from 'sweetalert2'
+import dayjs from 'dayjs';
+
+const students = ref([]);
+
+onMounted(() => {
+  const classData = sessionStorage.getItem("selectedClassData");
+
+  if (classData) {
+    const parsedClassData = JSON.parse(classData);
+    console.log("Class Info:", parsedClassData);
+
+    if (parsedClassData.students) {
+      // Process students to add age and grade
+      students.value = parsedClassData.students.map((student) => {
+        const age = student.birthDate ? dayjs().diff(dayjs(student.birthDate), 'year') : null;
+        return {
+          ...student,
+          age,
+          grade: parsedClassData.className,
+          status: student.subject_grades?.[0]?.Status ?? 'Pending'
+        };
+      });
+    }
+  }
+});
 
 const router = useRouter()
 const goBack = () => router.back()
@@ -148,199 +153,6 @@ const filteredStudents = computed(() => {
   });
 });
 
-const students = ref([
-  {
-    lrn: '123456789012',
-    firstName: 'Juan',
-    lastName: 'Dela Cruz',
-    gender: 'Male',
-    age: 15,
-    grade: 9,
-    status: 'Approved',
-  },
-  {
-    lrn: '987654321098',
-    firstName: 'Maria',
-    lastName: 'Santos',
-    gender: 'Female',
-    age: 14,
-    grade: 8,
-    status: 'Not Approved',
-  },
-  {
-    lrn: '112233445566',
-    firstName: 'Pedro',
-    lastName: 'Garcia',
-    gender: 'Male',
-    age: 16,
-    grade: 10,
-    status: 'Pending',
-  },
-    {
-    lrn: '112233445566',
-    firstName: 'Pedro',
-    lastName: 'Garcia',
-    gender: 'Male',
-    age: 16,
-    grade: 10,
-    status: 'Pending',
-  },
-    {
-    lrn: '112233445566',
-    firstName: 'Pedro',
-    lastName: 'Garcia',
-    gender: 'Male',
-    age: 16,
-    grade: 10,
-    status: 'Pending',
-  },
-    {
-    lrn: '112233445566',
-    firstName: 'Pedro',
-    lastName: 'Garcia',
-    gender: 'Male',
-    age: 16,
-    grade: 10,
-    status: 'Pending',
-  },
-    {
-    lrn: '112233445566',
-    firstName: 'Pedro',
-    lastName: 'Garcia',
-    gender: 'Male',
-    age: 16,
-    grade: 10,
-    status: 'Pending',
-  },
-    {
-    lrn: '112233445566',
-    firstName: 'Pedro',
-    lastName: 'Garcia',
-    gender: 'Male',
-    age: 16,
-    grade: 10,
-    status: 'Pending',
-  },
-    {
-    lrn: '112233445566',
-    firstName: 'Pedro',
-    lastName: 'Garcia',
-    gender: 'Male',
-    age: 16,
-    grade: 10,
-    status: 'Pending',
-  },
-    {
-    lrn: '112233445566',
-    firstName: 'Pedro',
-    lastName: 'Garcia',
-    gender: 'Male',
-    age: 16,
-    grade: 10,
-    status: 'Pending',
-  },
-    {
-    lrn: '112233445566',
-    firstName: 'Pedro',
-    lastName: 'Garcia',
-    gender: 'Male',
-    age: 16,
-    grade: 10,
-    status: 'Pending',
-  },
-    {
-    lrn: '112233445566',
-    firstName: 'Pedro',
-    lastName: 'Garcia',
-    gender: 'Male',
-    age: 16,
-    grade: 10,
-    status: 'Pending',
-  },
-    {
-    lrn: '112233445566',
-    firstName: 'Pedro',
-    lastName: 'Garcia',
-    gender: 'Male',
-    age: 16,
-    grade: 10,
-    status: 'Pending',
-  },
-    {
-    lrn: '112233445566',
-    firstName: 'Pedro',
-    lastName: 'Garcia',
-    gender: 'Male',
-    age: 16,
-    grade: 10,
-    status: 'Pending',
-  },
-    {
-    lrn: '112233445566',
-    firstName: 'Pedro',
-    lastName: 'Garcia',
-    gender: 'Male',
-    age: 16,
-    grade: 10,
-    status: 'Pending',
-  },
-    {
-    lrn: '112233445566',
-    firstName: 'Pedro',
-    lastName: 'Garcia',
-    gender: 'Male',
-    age: 16,
-    grade: 10,
-    status: 'Pending',
-  },
-    {
-    lrn: '112233445566',
-    firstName: 'Pedro',
-    lastName: 'Garcia',
-    gender: 'Male',
-    age: 16,
-    grade: 10,
-    status: 'Pending',
-  },
-  {
-    lrn: '112233445566',
-    firstName: 'Pedro',
-    lastName: 'Garcia',
-    gender: 'Male',
-    age: 16,
-    grade: 10,
-    status: 'Pending',
-  },
-  {
-    lrn: '112233445566',
-    firstName: 'Pedro',
-    lastName: 'Garcia',
-    gender: 'Male',
-    age: 16,
-    grade: 10,
-    status: 'Pending',
-  },
-  {
-    lrn: '112233445566',
-    firstName: 'Pedro',
-    lastName: 'Garcia',
-    gender: 'Male',
-    age: 16,
-    grade: 10,
-    status: 'Pending',
-  },
-  {
-    lrn: '112233445566',
-    firstName: 'Pedro',
-    lastName: 'Garcia',
-    gender: 'Male',
-    age: 16,
-    grade: 10,
-    status: 'Pending',
-  },
-  
-  // add more students as needed
-])
 
 const paginatedStudents = computed(() => filteredStudents.value)
 

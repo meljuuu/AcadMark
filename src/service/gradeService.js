@@ -140,3 +140,18 @@ export const updateGradeStatus = async (gradeId, status) => {
     throw error.response ? error.response.data : error;
   }
 };
+
+export const getAllData = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await API.get('/superadmin/grading', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('API error:', error);
+    throw error.response ? error.response.data : error;
+  }
+};

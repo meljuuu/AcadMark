@@ -3,7 +3,7 @@
     <div class="flex items-center space-x-6 mb-6">
       <h1 class="text-5xl font-bold text-[#295f98]">Grades</h1>
     </div>
-   
+
     <div class="content mt-3 mb-6">
       <div class="filtering-section">
         <select v-model="selectedGrade" class="filter-dropdown">
@@ -28,79 +28,101 @@
         </select>
       </div>
 
+      <!-- CARD -->
       <div class="card-grid mt-9">
-          <div
-              class="card cursor-pointer hover:shadow-lg transition"
-              v-for="(card, index) in filteredCards"
-              :key="index"
-              @click="goToInsideCard(card)"
-          >
-            <div class="header">
-              <p>Junior High School</p>
-            </div>
-            <div class="grade">Grade {{ card.grade }}</div>
-            <div class="section" v-if="card.section && card.curriculum">
-              {{ card.section }} - {{ card.curriculum }}
-            </div>
-            <div class="seal">
-              <img src="/assets/img/logo.png" alt="">
+        <div class="card cursor-pointer hover:shadow-lg transition" v-for="(card, index) in filteredCards" :key="index"
+          @click="goToInsideCard(card)">
+          <div class="header">
+            <p>Junior High School</p>
+          </div>
+          <div class="grade">Grade {{ card.grade }}</div>
+          <div class="section" v-if="card.section && card.curriculum">
+            {{ card.section }} - {{ card.curriculum }}
+          </div>
+          <div class="seal">
+            <img src="/assets/img/logo.png" alt="">
           </div>
         </div>
       </div>
+
+
     </div>
   </div>
 </template>
 
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter } from 'vue-router';
+import { getAllData } from '@/service/gradeService';
 
-const router = useRouter()
+const router = useRouter();
+
+
+const allClasses = ref([]);
+const selectedClassData = ref(null);
+
+onMounted(async () => {
+  try {
+    const response = await getAllData();
+
+    console.log("DATA:", response);
+
+    if (response.status === 'success') {
+      allClasses.value = response.data;
+
+      // Map the data into the structure expected by the UI
+      cards.value = response.data.map(item => {
+        const [grade, section] = item.className.split(' - ');
+        return {
+          grade: Number(grade.replace('Grade ', '').trim()), // Convert "Grade 7" to 7
+          section: section?.trim(),
+          curriculum: item.curriculum,
+          track: item.track,
+          class_id: item.class_id
+        };
+      });
+
+      console.log("Mapped Cards:", cards.value);
+    }
+  } catch (err) {
+    console.error('Failed to fetch data:', err);
+  }
+});
 
 function goToInsideCard(card) {
+  const selected = allClasses.value.find(c => c.class_id === card.class_id);
+
+  console.log("Selected class data to pass:", selected);
+  console.log("Route params to pass:", {
+    grade: card.grade,
+    section: card.section
+  });
+
+  // Store selected class data temporarily
+  sessionStorage.setItem('selectedClassData', JSON.stringify(selected));
+
   router.push({
     name: 'subjectcards',
     params: {
       grade: card.grade,
       section: card.section
     }
-  })
+  });
 }
+
 
 const selectedGrade = ref("");
 const selectedCurriculum = ref("");
 const selectedTrack = ref("");
 
+// Static options for filters
 const grades = [7, 8, 9, 10, 11, 12];
 const curriculums = ["BEC", "K-12", "SPED"];
 const tracks = ["STEM", "ABM", "TVL", "HUMSS"];
 
-const cards = ref([
-  // Grade 7
-  { grade: 7, section: "Einstein", curriculum: "BEC", track: "STEM" },
-  { grade: 7, section: "Einstein", curriculum: "K-12", track: "ABM" },
-  { grade: 7, section: "Newton", curriculum: "SPED", track: "TVL" },
-  { grade: 7, section: "Einstein", curriculum: "K-12", track: "STEM" },
-  { grade: 7, section: "Einstein", curriculum: "BEC", track: "HUMSS" },
-  { grade: 7, section: "Einstein", curriculum: "SPED", track: "TVL" },
-
-  // Grade 8
-  { grade: 8, section: "Einstein", curriculum: "K-12", track: "STEM" },
-  { grade: 8, section: "Einstein", curriculum: "BEC", track: "ABM" },
-  { grade: 8, section: "Einstein", curriculum: "SPED", track: "TVL" },
-  { grade: 8, section: "Einstein", curriculum: "K-12", track: "HUMSS" },
-  { grade: 8, section: "Einstein", curriculum: "BEC", track: "STEM" },
-  { grade: 8, section: "Einstein", curriculum: "SPED", track: "TVL" },
-
-  // Grade 9
-  { grade: 9, section: "Einstein", curriculum: "K-12", track: "ABM" },
-  { grade: 9, section: "Einstein", curriculum: "BEC", track: "TVL" },
-  { grade: 9, section: "Einstein", curriculum: "SPED", track: "HUMSS" },
-  { grade: 9, section: "Einstein", curriculum: "K-12", track: "STEM" },
-  { grade: 9, section: "Einstein", curriculum: "BEC", track: "HUMSS" },
-  { grade: 9, section: "Einstein", curriculum: "SPED", track: "ABM" },
-]);
+// Placeholder for dynamic card data (to be filled via backend/API)
+const cards = ref([]); // ← Add your backend-fetched data here
 
 const filteredCards = computed(() => {
   return cards.value.filter(card => {
@@ -111,6 +133,7 @@ const filteredCards = computed(() => {
   });
 });
 </script>
+
 
 <style scoped>
 .content {
@@ -181,9 +204,6 @@ const filteredCards = computed(() => {
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
 
-  p {
-    opacity: 0.7;
-  }
 }
 
 .grade,

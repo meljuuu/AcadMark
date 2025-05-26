@@ -1,53 +1,71 @@
 <template>
   <div class="w-full">
     <div class="back-btn" @click="goBack">
-    <span class="chevron">&lt;</span>
-    <span>Back</span>
-  </div>
+      <span class="chevron">&lt;</span>
+      <span>Back</span>
+    </div>
 
     <div class="flex items-center space-x-6 mb-6 mt-8">
-        <h1 class="text-5xl font-bold text-[#295f98]">Subjects</h1>
+      <h1 class="text-5xl font-bold text-[#295f98]">Subjects</h1>
     </div>
     <div class="content mt-3">
+
+      <!-- CARD -->
       <div class="card-grid mt-9">
-          <div
-              class="card cursor-pointer hover:shadow-lg transition"
-              v-for="(card, index) in filteredCards"
-              :key="index"
-              @click="goToInsideCard(card)"
-          >
-            <div class="header">
-            </div>
-            <div class="grade">{{ card.subjects }}</div>
-            <div class="teacher" v-if="card.teacher">
-                {{ card.teacher }}
-            </div>
-            <div class="seal">
-              <img src="/assets/img/logo.png" alt="">
+        <div class="card cursor-pointer hover:shadow-lg transition"
+          v-for="(subject, index) in selectedClassData.subjects" :key="index" @click="goToInsideCard(subject)">
+          <div class="header"></div>
+          <div class="grade">{{ subject.subjectName }}</div>
+          <div class="teacher" v-if="subject.teacherName">{{ subject.teacherName }}</div>
+          <div class="seal">
+            <img src="/assets/img/logo.png" alt="" />
           </div>
         </div>
       </div>
+
+
+
     </div>
   </div>
 </template>
 
 
 <script setup>
-import { ref, computed } from "vue";
-import { useRouter } from 'vue-router';
+import { ref, onMounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
 
-const router = useRouter()
-const goBack = () => router.back()
+const selectedClassData = ref({ subjects: [] });
 
-function goToInsideCard(card) {
+onMounted(() => {
+  const stored = sessionStorage.getItem("selectedClassData");
+  if (stored) {
+    selectedClassData.value = JSON.parse(stored);
+    console.log("Received class data:", selectedClassData.value);
+  } else {
+    console.log("No class data found in sessionStorage");
+  }
+});
+
+const router = useRouter();
+const goBack = () => router.back();
+
+function goToInsideCard(subject) {
+  // Save subject to sessionStorage for later use
+  sessionStorage.setItem("selectedSubjectData", JSON.stringify(subject));
+
+  // Parse grade and section from className (e.g., "Grade 7 - B")
+  const [gradePart, section] = selectedClassData.value.className.split(" - ");
+  const grade = gradePart.replace("Grade ", "").trim();
+
   router.push({
-    name: 'insideCard',
+    name: "insideCard",
     params: {
-      grade: card.grade,
-      section: card.section
-    }
-  })
+      grade,
+      section,
+    },
+  });
 }
+
 
 const selectedGrade = ref("");
 const selectedCurriculum = ref("");
@@ -57,23 +75,23 @@ const grades = [7, 8, 9, 10, 11, 12];
 const curriculums = ["BEC", "K-12", "SPED"];
 const tracks = ["STEM", "ABM", "TVL", "HUMSS"];
 
-const cards = ref([
-  { grade: 7, subjects: "Math", curriculum: "BEC", track: "STEM", teacher: "Mr. Cruz" },
-  { grade: 7, subjects: "English", curriculum: "K-12", track: "ABM", teacher: "Ms. Santos" },
-  { grade: 8, subjects: "Biology", curriculum: "SPED", track: "TVL", teacher: "Mr. Reyes" },
-  { grade: 9, subjects: "Chemistry", curriculum: "BEC", track: "HUMSS", teacher: "Mrs. Gomez" },
-  { grade: 10, subjects: "Physics", curriculum: "K-12", track: "STEM", teacher: "Ms. Dela Cruz" },
-]);
+// const cards = ref([
+//   { grade: 7, subjects: "Math", curriculum: "BEC", track: "STEM", teacher: "Mr. Cruz" },
+//   { grade: 7, subjects: "English", curriculum: "K-12", track: "ABM", teacher: "Ms. Santos" },
+//   { grade: 8, subjects: "Biology", curriculum: "SPED", track: "TVL", teacher: "Mr. Reyes" },
+//   { grade: 9, subjects: "Chemistry", curriculum: "BEC", track: "HUMSS", teacher: "Mrs. Gomez" },
+//   { grade: 10, subjects: "Physics", curriculum: "K-12", track: "STEM", teacher: "Ms. Dela Cruz" },
+// ]);
 
 
-const filteredCards = computed(() => {
-  return cards.value.filter(card => {
-    const matchGrade = !selectedGrade.value || card.grade === Number(selectedGrade.value);
-    const matchCurriculum = !selectedCurriculum.value || card.curriculum === selectedCurriculum.value;
-    const matchTrack = !selectedTrack.value || card.track === selectedTrack.value;
-    return matchGrade && matchCurriculum && matchTrack;
-  });
-});
+// const filteredCards = computed(() => {
+//   return cards.value.filter(card => {
+//     const matchGrade = !selectedGrade.value || card.grade === Number(selectedGrade.value);
+//     const matchCurriculum = !selectedCurriculum.value || card.curriculum === selectedCurriculum.value;
+//     const matchTrack = !selectedTrack.value || card.track === selectedTrack.value;
+//     return matchGrade && matchCurriculum && matchTrack;
+//   });
+// });
 </script>
 
 <style scoped>
@@ -145,9 +163,7 @@ const filteredCards = computed(() => {
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
 
-  p {
-    opacity: 0.7;
-  }
+
 }
 
 .grade,
