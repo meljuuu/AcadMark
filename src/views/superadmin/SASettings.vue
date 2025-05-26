@@ -1,10 +1,8 @@
 <template>
   <div class="w-full">
-    <div class="flex items-center space-x-6 mb-6">
-      <h1 class="text-5xl font-bold text-[#295f98]">Settings</h1>
-    </div>
+    <h1 class="text-5xl font-bold mb-6">Settings</h1>
 
-    <div class="mx-auto bg-white rounded-2xl w-full w-full mb-6">
+    <div class="mx-auto bg-white p-8 rounded-2xl w-full w-full mb-6">
 
        <div class="flex justify-between p-8 rounded-xl mb-6" style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
             <div v-for="tab in tabs" :key="tab" class="w-[48%] cursor-pointer"
@@ -14,56 +12,56 @@
                 </p>
             </div>
         </div>
+      
+
+
 
       <div class="text-xl text-center">
         <div v-if="activeTab === 'Subjects'">
             <div class="mx-auto bg-white shadow-lg p-8 rounded-2xl w-full w-full mb-6 border border-gray-200">
                 <form>
                     <div class="grid grid-cols-2 gap-4 mb-4">
-                        <div class="floating-label mb-4">
-                            <input
-                                type="text"
-                                class="input"
-                                placeholder=" "
-                            />
-                            <label>Subject ID</label>
-                        </div>
-                        <div class="floating-label mb-4">
-                            <input
-                                type="text"
-                                class="input"
-                                placeholder=" "
-                            />
-                            <label>Subject Code</label>
-                        </div>
-                    </div>
+   <div class="floating-label mb-4">
+    <input
+      type="text"
+      class="input"
+      placeholder=" "
+      v-model="newSubjectCode"
+    />
+    <label>Subject Code</label>
+  </div>
 
-                    <div class="grid grid-cols-2 gap-4 mb-8">
-                        <div class="floating-label mb-4">
-                            <input
-                                type="text"
-                                class="input"
-                                placeholder=" "
-                            />
-                            <label>Subject Name</label>
-                        </div>
-                        <div class="floating-label mb-4">
-                            <input
-                                type="text"
-                                class="input"
-                                placeholder=" "
-                            />
-                            <label>Grade Level</label>
-                        </div>
-                    </div>
-                    <div class="button">
-                        <button 
-                          type="button"
-                          @click="confirmAddSubject"
-                          class="green">
-                            Add Subject
-                        </button>
-                    </div>
+  <div class="floating-label mb-4">
+    <input
+      type="text"
+      class="input"
+      placeholder=" "
+      v-model="newSubjectName"
+    />
+    <label>Subject Name</label>
+  </div>
+</div>
+
+<div class="grid grid-cols-2 gap-4 mb-4">
+  <div class="floating-label mb-4">
+    <input
+      type="text"
+      class="input"
+      placeholder=" "
+      v-model="newSubjectGradeLevel"
+    />
+    <label>Grade Level</label>
+  </div>
+</div>
+
+          <div class="button">
+  <button 
+    type="button"
+    @click="confirmAddSubject"
+    class="green">
+    Add Subject
+  </button>
+        </div>
                 </form>
             </div>
 
@@ -119,7 +117,7 @@
                                 <td class="px-6 py-4 flex space-x-2 text-lg">
                                     <button
                                         class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 cursor-pointer"
-                                        @click="confirmDeleteSubject">
+                                        @click="confirmDeleteSubject(subject.id)">
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
                                 </td>
@@ -165,76 +163,90 @@
         <div v-else-if="activeTab === 'Section'">
           <div class="mx-auto bg-white shadow-lg p-8 rounded-2xl w-full w-full mb-6 border border-gray-200">
                 <form>
-                    <div class="grid grid-cols-4 gap-4 mb-8">
-                      <div class="floating-label">
-                        <select class="input" v-model="selectedHighSchool" required>
-                          <option value=""></option>
-                          <option v-for="school in highSchool" :key="school" :value="school">
-                            {{ school }}
-                          </option>
-                        </select>
-                        <label>High School</label>
-                      </div>
+  <div class="grid grid-cols-4 gap-4 mb-8">
+    <!-- High School (Curriculum) -->
+    <div class="floating-label">
+      <select class="input" v-model="selectedHighSchool" required>
+        <option value=""></option>
+        <option v-for="school in highSchool" :key="school" :value="school">
+          {{ school }}
+        </option>
+      </select>
+      <label>High School (Curriculum)</label>
+    </div>
 
-                      <div class="floating-label">
-                        <select class="input" v-model="selectedGrade" required :disabled="!selectedHighSchool">
-                          <option value=""></option>
-                          <option v-for="grade in filteredGrades" :key="grade" :value="grade">
-                            {{ grade }}
-                          </option>
-                        </select>
-                        <label>Grade Level</label>
-                      </div>
+    <!-- Grade Level -->
+    <div class="floating-label">
+      <select class="input" v-model="selectedGrade" required :disabled="!selectedHighSchool">
+        <option value=""></option>
+        <option v-for="grade in filteredGrades" :key="grade" :value="grade">
+          {{ grade }}
+        </option>
+      </select>
+      <label>Grade Level</label>
+    </div>
 
-                     <div class="floating-label">
-                      <select class="input" v-model="selectedCurriculumTrack" required :disabled="!selectedHighSchool">
-                        <option value=""></option>
-                        <option v-for="item in filteredCurriculumTrack" :key="item" :value="item">
-                          {{ item }}
-                        </option>
-                      </select>
-                      <label>{{ curriculumOrTrackLabel }}</label>
-                    </div>
-                    <div class="floating-label">
-                        <select class="input">
-                          <option value=""></option>
-                          <option v-for="schoolyear in syName" :key="schoolyear" :value="schoolyear">
-                            {{ schoolyear }}
-                          </option>
-                        </select>
-                        <label>School Year</label>
-                    </div>
-                  </div>
+    <!-- Curriculum/Track -->
+    <div class="floating-label">
+      <select class="input" v-model="selectedCurriculumTrack" required :disabled="!selectedHighSchool">
+        <option value=""></option>
+        <option v-for="item in filteredCurriculumTrack" :key="item" :value="item">
+          {{ item }}
+        </option>
+      </select>
+      <label>{{ curriculumOrTrackLabel }}</label>
+    </div>
 
-                  <div class="grid grid-cols-2 gap-4 mb-4">
-                        <div class="floating-label mb-4">
-                            <input
-                                type="text"
-                                class="input"
-                                placeholder=" "
-                            />
-                            <label>Classname</label>
-                        </div>
-                        <!-- <div class="floating-label mb-4">
-                            <input
-                                type="text"
-                                class="input"
-                                placeholder=" "
-                            />
-                            <label>Subject Code</label>
-                        </div> -->
-                    </div>
+    <!-- School Year (SY_ID) -->
+    <div class="floating-label">
+      <select class="input" v-model="selectedSYId" required>
+        <option value=""></option>
+        <option v-for="schoolyear in schoolYears" :key="schoolyear.SY_Year" :value="schoolyear.id || schoolyear.SY_ID || schoolyear.SY_Id">
+          {{ schoolyear.SY_Year }}
+        </option>
+      </select>
+      <label>School Year</label>
+    </div>
+  </div>
 
-                  
-                   <div class="button">
-                        <button 
-                          type="button"
-                          @click="confirmAddSection"
-                          class="green">
-                            Add Section
-                        </button>
-                    </div>
-                </form>
+  <div class="grid grid-cols-2 gap-4 mb-4">
+    <!-- Classname -->
+    <div class="floating-label mb-4">
+      <input
+        type="text"
+        class="input"
+        placeholder=" "
+        v-model="newClassName"
+        required
+      />
+      <label>Classname</label>
+    </div>
+
+    <!-- Section -->
+    <div class="floating-label mb-4">
+      <input
+        type="text"
+        class="input"
+        placeholder=" "
+        v-model="newSection"
+        required
+      />
+      <label>Section</label>
+    </div>
+  </div>
+
+  <div class="button">
+    <button
+      type="button"
+      @click="confirmAddClassSection"
+      class="green"
+      :disabled="!formIsValid"
+    >
+      Add Section
+    </button>
+  </div>
+</form>
+
           </div>
 
             <div class="mx-auto bg-white shadow-lg p-8 rounded-2xl w-full border border-gray-200 h-[940px] flex flex-col">
@@ -281,11 +293,11 @@
                       </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
-                      <tr v-for="(section, index) in paginatedSections" :key="index">
-                        <td class="px-6 py-4 text-lg">{{ section.highSchool }}</td>
-                        <td class="px-6 py-4 text-lg">{{ section.gradeLevel }}</td>
-                        <td class="px-6 py-4 text-lg">{{ section.curriculumTrack }}</td>
-                        <td class="px-6 py-4 text-lg">{{ section.section }}</td>
+                      <tr v-for="(sections, index) in paginatedSections" :key="index">
+                        <td class="px-6 py-4 text-lg">{{ sections.highSchool }}</td>
+                        <td class="px-6 py-4 text-lg">{{ sections.gradeLevel }}</td>
+                        <td class="px-6 py-4 text-lg">{{ sections.curriculumTrack }}</td>
+                        <td class="px-6 py-4 text-lg">{{ sections.section }}</td>
                         <td class="px-6 py-4 flex space-x-2 text-lg">
                           <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 cursor-pointer"
                             @click="confirmDeleteRecord">
@@ -341,34 +353,20 @@
                             <input
                                 type="text"
                                 class="input"
+                                v-model="newSYYear"
                                 placeholder=" "
                             />
                             <label>School Year</label>
                         </div>
                         <div class="floating-label mb-4">
-                            <input
-                                type="text"
-                                class="input"
-                                placeholder=" "
-                            />
-                            <label>Start Date</label>
-                        </div>
+<input type="date"  class="input"  v-model="newStartDate" placeholder=" " required />
+<label>Start Date *</label>
+</div>
                         <div class="floating-label mb-4">
-                            <input
-                                type="text"
-                                class="input"
-                                placeholder=" "
-                            />
-                            <label>End Date</label>
+                        <input type="date" class="input" v-model="newEndDate" placeholder=" " />
+<label>End Date</label>
                         </div>
-                        <div class="floating-label mb-4">
-                            <input
-                                type="text"
-                                class="input"
-                                placeholder=" "
-                            />
-                            <label>S.Y Name</label>
-                        </div>
+                        
                     </div>
 
                    <div class="button">
@@ -407,11 +405,11 @@
                       </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
-                      <tr v-for="(item, index) in paginatedSchoolYears" :key="index">
-                        <td class="px-6 py-4 whitespace-nowrap text-lg">{{ item.sy }}</td>
-                        <td class="px-6 py-4 text-lg">{{ item.startDate }}</td>
-                        <td class="px-6 py-4 text-lg">{{ item.endDate }}</td>
-                        <td class="px-6 py-4 text-lg">{{ item.syName }}</td>
+                      <tr v-for="(schoolYears, index) in paginatedSchoolYears" :key="index">
+                        <td class="px-6 py-4 whitespace-nowrap text-lg">{{ schoolYears.SY_Year }}</td>
+                        <td class="px-6 py-4 text-lg">{{ schoolYears.startDate }}</td>
+                        <td class="px-6 py-4 text-lg">{{ schoolYears.endDate }}</td>
+                        <td class="px-6 py-4 text-lg">{{ schoolYears.syName }}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -456,8 +454,11 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
-import Swal from 'sweetalert2';
+import { ref, computed, watch, onMounted } from 'vue'
+import Swal from 'sweetalert2'
+import { getAllSubjects, getAllSchoolYears, getAllSections, createSubject, deleteSubjectById, createSchoolYear, createSection  } from '../../service/superadminService' 
+
+
 
 const tabs = ['Subjects', 'Section', 'School Year']
 const activeTab = ref('Subjects')
@@ -465,9 +466,8 @@ const activeTab = ref('Subjects')
 const highSchool = ["Junior High School", "Senior High School"]
 const juniorGrades = ["Grade 7", "Grade 8", "Grade 9", "Grade 10"]
 const seniorGrades = ["Grade 11", "Grade 12"]
-const juniorCurriculum = ["SPA", "SPJ", "BEC"]
+const juniorCurriculum = ["SPA", "SPJ", "BEC", "SHS"]
 const seniorTrack = ["TVL", "HUMMS", "TVL-IEM"]
-const syName = ["S.Y 2022 - 2023", "S.Y 2023 - 2024", "S.Y 2024 - 2025"]
 
 const searchQuery = ref('')
 const selectedId = ref('')
@@ -480,6 +480,36 @@ const searchRecordsQuery = ref('')
 const selectedRecordsHighSchool = ref('')
 const selectedRecordsGradeLevel = ref('')
 const selectedRecordsTrack = ref('')
+
+const pageSize = 10
+
+// ADDING Subject
+const newSubjectName = ref('');
+const newSubjectCode = ref('');
+const newSubjectGradeLevel = ref('');
+
+// Adding S.Y
+const newStartDate = ref('');
+const newEndDate = ref('');
+const newSYYear = ref('');
+
+
+
+const paginatedSections = computed(() => {
+  const start = (currentRecordsPage.value - 1) * pageSize
+  return sections.value.slice(start, start + pageSize)
+})
+
+const totalSectionPages = computed(() => Math.ceil(sections.value.length / pageSize))
+
+const sectionPageNumbers = computed(() => {
+  // Simple example to generate page numbers
+  const pages = []
+  for (let i = 1; i <= totalSectionPages.value; i++) {
+    pages.push(i)
+  }
+  return pages
+})
 
 const filteredGrades = computed(() => {
   if (selectedHighSchool.value === "Junior High School") {
@@ -511,224 +541,200 @@ const curriculumOrTrackLabel = computed(() => {
   }
 })
 
-const sections = ref([]);
-const newSection = ref('');
+const newSection = ref('')
 
 const addSection = () => {
-  const trimmed = newSection.value.trim();
-  if (!trimmed) return;
-  sections.value.push({ value: trimmed });
-  newSection.value = '';
-};
+  const trimmed = newSection.value.trim()
+  if (!trimmed) return
+  sections.value.push({ value: trimmed })
+  newSection.value = ''
+}
 
 const removeSection = (index) => {
-  sections.value.splice(index, 1);
-};
+  sections.value.splice(index, 1)
+}
 
-const sectionRecords = ref([
-  {
-    highSchool: 'Junior High School',
-    gradeLevel: 'Grade 10',
-    curriculumTrack: 'SPJ',
-    section: '10-Diamond',
-  },
-  {
-    highSchool: 'Senior High School',
-    gradeLevel: 'Grade 11',
-    curriculumTrack: 'TVL',
-    section: '11-STEM A',
-  },
-  {
-    highSchool: 'Senior High School',
-    gradeLevel: 'Grade 12',
-    curriculumTrack: 'HUMMS',
-    section: '12-STEM B',
-  },
-  {
-    highSchool: 'Junior High School',
-    gradeLevel: 'Grade 7',
-    curriculumTrack: 'BEC',
-    section: '7-Topaz',
-  },
-  {
-    highSchool: 'Junior High School',
-    gradeLevel: 'Grade 8',
-    curriculumTrack: 'SPA',
-    section: '8-Emerald',
-  },
-  {
-    highSchool: 'Junior High School',
-    gradeLevel: 'Grade 9',
-    curriculumTrack: 'SHS',
-    section: '9-Ruby',
-  },
-  {
- 
-    highSchool: 'Junior High School',
-    gradeLevel: 'Grade 10',
-    curriculumTrack: 'SPJ',
-    section: '10-Amethyst',
-  },
-  {
-
-    highSchool: 'Senior High School',
-    gradeLevel: 'Grade 11',
-    curriculumTrack: 'TVL-IEM',
-    section: '11-TVL B',
-  },
-  {
-    highSchool: 'Senior High School',
-    gradeLevel: 'Grade 12',
-    curriculumTrack: 'TVL',
-    section: '12-TVL A',
-  },
-  {
-    highSchool: 'Junior High School',
-    gradeLevel: 'Grade 8',
-    curriculumTrack: 'BEC',
-    section: '8-Garnet',
-  },
-  {
-    highSchool: 'Junior High School',
-    gradeLevel: 'Grade 7',
-    curriculumTrack: 'SPA',
-    section: '7-Pearl',
-  },
-  {
-    highSchool: 'Senior High School',
-    gradeLevel: 'Grade 12',
-    curriculumTrack: 'TVL-IEM',
-    section: '12-ICT C',
-  }
+const academicRecords = ref([
 ])
 
-const schoolYear = ref([
-  {
-    sy: '2022-2023',
-    startDate: '2022-08-01',
-    endDate: '2023-06-15',
-    syName: 'Academic Year 2022-2023'
-  },
-  {
-      sy: '2023-2024',
-      startDate: '2023-08-01',
-      endDate: '2024-06-15',
-      syName: 'Academic Year 2023-2024'
-    },
-    {
-      sy: '2024-2025',
-      startDate: '2024-08-01',
-      endDate: '2025-06-15',
-      syName: 'Academic Year 2024-2025'
-    }
-  ])
+// Replace static subjects with API data
+const subjects = ref([])
+
+// Load and map API subjects to your expected format
+const sections = ref([])  // will hold your sections/classes data from API
+const schoolYears = ref([]) // will hold school years data from API
 
 
-  const subjects = ref([
-    { id: '101', code: 'ENG101', name: 'English Language', grade: 'Grade 7' },
-    { id: '102', code: 'MATH101', name: 'Basic Math', grade: 'Grade 8' },
-    { id: '103', code: 'SCI101', name: 'General Science', grade: 'Grade 7' },
-    { id: '104', code: 'HIST101', name: 'World History', grade: 'Grade 8' },
-    { id: '105', code: 'GEO101', name: 'Geography', grade: 'Grade 9' },
-    { id: '106', code: 'BIO101', name: 'Biology', grade: 'Grade 10' },
-    { id: '107', code: 'CHEM101', name: 'Chemistry', grade: 'Grade 11' },
-    { id: '108', code: 'PHY101', name: 'Physics', grade: 'Grade 12' },
-    { id: '109', code: 'COMP101', name: 'Computer Science', grade: 'Grade 9' },
-    { id: '110', code: 'ART101', name: 'Art and Design', grade: 'Grade 7' },
-    { id: '111', code: 'MUSIC101', name: 'Music', grade: 'Grade 10' },
-    { id: '112', code: 'PE101', name: 'Physical Education', grade: 'Grade 8' },
-    { id: '113', code: 'ENG102', name: 'English Literature', grade: 'Grade 11' }
-  ])
 
-  const uniqueIds = computed(() => [...new Set(subjects.value.map(subject => subject.id))])
-  const uniqueCodes = computed(() => [...new Set(subjects.value.map(subject => subject.code))])
-  const uniqueGrades = computed(() => [...new Set(subjects.value.map(subject => subject.grade))])
-
-  const filteredSubjects = computed(() => {
-    const query = searchQuery.value.toLowerCase()
-
-    return subjects.value.filter(subject => {
-      const matchesSearch =
-        subject.name.toLowerCase().includes(query) ||
-        subject.id.toString().toLowerCase().includes(query) ||
-        subject.code.toLowerCase().includes(query) ||
-        subject.grade.toLowerCase().includes(query)
-
-      const matchesId = !selectedId.value || subject.id === selectedId.value
-      const matchesCode = !selectedCode.value || subject.code === selectedCode.value
-      const matchesGrade = !selectedGrade.value || subject.grade === selectedGrade.value
-
-      return matchesSearch && matchesId && matchesCode && matchesGrade
+const loadSubjects = async () => {
+  try {
+    const response = await getAllSubjects()
+    console.log('API data:', response)
+    subjects.value = response.map(subj => ({
+      id: subj.Subject_ID.toString(),
+      code: subj.SubjectCode.toString(),
+      name: subj.SubjectName,
+      grade: `${subj.GradeLevel}`,
+    }))
+  } catch (error) {
+    console.error('Failed to load subjects:', error)
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Could not load subjects. Please try again later.'
     })
-  })
+  }
+}
 
-  const currentPage = ref(1)
-  const itemsPerPage = 10
+// Load sections from API
+const loadSections = async () => {
+  try {
+    const data = await getAllSections()
+    console.log('Sections data:', data)
 
-  const totalPages = computed(() =>
-    Math.ceil(filteredSubjects.value.length / itemsPerPage)
-  )
-
-  const paginatedSubjects = computed(() => {
-    const start = (currentPage.value - 1) * itemsPerPage
-    return filteredSubjects.value.slice(start, start + itemsPerPage)
-  })
-
-  const pageNumbers = computed(() => {
-    const pages = []
-    for (let i = 1; i <= totalPages.value; i++) {
-      pages.push(i)
-    }
-    return pages
-  })
-
-
-  const uniqueRecordsHighSchools = computed(() =>
-    [...new Set(sectionRecords.value.map(record => record.highSchool))])
-
-  const uniqueRecordsGradeLevels = computed(() =>
-    [...new Set(sectionRecords.value.map(record => record.gradeLevel))])
-
-  const uniqueRecordsTracks = computed(() =>
-    [...new Set(sectionRecords.value.map(record => record.curriculumTrack))])
-
-  const currentRecordsPage = ref(1)
-  const recordsPerPage = 10
-
-  const filteredSection = computed(() => {
-    const query = searchRecordsQuery.value.toLowerCase()
-
-    return sectionRecords.value.filter(record => {
-      const matchesSearch =
-        record.highSchool.toLowerCase().includes(query) ||
-        record.gradeLevel.toLowerCase().includes(query) ||
-        record.curriculumTrack.toLowerCase().includes(query) ||
-        record.section.toLowerCase().includes(query)
-
-      const matchesHighSchool = !selectedRecordsHighSchool.value || record.highSchool === selectedRecordsHighSchool.value
-      const matchesGrade = !selectedRecordsGradeLevel.value || record.gradeLevel === selectedRecordsGradeLevel.value
-      const matchesTrack = !selectedRecordsTrack.value || record.curriculumTrack === selectedRecordsTrack.value
-
-      return matchesSearch && matchesHighSchool && matchesGrade && matchesTrack
+    sections.value = data.map(item => ({
+      highSchool: item.Curriculum === 'JHS'
+        ? 'Junior High School'
+        : item.Curriculum === 'SHS'
+          ? 'Senior High School'
+          : item.Curriculum, // fallback for unexpected values
+      gradeLevel: item.Grade_Level,
+      curriculumTrack: item.Track,
+      section: item.Section
+    }))
+  } catch (error) {
+    console.error('Failed to load sections:', error)
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Could not load sections. Please try again later.'
     })
-  })
+  }
+}
 
-  const totalSectionPages = computed(() =>
-    Math.ceil(filteredSection.value.length / recordsPerPage)
-  )
 
-  const paginatedSections = computed(() => {
-    const start = (currentRecordsPage.value - 1) * recordsPerPage
-    return filteredSection.value.slice(start, start + recordsPerPage)
-  })
 
-  const sectionPageNumbers = computed(() => {
-    const pages = []
-    for (let i = 1; i <= totalSectionPages.value; i++) {
-      pages.push(i)
-    }
-    return pages
+const loadSchoolYears = async () => {
+  try {
+    const data = await getAllSchoolYears();
+    console.log('School years data:', data); // Log the full data
+    schoolYears.value = data.map(item => ({
+      SY_Year:  `S.Y. ${item.SY_Year}`,
+      startDate: item.Start_Date,
+      endDate: item.End_Date,
+      syName: `Academic Year ${item.SY_Year}`
+    }));
+  } catch (error) {
+    console.error('Failed to load school years:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Could not load school years. Please try again later.'
+    });
+  }
+};
+
+// Call on mounted lifecycle
+onMounted(() => {
+  loadSubjects()       // your existing function to load subjects
+  loadSections()       // new: load sections
+  loadSchoolYears()    // new: load school years
+})
+
+const uniqueIds = computed(() => [...new Set(subjects.value.map(subject => subject.id))])
+const uniqueCodes = computed(() => [...new Set(subjects.value.map(subject => subject.code))])
+const uniqueGrades = computed(() => [...new Set(subjects.value.map(subject => subject.grade))])
+
+const filteredSubjects = computed(() => {
+  const query = searchQuery.value.toLowerCase()
+
+  return subjects.value.filter(subject => {
+    const name = subject.name ? subject.name.toLowerCase() : ''
+    const id = subject.id ? subject.id.toString().toLowerCase() : ''
+    const code = subject.code ? subject.code.toLowerCase() : ''
+    const grade = subject.grade ? subject.grade.toLowerCase() : ''
+
+    const matchesSearch =
+      name.includes(query) ||
+      id.includes(query) ||
+      code.includes(query) ||
+      grade.includes(query)
+
+    const matchesId = !selectedId.value || subject.id === selectedId.value
+    const matchesCode = !selectedCode.value || subject.code === selectedCode.value
+    const matchesGrade = !selectedGrade.value || subject.grade === selectedGrade.value
+
+    return matchesSearch && matchesId && matchesCode && matchesGrade
   })
+})
+
+const currentPage = ref(1)
+const itemsPerPage = 10
+
+const totalPages = computed(() =>
+  Math.ceil(filteredSubjects.value.length / itemsPerPage)
+)
+
+const paginatedSubjects = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage
+  return filteredSubjects.value.slice(start, start + itemsPerPage)
+})
+
+const pageNumbers = computed(() => {
+  const pages = []
+  for (let i = 1; i <= totalPages.value; i++) {
+    pages.push(i)
+  }
+  return pages
+})
+
+const uniqueRecordsHighSchools = computed(() =>
+  [...new Set(academicRecords.value.map(record => record.highSchool))])
+
+const uniqueRecordsGradeLevels = computed(() =>
+  [...new Set(academicRecords.value.map(record => record.gradeLevel))])
+
+const uniqueRecordsTracks = computed(() =>
+  [...new Set(academicRecords.value.map(record => record.curriculumTrack))])
+
+const currentRecordsPage = ref(1)
+const recordsPerPage = 10
+
+const filteredRecordsList = computed(() => {
+  const query = searchRecordsQuery.value.toLowerCase()
+
+  return academicRecords.value.filter(record => {
+    const matchesSearch =
+      record.schoolYear.toLowerCase().includes(query) ||
+      record.highSchool.toLowerCase().includes(query) ||
+      record.gradeLevel.toLowerCase().includes(query) ||
+      record.curriculumTrack.toLowerCase().includes(query) ||
+      record.section.toLowerCase().includes(query)
+
+    const matchesHighSchool = !selectedRecordsHighSchool.value || record.highSchool === selectedRecordsHighSchool.value
+    const matchesGrade = !selectedRecordsGradeLevel.value || record.gradeLevel === selectedRecordsGradeLevel.value
+    const matchesTrack = !selectedRecordsTrack.value || record.curriculumTrack === selectedRecordsTrack.value
+
+    return matchesSearch && matchesHighSchool && matchesGrade && matchesTrack
+  })
+})
+
+const totalRecordsPages = computed(() =>
+  Math.ceil(filteredRecordsList.value.length / recordsPerPage)
+)
+
+const paginatedRecords = computed(() => {
+  const start = (currentRecordsPage.value - 1) * recordsPerPage
+  return filteredRecordsList.value.slice(start, start + recordsPerPage)
+})
+
+const recordsPageNumbers = computed(() => {
+  const pages = []
+  for (let i = 1; i <= totalRecordsPages.value; i++) {
+    pages.push(i)
+  }
+  return pages
+})
 
 const searchSchoolYearQuery = ref('');
 const currentSchoolYearPage = ref(1);
@@ -736,9 +742,9 @@ const schoolYearItemsPerPage = 10;
 
 const filteredSchoolYears = computed(() => {
   const query = searchSchoolYearQuery.value.toLowerCase();
-  return schoolYear.value.filter((year) =>
-    year.sy.toLowerCase().includes(query) ||
-    year.syName.toLowerCase().includes(query)
+  return schoolYears.value.filter((year) =>
+    year.SY_Year.toLowerCase().includes(query) ||
+    (year.syName && year.syName.toLowerCase().includes(query))
   );
 });
 
@@ -777,21 +783,27 @@ const totalSchoolYearPages = computed(() =>
     }
   };
 
-  const confirmAddSubject = async () => {
-    const result = await Swal.fire({
-      title: 'Add Subject',
-      text: 'Are you sure you want to add a new subject?',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Yes, Add',
-      cancelButtonText: 'Cancel'
-    });
 
-    if (result.isConfirmed) {
-      // Call your actual logic here
-      addSection();
+const confirmAddSubject = async () => {
+  const result = await Swal.fire({
+    title: 'Add Subject',
+    text: 'Are you sure you want to add this subject?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Yes, Add',
+    cancelButtonText: 'Cancel'
+  });
+
+  if (result.isConfirmed) {
+    try {
+      // Create the subject
+      await createSubject({
+        SubjectName: newSubjectName.value.trim(),
+        GradeLevel: parseInt(newSubjectGradeLevel.value),
+        SubjectCode: parseInt(newSubjectCode.value)
+      });
 
       await Swal.fire({
         icon: 'success',
@@ -800,24 +812,44 @@ const totalSchoolYearPages = computed(() =>
         timer: 1500,
         showConfirmButton: false
       });
+
+      // Reload the list
+      await loadSubjects();
+
+      // Clear the input fields
+      newSubjectName.value = '';
+      newSubjectCode.value = '';
+      newSubjectGradeLevel.value = '';
+
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error?.message || 'Failed to add subject. Please try again.'
+      });
     }
-  };
+  }
+};
 
-  const confirmAddSchoolYear = async () => {
-    const result = await Swal.fire({
-      title: 'Add School Year',
-      text: 'Are you sure you want to add a new school year?',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Yes, Add',
-      cancelButtonText: 'Cancel'
-    });
+ const confirmAddSchoolYear = async () => {
+  const result = await Swal.fire({
+    title: 'Add School Year',
+    text: 'Are you sure you want to add this school year?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Yes, Add',
+    cancelButtonText: 'Cancel'
+  });
 
-    if (result.isConfirmed) {
-      // Call your actual logic here
-      addSection();
+  if (result.isConfirmed) {
+    try {
+      await createSchoolYear({
+        Start_Date: newStartDate.value,
+        End_Date: newEndDate.value,
+        SY_Year: newSYYear.value
+      });
 
       await Swal.fire({
         icon: 'success',
@@ -826,34 +858,110 @@ const totalSchoolYearPages = computed(() =>
         timer: 1500,
         showConfirmButton: false
       });
-    }
-  };
 
+      await loadSchoolYears(); // reload school year list
 
-
-
-  const confirmDeleteSubject = async () => {
-    const result = await Swal.fire({
-      title: 'Are you sure?',
-      text: 'Do you really want to delete this subject?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#D30000',
-      cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Yes, Reject',
-      cancelButtonText: 'Cancel'
-    });
-
-    if (result.isConfirmed) {
+      // Clear inputs
+      newStartDate.value = '';
+      newEndDate.value = '';
+      newSYYear.value = '';
+    } catch (error) {
       Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error?.message || 'Failed to add school year. Please try again.'
+      });
+    }
+  }
+};
+
+const confirmAddClassSection = async () => {
+  const result = await Swal.fire({
+    title: 'Add Section',
+    text: 'Are you sure you want to add this section?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Yes, Add',
+    cancelButtonText: 'Cancel'
+  });
+
+  if (result.isConfirmed) {
+    try {
+      const payload = {
+        ClassName: newClassName.value.trim(),
+        Section: newSection.value.trim(),
+        SY_ID: selectedSYId.value,
+        Grade_Level: selectedGrade.value.replace('Grade ', ''),
+        Curriculum: selectedHighSchool.value === 'Junior High School' ? 'JHS' : 'SHS',
+        Track: selectedHighSchool.value === 'Senior High School' ? selectedCurriculumTrack.value : null,
+        Status: 'Approved' // add this if required by backend
+      };
+
+      await createSection(payload);
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'Added',
+        text: 'The section has been added successfully.',
+        timer: 1500,
+        showConfirmButton: false
+      });
+
+      await loadSections();
+      
+      // Clear form fields
+      newClassName.value = '';
+      newSection.value = '';
+      selectedHighSchool.value = '';
+      selectedGrade.value = '';
+      selectedCurriculumTrack.value = '';
+      selectedSYId.value = '';
+
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error?.message || 'Failed to add section. Please try again.'
+      });
+    }
+  }
+};
+
+
+const confirmDeleteSubject = async (subjectId) => {
+  const result = await Swal.fire({
+    title: 'Are you sure?',
+    text: 'Do you really want to delete this subject?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#D30000',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Yes, Delete',
+    cancelButtonText: 'Cancel'
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await deleteSubjectById(subjectId);
+      await loadSubjects(); // Reload subjects from API after deletion
+      await Swal.fire({
         icon: 'success',
         title: 'Deleted',
         text: 'The subject has been deleted.',
         timer: 1500,
         showConfirmButton: false
       });
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.message || 'Failed to delete subject.'
+      });
     }
-  };
+  }
+};
 
   const confirmDeleteRecord = async () => {
     const result = await Swal.fire({
@@ -882,7 +990,8 @@ const totalSchoolYearPages = computed(() =>
   searchRecordsQuery, selectedRecordsHighSchool, selectedRecordsGradeLevel, selectedRecordsTrack, searchSchoolYearQuery], () => {
     currentPage.value = 1
   })
-  </script>
+</script>
+
 
 
 <style scoped>
@@ -988,5 +1097,3 @@ const totalSchoolYearPages = computed(() =>
     background-color: #0C5A48;
 }
 </style>
-
-

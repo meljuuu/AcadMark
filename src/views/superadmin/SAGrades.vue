@@ -4,7 +4,7 @@
       <h1 class="text-5xl font-bold text-[#295f98]">Grades</h1>
     </div>
    
-    <div class="content mt-3">
+    <div class="content mt-3 mb-6">
       <div class="filtering-section">
         <select v-model="selectedGrade" class="filter-dropdown">
           <option value="">Grade Level (All)</option>

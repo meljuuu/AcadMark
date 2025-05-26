@@ -112,6 +112,87 @@ export const getLessonPlanById = async (lessonPlanId) => {
 };
 
 
+// Settings Tab
+export const getAllSubjects = async () => {
+  try {
+    const response = await API.get("/testing/subjects");
+    return response.data.data; // assuming you want only the 'data' field
+  } catch (error) {
+    console.error("Error fetching all subjects:", error);
+    throw error.response ? error.response.data : error;
+  }
+};
+
+export const getSubjectById = async (id) => {
+  try {
+    const response = await API.get(`/testing/${id}`);
+    return response.data.data; // assuming you want only the 'data' field
+  } catch (error) {
+    console.error("Error fetching subject by ID:", error);
+    throw error.response ? error.response.data : error;
+  }
+};
+
+export const deleteSubjectById = async (id) => {
+  try {
+    const response = await API.delete(`/testing/${id}`);
+    return response.data; // returns the full response with status and message
+  } catch (error) {
+    console.error("Error deleting subject:", error);
+    throw error.response ? error.response.data : error;
+  }
+};
+
+export const getAllSchoolYears = async () => {
+  try {
+    const response = await API.get("/testings/school-years");
+    return response.data.data; // assuming 'data' holds the actual school years
+  } catch (error) {
+    console.error("Error fetching school years:", error);
+    throw error.response ? error.response.data : error;
+  }
+};
+
+export const getAllSections = async () => {
+  try {
+    const response = await API.get("/test/sections");
+    return response.data.data; // assuming 'data' holds the actual sections
+  } catch (error) {
+    console.error("Error fetching sections:", error);
+    throw error.response ? error.response.data : error;
+  };
+}
+
+export const createSubject = async (subjectData) => {
+  try {
+    const response = await API.post("/test/", subjectData);
+    return response.data; // returns { status: 'success', data: { ... } }
+  } catch (error) {
+    console.error("Error creating subject:", error);
+    throw error.response ? error.response.data : error;
+  }
+};
+
+export const createSchoolYear = async (schoolYearData) => {
+  try {
+    const response = await API.post("/test/school-years", schoolYearData);
+    return response.data; // { status: 'success', message: 'School year created...', data: {...} }
+  } catch (error) {
+    console.error("Error creating school year:", error);
+    throw error.response ? error.response.data : error;
+  }
+};
+  export const createSection = async (CreateSection) => {
+  try {
+    const response = await API.post("settings/test/sub", CreateSection);
+    return response.data; 
+  } catch (error) {
+    console.error("Error creating school year:", error);
+    throw error.response ? error.response.data : error;
+  }
+};
+
+
 
 
 
