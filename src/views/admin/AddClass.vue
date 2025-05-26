@@ -16,7 +16,7 @@
             <!-- Content -->
             <div v-else>
                 <!-- ===================== Tab Navigation ===================== -->
-                <div class="flex justify-between p-8 rounded-t-xl" style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
+                <div class="flex justify-between p-8 rounded-xl mb-6" style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
                     <div v-for="tab in [
                         { label: 'Add Classes', value: 'add' },
                         { label: 'Submitted', value: 'submitted' }
@@ -64,138 +64,117 @@
                 </div>
 
                 <div v-else class="submitted-section">
-                    <!-- Filter Bar -->
-                    <div
-                        class="flex flex-row gap-4 items-center bg-white p-6 border border-[#EEEEEE] rounded-[5px] shadow mb-6">
-                        <select v-model="selectedSubmittedGrade"
-                            class="w-[180px] p-2 border border-[#E3E9EC] rounded-[6px] bg-white text-base text-[#242424] font-medium">
-                            <option value="" disabled>Select Grade</option>
-                            <option v-for="option in gradeOptions" :key="option.value || option"
-                                :value="option.value || option">
-                                {{ option.label || option }}
-                            </option>
-                        </select>
-                        <select v-model="selectedSubmittedCurriculum"
-                            class="w-[180px] p-2 border border-[#E3E9EC] rounded-[6px] bg-white text-base text-[#242424] font-medium">
-                            <option value="" disabled>Select Curriculum</option>
-                            <option v-for="option in curriculumOptions" :key="option.value || option"
-                                :value="option.value || option">
-                                {{ option.label || option }}
-                            </option>
-                        </select>
-                        <select v-model="selectedSubmittedTrack"
-                            class="w-[180px] p-2 border border-[#E3E9EC] rounded-[6px] bg-white text-base text-[#242424] font-medium">
-                            <option value="" disabled>Select Track</option>
-                            <option v-for="option in trackOptions" :key="option.value || option"
-                                :value="option.value || option">
-                                {{ option.label || option }}
-                            </option>
-                        </select>
-                        <select v-model="selectedSubmittedStatus"
-                            class="w-[180px] p-2 border border-[#E3E9EC] rounded-[6px] bg-white text-base text-[#242424] font-medium">
-                            <option value="" disabled>Select Status</option>
-                            <option v-for="option in statusOptions" :key="option.value || option"
-                                :value="option.value || option">
-                                {{ option.label || option }}
-                            </option>
-                        </select>
-                        <div
-                            class="flex items-center bg-[#fafbfc] border border-[#e0e0e0] rounded-[6px] px-2 h-10 w-1/4">
-                            <img src="/assets/img/search-icon.svg" alt="search" class="w-5 h-5 mx-1 opacity-70" />
-                            <input type="text" v-model="rightSearch" placeholder="Search..."
-                                class="bg-transparent border-none outline-none w-full text-[15px] text-gray-700" />
-                        </div>
-                    </div>
+                    <div class="bg-white rounded-xl shadow border border-[#EEEEEE] p-6 mb-6">
+                        <!-- Filter Section -->
+                        <div class="flex flex-row flex-wrap gap-4 items-center mb-4">
+                            <select v-model="selectedSubmittedGrade"
+                                class="w-[180px] p-2 border border-[#E3E9EC] rounded-[6px] bg-white text-base text-[#242424] font-medium">
+                                <option value="" disabled>Select Grade</option>
+                                <option v-for="option in gradeOptions" :key="option.value || option" :value="option.value || option">
+                                    {{ option.label || option }}
+                                </option>
+                            </select>
 
-                    <!-- Table -->
-                    <div class="bg-white rounded-lg shadow border border-gray-200 overflow-x-auto mb-4">
-                        <table class="min-w-[900px] w-full border-collapse table-fixed">
-                            <thead>
-                                <tr>
-                                    <th
-                                        class="bg-[#f6f6f6] font-semibold text-[#222] text-[16px] text-center px-3 py-2">
-                                        Grade Level</th>
-                                    <th
-                                        class="bg-[#f6f6f6] font-semibold text-[#222] text-[16px] text-center px-3 py-2">
-                                        Curriculum</th>
-                                    <th
-                                        class="bg-[#f6f6f6] font-semibold text-[#222] text-[16px] text-center px-3 py-2">
-                                        Track</th>
-                                    <th
-                                        class="bg-[#f6f6f6] font-semibold text-[#222] text-[16px] text-center px-3 py-2">
-                                        Class Section</th>
-                                    <th
-                                        class="bg-[#f6f6f6] font-semibold text-[#222] text-[16px] text-center px-3 py-2">
-                                        Class Adviser</th>
-                                    <th
-                                        class="bg-[#f6f6f6] font-semibold text-[#222] text-[16px] text-center px-3 py-2">
-                                        Student Added</th>
-                                    <th
-                                        class="bg-[#f6f6f6] font-semibold text-[#222] text-[16px] text-center px-3 py-2">
-                                        Date Added</th>
-                                    <th
-                                        class="bg-[#f6f6f6] font-semibold text-[#222] text-[16px] text-center px-3 py-2">
-                                        STATUS</th>
-                                </tr>
-                            </thead>
-                        </table>
-                        <div class="max-h-[400px] overflow-y-auto w-full">
-                            <table class="min-w-[900px] w-full border-collapse table-fixed">
-                                <tbody>
-                                    <tr v-for="(row, idx) in paginatedSuperClasses" :key="idx"
-                                        class="border-b border-[#e0e0e0] cursor-pointer"
-                                        @click="openClassInfoModal(row)">
-                                        <td class="text-[14px] text-center px-3 py-2 text-[#222]">{{ row.grade }}</td>
-                                        <td class="text-[14px] text-center px-3 py-2 text-[#222]">{{ row.curriculum }}
-                                        </td>
-                                        <td class="text-[14px] text-center px-3 py-2 text-[#222]">{{ row.track }}</td>
-                                        <td class="text-[14px] text-center px-3 py-2 text-[#222]">{{ row.section }}</td>
-                                        <td class="text-[14px] text-center px-3 py-2 text-[#222]">{{ row.adviser }}</td>
-                                        <td class="text-[14px] text-center px-3 py-2 text-[#222]">
-                                            {{ row.students }}
-                                        </td>
-                                        <td class="text-[14px] text-center px-3 py-2 text-[#222]">{{ row.date }}</td>
-                                        <td class="text-[14px] text-center px-3 py-2">
-                                            <span :class="[
-                                                'inline-block min-w-[90px] text-center py-1 rounded-lg text-[12px] text-white',
-                                                row.status === 'Pending' ? 'bg-[#ff9800]' : '',
-                                                row.status === 'Accepted' ? 'bg-[#4caf50]' : '',
-                                                row.status === 'Not Accepted' ? 'bg-[#f44336]' : ''
-                                            ]">
-                                                {{ row.status }}
-                                            </span>
-                                        </td>
+                            <select v-model="selectedSubmittedCurriculum"
+                                class="w-[180px] p-2 border border-[#E3E9EC] rounded-[6px] bg-white text-base text-[#242424] font-medium">
+                                <option value="" disabled>Select Curriculum</option>
+                                <option v-for="option in curriculumOptions" :key="option.value || option" :value="option.value || option">
+                                    {{ option.label || option }}
+                                </option>
+                            </select>
+
+                            <select v-model="selectedSubmittedTrack"
+                                class="w-[180px] p-2 border border-[#E3E9EC] rounded-[6px] bg-white text-base text-[#242424] font-medium">
+                                <option value="" disabled>Select Track</option>
+                                <option v-for="option in trackOptions" :key="option.value || option" :value="option.value || option">
+                                    {{ option.label || option }}
+                                </option>
+                            </select>
+
+                            <select v-model="selectedSubmittedStatus"
+                                class="w-[180px] p-2 border border-[#E3E9EC] rounded-[6px] bg-white text-base text-[#242424] font-medium">
+                                <option value="" disabled>Select Status</option>
+                                <option v-for="option in statusOptions" :key="option.value || option" :value="option.value || option">
+                                    {{ option.label || option }}
+                                </option>
+                            </select>
+
+                            <div class="flex items-center bg-[#fafbfc] border border-[#e0e0e0] rounded-[6px] px-2 h-10 w-[250px]">
+                                <img src="/assets/img/search-icon.svg" alt="search" class="w-5 h-5 mx-1 opacity-70" />
+                                <input type="text" v-model="rightSearch" placeholder="Search..."
+                                    class="bg-transparent border-none outline-none w-full text-[15px] text-gray-700" />
+                            </div>
+                        </div>
+
+                        <!-- Table Section -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full border-collapse table-fixed">
+                                <thead>
+                                    <tr>
+                                        <th class="bg-[#f6f6f6] font-semibold text-[#222] text-[16px] text-center px-3 py-2">Grade Level</th>
+                                        <th class="bg-[#f6f6f6] font-semibold text-[#222] text-[16px] text-center px-3 py-2">Curriculum</th>
+                                        <th class="bg-[#f6f6f6] font-semibold text-[#222] text-[16px] text-center px-3 py-2">Track</th>
+                                        <th class="bg-[#f6f6f6] font-semibold text-[#222] text-[16px] text-center px-3 py-2">Class Section</th>
+                                        <th class="bg-[#f6f6f6] font-semibold text-[#222] text-[16px] text-center px-3 py-2">Class Adviser</th>
+                                        <th class="bg-[#f6f6f6] font-semibold text-[#222] text-[16px] text-center px-3 py-2">Student Added</th>
+                                        <th class="bg-[#f6f6f6] font-semibold text-[#222] text-[16px] text-center px-3 py-2">Date Added</th>
+                                        <th class="bg-[#f6f6f6] font-semibold text-[#222] text-[16px] text-center px-3 py-2">Status</th>
                                     </tr>
-                                </tbody>
+                                </thead>
                             </table>
+                            <div class="max-h-[400px] overflow-y-auto w-full">
+                                <table class="min-w-[900px] w-full border-collapse table-fixed">
+                                    <tbody>
+                                        <tr v-for="(row, idx) in paginatedSuperClasses" :key="idx"
+                                            class="border-b border-[#e0e0e0] cursor-pointer" @click="openClassInfoModal(row)">
+                                            <td class="text-[14px] text-center px-3 py-2 text-[#222]">{{ row.grade }}</td>
+                                            <td class="text-[14px] text-center px-3 py-2 text-[#222]">{{ row.curriculum }}</td>
+                                            <td class="text-[14px] text-center px-3 py-2 text-[#222]">{{ row.track }}</td>
+                                            <td class="text-[14px] text-center px-3 py-2 text-[#222]">{{ row.section }}</td>
+                                            <td class="text-[14px] text-center px-3 py-2 text-[#222]">{{ row.adviser }}</td>
+                                            <td class="text-[14px] text-center px-3 py-2 text-[#222]">{{ row.students }}</td>
+                                            <td class="text-[14px] text-center px-3 py-2 text-[#222]">{{ row.date }}</td>
+                                            <td class="text-[14px] text-center px-3 py-2">
+                                                <span :class="[
+                                                    'inline-block min-w-[90px] text-center py-1 rounded-lg text-[12px] text-white',
+                                                    row.status === 'Pending' ? 'bg-[#ff9800]' : '',
+                                                    row.status === 'Accepted' ? 'bg-[#4caf50]' : '',
+                                                    row.status === 'Not Accepted' ? 'bg-[#f44336]' : ''
+                                                ]">
+                                                    {{ row.status }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
-                    <!-- Pagination Controls for Submitted Classes -->
-                    <div class="flex justify-between items-center mt-4 px-4">
-                        <div class="text-sm text-gray-600">
-                            Showing {{ paginatedSuperClasses.length }} of {{ superClasses.length }} entries
+                        <div class="flex justify-center items-center mt-4 px-4">
+                       
+                            <div class="flex gap-2">
+                                <button @click="submittedCurrentPage--" :disabled="submittedCurrentPage === 1"
+                                    class="w-28 px-3 border border-[#295F98] text-[#295F98] py-1 rounded disabled:opacity-50 flex items-center justify-center gap-1">
+                                    <span>← </span>
+                                    <span>Previous</span>
+                                </button>
+                                <button v-for="page in submittedTotalPages" :key="page" @click="submittedCurrentPage = page"
+                                    :class="[
+                                        'py-1 border border-[#295F98] rounded w-10 text-center',
+                                        submittedCurrentPage === page
+                                            ? 'bg-[#295F98] text-white border-blue-500'
+                                            : 'border-gray-300 hover:bg-gray-100'
+                                    ]">
+                                    {{ page }}
+                                </button>
+                                <button @click="submittedCurrentPage++"
+                                    :disabled="submittedCurrentPage === submittedTotalPages"
+                                    class="w-28 px-3 border border-[#295F98] text-[#295F98] py-1 rounded disabled:opacity-50 flex items-center justify-center gap-1">
+                                     <span>Next </span>
+                                    <span>→</span>
+                                </button>
+                            </div>
                         </div>
-                        <div class="flex gap-2">
-                            <button @click="submittedCurrentPage--" :disabled="submittedCurrentPage === 1"
-                                class="px-3 py-1 rounded border border-gray-300 disabled:opacity-50">
-                                Previous
-                            </button>
-                            <button v-for="page in submittedTotalPages" :key="page" @click="submittedCurrentPage = page"
-                                :class="[
-                                    'px-3 py-1 rounded border',
-                                    submittedCurrentPage === page
-                                        ? 'bg-blue-500 text-white border-blue-500'
-                                        : 'border-gray-300 hover:bg-gray-100'
-                                ]">
-                                {{ page }}
-                            </button>
-                            <button @click="submittedCurrentPage++"
-                                :disabled="submittedCurrentPage === submittedTotalPages"
-                                class="px-3 py-1 rounded border border-gray-300 disabled:opacity-50">
-                                Next
-                            </button>
-                        </div>
-                    </div>
+                    </div>      
                 </div>
             </div>
         </template>
@@ -294,28 +273,37 @@
                             <!-- Right Column -->
                             <div
                                 class="flex-1 bg-white rounded-[8px] border border-[#e0e0e0] p-4 flex flex-col min-w-0">
-                                <div class="flex items-center gap-3">
-                                    <select v-model="rightGender"
-                                        class="w-[130px] p-[6px_10px] border border-[#e0e0e0] rounded-[6px] text-[15px] text-[#242424] bg-white">
-                                        <option value="" disabled selected>Sex</option>
-                                        <option value="All">All</option>
+                                <div class="filters items-center w-full">
+                                    <!-- Left side filters -->
+                                    <select v-model="rightGender" class="filter-dropdown">
+                                        <option value="">All</option>
                                         <option value="F">Female</option>
                                         <option value="M">Male</option>
                                     </select>
-                                    <select v-model="rightSort"
-                                        class="w-[130px] p-[6px_10px] border border-[#e0e0e0] rounded-[6px] text-[15px] text-[#242424] bg-white">
-                                        <option value="" disabled selected>Sort By</option>
+
+                                    <select v-model="rightSort" class="filter-dropdown">
+                                        <option value="">Recent</option>
                                         <option value="latest">Latest</option>
                                         <option value="oldest">Oldest</option>
                                     </select>
-                                    <div
-                                        class="w-[220px] ml-auto flex items-center bg-[#fafbfc] border border-[#e0e0e0] rounded-[6px] px-2 h-9">
-                                        <img src="/assets/img/search-icon.svg" alt="search"
-                                            class="w-[18px] h-[18px] mx-[5px] opacity-70" />
+
+                                    <!-- Right side: button + search bar in a group -->
+                                    <div class="flex items-center gap-2 ml-auto">
+                                        <button
+                                        class="bg-[#295F98] text-white border-none rounded-[6px] px-[22px] py-2 text-[15px] cursor-pointer transition-colors duration-200 hover:bg-[#1d4066]"
+                                        @click="toggleSelectAllStudents">
+                                        {{ showCheckboxes ? 'Select Students' : 'Remove Students' }}
+                                        </button>
+
+                                        <div
+                                        class="flex items-center bg-[#fafbfc] border border-[#e0e0e0] rounded-[6px] px-2 h-9 w-[300px]">
+                                        <i class="fas fa-search text-[#888] text-[16px] mx-[5px]"></i>
                                         <input type="text" v-model="rightSearch" placeholder="Search..."
                                             class="border-none outline-none bg-transparent w-full text-[15px] text-[#222]" />
+                                        </div>
                                     </div>
                                 </div>
+
                                 <div class="flex-1 overflow-y-auto mb-[10px] max-h-[600px] relative">
                                     <table class="w-full border-collapse mt-4 bg-white">
                                         <thead>
@@ -358,38 +346,36 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <!-- Pagination Controls for Student Selection -->
-                                <div class="flex justify-between items-center mt-4 px-4">
-                                    <div class="text-sm text-gray-600">
-                                        Showing {{ paginatedFilteredTableData.length }} of {{ filteredTableData.length
-                                        }} entries
-                                    </div>
+
+                               <div class="flex justify-center items-center mt-4 px-4">
                                     <div class="flex gap-2">
+                                        <!-- Previous Button -->
                                         <button @click="studentCurrentPage--" :disabled="studentCurrentPage === 1"
-                                            class="px-3 py-1 rounded border border-gray-300 disabled:opacity-50">
-                                            Previous
+                                            class="w-28 px-3 border border-[#295F98] text-[#295F98] py-1 rounded disabled:opacity-50 flex items-center justify-center gap-1">
+                                            <span>← </span>
+                                            <span>Previous</span>
                                         </button>
+
                                         <button v-for="page in studentTotalPages" :key="page"
-                                            @click="studentCurrentPage = page" :class="[
-                                                'px-3 py-1 rounded border',
+                                            @click="studentCurrentPage = page"
+                                            :class="[
+                                                'py-1 border border-[#295F98] rounded w-10 text-center  ',
                                                 studentCurrentPage === page
-                                                    ? 'bg-blue-500 text-white border-blue-500'
+                                                    ? 'bg-[#295F98] text-white border-blue-500'
                                                     : 'border-gray-300 hover:bg-gray-100'
                                             ]">
                                             {{ page }}
                                         </button>
+
+                                        <!-- Next Button -->
                                         <button @click="studentCurrentPage++"
                                             :disabled="studentCurrentPage === studentTotalPages"
-                                            class="px-3 py-1 rounded border border-gray-300 disabled:opacity-50">
-                                            Next
+                                            class="w-28 px-3 border border-[#295F98] text-[#295F98] py-1 rounded disabled:opacity-50 flex items-center justify-center gap-1">
+                                            <span>Next </span>
+                                            <span>→</span>
                                         </button>
                                     </div>
-                                </div>
-                                <button
-                                    class="mt-2 self-end bg-[#295F98] text-white border-none rounded-[6px] px-[22px] py-2 text-[15px] cursor-pointer transition-colors duration-200 hover:bg-[#1d4066]"
-                                    @click="toggleSelectAllStudents">{{ showCheckboxes ? 'Select Students'
-                                        : 'Remove Students'
-                                    }}</button>
+                                </div>  
                             </div>
                         </div>
                     </div>
@@ -1200,3 +1186,34 @@ export default {
     }
 };
 </script>
+
+<style scoped>
+.filters {
+  display: flex;
+  gap: 10px;
+} 
+
+.filter-dropdown {
+  padding: 10px 15px;
+  width: 150px;
+  border: 1px solid #295f98;
+  border-radius: 5px;
+  font-size: 14px;
+  background: #fff;
+  font-weight: bold;
+  color: #295f98;
+  cursor: pointer;
+  appearance: none;
+  position: relative;
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+  transition: all 0.3s ease-in-out;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='18' height='18' fill='%23295f98'><path d='M7 10l5 5 5-5H7z'/></svg>");
+}
+
+.filter-dropdown:focus {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='18' height='18' fill='%23295f98'><path d='M7 14l5-5 5 5H7z'/></svg>");
+}
+
+</style>

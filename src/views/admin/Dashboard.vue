@@ -360,8 +360,8 @@ export default {
 
     async fetchSubmissionStatusCounts() {
       try {
-        const data = await getSubmissionStatusCounts(); // 🆕 API call
-        this.renderSubmissionStatusChart(data); // 🆕 Dynamic rendering
+        const data = await getSubmissionStatusCounts(); 
+        this.renderSubmissionStatusChart(data); 
       } catch (error) {
         console.error('Failed to fetch submission status counts:', error);
       }
