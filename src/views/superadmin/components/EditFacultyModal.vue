@@ -364,7 +364,7 @@ const handleSubmit = async () => {
   }
 
   const teacherId = props.facultyData?.id;
-  const apiUrl = `http://127.0.0.1:8000/api/teachers/edit/${teacherId}`;
+  const apiUrl = `http://26.135.189.53:8000/api/teachers/edit/${teacherId}`;
 
 const payload = {
   FirstName: firstName.value,

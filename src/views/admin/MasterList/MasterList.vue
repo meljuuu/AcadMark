@@ -1,10 +1,12 @@
 <template>
-    <div class="masterlist-container">
+    <div class="w-full">
         <div v-if="selectedCard">
             <StudentList :selectedCard="selectedCard" @goBack="selectedCard = null" />
         </div>
         <div v-else>
-            <h1 class="text-4xl font-bold mb-6">Masterlist</h1>
+           <div class="flex items-center space-x-6 mb-6">
+                <h1 class="text-5xl font-bold text-[#295f98]">Masterlist</h1>
+            </div>
 
             <!-- Loading State -->
             <div v-if="loading" class="flex justify-center items-center h-64">
@@ -168,9 +170,6 @@ export default {
 </script>
 
 <style scoped>
-.masterlist-container {
-    padding: 30px;
-}
 
 .filters {
     display: flex;

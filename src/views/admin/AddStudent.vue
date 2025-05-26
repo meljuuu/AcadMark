@@ -1,10 +1,10 @@
 <template>
-    <!-- ===================== Main Container ===================== -->
-    <div class="p-5">
-        <p class="font-semibold text-6xl mb-7">Add Student</p>
+    <div class="w-full">
+        <div class="flex items-center space-x-6 mb-6">
+            <h1 class="text-5xl font-bold text-[#295f98]">Add Student</h1>
+        </div>
 
-        <!-- ===================== Tab Navigation ===================== -->
-        <div class="flex justify-between p-8 rounded-t-xl" style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
+        <div class="flex justify-between p-8 rounded-xl mb-8" style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
             <div v-for="tab in tabs" :key="tab.value" class="w-[48%] cursor-pointer"
                 :class="activeTab === tab.value ? 'border-blue border-b-2' : ''" @click="activeTab = tab.value">
                 <p class="text-center pb-2 font-semibold text-lg" :class="activeTab === tab.value ? 'text-blue' : ''">
@@ -14,10 +14,8 @@
         </div>
 
         <div class="my-5">
-            <!-- ===================== Add Student Tab ===================== -->
             <div class="flex flex-col gap-10" v-if="activeTab === 'add'">
-                <!-- ========== Individual Registration Form ========== -->
-                <div class="p-7 rounded-t-xl" style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
+                <div class="p-7 rounded-xl" style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
                     <p class="font-semibold text-xl text-blue mb-5">Individual Registration Form</p>
 
                     <form @submit.prevent="handleAddStudentSubmit" class="flex flex-col gap-5">
@@ -65,9 +63,10 @@
                         </div>
                     </form>
                 </div>
+                
 
                 <!-- ========== Bulk Registration Form ========== -->
-                <div class="p-7 rounded-t-xl" style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
+                <div class="p-7 rounded-xl" style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
                     <p class="font-semibold text-xl text-blue mb-5">Bulk Registration Form</p>
 
                     <form @submit.prevent="handleBulkSubmit" class="flex flex-col gap-5">

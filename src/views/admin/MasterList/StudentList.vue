@@ -1,4 +1,3 @@
-<!-- StudentList.vue -->
 <template>
     <div>
         <span class="text-black text-2xl font-semibold mb-8 cursor-pointer hover:text-blue-500" @click="goBack">

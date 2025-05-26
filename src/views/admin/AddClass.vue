@@ -1,7 +1,9 @@
 <template>
-    <div class="flex flex-col overflow-hidden">
+    <div class="w-full">
         <template v-if="!showBlank && !showGrade7Detail">
-            <h1 class="text-5xl font-bold text-[#242424]">Manage Class</h1>
+            <div class="flex items-center space-x-6 mb-6">
+                <h1 class="text-5xl font-bold text-[#295f98]">Manage Class</h1>
+            </div>
 
             <!-- Loading State -->
             <div v-if="loading" class="flex justify-center items-center h-64">
@@ -516,7 +518,16 @@
                     <div class="text-[#295F98] text-[13px] font-semibold mb-1">Track</div>
                     <div class="text-[16px] mb-3">{{ selectedClassInfo.track }}</div>
                     <div class="text-[#295F98] text-[13px] font-semibold mb-1">Recently Added Student</div>
-                    <div class="text-[16px]">{{ selectedClassInfo.students }}</div>
+                    <div class="flex items-center justify-between space-x-4">
+                        <div class="text-[16px]">{{ selectedClassInfo.students }}
+                        <button
+                            class="text-sm bg-[#295F98] text-white px-4 py-1 ml-6 rounded hover:bg-[#1e4a73] transition duration-150 cursor-pointer"
+                            @click="viewStudents"
+                        >
+                            View
+                        </button>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="text-[#295F98] text-[17px] mb-2 tracking-wide">COMMENT</div>

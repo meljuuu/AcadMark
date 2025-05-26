@@ -1,6 +1,9 @@
 <template>
-  <div>
-    <h1 class="text-5xl font-bold mb-6">Dashboard</h1>
+   <div class="w-full">
+    <div class="flex items-center space-x-6 mb-6">
+      <h1 class="text-5xl font-bold text-[#295f98]">Dashboard</h1>
+      
+    </div>
     <!-- Loading State -->
     <div v-if="loading" class="flex justify-center items-center h-64">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>

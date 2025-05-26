@@ -152,7 +152,7 @@ export default {
      async fetchSubjects() {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://127.0.0.1:8000/api/subject/getSubjects', {
+      const response = await axios.get('http://26.135.189.53:8000/api/subject/getSubjects', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -166,7 +166,7 @@ export default {
  async fetchEmployees() {
   try {
     const token = localStorage.getItem('token');
-    const response = await axios.get('http://127.0.0.1:8000/api/teacher/getAll', {
+    const response = await axios.get('http://26.135.189.53:8000/api/teacher/getAll', {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
@@ -243,7 +243,7 @@ export default {
         try {
           const teacherId = employee.original?.id || employee.original?.Teacher_ID || employee.original?.id;
           const token = localStorage.getItem('token');
-          await axios.delete(`http://127.0.0.1:8000/api/teachers/delete/${teacherId}`, {
+          await axios.delete(`http://26.135.189.53:8000/api/teachers/delete/${teacherId}`, {
             headers: {
               Accept: 'application/json',
               'Content-Type': 'application/json',

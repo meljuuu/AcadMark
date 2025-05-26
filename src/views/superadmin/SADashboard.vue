@@ -250,11 +250,6 @@
             icon: 'fas fa-chalkboard-teacher',
           },
           { label: 'Total Students', value: 0, icon: 'fas fa-users' },
-          {
-            label: 'Academic Progress',
-            value: '85%',
-            icon: 'fas fa-chart-line',
-          },
           { label: 'Pending Grades', value: 13, icon: 'fas fa-tasks' },
         ],
         academicProgress: [

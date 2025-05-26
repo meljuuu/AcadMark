@@ -1,7 +1,12 @@
 <template>
-    <div>
-        <div class="p-7 rounded-t-xl" style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
-            <div class="flex justify-between">
+    <div class="w-full">
+        <div class="flex items-center space-x-6 mb-6">
+            <h1 class="text-5xl font-bold text-[#295f98]">Record</h1>
+        </div>
+
+       <div class="bg-white border border-gray-200 shadow-lg rounded-lg p-6 flex flex-col mb-6" style="height: 875px;">
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-4 space-x-4">
                 <div class="flex flex-wrap gap-5">
                     <Dropdown :showGrade="true" v-model="selectedGrade" />
                     <Dropdown :showAcademicTrack="true" v-model="selectedAcademicTrack" />
@@ -11,10 +16,9 @@
                     <Searchbar v-model="searchQuery" />
                 </div>
             </div>
-        </div>
 
-        <div class="p-7 rounded-t-xl mt-5" style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
-            <div class="overflow-auto">
+            <!-- Table Area (should grow to fill space) -->
+            <div class="flex-1 overflow-auto">
                 <table class="w-full border-collapse text-center text-sm">
                     <thead class="bg-gray-100 text-[#464F60] text-[15px] font-semibold">
                         <tr>
@@ -47,31 +51,43 @@
                     </tbody>
                 </table>
             </div>
-            <!-- Pagination Controls -->
-            <div class="flex justify-between items-center mt-4 px-4">
-                <div class="text-sm text-gray-600">
-                    Showing {{ paginatedStudents.length }} of {{ filteredStudents.length }} entries
-                </div>
-                <div class="flex gap-2">
-                    <button @click="currentPage--" :disabled="currentPage === 1"
-                        class="px-3 py-1 rounded border border-gray-300 disabled:opacity-50">
-                        Previous
-                    </button>
-                    <button v-for="page in totalPages" :key="page" @click="currentPage = page" :class="[
-                        'px-3 py-1 rounded border',
-                        currentPage === page
-                            ? 'bg-blue-500 text-white border-blue-500'
-                            : 'border-gray-300 hover:bg-gray-100'
-                    ]">
-                        {{ page }}
-                    </button>
-                    <button @click="currentPage++" :disabled="currentPage === totalPages"
-                        class="px-3 py-1 rounded border border-gray-300 disabled:opacity-50">
-                        Next
-                    </button>
-                </div>
+
+            <!-- Pagination (pushed to bottom via flex layout) -->
+            <div class="flex justify-center items-center mt-auto pt-4 border-t border-gray-300 space-x-1">
+                <button
+                    class="w-28 px-3 border border-[#295F98] text-[#295F98] py-1 rounded disabled:opacity-50 flex items-center justify-center gap-1"
+                    :disabled="currentPage === 1"
+                    @click="currentPage--"
+                >
+                    <span>←</span>
+                    <span>Previous</span>
+                </button>
+                <button
+                    v-for="page in pageNumbers"
+                    :key="page"
+                    class="py-1 border border-[#295F98] rounded w-10 text-center"
+                    :class="{
+                        'bg-[#295F98] text-white': page === currentPage,
+                        'text-gray-600': page !== currentPage,
+                        'cursor-default': page === '...',
+                        'cursor-pointer': page !== '...'
+                    }"
+                    @click="page !== '...' && (currentPage = page)"
+                    :disabled="page === '...'"
+                >
+                    {{ page }}
+                </button>
+                <button
+                    class="w-28 px-3 border border-[#295F98] text-[#295F98] py-1 rounded disabled:opacity-50 flex items-center justify-center gap-1"
+                    :disabled="currentPage === totalPages"
+                    @click="currentPage++"
+                >
+                    <span>Next</span>
+                    <span>→</span>
+                </button>
             </div>
         </div>
+
     </div>
 </template>
 
@@ -135,9 +151,62 @@ const paginatedStudents = computed(() => {
     return filteredStudents.value.slice(start, end);
 });
 
+const pageNumbers = computed(() => {
+    const pages = [];
+    const total = totalPages.value;
+    const current = currentPage.value;
+
+    if (total <= 7) {
+        for (let i = 1; i <= total; i++) {
+            pages.push(i);
+        }
+    } else {
+        if (current <= 4) {
+            pages.push(1, 2, 3, 4, 5, '...', total);
+        } else if (current >= total - 3) {
+            pages.push(1, '...', total - 4, total - 3, total - 2, total - 1, total);
+        } else {
+            pages.push(1, '...', current - 1, current, current + 1, '...', total);
+        }
+    }
+
+    return pages;
+});
+
 // Reset to first page when filters change
 watch([selectedGrade, selectedAcademicTrack, searchQuery], () => {
     currentPage.value = 1;
 });
 
 </script>
+
+<style scoped>
+.filters {
+  display: flex;
+  gap: 10px;
+} 
+
+.filter-dropdown {
+  padding: 10px 15px;
+  width: 150px;
+  border: 1px solid #295f98;
+  border-radius: 5px;
+  font-size: 14px;
+  background: #fff;
+  font-weight: bold;
+  color: #295f98;
+  cursor: pointer;
+  appearance: none;
+  position: relative;
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+  transition: all 0.3s ease-in-out;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='18' height='18' fill='%23295f98'><path d='M7 10l5 5 5-5H7z'/></svg>");
+}
+
+.filter-dropdown:focus {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='18' height='18' fill='%23295f98'><path d='M7 14l5-5 5 5H7z'/></svg>");
+}
+
+</style>

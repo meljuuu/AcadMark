@@ -20,11 +20,20 @@
       </div>
     </div>
 
+    <div v-if="showGrade" class="flex gap-2 border border-[#E3E9EC] rounded-md">
+      <div class="flex justify-between items-center">
+        <select v-model="selectedGrade" id="grade" class="filter-dropdown">
+          <option :value="''">All Grades</option>
+          <option v-for="option in gradeOptions" :key="option.value" :value="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+    </div>
+
     <div v-if="showAcademicTrack" class="flex gap-2 border border-[#E3E9EC] rounded-md">
       <div class="flex justify-between items-center">
-        <label for="academic-track" class="mr-2.5 p-1.5 text-[#858585]">Academic Track</label>
-        <select v-model="selectedAcademicTrack" id="academic-track"
-          class="text-base border-none bg-transparent p-1.5 font-bold text-center max-w-max focus:outline-none">
+        <select v-model="selectedAcademicTrack" id="academic-track" class="filter-dropdown">
           <option :value="''">All Tracks</option>
           <option v-for="option in academicTrackOptions" :key="option" :value="option">
             {{ option }}
@@ -33,18 +42,10 @@
       </div>
     </div>
 
-    <div v-if="showGrade" class="flex gap-2 border border-[#E3E9EC] rounded-md">
-      <div class="flex justify-between items-center">
-        <label for="grade" class="mr-2.5 p-1.5 text-[#858585]">Grade</label>
-        <select v-model="selectedGrade" id="grade"
-          class="text-base border-none bg-transparent p-1.5 font-bold text-center max-w-max focus:outline-none">
-          <option :value="''">All Grades</option>
-          <option v-for="option in gradeOptions" :key="option.value" :value="option.value">
-            {{ option.label }}
-          </option>
-        </select>
-      </div>
-    </div>
+
+    
+
+   
 
     <div v-if="showSubject" class="flex gap-2 border border-[#E3E9EC] rounded-md">
       <div class="flex justify-between items-center">
@@ -152,3 +153,34 @@ const updateSort = () => {
   emit('update:modelValue', selectedSort.value);
 };
 </script>
+
+<style scoped>
+.filters {
+  display: flex;
+  gap: 10px;
+} 
+
+.filter-dropdown {
+  padding: 10px 15px;
+  width: 150px;
+  border: 1px solid #295f98;
+  border-radius: 5px;
+  font-size: 14px;
+  background: #fff;
+  font-weight: bold;
+  color: #295f98;
+  cursor: pointer;
+  appearance: none;
+  position: relative;
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+  transition: all 0.3s ease-in-out;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='18' height='18' fill='%23295f98'><path d='M7 10l5 5 5-5H7z'/></svg>");
+}
+
+.filter-dropdown:focus {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='18' height='18' fill='%23295f98'><path d='M7 14l5-5 5 5H7z'/></svg>");
+}
+
+</style>
