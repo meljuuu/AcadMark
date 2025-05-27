@@ -140,13 +140,13 @@ export default {
       perPage: 10,
       selectedAccess: '',
       searchQuery: '',
-      employees: [], // Now fetched dynamically
+      employees: [],
       subjects: [],
       selectedSubjectId: '',
     };
   },
   mounted() {
-    this.fetchEmployees(); // fetch on load
+    this.fetchEmployees();
     this.fetchSubjects();
   },
   

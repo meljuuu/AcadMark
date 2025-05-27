@@ -329,10 +329,14 @@ export default {
   position: relative;
   margin-left: auto;
   width: 300px;
+  position: relative;
+  margin-left: auto; 
+  width: 300px;
+  margin-right: 15px;
 }
 
-.search-bar input {
-  padding: 8px 8px 8px 30px;
+.search-bar input { 
+  padding: 8px 8px 8px 30px; /* left padding to fit icon */
   border: 1px solid #295f98;
   border-radius: 5px;
   width: 100%;
@@ -350,6 +354,7 @@ export default {
   flex: 1;
   margin-bottom: 16px;
   background: #fff;
+  border-radius: 8px;
   overflow-y: auto;
   overflow-x: hidden;
   max-height: 700px;
