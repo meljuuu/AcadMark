@@ -84,9 +84,7 @@
           </table>
         </div>
 
-        <div
-          class="flex-1 bg-white rounded-lg shadow-lg border border-gray-200 p-6"
-        >
+        <div class="flex-1 bg-white rounded-lg shadow-lg border border-gray-200 p-6">
           <h2 class="text-xl font-semibold text-gray-700 mb-8">
             Summary of Grades Approval
           </h2>
@@ -97,6 +95,8 @@
             ></canvas>
           </div>
         </div>
+
+        
       </div>
     </div>
 
@@ -225,7 +225,7 @@
   import { Chart, registerables } from 'chart.js';
   import { getStudentCount, getAcceptedClassesCount, getAcceptedStudentsPerGrade, getSubmissionStatusCounts, getLatestStudents, fetchPendingCount  } from '@/service/adminDashboardService';
   import { getClassesExcludingIncomplete } from '@/service/teacherSubjectsService';
-  import { getSummaryStats, getRecentFaculties } from '@/service/superadminService';
+  import { getSummaryStats, getRecentFaculties, getStudentCountPerGradeLevel, getStudentStatusCounts } from '@/service/superadminService';
 
   Chart.register(...registerables);
 
@@ -250,14 +250,9 @@
         { label: 'Total Students', value: 0, icon: 'fas fa-users' },
         { label: 'Pending Grades', value: 0, icon: 'fas fa-tasks' },
       ],
-        academicProgress: [
-          { grade: 'Grade 7', veryGood: 8, good: 12, failed: 5 },
-          { grade: 'Grade 8', veryGood: 10, good: 15, failed: 3 },
-          { grade: 'Grade 9', veryGood: 7, good: 14, failed: 6 },
-          { grade: 'Grade 10', veryGood: 9, good: 10, failed: 4 },
-          { grade: 'Grade 11', veryGood: 11, good: 13, failed: 2 },
-          { grade: 'Grade 12', veryGood: 6, good: 16, failed: 7 },
-        ],
+      // Academic Progress
+      academicProgress: [],
+
         faculties: [
           {
             name: 'Alice Johnson',
@@ -325,6 +320,10 @@
       if (this.selectedDashboard === 'teacher') {
         this.fetchSummaryStats();
         this.fetchRecentFaculties();
+        this.fetchStudentCountsByGradeLevel();
+        this.fetchStatusCounts();
+
+       
         this.renderGroupedBarChart();
         this.renderStatusPieChart();
       }
@@ -622,10 +621,13 @@
       
       // Teacher
       renderGroupedBarChart() {
-        const ctx = document
-          .getElementById('academicGroupedBarChart')
-          .getContext('2d');
-        new Chart(ctx, {
+        const ctx = document.getElementById('academicGroupedBarChart').getContext('2d');
+
+        if (this.academicChart) {
+          this.academicChart.destroy();
+        }
+
+        this.academicChart = new Chart(ctx, {
           type: 'bar',
           data: {
             labels: this.academicProgress.map((item) => item.grade),
@@ -649,7 +651,7 @@
           },
           options: {
             responsive: true,
-            maintainAspectRatio: false, // Let canvas fill the container size
+            maintainAspectRatio: false, // Fill container
             plugins: {
               legend: {
                 position: 'top',
@@ -676,48 +678,54 @@
         });
       },
 
-      renderStatusPieChart() {
-        const ctx = document.getElementById('statusPieChart').getContext('2d');
-        new Chart(ctx, {
-          type: 'pie',
-          data: {
-            labels: ['Accepted', 'Pending', 'Decline'],
-            datasets: [
-              {
-                data: [40, 25, 15],
-                backgroundColor: [
-                  'rgba(34, 197, 94, 0.8)',
-                  'rgba(255, 165, 0, 0.8)',
-                  'rgba(239, 68, 68, 0.8)',
-                ],
-                borderColor: 'white',
-                borderWidth: 2,
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                position: 'right',
-                labels: {
-                  font: {
-                    size: 18,
-                    family: 'Arial, sans-serif',
-                    weight: 'bold',
-                  },
-                  usePointStyle: true,
-                  pointStyle: 'rect',
-                },
-              },
-              tooltip: {
-                enabled: true,
-              },
+
+renderStatusPieChart() {
+  if (!this.statusCounts) return;
+
+  const { approved = 0, pending = 0, decline = 0 } = this.statusCounts;
+
+  const ctx = document.getElementById('statusPieChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: ['Accepted', 'Pending', 'Decline'],
+      datasets: [
+        {
+          data: [approved, pending, decline],
+          backgroundColor: [
+            'rgba(34, 197, 94, 0.8)',   // Approved
+            'rgba(255, 165, 0, 0.8)',   // Pending
+            'rgba(239, 68, 68, 0.8)',   // Declined
+          ],
+          borderColor: 'white',
+          borderWidth: 2,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: {
+            font: {
+              size: 18,
+              family: 'Arial, sans-serif',
+              weight: 'bold',
             },
+            usePointStyle: true,
+            pointStyle: 'rect',
           },
-        });
+        },
+        tooltip: {
+          enabled: true,
+        },
       },
+    },
+  });
+},
+
 
 // Teacher Dashboard
       async fetchSummaryStats() {
@@ -751,6 +759,53 @@
         console.error('Error loading recent faculties:', error);
       }
     },
+
+    async fetchStudentCountsByGradeLevel() {
+      try {
+        const result = await getStudentCountPerGradeLevel();
+
+        this.academicProgress = result.map(item => ({
+          grade: `Grade ${item.Grade_Level}`,
+          veryGood: parseInt(item.very_good),
+          good: parseInt(item.good),
+          failed: parseInt(item.failed),
+        }));
+
+        this.renderGroupedBarChart();  // <-- Use the correct method name here
+
+      } catch (error) {
+        console.error("Error loading student counts by grade level:", error);
+      }
+    },
+
+async fetchStatusCounts() {
+  try {
+    const result = await getStudentStatusCounts();
+
+    // Default all keys
+    this.statusCounts = {
+      approved: 0,
+      pending: 0,
+      decline: 0, // ✅ matches your chart data order
+    };
+
+    result.forEach(item => {
+      const key = item.Status.toLowerCase(); // 'approved', 'pending', 'decline'
+      if (this.statusCounts.hasOwnProperty(key)) {
+        this.statusCounts[key] = parseInt(item.total, 10);
+      }
+    });
+
+    this.renderStatusPieChart(); // <- make sure to call it here!
+  } catch (error) {
+    console.error("Error loading status counts:", error);
+  }
+}
+
+
+
+
+
 
       
 

@@ -18,6 +18,29 @@ export const getClassesWithStudentCount = async () => {
   }
 };
 
+// Student Grade Count by Grade Level
+export const getStudentCountPerGradeLevel = async () => {
+  try {
+    const response = await API.get("/super-admin/getcountofstudents");
+    return response.data;
+  } catch (error) {
+    console.error("API error:", error);
+    throw error.response ? error.response.data : error;
+  }
+};
+
+// Get the count for Teacher Dashboard for Status Pending, Accepted and Decline
+export const getStudentStatusCounts = async () => {
+  try {
+    const response = await API.get("/super-admin/status-counts");
+    return response.data;
+  } catch (error) {
+    console.error("API error:", error);
+    throw error.response ? error.response.data : error;
+  }
+};
+
+
 //Dashboard "Teacher" get the Recently Added Faculties
 export const getRecentFaculties = async (limit = 5) => {
   try {
