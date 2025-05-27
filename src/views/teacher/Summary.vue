@@ -69,6 +69,10 @@ const props = defineProps({
   subjectName: {
     type: String,
     required: true,
+  },
+  classId: {
+    type: String,
+    default: null,
   }
 });
 

@@ -6,8 +6,15 @@ const API = axios.create({
 });
 
 // Function to submit grades (both single and bulk)
-export const submitGrades = async (gradesData) => {
+export const submitGrades = async (gradesData, classId) => {
   try {
+    const payload = {
+      grades: gradesData.map(grade => ({
+        ...grade,
+        Class_ID: classId
+      }))
+    };
+    console.log('Submitting grades data:', gradesData);
     const token = localStorage.getItem('token');
     const userStr = localStorage.getItem('user');
     
@@ -24,19 +31,12 @@ export const submitGrades = async (gradesData) => {
       throw new Error('Teacher ID not found in user data');
     }
 
-    // Log the data being sent
-    console.log('Submitting grades data:', gradesData);
-
-    const response = await API.post(
-      '/grades/bulk',
-      { grades: gradesData },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await API.post('/grades/bulk', payload, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
     // Log the response
     console.log('Server response:', response.data);
@@ -45,16 +45,9 @@ export const submitGrades = async (gradesData) => {
   } catch (error) {
     console.error('Grade submission error:', error);
     if (error.response) {
-      // Log validation errors if they exist
-      if (error.response.status === 422) {
-        console.error('Validation errors:', error.response.data.errors);
-      }
-      return error.response.data;
+      console.error('Validation errors:', error.response.data.errors);
     }
-    return {
-      status: 'error',
-      message: 'Network error or server unreachable',
-    };
+    throw error;
   }
 };
 

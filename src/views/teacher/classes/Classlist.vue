@@ -70,7 +70,8 @@ import { useRoute } from 'vue-router';
 const props = defineProps({
   class_id: {
     type: String,
-    required: true,
+    required: false,
+    default: null
   },
   subjectName: String,
 });

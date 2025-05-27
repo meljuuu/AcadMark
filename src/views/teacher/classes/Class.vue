@@ -62,11 +62,14 @@
         </nav>
 
         <transition name="fade" mode="out-in">
-          <div>
-            <component :is="activeComponent" :subject_id="subject_id" :trackStand="trackStand" :className="className"
+          <div v-if="class_id">
+            <component :is="activeComponent" :class_id="class_id" :subject_id="subject_id" :trackStand="trackStand" :className="className"
               :subjectName="subjectName" :classType="classType" :currentPage="currentPage" :itemsPerPage="itemsPerPage"
               :gradeLevel="gradeLevel" @update:currentPage="currentPage = $event" @update:totalItems="updateTotalItems" :key="activeComponent">
             </component>
+          </div>
+          <div v-else>
+            Loading...
           </div>
         </transition>
       </div>
@@ -174,7 +177,7 @@ export default {
   },
   setup(props) {
     const route = useRoute();
-    const class_id = route.params.class_id;
+    const class_id = ref(route.params.class_id);
     const subjectInfo = ref(null);
     const maleCount = ref(0);
     const femaleCount = ref(0);
@@ -211,7 +214,7 @@ export default {
       try {
         loading.value = true;
         error.value = null;
-        const response = await classService.getClassDetails(class_id);
+        const response = await classService.getClassDetails(class_id.value);
         if (response.status === 'success') {
           const data = response.data;
           maleCount.value = data.maleCount;
@@ -272,6 +275,7 @@ export default {
     });
 
     onMounted(() => {
+      console.log('Class ID:', class_id.value);
       fetchClassDetails();
     });
 
@@ -292,6 +296,7 @@ export default {
       updateTotalItems,
       loading,
       error,
+      class_id,
     };
   },
 };

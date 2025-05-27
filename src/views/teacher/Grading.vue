@@ -248,61 +248,34 @@ function toggleEditMode() {
 }
 
 async function saveGrades() {
-  if (selectedStudent.value) {
-    try {
-      const gradeKey = quarterMapping[selectedQuarter.value];
-      selectedStudent.value.grades[gradeKey] = Grade.value;
+  if (!selectedStudent.value) return;
 
-      // Save to localStorage
-      const localStorageKey = `grade_${selectedStudent.value.student_id}_${props.subject_id}_${gradeKey}`;
-      localStorage.setItem(localStorageKey, Grade.value);
+  try {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user?.teacher_ID) throw new Error('Teacher ID missing');
 
-      // Get teacher ID from localStorage
-      const userStr = localStorage.getItem('user');
-      if (!userStr) {
-        throw new Error('User data not found in localStorage');
-      }
-
-      const user = JSON.parse(userStr);
-      if (!user.teacher_ID) {
-        throw new Error('Teacher ID not found in user data');
-      }
-
-      // Prepare the grade data for the backend
-      const gradeData = {
+    const payload = {
+      grades: [{
         Student_ID: selectedStudent.value.student_id,
         Subject_ID: props.subject_id,
         Teacher_ID: user.teacher_ID,
-        Class_ID: selectedStudent.value.class_id,
-        Q1: selectedStudent.value.grades.first ? parseFloat(selectedStudent.value.grades.first) : null,
-        Q2: selectedStudent.value.grades.second ? parseFloat(selectedStudent.value.grades.second) : null,
-        Q3: selectedStudent.value.grades.third ? parseFloat(selectedStudent.value.grades.third) : null,
-        Q4: selectedStudent.value.grades.fourth ? parseFloat(selectedStudent.value.grades.fourth) : null,
-      };
+        Class_ID: props.class_id, // Ensure this matches backend expectations
+        Q1: selectedStudent.value.grades.first || null,
+        Q2: selectedStudent.value.grades.second || null,
+        Q3: selectedStudent.value.grades.third || null,
+        Q4: selectedStudent.value.grades.fourth || null
+      }]
+    };
 
-      // Save to backend
-      const result = await apiSubmitGrades([gradeData]);
+    console.log('Final submission payload:', payload); // Debug log
 
-      if (result.status === 'success') {
-        Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: 'Grade saved successfully!',
-          timer: 1500,
-          showConfirmButton: false
-        });
-      } else {
-        throw new Error(result.message || 'Failed to save grade');
-      }
-    } catch (error) {
-      console.error('Error saving grade:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: error.message || 'Failed to save grade. Please try again.',
-        confirmButtonColor: '#dc2626'
-      });
-    }
+    const result = await apiSubmitGrades(payload.grades, props.class_id);
+    if (result.status !== 'success') throw new Error(result.message);
+    
+    Swal.fire('Success', 'Grade saved!', 'success');
+  } catch (error) {
+    console.error('Submission error:', error.response?.data || error.message);
+    Swal.fire('Error', error.response?.data?.message || 'Failed to save grade', 'error');
   }
 }
 
@@ -311,82 +284,43 @@ const selectedStudents = computed(() => {
 });
 
 async function submitGrades() {
-  if (selectedStudents.value.length === 0) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'No Students Selected',
-      text: 'Please select at least one student to submit grades.',
-      confirmButtonColor: '#dc2626'
-    });
+  const classId = props.class_id || route.params.class_id;
+  if (!classId) {
+    Swal.fire('Error', 'Class ID is missing.', 'error');
     return;
   }
 
-  const userStr = localStorage.getItem('user');
-  if (!userStr) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: 'User data not found. Please login again.',
-      confirmButtonColor: '#dc2626'
-    });
-    return;
-  }
+  const gradesData = selectedStudents.value.map((student) => ({
+    Student_ID: student.student_id,
+    Subject_ID: props.subject_id,
+    Teacher_ID: JSON.parse(localStorage.getItem('user')).teacher_ID,
+    Class_ID: classId,
+    Q1: student.grades.first || null,
+    Q2: student.grades.second || null,
+    Q3: student.grades.third || null,
+    Q4: student.grades.fourth || null,
+  }));
 
-  const user = JSON.parse(userStr);
-  if (!user.teacher_ID) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: 'Teacher ID not found. Please login again.',
-      confirmButtonColor: '#dc2626'
-    });
-    return;
-  }
-
-  // Store the currently selected students before submission
-  const selectedStudentIds = selectedStudents.value.map(student => student.student_id);
-
-  const gradesData = selectedStudents.value.map((student) => {
-    const grades = student.grades;
-    return {
-      Student_ID: student.student_id,
-      Subject_ID: props.subject_id,
-      Teacher_ID: user.teacher_ID,
-      Class_ID: student.class_id,
-      Q1: grades.first ? parseFloat(grades.first) : null,
-      Q2: grades.second ? parseFloat(grades.second) : null,
-      Q3: grades.third ? parseFloat(grades.third) : null,
-      Q4: grades.fourth ? parseFloat(grades.fourth) : null,
-      FinalGrade: calculateFinalGrade(grades),
-      Remarks: calculateRemarks(grades),
-      Status: 'pending'
-    };
+  // Show confirmation pop-up
+  const result = await Swal.fire({
+    title: 'Are you sure?',
+    text: 'You are about to submit grades for the selected students.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, submit!',
+    cancelButtonText: 'Cancel',
   });
 
-  try {
-    const result = await apiSubmitGrades(gradesData);
-
-    if (result.status === 'success') {
-      showSubmitSuccess.value = true;
-      await loadSubjectData();
-      
-      // Restore the selected state after loading new data
-      studentsInSubject.value.forEach(student => {
-        if (selectedStudentIds.includes(student.student_id)) {
-          student.selected = true;
-        }
-      });
-    } else {
-      throw new Error(result.message || 'Failed to submit grades');
+  if (result.isConfirmed) {
+    try {
+      await apiSubmitGrades(gradesData, classId);
+      Swal.fire('Success', 'Grades submitted successfully!', 'success');
+    } catch (error) {
+      console.error('Error:', error.response?.data);
+      Swal.fire('Error', error.response?.data?.message || 'Failed to submit grades.', 'error');
     }
-  } catch (error) {
-    console.error('Error submitting grades:', error);
-    Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: error.message || 'Failed to submit grades. Please try again.',
-      confirmButtonColor: '#dc2626'
-    });
   }
 }
 
