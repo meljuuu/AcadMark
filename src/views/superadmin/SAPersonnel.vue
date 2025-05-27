@@ -141,6 +141,7 @@ export default {
       searchQuery: '',
       employees: [], // Now fetched dynamically
       subjects: [],
+      selectedSubjectId: '',
     };
   },
   mounted() {
@@ -152,7 +153,7 @@ export default {
      async fetchSubjects() {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://26.135.189.53:8000/api/subject/getSubjects', {
+      const response = await axios.get('http://127.0.0.1:8000/api/subject/getSubjects', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -166,7 +167,7 @@ export default {
  async fetchEmployees() {
   try {
     const token = localStorage.getItem('token');
-    const response = await axios.get('http://26.135.189.53:8000/api/teacher/getAll', {
+    const response = await axios.get('http://127.0.0.1:8000/api/teacher/getAll', {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
@@ -174,9 +175,8 @@ export default {
       },
     });
 
-    // Adjust for new API structure
-    const teacherList = Array.isArray(response.data.teachers)
-      ? response.data.teachers
+    const teacherList = Array.isArray(response.data.data)
+      ? response.data.data
       : [];
 
     this.employees = teacherList.map(item => {
@@ -189,9 +189,9 @@ export default {
         email: t.Email,
         original: {
           ...t,
-          Subject_IDs: item.Subject_IDs, // include subject IDs for modal
-          subjects: item.subjects,       // include subject objects if needed
-          id: t.id || t.Teacher_ID
+          subjects: item.subjects || [],
+          advisory_classes: item.advisory_classes || [],
+          id: t.Teacher_ID
         }
       };
     });
@@ -243,7 +243,7 @@ export default {
         try {
           const teacherId = employee.original?.id || employee.original?.Teacher_ID || employee.original?.id;
           const token = localStorage.getItem('token');
-          await axios.delete(`http://26.135.189.53:8000/api/teachers/delete/${teacherId}`, {
+          await axios.delete(`http://127.0.0.1:8000/api/teachers/delete/${teacherId}`, {
             headers: {
               Accept: 'application/json',
               'Content-Type': 'application/json',

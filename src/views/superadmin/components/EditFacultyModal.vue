@@ -167,27 +167,27 @@
     <div v-if="selectedAccession === 'Teacher'">
       <h1 class="font-semibold text-[#295f98] mb-2">Teacher Subject</h1>
       <div class="flex gap-4 mb-4">
-        <div class="floating-label flex-1" :class="{ filled: subject1 }">
-          <select v-model="subject1" class="input" required>
-            <option value="" disabled selected hidden>Select Subject 1</option>
-            <option v-for="subject in subjects" :key="subject.Subject_ID" :value="String(subject.Subject_ID)">
-              {{ subject.SubjectName }}
-            </option>
-          </select>
-          <label>{{ subject1 ? capitalize(subject1) : 'Subject 1' }}</label>
-          <span class="custom-arrow"></span>
-        </div>
+       <div class="floating-label flex-1" :class="{ filled: subject1 }">
+  <select v-model="subject1" class="input" required>
+    <option value="" disabled selected hidden>Select Subject 1</option>
+    <option v-for="subject in subjects" :key="subject.id" :value="String(subject.id)">
+      {{ subject.name }}
+    </option>
+  </select>
+  <label>{{ subject1 ? capitalize(subject1) : 'Subject 1' }}</label>
+  <span class="custom-arrow"></span>
+</div>
 
-        <div v-if="showSubject2" class="floating-label flex-1" :class="{ filled: subject2 }">
-          <select v-model="subject2" class="input">
-            <option value="" disabled selected hidden>Select Subject 2</option>
-            <option v-for="subject in subjects" :key="subject.Subject_ID" :value="String(subject.Subject_ID)">
-              {{ subject.SubjectName }}
-            </option>
-          </select>
-          <label>{{ subject2 ? capitalize(subject2) : 'Subject 2' }}</label>
-          <span class="custom-arrow"></span>
-        </div>
+<div v-if="showSubject2" class="floating-label flex-1" :class="{ filled: subject2 }">
+  <select v-model="subject2" class="input">
+    <option value="" disabled selected hidden>Select Subject 2</option>
+    <option v-for="subject in subjects" :key="subject.id" :value="String(subject.id)">
+      {{ subject.name }}
+    </option>
+  </select>
+  <label>{{ subject2 ? capitalize(subject2) : 'Subject 2' }}</label>
+  <span class="custom-arrow"></span>
+</div>
 
         <button
           type="button"
@@ -293,13 +293,9 @@ watch(selectedAccession, (val) => {
 
 const showSubject2 = ref(false);
 
-function capitalize(str) {
-  if (!str) return '';
-  // Try to find the subject name from the subjects array if str is an ID
-  const subject = props.subjects?.find(s => String(s.Subject_ID) === String(str));
-  if (subject) return subject.SubjectName;
-  // Otherwise, just capitalize the string
-  return String(str).charAt(0).toUpperCase() + String(str).slice(1);
+function capitalize(subjectId) {
+  const subject = props.subjects?.find(s => String(s.id) === String(subjectId));
+  return subject ? subject.name : '';
 }
 
 // Load initial values into the form
@@ -364,7 +360,7 @@ const handleSubmit = async () => {
   }
 
   const teacherId = props.facultyData?.id;
-  const apiUrl = `http://26.135.189.53:8000/api/teachers/edit/${teacherId}`;
+  const apiUrl = `http://127.0.0.1:8000/api/teachers/edit/${teacherId}`;
 
 const payload = {
   FirstName: firstName.value,

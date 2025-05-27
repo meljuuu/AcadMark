@@ -162,41 +162,41 @@
         </div>
 
 
-            <div v-if="selectedAccession === 'Teacher'">
-      <h1 class="font-semibold text-[#295f98] mb-2">Teacher Subject</h1>
-      <div class="flex gap-4 mb-4">
-        <div class="floating-label flex-1" :class="{ filled: subject1 }">
-          <select v-model="subject1" class="input" required>
-            <option value="" disabled selected hidden>Select Subject 1</option>
-            <option v-for="subject in subjects" :key="subject.Subject_ID" :value="subject.Subject_ID">
-              {{ subject.SubjectName }}
-            </option>
-          </select>
-          <label>{{ subject1 ? capitalize(subject1) : 'Subject 1' }}</label>
-          <span class="custom-arrow"></span>
-        </div>
-
-        <div v-if="showSubject2" class="floating-label flex-1" :class="{ filled: subject2 }">
-          <select v-model="subject2" class="input">
-            <option value="" disabled selected hidden>Select Subject 2</option>
-            <option v-for="subject in subjects" :key="subject.Subject_ID" :value="subject.Subject_ID">
-              {{ subject.SubjectName }}
-            </option>
-          </select>
-          <label>{{ subject2 ? capitalize(subject2) : 'Subject 2' }}</label>
-          <span class="custom-arrow"></span>
-        </div>
-
-        <button
-          type="button"
-          @click="toggleSubject2"
-          class="px-5 py-3.5 text-white rounded cursor-pointer"
-          :class="showSubject2 ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'"
-        >
-          {{ showSubject2 ? '-' : '+' }}
-        </button>
-      </div>
+<div v-if="selectedAccession === 'Teacher'">
+  <h1 class="font-semibold text-[#295f98] mb-2">Teacher Subject</h1>
+  <div class="flex gap-4 mb-4">
+    <div class="floating-label flex-1" :class="{ filled: subject1 }">
+      <select v-model="subject1" class="input" required>
+        <option value="" disabled selected hidden>Select Subject 1</option>
+        <option v-for="subject in subjects" :key="subject.id" :value="subject.id">
+          {{ subject.name }}
+        </option>
+      </select>
+      <label>{{ subject1 ? capitalize(subject1) : 'Subject 1' }}</label>
+      <span class="custom-arrow"></span>
     </div>
+
+    <div v-if="showSubject2" class="floating-label flex-1" :class="{ filled: subject2 }">
+      <select v-model="subject2" class="input">
+        <option value="" disabled selected hidden>Select Subject 2</option>
+        <option v-for="subject in subjects" :key="subject.id" :value="subject.id">
+          {{ subject.name }}
+        </option>
+      </select>
+      <label>{{ subject2 ? capitalize(subject2) : 'Subject 2' }}</label>
+      <span class="custom-arrow"></span>
+    </div>
+
+    <button
+      type="button"
+      @click="toggleSubject2"
+      class="px-5 py-3.5 text-white rounded cursor-pointer"
+      :class="showSubject2 ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'"
+    >
+      {{ showSubject2 ? '-' : '+' }}
+    </button>
+  </div>
+</div>
 
 
    <!-- Accession Section -->
@@ -436,10 +436,18 @@ const capitalize = (str) => {
 
 onMounted(async () => {
   try {
-    const response = await axios.get('http://127.0.0.1:8000/api/subject/getSubjects');
-    subjects.value = response.data;
+    const token = localStorage.getItem('token');
+    const response = await axios.get('http://127.0.0.1:8000/api/subjects', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
+      },
+    });
+    if (response.data.status === 'success') {
+      subjects.value = response.data.data;  // Use directly as API matches keys
+    }
   } catch (error) {
-    console.error('Error fetching subjects:', error);
+    console.error('Failed to fetch subjects:', error);
   }
 });
 </script>
