@@ -63,7 +63,7 @@
                         </div>
                     </form>
                 </div>
-                
+
 
                 <!-- ========== Bulk Registration Form ========== -->
                 <div class="p-7 rounded-xl" style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
@@ -205,15 +205,16 @@
                                         <td class="p-2">{{ student.age }}</td>
                                         <td class="p-2">
                                             <span
-                                    class="px-4 py-2 rounded inline-block w-[135px] font-semibold text-center"
-                                    :class="[
-                                        student.status === 'Accepted' ? ' text-green-800' :
-                                        student.status === 'Pending' ? ' text-orange-800' :
-                                        student.status === 'Declined' ? ' text-red-800' :
-                                        ' text-gray-800'
-                                    ]">
-                                    {{ student.status }}
-                                    </span>
+                                                class="px-4 py-2 rounded inline-block w-[135px] font-semibold text-center"
+                                                :class="[
+                                                    student.status === 'Accepted' ? 'text-green-800' :
+                                                        student.status === 'Pending' ? 'text-orange-800' :
+                                                            student.status === 'Declined' ? 'text-red-800' :
+                                                                student.status === 'Drop-Out' ? 'text-orange-600' :
+                                                                    'text-gray-800'
+                                                ]">
+                                                {{ student.status === 'Drop-Out' ? 'For Drop Out' : student.status }}
+                                            </span>
 
                                         </td>
 
@@ -227,7 +228,7 @@
         </div>
 
         <!-- ===================== Student Modal (View/Edit) ===================== -->
-        <div v-if="showModal" class="fixed inset-0 z-50 bg-black/50 p-[5%] ml-40">
+        <div v-if="showModal" class="fixed inset-0 z-50 bg-black/50 flex justify-center items-center p-[5%]">
             <div class="bg-white p-10 flex flex-col gap-5 max-h-[90vh] overflow-y-auto">
                 <div class="flex justify-between items-center">
                     <p class="font-semibold text-2xl text-blue">Individual Registration Form</p>
@@ -283,18 +284,91 @@
                             class="bg-[#656464] text-white px-6 py-2 rounded hover:bg-gray-600 transition-colors cursor-pointer">
                             Cancel
                         </button>
-                        <button v-if="!isEditing" type="button" @click="startEditing"
+
+                        <template v-if="isEditing">
+                            <button type="button" @click="openDropModal(selectedStudent?.original)"
+                                class="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700 transition-colors cursor-pointer">
+                                Request for drop-out
+                            </button>
+
+                            <button type="submit"
+                                class="bg-blue text-white px-6 py-2 rounded hover:bg-blue-600 transition-colors cursor-pointer">
+                                Update Record
+                            </button>
+                        </template>
+
+                        <button v-else type="button" @click="startEditing"
                             class="bg-green text-white px-6 py-2 rounded hover:bg-blue-600 transition-colors cursor-pointer">
                             Edit Record
                         </button>
-                        <button v-else type="submit"
-                            class="bg-blue text-white px-6 py-2 rounded hover:bg-blue-600 transition-colors cursor-pointer">
-                            Update Record
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+
+        <div v-if="isModalDropOpen" class="fixed inset-0 z-50 bg-black/50 flex justify-center items-center p-[5%]">
+            <div class="bg-white p-10 gap-5 max-h-[90vh] w-[700px] overflow-y-auto rounded-lg">
+                <div class="flex justify-between items-center">
+                    <p class="font-semibold text-2xl text-blue">REQUEST FOR DROP-OUT</p>
+                </div>
+
+                <form class="flex flex-col gap-5">
+                    <!-- Info Fields -->
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="floating-label mb-4">
+                            <input type="text" class="input" placeholder=" " :value="dropOutFormData.Grade_Level"
+                                readonly />
+                            <label>Grade Level</label>
+                        </div>
+                        <div class="floating-label mb-4">
+                            <input type="text" class="input" placeholder=" " :value="dropOutFormData.Curriculum"
+                                readonly />
+                            <label>Curriculum</label>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="floating-label mb-4">
+                            <input type="text" class="input" placeholder=" " :value="dropOutFormData.Track" readonly />
+                            <label>Track</label>
+                        </div>
+                        <div class="floating-label mb-4">
+                            <input type="text" class="input" placeholder=" " :value="dropOutFormData.LRN" readonly />
+                            <label>LRN</label>
+                        </div>
+                    </div>
+
+                    <div class="floating-label mb-4">
+                        <input type="text" class="input" placeholder=" " :value="dropOutFormData.FullName" readonly />
+                        <label>Full Name</label>
+                    </div>
+
+                    <!-- Reason -->
+                    <div class="flex flex-col gap-2">
+                        <label class="text-blue font-semibold text-2xl" for="comment">REASON FOR DROP-OUT</label>
+                        <textarea rows="10" class="border-1 rounded-lg p-2" placeholder="Comment the reason here"
+                            v-model="dropOutFormData.drop_out_comments"></textarea>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="flex justify-end gap-2 mt-5">
+                        <button type="button" @click="closeDropModal"
+                            class="bg-[#656464] text-white px-6 py-2 rounded hover:bg-gray-600 transition-colors cursor-pointer">
+                            Cancel
+                        </button>
+                        <button type="submit" @click="dropOutStudent"
+                            class="bg-green text-white px-6 py-2 rounded hover:bg-blue-600 transition-colors cursor-pointer">
+                            Submit
                         </button>
                     </div>
                 </form>
             </div>
         </div>
+
+
+
     </div>
 </template>
 
@@ -302,7 +376,7 @@
 import { ref, reactive, computed, onMounted, watch } from 'vue'
 import Dropdown from '@/components/dropdown.vue'
 import Searchbar from '@/components/searchbar.vue'
-import { getStudentsNoClass, createStudent, bulkRegisterStudents, editStudent } from '@/service/studentService'
+import { getStudentsNoClass, createStudent, bulkRegisterStudents, editStudent, dropStudent } from '@/service/studentService'
 import { useToast } from 'vue-toastification'
 import Swal from 'sweetalert2'
 
@@ -323,6 +397,81 @@ const tabs = [
     { label: 'Add Student', value: 'add' },
     { label: 'Submitted', value: 'submitted' },
 ]
+
+const isModalDropOpen = ref(false);
+
+watch(isModalDropOpen, (newVal) => {
+    if (newVal === true) {
+        showModal.value = false;
+    }
+});
+
+function closeDropModal() {
+    isModalDropOpen.value = false;
+    showModal.value = true;
+}
+
+const dropOutFormData = reactive({
+    Student_ID: '',
+    Grade_Level: '',
+    Curriculum: '',
+    Track: '',
+    LRN: '',
+    FullName: '',
+    drop_out_comments: '',
+});
+
+function openDropModal(student) {
+    if (!student) {
+        console.warn('openDropModal: invalid student data', student);
+        return;
+    }
+
+    isModalDropOpen.value = true;
+    showModal.value = false;
+
+    dropOutFormData.Grade_Level = student.Grade_Level ? `Grade ${student.Grade_Level}` : '';
+    dropOutFormData.Curriculum = student.Curriculum === 'JHS' ? 'Junior High School'
+        : student.Curriculum === 'SHS' ? 'Senior High School'
+            : '';
+    dropOutFormData.Track = student.Track || '';
+    dropOutFormData.LRN = student.LRN || '';
+    dropOutFormData.FullName = `${student.LastName}, ${student.FirstName} ${student.MiddleName || ''}`.trim();
+    dropOutFormData.Student_ID = student.Student_ID || '';
+
+
+    console.log("Drop-out modal data:", dropOutFormData);
+}
+
+async function dropOutStudent(event) {
+    event.preventDefault(); // prevent default form submission
+
+    try {
+        const response = await dropStudent(
+            dropOutFormData.Student_ID,
+            dropOutFormData.drop_out_comments
+        );
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: response.message || 'Student marked as Drop-Out successfully!',
+        });
+
+        isModalDropOpen.value = false;
+        setTimeout(() => {
+            window.location.reload();
+        }, 1000);
+        // Optionally reset form or reload data here
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.message || 'Failed to mark student as Drop-Out.',
+        });
+    }
+}
+
 
 const activeTab = ref('add')
 const toast = useToast()
@@ -767,3 +916,35 @@ watch(() => bulkFormData.value.curriculum, (newValue) => {
 });
 
 </script>
+
+<style scoped>
+.floating-label {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+
+}
+
+.floating-label .input {
+    padding: 0.75rem 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 0.375rem;
+    background: white;
+}
+
+.floating-label label {
+    position: absolute;
+    left: 0.5rem;
+    top: 0.75rem;
+    background: white;
+    color: #888;
+    padding: 0 0.25rem;
+    transition: all 0.2s ease;
+    pointer-events: none;
+}
+
+.floating-label input {
+    transform: translateY(1.5rem);
+    font-size: 1rem;
+}
+</style>

@@ -118,7 +118,10 @@ onMounted(async () => {
             sex: student.Sex,
             birthdate: student.BirthDate,
             age: student.Age,
+            student_id: student.Student_ID,
         }));
+
+        console.log("DATA:", students.value);
     } catch (error) {
         console.error('Failed to fetch students:', error);
     }

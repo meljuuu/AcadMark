@@ -49,7 +49,7 @@
             <th>NAME</th>
             <th>GENDER</th>
             <th>AGE</th>
-            <th>GRADE</th>
+            <th>LATEST GRADE</th>
             <th>STATUS</th>
           </tr>
         </thead>
@@ -63,11 +63,19 @@
             <td>{{ student.lastName }}, {{ student.firstName }} {{ student.middleName }}</td>
             <td>{{ student.sex }}</td>
             <td>{{ student.age }}</td>
-            <td>{{ student.subject_grades.Q1 }}</td>
+            <td>
+              {{
+                student.subject_grades?.Q4 ??
+                student.subject_grades?.Q3 ??
+                student.subject_grades?.Q2 ??
+                student.subject_grades?.Q1 ??
+              'N/A'
+              }}
+            </td>
             <td>
               <span :class="{
                 'text-green-600': student.subject_grades.Status === 'Approved',
-                'text-red-600': student.subject_grades.Status === 'Not Approved',
+                'text-red-600': student.subject_grades.Status === 'Declined',
                 'text-yellow-600': student.subject_grades.Status === 'Pending'
               }">
                 {{ student.subject_grades.Status }}
@@ -77,7 +85,7 @@
 
         </tbody>
       </table>
-      <GradeModal v-if="showModal" :student="selectedStudent" @close="showModal = false" />
+      <GradeModal v-if="showModal" :student="selectedStudent" @close="showModal = false" @accepted="handleAccepted" />
 
 
       <div class="button mt-5">
@@ -226,6 +234,41 @@ const acceptAlert = () => {
     }
   });
 };
+
+const handleAccepted = (studentId) => {
+  console.log('Student accepted:', studentId);
+
+  // Reload students from localStorage to reflect the updated status
+  const storedStudents = JSON.parse(localStorage.getItem('students') || '[]');
+
+  // Update the filteredStudents list with refreshed data
+  filteredStudents.value = storedStudents
+    .map((student) => {
+      const matchingGrade = student.subject_grades.find(
+        (g) => g.subject_id === subjectId.value
+      );
+
+      if (matchingGrade) {
+        const birthDate = new Date(student.birthDate);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+          age--;
+        }
+
+        return {
+          ...student,
+          age,
+          subject_grades: matchingGrade,
+        };
+      }
+
+      return null;
+    })
+    .filter(Boolean);
+};
+
 </script>
 
 <style scoped>

@@ -75,3 +75,17 @@ export const editStudent = async (id, updatedData) => {
         throw error.response ? error.response.data : error;
     }
 };
+
+export const dropStudent = async (studentId, dropOutComments = '') => {
+    try {
+        const payload = {
+            student_id: studentId,
+            drop_out_comments: dropOutComments
+        };
+
+        const response = await API.post('/students/mark-dropout', payload);
+        return response.data;
+    } catch (error) {
+        throw error.response ? error.response.data : error;
+    }
+};

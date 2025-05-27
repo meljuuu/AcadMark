@@ -57,7 +57,9 @@
           <tbody>
             <tr v-for="personnel in paginatedPersonnel" :key="personnel.section + personnel.adviser"
               @click="openModal(personnel)" style="cursor: pointer;">
-              <td class="px-6 py-4 border-b border-gray-300"><input type="checkbox" /></td>
+              <td class="px-6 py-4 border-b border-gray-300" @click.stop>
+                <input type="checkbox" :value="personnel.class_id" v-model="checkedClasses" />
+              </td>
               <td class="px-6 py-4 border-b border-gray-300">{{ personnel.grade }}</td>
               <td class="px-6 py-4 border-b border-gray-300">{{ personnel.curriculum }}</td>
               <td class="px-6 py-4 border-b border-gray-300">{{ personnel.track }}</td>
@@ -75,7 +77,7 @@
 
       <div class="button">
         <button class="red">Reject</button>
-        <button class="green">Accept</button>
+        <button @click="acceptCheckedClasses" class="green">Accept</button>
       </div>
 
       <div class="flex justify-center items-center mt-4 space-x-1 pt-4 border-t border-gray-300">
@@ -108,6 +110,8 @@
 <script>
 import { getClassesExcludingIncomplete } from "@/service/teacherSubjectsService";
 import ClassInfoModal from "./components/ClassInfoModal.vue";
+import { acceptClass } from '@/service/studentClassService';
+import Swal from "sweetalert2";
 
 export default {
   components: {
@@ -118,6 +122,7 @@ export default {
       selectedClass: null,
       isModalOpen: false,
       rawClasses: [],
+      checkedClasses: [],
       currentPage: 1,
       itemsPerPage: 10,
       searchQuery: "",
@@ -225,6 +230,47 @@ export default {
       this.selectedClass = personnel;
       console.log("DATA:", this.selectedClass)
       this.isModalOpen = true;
+    },
+
+    async acceptCheckedClasses() {
+      if (this.checkedClasses.length === 0) {
+        Swal.fire({
+          icon: "warning",
+          title: "No classes selected",
+          text: "Please select at least one class.",
+        });
+        return;
+      }
+
+      const count = this.checkedClasses.length;
+
+      const result = await Swal.fire({
+        title: `Are you sure to accept ${count} class${count > 1 ? 'es' : ''}?`,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Yes, accept",
+        cancelButtonText: "Cancel",
+      });
+
+      if (result.isConfirmed) {
+        try {
+          await acceptClass(this.checkedClasses);
+          Swal.fire({
+            icon: "success",
+            title: "Accepted!",
+            text: `Successfully accepted ${count} class${count > 1 ? 'es' : ''}.`,
+          });
+          this.checkedClasses = [];
+          await this.fetchClasses();
+        } catch (error) {
+          console.error("Failed to accept classes:", error);
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Failed to accept classes.",
+          });
+        }
+      }
     },
   },
   mounted() {

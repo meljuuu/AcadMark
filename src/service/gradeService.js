@@ -154,3 +154,49 @@ export const getAllData = async () => {
     throw error.response ? error.response.data : error;
   }
 };
+
+
+export const acceptData = async (student_id, grade_ids) => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await API.post(
+      '/subject-grades/accept',
+      {
+        student_id,
+        grade_ids,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('API error:', error);
+    throw error.response ? error.response.data : error;
+  }
+};
+
+export const rejectData = async (student_id, grade_ids, comments = '') => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await API.post(
+      '/subject-grades/reject',
+      {
+        student_id,
+        grade_ids,
+        comments,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('API error:', error);
+    throw error.response ? error.response.data : error;
+  }
+};
