@@ -165,6 +165,7 @@ import { computed } from 'vue';
 import { classService } from '@/service/classService';
 import { submitGrades as apiSubmitGrades } from '@/service/gradeService';
 import Swal from 'sweetalert2';
+import { useRoute } from 'vue-router';
 
 const props = defineProps({
   trackStand: String,
@@ -175,6 +176,7 @@ const props = defineProps({
   gradeLevel: [String, Number],
   currentPage: Number,
   itemsPerPage: Number,
+  class_id: String,
 });
 
 const today = new Date();
@@ -190,6 +192,7 @@ const selectedQuarter = ref('1st');
 const selectedMarkStatus = ref('');
 const showSubmitSuccess = ref(false);
 const isEditMode = ref(false);
+const route = useRoute();
 
 const quarterMapping = {
   '1st': 'first',
@@ -428,10 +431,12 @@ watch(currentIndex, () => {
 
 async function loadSubjectData() {
   try {
-    console.log('Loading subject data for subject_id:', props.subject_id);
-    
-    // Fetch students and their grades from the backend
-    const response = await classService.getClassStudents(props.subject_id);
+    // Extract class_id from the URL (assuming it's available in props or route params)
+    const classId = props.class_id || route.params.class_id;
+    console.log('Loading subject data for subject_id:', props.subject_id, 'and class_id:', classId);
+
+    // Fetch students and their grades from the backend using class_id
+    const response = await classService.getClassStudents(classId);
     console.log('Raw API response:', response);
 
     if (response.status === 'success' && response.data && Array.isArray(response.data)) {
