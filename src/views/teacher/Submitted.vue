@@ -90,6 +90,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import Dropdown from '@/components/dropdown.vue';
 import Searchbar from '@/components/searchbar.vue';
+import Modal from '@/components/modal.vue';
 import { getSubjectGrades } from '@/service/gradeService';
 import Swal from 'sweetalert2';
 

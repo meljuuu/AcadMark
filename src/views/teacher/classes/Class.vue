@@ -94,14 +94,6 @@
         :class="{ 'opacity-50 cursor-not-allowed': currentPage === totalPages }" />
     </div>
 
-    <div v-if="
-      (activeComponent === 'SummaryOfGrades' ||
-        activeComponent === 'Submitted') &&
-      totalPages === 0
-    " class="flex justify-center items-center py-5">
-      <p class="text-lg">No data available</p>
-    </div>
-
     <div v-if="activeComponent === 'SummaryOfGrades'" class="overflow-x-auto w-1/2 mt-5 mb-15">
       <p class="text-lg font-semibold">Learner Progress and Achievement</p>
       <table class="w-full border-collapse rounded-b-[5px] border border-[#d9d9d9]"

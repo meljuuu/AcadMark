@@ -70,10 +70,34 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  classId: {
+  class_id: {
     type: String,
-    default: null,
-  }
+    required: true,
+  },
+  trackStand: {
+    type: String,
+    required: true,
+  },
+  className: {
+    type: String,
+    required: true,
+  },
+  classType: {
+    type: String,
+    required: true,
+  },
+  currentPage: {
+    type: Number,
+    required: true,
+  },
+  itemsPerPage: {
+    type: Number,
+    required: true,
+  },
+  gradeLevel: {
+    type: String,
+    required: true,
+  },
 });
 
 const headers = ref([
@@ -86,25 +110,38 @@ const searchQuery = ref('');
 const loading = ref(true);
 const error = ref(null);
 
-const fetchStudents = async () => {
+const loadSubjectData = async () => {
+  loading.value = true;
+  error.value = '';
+  
   try {
-    loading.value = true;
-    error.value = null;
-    const response = await getSubjectGrades(props.subject_id);
-    
-    if (response.status === 'success' && response.data) {
-      students.value = response.data;
+    const response = await getSubjectGrades(props.subject_id, props.class_id);
+    console.log('API Response:', response);
+
+    if (response?.status === 'success' && Array.isArray(response.data) && response.data.length > 0) {
+      students.value = response.data.map((student) => ({
+        lrn: student.student?.LRN || '-',
+        firstName: student.student?.FirstName || '-',
+        middleName: student.student?.MiddleName || '-',
+        lastName: student.student?.LastName || '-',
+        sex: student.student?.sex || '-',
+        status: student.Status || 'pending',
+        grades: {
+          first: student.Q1 || null,
+          second: student.Q2 || null,
+          third: student.Q3 || null,
+          fourth: student.Q4 || null,
+        },
+        finalGrade: student.FinalGrade || '-',
+        remarks: student.Remarks || '-',
+      }));
     } else {
-      throw new Error(response.message || 'Failed to fetch grades');
+      error.value = 'No students found for this subject and class.';
+      students.value = [];
     }
-  } catch (error) {
-    console.error('Error fetching grades:', error);
-    Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: error.message || 'Failed to fetch grades. Please try again.',
-      confirmButtonColor: '#dc2626'
-    });
+  } catch (err) {
+    error.value = 'Failed to load student data. Please try again.';
+    console.error('Error loading subject data:', err);
   } finally {
     loading.value = false;
   }
@@ -130,7 +167,7 @@ const getFinalGrade = (student) => {
 
   for (let quarter of grades) {
     const grade = getGradeForQuarter(student, quarter);
-    if (grade !== '-') {
+    if (grade !== '-' && !isNaN(parseFloat(grade))) {
       hasAnyValidGrade = true;
       total += parseFloat(grade);
       gradeCount++;
@@ -236,6 +273,6 @@ const generateCSV = () => {
 };
 
 onMounted(() => {
-  fetchStudents();
+  loadSubjectData();
 });
 </script>
