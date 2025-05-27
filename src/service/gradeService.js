@@ -51,12 +51,12 @@ export const submitGrades = async (gradesData, classId) => {
   }
 };
 
-// Function to get grades for a specific subject
-export const getSubjectGrades = async (subjectId) => {
+// Function to get grades for a specific subject and class
+export const getSubjectGrades = async (subjectId, classId) => {
   try {
     const token = localStorage.getItem('token');
     const response = await API.get(
-      `/grades/subject/${subjectId}`,
+      `/grades/subject/${subjectId}/class/${classId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

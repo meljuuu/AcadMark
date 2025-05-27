@@ -241,42 +241,26 @@ function nextStudent() {
 
 function toggleEditMode() {
   if (!isEditMode.value) {
-    // When clicking Save, save the grades
-    saveGrades();
+    // When clicking Save, save the grades to localStorage
+    saveGradesToLocalStorage();
   }
   isEditMode.value = !isEditMode.value;
 }
 
-async function saveGrades() {
+function saveGradesToLocalStorage() {
   if (!selectedStudent.value) return;
 
-  try {
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (!user?.teacher_ID) throw new Error('Teacher ID missing');
+  const gradeKey = quarterMapping[selectedQuarter.value];
+  const localStorageKey = `grade_${selectedStudent.value.student_id}_${props.subject_id}_${gradeKey}`;
+  
+  // Save the grade to localStorage
+  localStorage.setItem(localStorageKey, Grade.value);
 
-    const payload = {
-      grades: [{
-        Student_ID: selectedStudent.value.student_id,
-        Subject_ID: props.subject_id,
-        Teacher_ID: user.teacher_ID,
-        Class_ID: props.class_id, // Ensure this matches backend expectations
-        Q1: selectedStudent.value.grades.first || null,
-        Q2: selectedStudent.value.grades.second || null,
-        Q3: selectedStudent.value.grades.third || null,
-        Q4: selectedStudent.value.grades.fourth || null
-      }]
-    };
+  // Update the student's grade in the local state
+  selectedStudent.value.grades[gradeKey] = Grade.value;
 
-    console.log('Final submission payload:', payload); // Debug log
-
-    const result = await apiSubmitGrades(payload.grades, props.class_id);
-    if (result.status !== 'success') throw new Error(result.message);
-    
-    Swal.fire('Success', 'Grade saved!', 'success');
-  } catch (error) {
-    console.error('Submission error:', error.response?.data || error.message);
-    Swal.fire('Error', error.response?.data?.message || 'Failed to save grade', 'error');
-  }
+  // Show success message
+  Swal.fire('Success', 'Grade saved to local storage!', 'success');
 }
 
 const selectedStudents = computed(() => {

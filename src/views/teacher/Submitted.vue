@@ -38,26 +38,36 @@
               {{ error || 'No students available.' }}
             </td>
           </tr>
-          <tr v-for="student in paginatedStudents" :key="student.lrn" class="hover:bg-gray-200 cursor-pointer"
-            @click="openModal(student)">
-            <td class="p-2 w-1/12">{{ student.lrn }}</td>
-            <td class="p-2 w-1/12">{{ student.lastName + ", " + student.firstName + " " + student.middleName }}</td>
-            <td class="p-2 w-1/12">{{ student.sex }}</td>
-            <td class="p-2 w-1/12">{{ getAge(student.birthDate) }}</td>
-            <td class="p-2 w-1/12">{{ getGradeForQuarter(student, 'first') }}</td>
-            <td class="p-2 w-1/12">{{ getGradeForQuarter(student, 'second') }}</td>
-            <td class="p-2 w-1/12">{{ getGradeForQuarter(student, 'third') }}</td>
-            <td class="p-2 w-1/12">{{ getGradeForQuarter(student, 'fourth') }}</td>
-            <td class="p-2 w-1/12">{{ getFinalGrade(student) }}</td>
-            <td class="p-2 w-1/12" :class="getRemarksClass(student)">{{ getRemarks(student) }}</td>
+          <tr v-for="grade in paginatedStudents" :key="grade.Grade_ID" class="hover:bg-gray-200 cursor-pointer"
+            @click="openModal(grade)">
             <td class="p-2 w-1/12">
-              <span class="px-4 py-2 rounded text-white inline-block w-[135px] font-light text-center"
-                :class="{
-                  'bg-[#FF9204]': !student.status || student.status.toLowerCase() === 'pending',
-                  'bg-green-500': student.status?.toLowerCase() === 'approved',
-                  'bg-red-500': student.status?.toLowerCase() === 'declined'
-                }">
-                {{ (student.status || 'pending').charAt(0).toUpperCase() + (student.status || 'pending').slice(1) }}
+              {{ grade.student?.LRN || 'N/A' }}
+            </td>
+            <td class="p-2 w-1/12 whitespace-nowrap">
+              {{ `${grade.student?.LastName || 'N/A'}, ${grade.student?.FirstName || 'N/A'} ${grade.student?.MiddleName || ''}` }}
+            </td>
+            <td class="p-2 w-1/12">{{ grade.student?.sex || 'N/A' }}</td>
+            <td class="p-2 w-1/12">{{ getAge(grade.student?.birthDate) }}</td>
+            <td class="p-2 w-1/12">{{ grade.Q1 ?? '-' }}</td>
+            <td class="p-2 w-1/12">{{ grade.Q2 ?? '-' }}</td>
+            <td class="p-2 w-1/12">{{ grade.Q3 ?? '-' }}</td>
+            <td class="p-2 w-1/12">{{ grade.Q4 ?? '-' }}</td>
+            <td class="p-2 w-1/12">{{ grade.FinalGrade ?? '-' }}</td>
+            <td class="p-2 w-1/12">
+              <span :class="{
+                'text-green-500 font-bold': grade.Remarks === 'Passed',
+                'text-red-500 font-bold': grade.Remarks === 'Failed'
+              }">
+                {{ grade.Remarks || '-' }}
+              </span>
+            </td>
+            <td class="p-2 w-1/12">
+              <span :class="{
+                'text-yellow-500': grade.Status === 'Pending',
+                'text-green-500': grade.Status === 'Approved',
+                'text-red-500': grade.Status === 'Declined'
+              }">
+                {{ grade.Status || 'Pending' }}
               </span>
             </td>
           </tr>
@@ -65,8 +75,14 @@
       </table>
     </div>
 
-    <modal v-if="showMessage" :showMessage="showMessage" @close="closeModal" :trackStand="trackStand"
-      :selectedStudent="selectedStudent" :selectedQuarter="selectedQuarter" />
+    <Modal 
+      v-if="showMessage" 
+      :showMessage="showMessage" 
+      @close="closeModal"
+      :trackStand="trackStand"
+      :selectedStudent="selectedStudent"
+      :selectedQuarter="selectedQuarter"
+    />
   </div>
 </template>
 
@@ -74,7 +90,6 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import Dropdown from '@/components/dropdown.vue';
 import Searchbar from '@/components/searchbar.vue';
-import modal from '@/components/modal.vue';
 import { getSubjectGrades } from '@/service/gradeService';
 import Swal from 'sweetalert2';
 
@@ -95,9 +110,13 @@ const props = defineProps({
     type: Number,
     required: true,
   },
+  class_id: {
+    type: String,
+    required: true,
+  },
 });
 
-const emit = defineEmits(['update:currentPage', 'update:totalItems']);
+const emit = defineEmits(['update:currentPage', 'update:totalItems', 'close']);
 
 const students = ref([]);
 const selectedQuarter = ref('1st');
@@ -128,8 +147,8 @@ const loadSubjectData = async () => {
   error.value = '';
   
   try {
-    console.log('Loading subject data for subject_id:', props.subject_id);
-    const response = await getSubjectGrades(props.subject_id);
+    console.log('Loading subject data for subject_id:', props.subject_id, 'and class_id:', props.class_id);
+    const response = await getSubjectGrades(props.subject_id, props.class_id);
     console.log('Raw API response:', response);
 
     if (response.status === 'success' && response.data && Array.isArray(response.data)) {
@@ -206,31 +225,19 @@ const getGradeForQuarter = (student, quarter) => {
   return grade;
 };
 
-const getFinalGrade = (student) => {
-  const grades = ['first', 'second', 'third', 'fourth'];
-  let total = 0;
-  let gradeCount = 0;
-
-  for (let quarter of grades) {
-    const grade = getGradeForQuarter(student, quarter);
-    if (grade !== '-') {
-      total += parseFloat(grade);
-      gradeCount++;
-    }
-  }
-
-  if (gradeCount < 4) return '-';
-  return (total / gradeCount).toFixed(2);
+const getFinalGrade = (grades) => {
+  const quarters = [grades.first, grades.second, grades.third, grades.fourth].filter(Boolean);
+  return quarters.length === 4 ? (quarters.reduce((a, b) => a + b, 0) / 4).toFixed(2) : '-';
 };
 
-const getRemarks = (student) => {
-  const finalGrade = getFinalGrade(student);
+const getRemarks = (grades) => {
+  const finalGrade = getFinalGrade(grades);
   if (finalGrade === '-') return '-';
   return parseFloat(finalGrade) >= 75 ? 'Passed' : 'Failed';
 };
 
-const getRemarksClass = (student) => {
-  const remarks = getRemarks(student);
+const getRemarksClass = (grades) => {
+  const remarks = getRemarks(grades);
   return {
     'text-green-500': remarks === 'Passed',
     'text-red-500': remarks === 'Failed'
