@@ -205,14 +205,16 @@
                                         <td class="p-2">{{ student.age }}</td>
                                         <td class="p-2">
                                             <span
-                                                class="px-4 py-2 rounded inline-block w-[135px] font-semibold text-center"
-                                                :class="{
-                                                    'bg-green-100 text-green-800': student.status === 'Accepted',
-                                                    'bg-orange-100 text-orange-800': student.status === 'Pending',
-                                                    'bg-red-100 text-red-800': student.status === 'Declined',
-                                                }">
-                                                {{ student.status }}
-                                            </span>
+                                    class="px-4 py-2 rounded inline-block w-[135px] font-semibold text-center"
+                                    :class="[
+                                        student.status === 'Accepted' ? ' text-green-800' :
+                                        student.status === 'Pending' ? ' text-orange-800' :
+                                        student.status === 'Declined' ? ' text-red-800' :
+                                        ' text-gray-800'
+                                    ]">
+                                    {{ student.status }}
+                                    </span>
+
                                         </td>
 
                                     </tr>

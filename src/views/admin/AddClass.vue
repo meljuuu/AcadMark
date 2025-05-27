@@ -154,12 +154,13 @@
                                         </td>
                                         <td class="text-[14px] text-center px-3 py-2 text-[#222]">{{ row.date }}</td>
                                         <td class="text-[14px] text-center px-3 py-2">
-                                            <span :class="[
-                                                'inline-block min-w-[90px] text-center py-1 rounded-lg text-[12px] text-white',
-                                                row.status === 'Pending' ? 'bg-[#ff9800]' : '',
-                                                row.status === 'Accepted' ? 'bg-[#4caf50]' : '',
-                                                row.status === 'Declined' ? 'bg-[#f44336]' : ''
-                                            ]">
+                                            <span
+                                                class="px-4 py-2 rounded inline-block w-[135px] font-semibold text-center"
+                                                :class="[
+                                                row.status === 'Pending' ? 'text-yellow-800' : '',
+                                                row.status === 'Accepted' ? 'text-green-800' : '',
+                                                row.status === 'Declined' ? 'text-red-800' : ''
+                                                ]">
                                                 {{ row.status }}
                                             </span>
                                         </td>
