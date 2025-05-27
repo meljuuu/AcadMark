@@ -90,7 +90,7 @@
             placeholder=" "
             class="input"
           />
-          <label>Birth Date</label>
+          <label>Enter Birth Date</label>
         </div>
 
         <div class="floating-label flex-1" :class="{ filled: sex }">
@@ -99,7 +99,7 @@
             <option value="M">Male</option>
             <option value="F">Female</option>
           </select>
-          <label>Sex</label>
+          <label>Sex at Birth</label>
           <span class="custom-arrow"></span>
         </div>
       </div>
@@ -167,7 +167,7 @@
   <div class="flex gap-4 mb-4">
     <div class="floating-label flex-1" :class="{ filled: subject1 }">
       <select v-model="subject1" class="input" required>
-        <option value="" disabled selected hidden>Select Subject 1</option>
+        <option value="" disabled selected hidden></option>
         <option v-for="subject in subjects" :key="subject.id" :value="subject.id">
           {{ subject.name }}
         </option>
@@ -178,7 +178,7 @@
 
     <div v-if="showSubject2" class="floating-label flex-1" :class="{ filled: subject2 }">
       <select v-model="subject2" class="input">
-        <option value="" disabled selected hidden>Select Subject 2</option>
+        <option value="" disabled selected hidden></option>
         <option v-for="subject in subjects" :key="subject.id" :value="subject.id">
           {{ subject.name }}
         </option>
@@ -414,7 +414,7 @@ const capitalize = (str) => {
 onMounted(async () => {
   try {
     const token = localStorage.getItem('token');
-    const response = await axios.get('http://127.0.0.1:8000/api/subjects', {
+    const response = await axios.get('http://26.135.189.53:8000/api/subjects', {
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: 'application/json',

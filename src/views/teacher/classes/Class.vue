@@ -6,8 +6,8 @@
 
     <div class="flex flex-col gap-10">
       <div :class="{
-        'bg-blue': classType?.toLowerCase() === 'advisory',
-        'bg-green': classType?.toLowerCase() === 'subject'
+        'bg-blue': isAdviser,
+        'bg-green': !isAdviser
       }" class="flex items-center justify-between px-7 py-5 rounded-xl">
         <div class="flex flex-col justify-between h-full">
           <p class="text-white text-xl font-normal leading-none">
@@ -38,8 +38,8 @@
         </div>
 
         <div :class="{
-          'text-[#3E6FA2]': classType?.toLowerCase() === 'advisory',
-          'text-[#357e58]': classType?.toLowerCase() === 'subject'
+          'text-[#3E6FA2]': isAdviser,
+          'text-[#357e58]': !isAdviser,
         }" class="flex items-center justify-center pr-15 h-[150px]">
           <p class="font-bold text-[150px]">
             {{ parseInt(gradeLevel) <= 10 ? (subjectName + ' ' + gradeLevel) : (trackStand + ' ' + gradeLevel) }} </p>
@@ -56,16 +56,17 @@
                 activeComponent === item.component,
             }">
             {{
-              item.label
+            item.label
             }}
           </ul>
         </nav>
 
         <transition name="fade" mode="out-in">
           <div v-if="class_id">
-            <component :is="activeComponent" :class_id="class_id" :subject_id="subject_id" :trackStand="trackStand" :className="className"
-              :subjectName="subjectName" :classType="classType" :currentPage="currentPage" :itemsPerPage="itemsPerPage"
-              :gradeLevel="gradeLevel" @update:currentPage="currentPage = $event" @update:totalItems="updateTotalItems" :key="activeComponent">
+            <component :is="activeComponent" :class_id="class_id" :subject_id="subject_id" :trackStand="trackStand"
+              :className="className" :subjectName="subjectName" :classType="classType" :currentPage="currentPage"
+              :itemsPerPage="itemsPerPage" :gradeLevel="gradeLevel" @update:currentPage="currentPage = $event"
+              @update:totalItems="updateTotalItems" :key="activeComponent">
             </component>
           </div>
           <div v-else>
@@ -160,6 +161,7 @@ export default {
     gradeLevel: [String, Number],
     subject_id: String,
     classType: String,
+    isAdviser: Boolean,
   },
   components: {
     Classlist,
@@ -269,6 +271,8 @@ export default {
     onMounted(() => {
       console.log('Class ID:', class_id.value);
       fetchClassDetails();
+
+      console.log("PROPS:", props)
     });
 
     return {

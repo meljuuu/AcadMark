@@ -89,3 +89,14 @@ export const dropStudent = async (studentId, dropOutComments = '') => {
         throw error.response ? error.response.data : error;
     }
 };
+
+export const acceptDropStudent = async (studentId) => {
+    try {
+        const payload = { student_id: studentId };
+
+        const response = await API.post('/students/approve-mark-dropout', payload);
+        return response.data;
+    } catch (error) {
+        throw error.response ? error.response.data : error;
+    }
+  };

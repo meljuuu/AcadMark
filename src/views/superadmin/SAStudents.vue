@@ -247,10 +247,12 @@ const pageSize = 10;
 
 // Modal logic
 const openModal = async (student) => {
+
   try {
     if (student.status === 'Drop-Out') {
       // Open RequestModal
       const fullStudent = await getStudentById(student.Student_ID);
+      console.log("DATAWADAWDAWD:", fullStudent)
       selectedRequestStudent.value = fullStudent;
       isRequestModalOpen.value = true;
     } else {

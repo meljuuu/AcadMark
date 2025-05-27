@@ -30,37 +30,21 @@
         </div>
 
         <div class="floating-label">
-          <input type="text" class="input" placeholder=" " :value="dropOutFormData.FullName" readonly />
+          <input type="text" class="input" placeholder=" " :value="fullName" readonly />
           <label>Full Name</label>
         </div>
 
         <!-- Reason -->
         <div class="flex flex-col gap-2">
           <label class="text-blue font-semibold text-2xl" for="comment">REASON FOR DROP-OUT</label>
-          <textarea
-            rows="5"
-            class="border border-gray-300 rounded-lg p-2"
-            placeholder="Comment the reason here"
-            v-model="dropOutFormData.drop_out_comments"
-            required
-          ></textarea>
+          <textarea rows="5" class="border border-gray-300 rounded-lg p-2" placeholder="Comment the reason here"
+            v-model="dropOutFormData.drop_out_comments" required></textarea>
         </div>
 
         <!-- Buttons -->
-        <div class="flex justify-end gap-2 mt-5">
-          <button
-            type="button"
-            @click="closeDropModal"
-            class="bg-[#656464] text-white px-6 py-2 rounded hover:bg-gray-600 transition-colors cursor-pointer"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            class="bg-green text-white px-6 py-2 rounded hover:bg-blue-600 transition-colors cursor-pointer"
-          >
-            Submit
-          </button>
+        <div class="form-actions">
+          <button type="button" class="cancel-btn" @click="rejectAlert">Reject</button>
+          <button type="submit" class="submit-btn">Accept</button>
         </div>
       </form>
     </div>
@@ -68,7 +52,9 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue'
+import { defineProps, defineEmits, computed } from 'vue'
+import { acceptDropStudent } from '@/service/studentService'
+import Swal from 'sweetalert2';
 
 const props = defineProps({
   isModalDropOpen: Boolean,
@@ -81,9 +67,43 @@ const closeDropModal = () => {
   emit('close')
 }
 
-const dropOutStudent = () => {
-  emit('submit', props.dropOutFormData)
-}
+
+const dropOutStudent = async () => {
+  try {
+    const studentId = props.dropOutFormData.Student_ID;
+    const response = await acceptDropStudent(studentId);
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Success!',
+      text: response.message || 'Student marked as Drop-Out successfully.',
+      timer: 2000,
+      showConfirmButton: false,
+    });
+
+    emit('submit', props.dropOutFormData); // notify parent of submission
+    emit('close'); // notify parent to close modal
+    setTimeout(() => {
+      window.location.reload();
+    }, 500);
+  } catch (error) {
+    console.error('Failed to approve drop out:', error);
+
+    Swal.fire({
+      icon: 'error',
+      title: 'Error!',
+      text: error.message || 'Failed to mark student as Drop-Out.',
+    });
+  }
+};
+
+
+// computed fullName combining FirstName, MiddleName, LastName, Suffix
+const fullName = computed(() => {
+  if (!props.dropOutFormData) return ''
+  const { FirstName, MiddleName, LastName, Suffix } = props.dropOutFormData
+  return [FirstName, MiddleName, LastName, Suffix].filter(Boolean).join(' ')
+})
 </script>
 
 <style scoped>
@@ -103,5 +123,28 @@ const dropOutStudent = () => {
   margin-top: 0.25rem;
   font-size: 0.875rem;
   color: #666;
+}
+.cancel-btn,
+.submit-btn {
+  padding: 5px 30px;
+  align-items: center;
+  color: #ffffff;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  background-color: #D30000;
+}
+
+.submit-btn {
+  background-color: #0C5A48;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 30px;
 }
 </style>

@@ -50,20 +50,23 @@ const props = defineProps({
   className: { type: String, required: true },
   subjectName: { type: String, required: true },
   gradeLevel: { type: [String, Number], required: true },
+  isAdviser: { type: [Boolean], required: true},
   classType: { type: String, required: true },
   class_id: { type: String, required: true },
   subject_id: { type: [String, Number, null], required: true },
 });
 
+console.log("DATA31231231", props);
+
 const router = useRouter();
 
 const cardColor = computed(() => ({
-  text: props.type === 'Advisory' ? 'text-blue' : 'text-green',
-  bg: props.type === 'Advisory' ? 'bg-blue' : 'bg-green',
+  text: props.isAdviser  ? 'text-blue' : 'text-green',
+  bg: props.isAdviser ? 'bg-blue' : 'bg-green',
 }));
 
 const cardTitle = computed(() =>
-  props.type === 'Advisory' ? 'Advisory Class' : 'Subject Class'
+  props.isAdviser ? 'Advisory Class' : 'Subject Class'
 );
 
 const formattedGradeLevel = computed(() => {
@@ -83,7 +86,8 @@ const goToClass = () => {
       subjectName: props.subjectName,
       gradeLevel: props.gradeLevel,
       classType: props.type === 'Advisory' ? 'Advisory' : 'Subject',
-      subject_id: props.subject_id
+      subject_id: props.subject_id,
+      isAdviser: props.isAdviser,
     },
   });
 };
