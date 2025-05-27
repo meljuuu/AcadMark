@@ -6,7 +6,7 @@
                     <div class="p-6 border-b border-gray-200">
                         <h2 class="text-2xl font-semibold text-gray-800">Student Grades</h2>
                     </div>
-                    <button @click="$emit('close')"
+                    <button @click="emit('close')"
                         class="absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex cursor-pointer items-center justify-center shadow-lg transition-colors duration-200">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd"
@@ -130,7 +130,7 @@
                         <div class="flex justify-end gap-2">
                             <button
                                 class="font-light text-lg bg-[#656464] px-6 py-2 text-white rounded-md cursor-pointer hover:bg-[#cecece]"
-                                @click="$emit('close')">Close</button>
+                                @click="emit('close')">Close</button>
                             <div class="relative group">
                                 <button
                                     class="font-light text-lg bg-[#0C5A48] px-6 py-2 text-white rounded-md hover:bg-[#cecece]">
@@ -150,7 +150,7 @@
                 <div v-else-if="showSubmitSuccess" class="bg-white rounded-xl p-8 text-center shadow-xl max-w-sm w-full mx-auto">
                     <h2 class="text-xl font-semibold text-green-600 mb-4">Success!</h2>
                     <p class="text-gray-700">Grades have been successfully submitted.</p>
-                    <button @click="$emit('close')"
+                    <button @click="emit('close')"
                         class="mt-6 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
                         OK
                     </button>
@@ -164,6 +164,8 @@
 import { ref, computed, watchEffect, onMounted } from 'vue';
 import { getSubjectGrades } from '@/service/gradeService';
 import Swal from 'sweetalert2';
+
+const emit = defineEmits(['close']);
 
 const props = defineProps({
     subject_id: {
@@ -180,7 +182,8 @@ const props = defineProps({
     },
     selectedStudent: {
         type: Object,
-        required: true,
+        required: false,
+        default: null
     },
     selectedQuarter: {
         type: String,
