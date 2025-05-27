@@ -54,6 +54,10 @@
           <input type="number" class="border px-2 py-1 w-24" :value="student.subject_grades.Q4" readonly />
         </div>
         <div>
+          <label class="block text-sm font-semibold mb-1">Final Grade</label>
+          <input type="number" class="border px-2 py-1 w-24" :value="student.subject_grades.Q4" readonly />
+        </div>
+        <div>
           <label class="block text-sm font-semibold mb-1">Remarks</label>
           <div :class="remarkClass" class="px-3 py-1 rounded border text-center w-24">
             {{ student.subject_grades.Status }}
