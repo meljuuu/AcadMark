@@ -10,7 +10,7 @@
       </div>
     </div>
 
-    <p v-if="!subject_id">Subject ID is not available</p>
+    <p v-if="!class_id" class="text-red-500">Error: Class ID is required.</p>
 
     <div v-else>
       <div v-if="loading" class="flex justify-center items-center h-64">
@@ -43,7 +43,7 @@
                   <td class="table-cell">{{ student.birthDate }}</td>
                   <td class="table-cell">{{ calculateAge(student.birthDate) }}</td>
                   <td class="table-cell">{{ student.contactNumber }}</td>
-                  <td class="table-cell">{{ `${student.houseNo} ${student.barangay}, ${student.municipality}, ${student.province}` }}</td>
+                  <td class="table-cell">{{ student.address || 'No address provided' }}</td>
                 </tr>
               </tbody>
             </table>
@@ -52,7 +52,7 @@
       </div>
 
       <div>
-        <modal v-if="showLis" :subject_id="subject_id" :showLis="showLis" :showMessage="false" :selectedStudent="null"
+        <modal v-if="showLis" :subject_id="class_id" :showLis="showLis" :showMessage="false" :selectedStudent="null"
           :selectedQuarter="'1st'" :trackStand="'STEM'" :subjectName="subjectName" :students="studentsInSubject"
           @close="showLis = false" />
       </div>
@@ -65,12 +65,18 @@ import { ref, onMounted, computed } from 'vue';
 import modal from '@/components/modal.vue';
 import searchbar from '@/components/searchbar.vue';
 import { classService } from '@/service/classService';
+import { useRoute } from 'vue-router';
 
 const props = defineProps({
-  subject_id: String,
+  class_id: {
+    type: String,
+    required: true,
+  },
   subjectName: String,
 });
 
+const route = useRoute();
+const class_id = route.params.class_id; // Will be "2" from your URL
 const studentsInSubject = ref([]);
 const showLis = ref(false);
 const searchQuery = ref("");
@@ -105,7 +111,7 @@ const fetchStudents = async () => {
   try {
     loading.value = true;
     error.value = null;
-    const response = await classService.getClassStudents(props.subject_id);
+    const response = await classService.getClassStudents(class_id);
     if (response.status === 'success') {
       studentsInSubject.value = response.data;
     } else {
@@ -119,7 +125,7 @@ const fetchStudents = async () => {
 };
 
 onMounted(() => {
-  if (props.subject_id) {
+  if (class_id) {
     fetchStudents();
   }
 });

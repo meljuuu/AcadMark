@@ -54,16 +54,12 @@ export const classService = {
     },
 
     // Get students for a specific subject
-    async getClassStudents(subjectId) {
+    async getClassStudents(classId) {
         try {
-            const response = await axios.get(`${API_URL}/classes/${subjectId}/students`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            });
+            const response = await axios.get(`${API_URL}/classes/${classId}/students`);
             return response.data;
         } catch (error) {
-            throw this.handleError(error);
+            throw error;
         }
     },
 
