@@ -52,8 +52,8 @@
       </div>
 
       <div>
-        <modal v-if="showLis" :subject_id="class_id" :showLis="showLis" :showMessage="false" :selectedStudent="null"
-          :selectedQuarter="'1st'" :trackStand="'STEM'" :subjectName="subjectName" :students="studentsInSubject"
+        <modal v-if="showLis" :subject_id="subject_id" :class_id="class_id" :showLis="showLis" :showMessage="false" :selectedStudent="null"
+          :selectedQuarter="'1st'" :trackStand="trackStand" :subjectName="subjectName" :students="studentsInSubject"
           @close="showLis = false" />
       </div>
     </div>
@@ -74,6 +74,14 @@ const props = defineProps({
     default: null
   },
   subjectName: String,
+  trackStand: {
+    type: String,
+    required: true
+  },
+  subject_id: {
+    type: String,
+    required: true
+  }
 });
 
 const route = useRoute();

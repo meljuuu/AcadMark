@@ -37,7 +37,23 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200">
-                                    <tr v-for="(student, index) in students" :key="`${student.student_id}-${student.class_id}-${index}`" class="hover:bg-gray-50">
+                                    <!-- Loading State -->
+                                    <tr v-if="loading">
+                                        <td colspan="8" class="px-6 py-4 text-center">Loading...</td>
+                                    </tr>
+                                    
+                                    <!-- Error State -->
+                                    <tr v-else-if="error">
+                                        <td colspan="8" class="px-6 py-4 text-center text-red-500">{{ error }}</td>
+                                    </tr>
+                                    
+                                    <!-- Empty State -->
+                                    <tr v-else-if="!students.length">
+                                        <td colspan="8" class="px-6 py-4 text-center">No students found</td>
+                                    </tr>
+                                    
+                                    <!-- Data Rows -->
+                                    <tr v-else v-for="(student, index) in students" :key="`${student.student_id}-${index}`" class="hover:bg-gray-50">
                                         <td class="px-6 py-4 whitespace-nowrap">{{ student.lrn }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap">{{ student.firstName }} {{ student.middleName }} {{ student.lastName }}</td>
                                         <td class="px-6 py-4 text-center">{{ student.grades.first || '-' }}</td>
@@ -170,7 +186,13 @@ const emit = defineEmits(['close']);
 const props = defineProps({
     subject_id: {
         type: String,
-        required: true
+        required: false,
+        default: null
+    },
+    class_id: {
+        type: String,
+        required: false,
+        default: null
     },
     showLis: {
         type: Boolean,
@@ -191,7 +213,7 @@ const props = defineProps({
     },
     trackStand: {
         type: String,
-        required: true,
+        required: false,
     },
     subjectName: {
         type: String,
@@ -212,26 +234,40 @@ const fetchStudents = async () => {
   try {
     loading.value = true;
     error.value = null;
-    const response = await getSubjectGrades(props.subject_id);
+    
+    if (!props.subject_id) {
+      console.warn('No subject_id provided to modal');
+      students.value = [];
+      return;
+    }
+    
+    console.log('Fetching students for subject_id:', props.subject_id, 'class_id:', props.class_id);
+    
+    const response = await getSubjectGrades(props.subject_id, props.class_id || null);
+    console.log('API Response:', response);
     
     if (response.status === 'success' && response.data) {
       students.value = response.data.map(student => ({
-        ...student,
-        firstName: student.firstName || '',
-        middleName: student.middleName || '',
-        lastName: student.lastName || '',
+        student_id: student.Student_ID,
+        lrn: student.student?.LRN || '-',
+        firstName: student.student?.FirstName || '',
+        middleName: student.student?.MiddleName || '',
+        lastName: student.student?.LastName || '',
         grades: {
-          first: student.grades?.first || null,
-          second: student.grades?.second || null,
-          third: student.grades?.third || null,
-          fourth: student.grades?.fourth || null
-        }
+          first: student.Q1 || null,
+          second: student.Q2 || null,
+          third: student.Q3 || null,
+          fourth: student.Q4 || null
+        },
+        status: student.Status || 'pending'
       }));
+      console.log('Processed students:', students.value);
     } else {
       throw new Error(response.message || 'Failed to fetch grades');
     }
   } catch (error) {
     console.error('Error fetching grades:', error);
+    error.value = error.message || 'Failed to fetch grades. Please try again.';
     Swal.fire({
       icon: 'error',
       title: 'Error',
@@ -302,8 +338,11 @@ const getRemarks = (student) => {
 };
 
 onMounted(() => {
+  console.log('Modal mounted, props:', props);
   if (props.subject_id) {
     fetchStudents();
+  } else {
+    console.warn('No subject_id provided to modal');
   }
 });
 
@@ -313,5 +352,11 @@ const quarterGrade = computed(() => {
         return props.selectedStudent.grades[quarterKey] || '-';
     }
     return '-';
+});
+
+watchEffect(() => {
+  if (props.subject_id) {
+    fetchStudents();
+  }
 });
 </script>

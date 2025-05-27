@@ -54,7 +54,12 @@ export const submitGrades = async (gradesData, classId) => {
 // Function to get grades for a specific subject and class
 export const getSubjectGrades = async (subjectId, classId) => {
   try {
+    console.log('Making API call with subjectId:', subjectId, 'classId:', classId);
     const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('Authentication token not found');
+    }
+    
     const response = await API.get(
       `/grades/subject/${subjectId}/class/${classId}`,
       {
@@ -63,6 +68,7 @@ export const getSubjectGrades = async (subjectId, classId) => {
         },
       }
     );
+    console.log('API Response:', response.data);
     return response.data;
   } catch (error) {
     console.error('API error:', error);

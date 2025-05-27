@@ -118,7 +118,7 @@ const loadSubjectData = async () => {
     const response = await getSubjectGrades(props.subject_id, props.class_id);
     console.log('API Response:', response);
 
-    if (response?.status === 'success' && Array.isArray(response.data) && response.data.length > 0) {
+    if (response?.status === 'success' && Array.isArray(response.data)) {
       students.value = response.data.map((student) => ({
         lrn: student.student?.LRN || '-',
         firstName: student.student?.FirstName || '-',
