@@ -52,7 +52,7 @@
             <td class="p-2 w-1/12">{{ grade.Q2 ?? '-' }}</td>
             <td class="p-2 w-1/12">{{ grade.Q3 ?? '-' }}</td>
             <td class="p-2 w-1/12">{{ grade.Q4 ?? '-' }}</td>
-            <td class="p-2 w-1/12">{{ grade.FinalGrade ?? '-' }}</td>
+            <td class="p-2 w-1/12">{{ grade.Status === 'Approved' ? grade.FinalGrade ?? '-' : '-' }}</td>
             <td class="p-2 w-1/12">
               <span :class="{
                 'text-green-500 font-bold': grade.Remarks === 'Passed',
