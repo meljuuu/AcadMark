@@ -28,4 +28,14 @@ export default {
     const response = await axiosInstance.delete(`/teachers/delete/${id}`);
     return response.data;
   },
+
+  async updateTeacher(id, payload) {
+    const response = await axiosInstance.put(`/teachers/edit/${id}`, payload);
+    return response.data;
+  },
+
+  async createTeacher(payload) {
+    const response = await axiosInstance.post('/teacher/create-teacher', payload);
+    return response.data;
+  },
 };

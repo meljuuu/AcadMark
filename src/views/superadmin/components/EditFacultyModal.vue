@@ -253,7 +253,7 @@
 <script setup>
 import { ref, watch } from 'vue';
 import Swal from 'sweetalert2';
-import axios from 'axios';
+import personnelService from '@/service/personnelService';
 
 const props = defineProps({
   modelValue: Boolean,
@@ -316,18 +316,49 @@ watch(
       sex.value = d.Sex || '';
       contactNumber.value = d.ContactNumber || '';
       address.value = d.Address || '';
-      // Always assign as string for select
-      if (Array.isArray(d.Subject_IDs)) {
+      // Try all possible subject sources for best compatibility
+      let subjArr = [];
+      if (Array.isArray(d.assigned_subjects) && d.assigned_subjects.length > 0) {
+        subjArr = d.assigned_subjects;
+      } else if (Array.isArray(d.subjects) && d.subjects.length > 0) {
+        // fallback for 'subjects' array
+        subjArr = d.subjects;
+      }
+      if (subjArr.length > 0) {
+        // Support both {Subject_ID} and {id}
+        subject1.value = subjArr[0]?.Subject_ID ? String(subjArr[0].Subject_ID) : (subjArr[0]?.id ? String(subjArr[0].id) : '');
+        if (subjArr[1]) {
+          subject2.value = subjArr[1]?.Subject_ID ? String(subjArr[1].Subject_ID) : (subjArr[1]?.id ? String(subjArr[1].id) : '');
+          showSubject2.value = true;
+        } else {
+          subject2.value = '';
+          showSubject2.value = false;
+        }
+      } else if (Array.isArray(d.Subject_IDs)) {
         subject1.value = d.Subject_IDs[0] !== undefined && d.Subject_IDs[0] !== null ? String(d.Subject_IDs[0]) : '';
-        subject2.value = d.Subject_IDs[1] !== undefined && d.Subject_IDs[1] !== null ? String(d.Subject_IDs[1]) : '';
-        showSubject2.value = !!d.Subject_IDs[1];
+        if (d.Subject_IDs[1] !== undefined && d.Subject_IDs[1] !== null) {
+          subject2.value = String(d.Subject_IDs[1]);
+          showSubject2.value = true;
+        } else {
+          subject2.value = '';
+          showSubject2.value = false;
+        }
       } else {
         subject1.value = d.Subject1 !== undefined && d.Subject1 !== null ? String(d.Subject1) : '';
-        subject2.value = d.Subject2 !== undefined && d.Subject2 !== null ? String(d.Subject2) : '';
-        showSubject2.value = !!d.Subject2;
+        if (d.Subject2 !== undefined && d.Subject2 !== null) {
+          subject2.value = String(d.Subject2);
+          showSubject2.value = true;
+        } else {
+          subject2.value = '';
+          showSubject2.value = false;
+        }
       }
       email.value = d.Email || '';
       selectedAccession.value = d.Accession || d.Position || '';
+      // Fix: If value is 'Book-keeping', ensure it matches the radio value exactly
+      if (selectedAccession.value && selectedAccession.value.toLowerCase().replace(/[-_ ]/g, '') === 'bookkeeping') {
+        selectedAccession.value = 'Book-keeping';
+      }
       password.value = '';
       confirmPassword.value = '';
     }
@@ -342,15 +373,14 @@ const toggleSubject2 = () => {
 
 // Handle form submission
 const handleSubmit = async () => {
-  
   if (selectedAccession.value === 'Teacher' && !subject1.value) {
-  Swal.fire({
-    icon: 'error',
-    title: 'Validation Error',
-    text: 'At least one subject must be selected for Teacher.',
-  });
-  return;
-}
+    Swal.fire({
+      icon: 'error',
+      title: 'Validation Error',
+      text: 'At least one subject must be selected for Teacher.',
+    });
+    return;
+  }
   if (password.value && password.value !== confirmPassword.value) {
     Swal.fire({
       icon: 'error',
@@ -361,59 +391,47 @@ const handleSubmit = async () => {
   }
 
   const teacherId = props.facultyData?.id;
-  const apiUrl = `http://127.0.0.1:8000/api/teachers/edit/${teacherId}`;
-
-const payload = {
-  FirstName: firstName.value,
-  MiddleName: middleName.value,
-  LastName: lastName.value,
-  Suffix: suffix.value,
-  EmployeeNo: employeeNo.value,
-  Educational_Attainment: educationalAttainment.value,
-  Teaching_Position: teachingPosition.value,
-  Position: selectedAccession.value,
-  BirthDate: birthDate.value,
-  Sex: sex.value,
-  ContactNumber: contactNumber.value,
-  Address: address.value,
-  Email: email.value,
-  Accession: selectedAccession.value,
-  ...(selectedAccession.value === 'Teacher' && {
-    Subject_IDs: [
-      subject1.value ? Number(subject1.value) : null,
-      showSubject2.value && subject2.value ? Number(subject2.value) : null
-    ].filter(v => v),
-  }),
-  ...(password.value && { Password: password.value }),
-};
- try {
-  const token = localStorage.getItem('token');
-  await axios.put(apiUrl, payload, {
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  Swal.fire({
-    icon: 'success',
-    title: 'Updated',
-    text: 'Faculty information has been updated.',
-    timer: 1500,
-    showConfirmButton: false,
-  });
-
-emit('updated', payload); // Pass the updated data to the parent
-emit('update:modelValue', false); // Close the modal
-} catch (error) {
-  Swal.fire({
-    icon: 'error',
-    title: 'Update Failed',
-    text: error.response?.data?.message || error.message,
-  });
-}
-
-
+  const payload = {
+    FirstName: firstName.value,
+    MiddleName: middleName.value,
+    LastName: lastName.value,
+    Suffix: suffix.value,
+    EmployeeNo: employeeNo.value,
+    Educational_Attainment: educationalAttainment.value,
+    Teaching_Position: teachingPosition.value,
+    Position: selectedAccession.value,
+    BirthDate: birthDate.value,
+    Sex: sex.value,
+    ContactNumber: contactNumber.value,
+    Address: address.value,
+    Email: email.value,
+    Accession: selectedAccession.value,
+    ...(selectedAccession.value === 'Teacher' && {
+      Subject_IDs: [
+        subject1.value ? Number(subject1.value) : null,
+        showSubject2.value && subject2.value ? Number(subject2.value) : null
+      ].filter(v => v),
+    }),
+    ...(password.value && { Password: password.value }),
+  };
+  try {
+    await personnelService.updateTeacher(teacherId, payload);
+    Swal.fire({
+      icon: 'success',
+      title: 'Updated',
+      text: 'Faculty information has been updated.',
+      timer: 1500,
+      showConfirmButton: false,
+    });
+    emit('updated', payload); // Pass the updated data to the parent
+    emit('update:modelValue', false); // Close the modal
+  } catch (error) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Update Failed',
+      text: error.response?.data?.message || error.message,
+    });
+  }
 };
 </script>
 

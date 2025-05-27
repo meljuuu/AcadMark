@@ -253,6 +253,7 @@
 import { ref, onMounted, watch } from 'vue'; // <-- make sure to import watch
 import Swal from 'sweetalert2';
 import axios from 'axios';
+import personnelService from '@/service/personnelService';
 
 const props = defineProps({
   modelValue: Boolean,
@@ -334,15 +335,6 @@ const handleSubmit = async () => {
     return;
   }
 
-watch(selectedAccession, (val) => {
-  if (val !== 'Teacher') {
-    subject1.value = '';
-    subject2.value = '';
-    showSubject2.value = false;
-  }
-});
-
-
   const result = await Swal.fire({
     title: 'Are you sure?',
     text: 'Do you want to save this faculty member?',
@@ -353,41 +345,29 @@ watch(selectedAccession, (val) => {
   });
 
   if (result.isConfirmed) {
-      const formData = {
-  Email: email.value,
-  Password: password.value,
-  ConfirmPassword: confirmPassword.value,
-  EmployeeNo: employeeNumber.value,
-  Educational_Attainment: educationalAttainment.value,
-  Teaching_Position: teachingPosition.value,
-  FirstName: firstName.value,
-  LastName: lastName.value,
-  MiddleName: middleName.value,
-  Suffix: suffix.value,
-  BirthDate: birthDate.value,
-  Sex: sex.value,
-  Position: selectedAccession.value,
-  ContactNumber: contactNumber.value,
-  Address: address.value,
-  ...(selectedAccession.value === 'Teacher' && {
-    Subject_IDs: getSelectedSubjects(),
-  }),
-};
+    const formData = {
+      Email: email.value,
+      Password: password.value,
+      ConfirmPassword: confirmPassword.value,
+      EmployeeNo: employeeNumber.value,
+      Educational_Attainment: educationalAttainment.value,
+      Teaching_Position: teachingPosition.value,
+      FirstName: firstName.value,
+      LastName: lastName.value,
+      MiddleName: middleName.value,
+      Suffix: suffix.value,
+      BirthDate: birthDate.value,
+      Sex: sex.value,
+      Position: selectedAccession.value,
+      ContactNumber: contactNumber.value,
+      Address: address.value,
+      ...(selectedAccession.value === 'Teacher' && {
+        Subject_IDs: getSelectedSubjects(),
+      }),
+    };
     try {
-      const token = localStorage.getItem('token');
-
-      await fetch('http://127.0.0.1:8000/api/teacher/create-teacher', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
+      await personnelService.createTeacher(formData);
       emit('submit', formData);
-
       // Reset form
       firstName.value = '';
       middleName.value = '';
@@ -407,9 +387,7 @@ watch(selectedAccession, (val) => {
       sex.value = '';
       contactNumber.value = '';
       address.value = '';
-
       emit('update:modelValue', false);
-
       Swal.fire({
         icon: 'success',
         title: 'Saved!',
@@ -417,7 +395,6 @@ watch(selectedAccession, (val) => {
         timer: 1500,
         showConfirmButton: false,
       });
-
     } catch (error) {
       Swal.fire({
         icon: 'error',

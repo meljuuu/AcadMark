@@ -196,7 +196,10 @@ export default {
       if (!this.subjects.length) {
         await this.fetchSubjects();
       }
-      this.editData = { ...employee.original };
+      this.editData = {
+        ...employee.original,
+        assigned_subjects: employee.original.subjects || []
+      };
       this.showEditModal = true;
     },
 
