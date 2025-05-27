@@ -45,7 +45,7 @@
           :subjects="subjects"
           formMode="edit"
           @update:modelValue="showEditModal = false"
-          @updated="handleFacultyEdit"
+          @updated="f"
         />
 
         <div class="overflow-x-auto flex-1 overflow-y-auto" style="min-height: 0;">
@@ -124,6 +124,7 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import AddFacultyModal from './components/AddFacultyModal.vue';
 import EditFacultyModal from './components/EditFacultyModal.vue';
+import personnelService from '@/service/personnelService';
 
 export default {
   components: {
@@ -150,114 +151,91 @@ export default {
   },
   
   methods: {
-     async fetchSubjects() {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('http://127.0.0.1:8000/api/subject/getSubjects', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      this.subjects = Array.isArray(response.data) ? response.data : response.data.data || [];
-    } catch (error) {
-      console.error('Failed to fetch subjects:', error);
-      Swal.fire('Error', 'Could not load subjects.', 'error');
-    }
-  },
- async fetchEmployees() {
-  try {
-    const token = localStorage.getItem('token');
-    const response = await axios.get('http://127.0.0.1:8000/api/teacher/getAll', {
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    async fetchSubjects() {
+      try {
+        const data = await personnelService.getSubjects();
+        this.subjects = Array.isArray(data) ? data : data.data || [];
+      } catch (error) {
+        console.error('Failed to fetch subjects:', error);
+        Swal.fire('Error', 'Could not load subjects.', 'error');
+      }
+    },
 
-    const teacherList = Array.isArray(response.data.data)
-      ? response.data.data
-      : [];
-
-    this.employees = teacherList.map(item => {
-      const t = item.teacher;
-      return {
-        empNo: t.EmployeeNo,
-        name: `${t.FirstName} ${t.LastName}`,
-        qualification: t.Educational_Attainment || '',
-        access: t.Position,
-        email: t.Email,
-        original: {
-          ...t,
-          subjects: item.subjects || [],
-          advisory_classes: item.advisory_classes || [],
-          id: t.Teacher_ID
-        }
-      };
-    });
-  } catch (error) {
-    console.error('Failed to fetch employees:', error);
-    Swal.fire('Error', 'Could not load employee data.', 'error');
-  }
-},
+    async fetchEmployees() {
+      try {
+        const response = await personnelService.getAllTeachers();
+        const teacherList = Array.isArray(response.data) ? response.data : [];
+        this.employees = teacherList.map(item => {
+          const t = item.teacher;
+          return {
+            empNo: t.EmployeeNo,
+            name: `${t.FirstName} ${t.LastName}`,
+            qualification: t.Educational_Attainment || '',
+            access: t.Position,
+            email: t.Email,
+            original: {
+              ...t,
+              subjects: item.subjects || [],
+              advisory_classes: item.advisory_classes || [],
+              id: t.Teacher_ID,
+            },
+          };
+        });
+      } catch (error) {
+        console.error('Failed to fetch employees:', error);
+        Swal.fire('Error', 'Could not load employee data.', 'error');
+      }
+    },
 
   
-    handleFacultySubmit(name) {
-      console.log('Faculty submitted:', name);
+   handleFacultySubmit(data) {
+      console.log('Faculty submitted:', data);
     },
+
     async openEditModal(employee) {
       if (!this.subjects.length) {
         await this.fetchSubjects();
       }
-        this.editData = employee.original ? { ...employee.original } : { ...employee };
-        this.showEditModal = true;
-      },
+      this.editData = { ...employee.original };
+      this.showEditModal = true;
+    },
+
     handleFacultyEdit(updatedData) {
-      console.log('Faculty updated:', updatedData);
-      // Find by EmployeeNo, since updatedData does not have empNo
       const index = this.employees.findIndex(emp => emp.empNo === updatedData.EmployeeNo);
       if (index !== -1) {
-        // Update the mapped fields and original
         this.employees[index] = {
           ...this.employees[index],
           name: `${updatedData.FirstName} ${updatedData.LastName}`,
           qualification: updatedData.Educational_Attainment || '',
           access: updatedData.Position,
           email: updatedData.Email,
-          original: { ...updatedData, id: updatedData.id || updatedData.Teacher_ID }
+          original: { ...updatedData, id: updatedData.Teacher_ID },
         };
       }
-      this.showEditModal = false; // Close the modal
+      this.showEditModal = false;
     },
-    confirmDelete(employee) {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: `Delete employee ${employee.name}? This action cannot be undone.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Yes, delete it!',
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          const teacherId = employee.original?.id || employee.original?.Teacher_ID || employee.original?.id;
-          const token = localStorage.getItem('token');
-          await axios.delete(`http://127.0.0.1:8000/api/teachers/delete/${teacherId}`, {
-            headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          this.employees = this.employees.filter(emp => emp.empNo !== employee.empNo);
-          Swal.fire('Deleted!', 'Employee has been deleted.', 'success');
-        } catch (error) {
-          Swal.fire('Error', 'Failed to delete employee.', 'error');
+   async confirmDelete(employee) {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: `Delete employee ${employee.name}? This action cannot be undone.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!',
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          try {
+            const teacherId = employee.original?.id || employee.original?.Teacher_ID;
+            await personnelService.deleteTeacher(teacherId);
+            this.employees = this.employees.filter(emp => emp.empNo !== employee.empNo);
+            Swal.fire('Deleted!', 'Employee has been deleted.', 'success');
+          } catch (error) {
+            Swal.fire('Error', 'Failed to delete employee.', 'error');
+          }
         }
-      }
-    });
-  },
+      });
+    },
   },
   computed: {
     totalPages() {
