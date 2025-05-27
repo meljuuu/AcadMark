@@ -204,7 +204,7 @@ const quarterMapping = {
 const loadGrade = () => {
   if (selectedStudent.value) {
     const gradeKey = quarterMapping[selectedQuarter.value];
-    // Check localStorage first
+    // Always check localStorage first
     const localStorageKey = `grade_${selectedStudent.value.student_id}_${props.subject_id}_${gradeKey}`;
     const storedGrade = localStorage.getItem(localStorageKey);
     
@@ -349,11 +349,9 @@ watch(currentIndex, () => {
 
 async function loadSubjectData() {
   try {
-    // Extract class_id from the URL (assuming it's available in props or route params)
     const classId = props.class_id || route.params.class_id;
     console.log('Loading subject data for subject_id:', props.subject_id, 'and class_id:', classId);
 
-    // Fetch students and their grades from the backend using class_id
     const response = await classService.getClassStudents(classId);
     console.log('Raw API response:', response);
 
@@ -375,7 +373,7 @@ async function loadSubjectData() {
           const localStorageKey = `grade_${student.student_id}_${props.subject_id}_${gradeKey}`;
           const storedGrade = localStorage.getItem(localStorageKey);
           
-          // Only update if there's a stored grade
+          // Always use localStorage grade if available, otherwise use API grade
           if (storedGrade) {
             grades[gradeKey] = storedGrade;
           }
@@ -390,8 +388,6 @@ async function loadSubjectData() {
         console.log('Processed student:', processedStudent);
         return processedStudent;
       });
-
-      console.log('Final students array:', studentsInSubject.value);
 
       if (studentsInSubject.value.length > 0) {
         currentIndex.value = 0;
@@ -535,17 +531,17 @@ function handleStudentClick(student) {
   isEditMode.value = false; // This will enable the input since we inverted the disabled logic
 }
 
-// Add this computed property to check if a student has a grade
+// Modify the hasGrade computed property to prioritize localStorage
 const hasGrade = computed(() => {
   return (student) => {
     const gradeKey = quarterMapping[selectedQuarter.value];
-    // Check both localStorage and the grades object
+    // Always check localStorage first
     const localStorageKey = `grade_${student.student_id}_${props.subject_id}_${gradeKey}`;
     const storedGrade = localStorage.getItem(localStorageKey);
-    const studentGrade = student.grades[gradeKey];
     
-    // Return true if either localStorage or student.grades has a valid grade
-    return (storedGrade !== null && storedGrade !== '') || (studentGrade !== null && studentGrade !== '');
+    // Return true if there's a valid grade in localStorage or student.grades
+    return (storedGrade !== null && storedGrade !== '') || 
+           (student.grades[gradeKey] !== null && student.grades[gradeKey] !== '');
   };
 });
 
