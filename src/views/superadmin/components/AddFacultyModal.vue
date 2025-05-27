@@ -421,7 +421,7 @@ onMounted(async () => {
       },
     });
     if (response.data.status === 'success') {
-      subjects.value = response.data.data;  // Use directly as API matches keys
+      subjects.value = response.data.data;
     }
   } catch (error) {
     console.error('Failed to fetch subjects:', error);
