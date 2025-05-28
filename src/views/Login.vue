@@ -18,10 +18,12 @@
 
           <div class="input-group">
             <div class="password-field">
-              <input :type="showPassword ? 'text' : 'password'" v-model="password" placeholder="Enter Password" required />
+              <input :type="showPassword ? 'text' : 'password'" v-model="password" placeholder="Enter Password"
+                required />
               <label>Password</label>
               <span @click="togglePassword" class="toggle-password">
-                <img :src="showPassword ? '/assets/img/login/iconoir_eye.png' : '/assets/img/login/iconoir_closed.png'" alt="Toggle Password Visibility" class="eye-icon" />
+                <img :src="showPassword ? '/assets/img/login/iconoir_eye.png' : '/assets/img/login/iconoir_closed.png'"
+                  alt="Toggle Password Visibility" class="eye-icon" />
               </span>
             </div>
           </div>
@@ -98,7 +100,9 @@ const login = async () => {
   try {
     const { user, token } = await loginTeacher(email.value, password.value);
 
-    // Determine roles based on Position from API
+    // ✅ LOG SUCCESSFUL FETCH
+    console.log('✅ Connected to database. Fetched teacher:', user);
+
     const position = user.Position?.toLowerCase() || '';
     const isSuperAdmin = position === 'superadmin';
     const isAdmin = position === 'admin';
@@ -140,8 +144,11 @@ const login = async () => {
   } catch (error) {
     errorMessage.value = error || 'Invalid email or password.';
     toast.error(errorMessage.value);
+    // ❌ LOG FAILURE
+    console.error('❌ Failed to connect to database or fetch teacher:', error);
   }
 };
+
 </script>
 
 
